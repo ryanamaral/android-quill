@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:enabled="true" android:visible="true" android:menuCategory="container" android:checkableBehavior="none" android:id="@+id/actionbar"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:menuCategory="alternative" android:visible="true" android:enabled="true" android:showAsAction="always" android:checked="true" android:checkable="true" android:icon="@drawable/ic_menu_quill"></item>
+    <item android:id="@+id/pencil" android:title="Pencil" android:menuCategory="container" android:checked="false" android:visible="true" android:checkable="true" android:enabled="true" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item>
+    <item android:id="@+id/move" android:title="Move" android:checked="false" android:menuCategory="container" android:visible="true" android:checkable="true" android:showAsAction="always" android:enabled="true" android:icon="@drawable/ic_menu_resize"></item>
+    <item android:showAsAction="always" android:menuCategory="container" android:enabled="true" android:checked="false" android:visible="true" android:title="Erase" android:checkable="true" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
+    <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="always|withText" android:title="Previous page"></item>
+    <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="always|withText" android:title="Next page"></item>
+    
+    
+</group><item android:showAsAction="ifRoom|withText" android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item><item android:showAsAction="ifRoom|withText" android:titleCondensed="Width" android:id="@+id/width" android:title="Thickness"></item>
+    
+    
+    <item android:checked="false" android:enabled="true" android:title="Read only" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
+    
+    <group android:enabled="true" android:visible="true" android:menuCategory="secondary" android:id="@+id/page_group"><item android:id="@+id/page" android:menuCategory="secondary" android:title="Page...">
+        <menu>
+            <item android:id="@+id/page_delete" android:title="Delete"></item>
+            <item android:title="Clear" android:id="@+id/page_clear"></item>
+            <item android:id="@+id/page_aspect" android:title="Aspect ratio"></item>
+            <item android:id="@+id/page_insert" android:title="Insert"></item>
+            <item android:id="@+id/page_next" android:title="Next"></item>
+            <item android:id="@+id/page_prev" android:title="Previous"></item>
+            <item android:id="@+id/page_last" android:title="Last"></item>
+        </menu>
+    </item>
+</group><item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="Settings... [TODO]"></item>
+    
+    
+    
+    
+    
+    
+    
+    
+</menu>
