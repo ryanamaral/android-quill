@@ -1,6 +1,9 @@
 === Notes ===
 
 
+= AmbilWarna =
+
+Uses the AmbilWarna color selector dialog.
 
 = Icons =
 

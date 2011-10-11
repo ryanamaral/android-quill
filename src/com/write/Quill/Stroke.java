@@ -1,4 +1,4 @@
-package com.android.QuillWriter;
+package com.write.Quill;
 
 import java.util.Arrays;
 import java.io.DataInputStream;

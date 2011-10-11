@@ -1,10 +1,10 @@
-package com.android.QuillWriter;
+package com.write.Quill;
 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.android.QuillWriter.Stroke.PenType;
+import com.write.Quill.Stroke.PenType;
 
 import android.content.Context;
 import android.content.res.Configuration;

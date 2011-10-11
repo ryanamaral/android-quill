@@ -1,4 +1,4 @@
-package com.android.QuillWriter;
+package com.write.Quill;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

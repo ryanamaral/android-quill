@@ -1,4 +1,6 @@
-package com.android.QuillWriter;
+package com.write.Quill;
+
+import com.write.Quill.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

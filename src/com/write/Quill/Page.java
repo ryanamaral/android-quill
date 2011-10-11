@@ -1,4 +1,4 @@
-package com.android.QuillWriter;
+package com.write.Quill;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,7 +8,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.android.QuillWriter.Stroke.PenType;
+import com.write.Quill.Stroke.PenType;
 
 import android.content.Context;
 import android.graphics.Canvas;
