@@ -1,15 +1,5 @@
 package com.android.QuillWriter;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ListIterator;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,6 +8,7 @@ import android.util.Log;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -26,11 +17,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.MenuInflater;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 import yuku.ambilwarna.AmbilWarnaDialog;
@@ -48,6 +39,7 @@ public class QuillWriterActivity extends Activity {
     HandwriterView mView;
     Menu mMenu;
     Toast mToast;
+    Intent mPreferencesIntent;
     
     @Override
 	public Object onRetainNonConfigurationInstance() {
@@ -75,16 +67,7 @@ public class QuillWriterActivity extends Activity {
         }
         assert (book != null) : "Book object not initialized.";
     	mView.set_page_and_zoom_out(book.current_page());
-        
-        // Restore preferences
-        SharedPreferences settings = getSharedPreferences(FILENAME_PREFERENCES, 0);
-    	mView.set_pen_color(settings.getInt("pen_color", mView.pen_color));
-    	mView.set_pen_thickness(settings.getInt("pen_thickness", mView.pen_thickness));
-    	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
-    	mView.set_pen_type(Stroke.PenType.values()[type]);
-    	mView.only_pen_input = settings.getBoolean("only_pen_input", false);
-    	mView.requestFocus();
-   }
+           }
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -156,6 +139,7 @@ public class QuillWriterActivity extends Activity {
         			mView.set_pen_color(color);
         		}
         	});
+        dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         return dlg.getDialog();
     }
     
@@ -170,6 +154,11 @@ public class QuillWriterActivity extends Activity {
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
+    	case R.id.settings:
+    		if (mPreferencesIntent == null)
+    			mPreferencesIntent = new Intent(this, Preferences.class);
+    		startActivity(mPreferencesIntent);
+    		return true;
     	case R.id.fountainpen:
     		mView.set_pen_type(Stroke.PenType.FOUNTAINPEN);
     		item.setEnabled(true);
@@ -262,23 +251,32 @@ public class QuillWriterActivity extends Activity {
     
     @Override protected void onResume() {
         super.onResume();
+        // Restore preferences
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+    	mView.set_pen_color(settings.getInt("pen_color", mView.pen_color));
+    	mView.set_pen_thickness(settings.getInt("pen_thickness", mView.pen_thickness));
+    	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
+    	mView.set_pen_type(Stroke.PenType.values()[type]);
+    	mView.only_pen_input = settings.getBoolean("only_pen_input", false);
+    	Log.d(TAG, "only_pen_input: "+mView.only_pen_input);
+    	mView.requestFocus();
     }
     
     @Override protected void onPause() {
         super.onPause();
         book.save(getApplicationContext());
-    }
-    
-    @Override
-    protected void onStop(){
-    	super.onStop();
-        SharedPreferences settings= getSharedPreferences(FILENAME_PREFERENCES, 0);
+        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.pen_type.ordinal());
         editor.putInt("pen_color", mView.pen_color);
         editor.putInt("pen_thickness", mView.pen_thickness);
         editor.putBoolean("only_pen_input", mView.only_pen_input);
         editor.commit();
+    }
+    
+    @Override
+    protected void onStop(){
+    	super.onStop();
     }
     
     

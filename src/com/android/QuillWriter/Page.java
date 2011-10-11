@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import com.android.QuillWriter.Stroke.PenType;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -96,6 +97,17 @@ public class Page {
 	    while (siter.hasNext())
 	    	siter.next().set_transform(offset_x, offset_y, scale);
 	}
+
+	// set transform but clamp the offset such that the page stays visible
+	protected void set_transform(float dx, float dy, float s, Canvas canvas) {
+		float W = canvas.getWidth();
+		float H = canvas.getHeight();
+		dx = Math.min(dx, 2*W/3);
+		dx = Math.max(dx,   W/3 - s*aspect_ratio);
+		dy = Math.min(dy, 2*H/3);
+		dy = Math.max(dy,   H/3 - s);
+		set_transform(dx, dy, s);
+	}
 	
 	public void add_stroke(Stroke s) {
 		s.set_transform(offset_x, offset_y, scale);
@@ -109,13 +121,43 @@ public class Page {
 		canvas.save();
 		canvas.clipRect(bounding_box);
 		draw_paper(canvas, bounding_box);
-		while(siter.hasNext())
-	    {	
+		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
 		   	if (!canvas.quickReject(s.get_bounding_box(), Canvas.EdgeType.AA))
 		   		s.render(canvas);
 	    }
 		canvas.restore();
+	}
+	
+	public Stroke find_stroke_at(float x, float y, float radius) {
+	    ListIterator<Stroke> siter = strokes.listIterator();
+		while(siter.hasNext()) {	
+			Stroke s = siter.next();	    	
+			if (!s.get_bounding_box().contains(x,y)) continue;
+			if (s.distance(x,y) < radius)
+				return s;
+		}
+		return null;
+	}
+
+	public boolean erase_strokes_in(RectF r, Canvas canvas) {
+		mRectF.set(r);
+	    ListIterator<Stroke> siter = strokes.listIterator();
+	    boolean need_redraw = false;
+	    while(siter.hasNext()) {	
+			Stroke s = siter.next();	    	
+			if (!RectF.intersects(r, s.get_bounding_box())) continue;
+			if (s.intersects(r)) {
+				mRectF.union(s.get_bounding_box());
+				siter.remove();
+				need_redraw = true;
+			}
+		}
+	    if (need_redraw) {
+	    	draw(canvas, mRectF);
+			is_modified = true;
+	    }
+	    return need_redraw;
 	}
 	
 	public void draw(Canvas canvas) {

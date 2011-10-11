@@ -15,6 +15,9 @@ import android.graphics.Color;
 public class Stroke {
 	private static final String TAG = "Stroke";
 	
+	// line thickness in fraction of the larger dimension of the page
+	public static final float LINE_THICKNESS_SCALE = 1/800f;
+	
 	public enum PenType {
 		FOUNTAINPEN, PENCIL, MOVE, ERASER
 	}
@@ -36,6 +39,7 @@ public class Stroke {
 	
 	private final Paint mPen = new Paint();
 	private int pen_thickness = 0;
+	private float scaled_pen_thickness = 0;
 	private PenType pen_type = PenType.FOUNTAINPEN;
 	private int pen_color = Color.BLACK;
 	
@@ -56,6 +60,7 @@ public class Stroke {
 		assert new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL:
 			"Pen type is not actual pen.";
 		pen_thickness = new_pen_thickness;
+		scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
 		pen_type = new_pen_type;
 		pen_color = new_pen_color;
 		mPen.setStrokeWidth(pen_thickness);
@@ -79,7 +84,7 @@ public class Stroke {
 			y1 = Math.max(y1, y);
 		}
 		bBox = new RectF(x0, y0, x1, y1);
-		bBox.inset(-pen_thickness/2-1, -pen_thickness/2-1);		
+		bBox.inset(-scaled_pen_thickness/2-1, -scaled_pen_thickness/2-1);		
 		recompute_bounding_box = false;
 	}
 	
@@ -88,6 +93,7 @@ public class Stroke {
 		offset_y = dy;
 		scale = s;
 		recompute_bounding_box = true;
+		scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
 	}
 	
 	protected void apply_inverse_transform() {
@@ -101,8 +107,33 @@ public class Stroke {
 		recompute_bounding_box = true;
 	}
 	
+	public float distance(float x_screen, float y_screen) {
+		float x = (x_screen-offset_x) / scale;
+		float y = (y_screen-offset_y) / scale;
+		float d = Math.abs(x - position_x[0]) + Math.abs(y - position_y[0]);
+		for (int i=1; i<N; i++) {
+			float d_new = Math.abs(x - position_x[i]) + Math.abs(y - position_y[i]);
+			d = Math.min(d, d_new);
+		}
+		return d * scale;
+	}
+	
+	public boolean intersects(RectF r_screen) {
+		// Log.v(TAG, ""+r_screen.left+" "+r_screen.bottom+" "+r_screen.right+" "+r_screen.top);
+		RectF r = new RectF((r_screen.left -offset_x)/scale, (r_screen.top   -offset_y)/scale, 
+					        (r_screen.right-offset_x)/scale, (r_screen.bottom-offset_y)/scale);
+		// Log.v(TAG, ""+r.left+" "+r.bottom+" "+r.right+" "+r.top);
+		for (int i=0; i<N; i++)
+			if (r.contains(position_x[i], position_y[i]))
+				return true;
+		return false;
+	}
+	
 	public void render(Canvas c) {
-		if (recompute_bounding_box) compute_bounding_box();
+		if (recompute_bounding_box) compute_bounding_box();	
+		final float scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
+		if (pen_type == PenType.PENCIL)
+			mPen.setStrokeWidth(scaled_pen_thickness);
 		float x0, x1, y0, y1, p0, p1=0;
 		//c.drawRect(left, top, right, bottom, paint)
 		x0 = position_x[0] * scale + offset_x;
@@ -113,27 +144,11 @@ public class Stroke {
 			y1 = position_y[i] * scale + offset_y;
 			if (pen_type == PenType.FOUNTAINPEN) {
 				p1 = pressure[i];
-				mPen.setStrokeWidth((p0+p1)/2 * pen_thickness);
+				mPen.setStrokeWidth((p0+p1)/2 * scaled_pen_thickness);
 			}
 			c.drawLine(x0, y0, x1, y1, mPen);
 			x0 = x1;  y0 = y1;  p0 = p1;
 		}
-
-//		mPath = new Path();
-//		mPath.incReserve(N);
-//		mPath.moveTo(position_x[0], position_y[0]);
-//		for (int i=1; i<N; i++)
-//			mPath.lineTo(position_x[i], position_y[i]);
-//		// mPath.close();
-//
-//		RectF bBoxF = new RectF();
-//		mPath.computeBounds(bBoxF, false);
-//		bBox = new Rect((int)bBoxF.left, (int)bBoxF.bottom, (int)bBoxF.right, (int)bBoxF.top);
-//		bBox.sort();
-//		bBox.inset(-1,-1);
-//		Log.v(TAG, mPath.toString());
-//		mPath.close();
-//		return mPath;
 	}
 
 	public void write_to_stream(DataOutputStream out) throws IOException {
@@ -149,7 +164,6 @@ public class Stroke {
 		}
 	}
 	
-//	public void read_from_stream(DataInputStream in) throws IOException {
 	public Stroke(DataInputStream in) throws IOException {
 	int version = in.readInt();
 		if (version != 1)
