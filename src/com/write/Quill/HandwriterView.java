@@ -34,6 +34,7 @@ public class HandwriterView extends View {
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;
+	private float oldPressure, newPressure; 
 	private float oldX, oldY, newX, newY;  // main pointer
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
@@ -64,7 +65,6 @@ public class HandwriterView extends View {
 	
 	public void set_pen_thickness(int thickness) {
 		pen_thickness = thickness;
-		pen.setStrokeWidth(pen_thickness);
 	}
 	
 	public void set_page_paper_type(Page.PaperType paper_type) {
@@ -84,7 +84,6 @@ public class HandwriterView extends View {
 		setFocusable(true);
 		pen = new Paint();
 		pen.setAntiAlias(true);
-		pen.setStrokeWidth(pen_thickness);
 		pen.setARGB(0xff, 0, 0, 0);	
 		pen.setStrokeCap(Paint.Cap.ROUND);
 	}
@@ -164,6 +163,10 @@ public class HandwriterView extends View {
 			return 1;
 		}
 		return scale;
+	}
+	
+	public float get_scaled_pen_thickness() {
+		return Stroke.get_scaled_pen_thickness(page.scale, pen_thickness);
 	}
 	
 	@Override protected void onDraw(Canvas canvas) {
@@ -342,15 +345,17 @@ public class HandwriterView extends View {
 			// Log.v(TAG, "ACTION_MOVE index="+pen+" pointerID="+penID);
 			oldX = newX;
 			oldY = newY;
+			oldPressure = newPressure;
 			newX = event.getX(penIdx);
 			newY = event.getY(penIdx);
+			newPressure = event.getPressure(penIdx);
 			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
 				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
 				oldX = newX; oldY = newY;
 				save_stroke();
 				position_x[0] = newX;
 				position_y[0] = newY;
-				pressure[0] = event.getPressure(penIdx);
+				pressure[0] = newPressure;
 				N = 1;
 			}
 			drawOutline();
@@ -364,7 +369,7 @@ public class HandwriterView extends View {
 			}
 			position_x[N+n] = newX;
 			position_y[N+n] = newY;
-			pressure[N+n] = event.getPressure(penIdx);
+			pressure[N+n] = newPressure;
 			N = N+n+1;
 			return true;
 		}		
@@ -379,10 +384,11 @@ public class HandwriterView extends View {
 			}
 			position_x[0] = newX = event.getX();
 			position_y[0] = newY = event.getY();
-			pressure[0] = event.getPressure();
+			pressure[0] = newPressure = event.getPressure();
 			newT = System.currentTimeMillis();
 			N = 1;
 			penID = event.getPointerId(0);
+			pen.setStrokeWidth(get_scaled_pen_thickness());
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_UP) {
@@ -425,17 +431,23 @@ public class HandwriterView extends View {
 			page.draw(canvas, s.get_bounding_box());
 		}
 		s.get_bounding_box().round(mRect);
-		mRect.inset(-pen_thickness/2-1, -pen_thickness/2-1);
+		int extra = -(int)(get_scaled_pen_thickness()/2) - 1;
+		mRect.inset(extra, extra);
 		invalidate(mRect);
 		N = 0;
 	}
 	
 	
 	private void drawOutline() {
+		if (pen_type==PenType.FOUNTAINPEN) {
+			float scaled_pen_thickness = get_scaled_pen_thickness() * (oldPressure+newPressure)/2f;
+			pen.setStrokeWidth(scaled_pen_thickness);
+		}
 		canvas.drawLine(oldX, oldY, newX, newY, pen);
 		mRect.set((int)oldX, (int)oldY, (int)newX, (int)newY);
 		mRect.sort();
-		mRect.inset(-pen_thickness/2-1, -pen_thickness/2-1);
+		int extra = -(int)(pen.getStrokeWidth()/2) - 1;
+		mRect.inset(extra, extra);
 		invalidate(mRect);
 	}
 }

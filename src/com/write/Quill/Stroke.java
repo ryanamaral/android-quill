@@ -39,7 +39,6 @@ public class Stroke {
 	
 	private final Paint mPen = new Paint();
 	private int pen_thickness = 0;
-	private float scaled_pen_thickness = 0;
 	private PenType pen_type = PenType.FOUNTAINPEN;
 	private int pen_color = Color.BLACK;
 	
@@ -60,15 +59,21 @@ public class Stroke {
 		assert new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL:
 			"Pen type is not actual pen.";
 		pen_thickness = new_pen_thickness;
-		scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
 		pen_type = new_pen_type;
 		pen_color = new_pen_color;
-		mPen.setStrokeWidth(pen_thickness);
 		mPen.setARGB(Color.alpha(pen_color), Color.red(pen_color), 
 					 Color.green(pen_color), Color.blue(pen_color));
 		mPen.setAntiAlias(true);
 		mPen.setStrokeCap(Paint.Cap.ROUND);
 		recompute_bounding_box = true;
+	}
+	
+	public static float get_scaled_pen_thickness(float scale, float pen_thickness) {
+		return pen_thickness * scale * LINE_THICKNESS_SCALE;
+	}
+	
+	public float get_scaled_pen_thickness() {
+		return get_scaled_pen_thickness(scale, pen_thickness);
 	}
 	
 	private void compute_bounding_box() {
@@ -84,7 +89,8 @@ public class Stroke {
 			y1 = Math.max(y1, y);
 		}
 		bBox = new RectF(x0, y0, x1, y1);
-		bBox.inset(-scaled_pen_thickness/2-1, -scaled_pen_thickness/2-1);		
+		float extra = -get_scaled_pen_thickness()/2-1;
+		bBox.inset(extra, extra);		
 		recompute_bounding_box = false;
 	}
 	
@@ -93,7 +99,6 @@ public class Stroke {
 		offset_y = dy;
 		scale = s;
 		recompute_bounding_box = true;
-		scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
 	}
 	
 	protected void apply_inverse_transform() {
@@ -131,7 +136,7 @@ public class Stroke {
 	
 	public void render(Canvas c) {
 		if (recompute_bounding_box) compute_bounding_box();	
-		final float scaled_pen_thickness = pen_thickness * scale * LINE_THICKNESS_SCALE;
+		final float scaled_pen_thickness = get_scaled_pen_thickness();
 		if (pen_type == PenType.PENCIL)
 			mPen.setStrokeWidth(scaled_pen_thickness);
 		float x0, x1, y0, y1, p0, p1=0;

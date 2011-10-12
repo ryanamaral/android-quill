@@ -41,7 +41,7 @@ public class Page {
 	};
 	
 	// persistent data
-	protected final LinkedList<Stroke> strokes = new LinkedList();
+	protected final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	protected boolean is_readonly = false;
 	protected float aspect_ratio = AspectRatios[0].aspect;
 	protected PaperType paper_type = PaperType.EMPTY;

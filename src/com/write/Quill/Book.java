@@ -20,7 +20,7 @@ public class Book {
 	// the book always has at least one page. 
 	// deleting the last page is only clearing it etc.
 	
-	protected final LinkedList<Page> pages = new LinkedList();
+	protected final LinkedList<Page> pages = new LinkedList<Page>();
 	protected int currentPage = 0;
 	
 	private void touch_all_subsequent_pages() {

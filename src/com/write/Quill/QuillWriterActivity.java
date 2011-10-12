@@ -85,8 +85,8 @@ public class QuillWriterActivity extends Activity {
     }
         
     private Dialog create_dialog_thickness() { 
-    	final CharSequence[] items = {"Single pixel", "Thin", "Medium", "Thick", "Giant"};
-    	final int[] actual_thickness = {0, 2, 3, 5, 20};
+    	final CharSequence[] items = {"Single pixel", "Ultra-fine", "Thin", "Medium", "Thick", "Giant"};
+    	final int[] actual_thickness = {0, 1, 2, 4, 8, 20};
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle("Pen thickness");
     	int pen_thickness_index = 0;
