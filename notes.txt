@@ -4,6 +4,7 @@
 = AmbilWarna =
 
 Uses the AmbilWarna color selector dialog.
+Apache License 2.0
 
 = Icons =
 

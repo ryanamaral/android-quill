@@ -37,9 +37,13 @@ public class Book {
 		return pages.get(currentPage);
 	}
 	
+	// deletes page but makes sure that there is at least one page
 	public Page delete_page() {		
+		Log.d(TAG, "delete_page() "+currentPage+"/"+pages.size());
 		if (pages.size() == 1) {
 			insert_page();
+			if (pages.size() == 1) // the current page is empty
+				return current_page();
 			previous_page();
 			pages.remove(currentPage);
 		} else {
@@ -68,6 +72,7 @@ public class Book {
 		return pages.get(currentPage);
 	}
 	
+	// inserts a page _if_ it makes sense
 	public Page insert_page() {
 		if (current_page().is_empty())
 			return current_page();
