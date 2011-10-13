@@ -161,18 +161,19 @@ public class PDFExporter extends PDFWriter {
 	
 	
 	private void outputToFile(File file, String pdfContent, String encoding) {
-        try {
-            file.createNewFile();
-            try {
-            	FileOutputStream pdfFile = new FileOutputStream(file);
-            	pdfFile.write(pdfContent.getBytes(encoding));
-                pdfFile.close();
-            } catch(FileNotFoundException e) {
-				Log.e(TAG, "Error saving PDF file: "+e.toString());
-            }
-        } catch(IOException e) {
-			Log.e(TAG, "Error creating PDF file "+e.toString());
+		FileOutputStream pdfFile = null;
+		try {
+			pdfFile = new FileOutputStream(file);
+			pdfFile.write(pdfContent.getBytes(encoding));
+		} catch (IOException e) {
+			Log.e(TAG, "Error saving PDF file: "+e.toString());
         }
+		if (pdfFile == null) return;
+        try {
+       		pdfFile.close();
+       	} catch (IOException e) {
+    		Log.e(TAG, "Error closing PDF file: "+e.toString());
+       	}
 	}
 
 	

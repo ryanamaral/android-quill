@@ -87,16 +87,26 @@ public class ExportDialog extends Dialog implements OnClickListener {
 
     protected void do_export() {
     	Log.v(TAG, "do_export()");
-
+    	if (pdf_exporter != null) return;
+    	
     	TextView text = (TextView)layout.findViewById(R.id.export_name);
 		filename = text.getText().toString();
 		file = new File(context.getExternalFilesDir(null), filename);
 		try {
 			fullFilename = file.getCanonicalPath();
 		} catch (IOException e) {
-			Log.e(TAG, "Path does note exist: "+e.toString());
+			Log.e(TAG, "Path does not exist: "+e.toString());
+        	Toast.makeText(context, "Path does not exist", Toast.LENGTH_LONG).show();
 			return;
 		}
+		try {
+			file.createNewFile();
+		} catch(IOException e) {
+			Log.e(TAG, "Error creating file "+e.toString());
+        	Toast.makeText(context, "Unable to create file "+fullFilename, Toast.LENGTH_LONG).show();
+        	return;
+        }
+
 
 		thread_lock_dialog();
         assert pdf_exporter == null : "Trying to run two export threads??";
@@ -123,14 +133,13 @@ public class ExportDialog extends Dialog implements OnClickListener {
       	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
     	int pos = spinner.getSelectedItemPosition();
     	switch (pos) {
-    	case 0: // SD card
+    	case 0: // Generic share using Android intents
     		do_share_generic();
     		return;
     	case 1: // Evernote
     		do_share_evernote();
     		return;
-    	case 2: // generic
-    		do_share_generic();
+    	case 2: // SD card
         	Toast.makeText(context, 
     				context.getString(R.string.export_saved_as)+" "+fullFilename, 
     				Toast.LENGTH_LONG).show();
