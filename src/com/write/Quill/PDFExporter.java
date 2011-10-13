@@ -1,0 +1,186 @@
+package com.write.Quill;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.ListIterator;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import crl.android.pdfwriter.*;
+
+public class PDFExporter extends PDFWriter {
+	private static final String TAG = "PDFExporter";
+
+	protected int height = PaperSize.A4_HEIGHT;
+	protected int width = PaperSize.A4_WIDTH;
+	protected int page_number_size = 14;
+	protected int page_number = 1;
+	private boolean first_page = true;
+	
+	private volatile float progress = 0;
+	private volatile boolean interrupt = false;
+	
+	public PDFExporter(int w, int h) {
+		super(w, h);
+		width = w;
+		height = h;
+	}
+	
+	public PDFExporter() {
+		super(PaperSize.A4_WIDTH, PaperSize.A4_HEIGHT);
+		width = PaperSize.A4_WIDTH;
+		height = PaperSize.A4_HEIGHT;
+	}
+	
+	public void add(Book book) {
+		ListIterator<Page> piter = book.pages.listIterator(); 
+		while (piter.hasNext()) {
+			if (interrupt) return;
+			add(piter.next());
+		}
+	}
+
+	public void add(Page page) {
+		if (!first_page)
+			newPage();
+		first_page = false;
+		ListIterator<Stroke> siter = page.strokes.listIterator();
+//		if (siter.hasNext())
+//		 	addStroke(siter.next());
+		float len = page.strokes.size();
+		while (siter.hasNext()) {
+			if (interrupt) return;
+			progress = siter.nextIndex()/len;
+			add(siter.next());
+		}
+		addPageNumber();
+	}
+
+	public void add(Stroke stroke) {
+        float red  = Color.red(stroke.pen_color)/(float)0xff;
+        float green = Color.green(stroke.pen_color)/(float)0xff;
+        float blue = Color.blue(stroke.pen_color)/(float)0xff;
+        addRawContent(""+red+" "+green+" "+blue+" RG\n"); // color
+		switch (stroke.pen_type) {
+		case FOUNTAINPEN:
+			addStrokeFountainpen(stroke);
+			return;
+		case PENCIL:
+			addStrokePencil(stroke);
+			return;
+		}
+		Log.e(TAG, "Unknown stroke type.");
+	}
+	
+	private void addStrokeFountainpen(Stroke stroke) {
+		float scale = height;
+		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
+        addRawContent("1 J\n");   // round cap
+        addRawContent("1 j\n");   // round join
+        float x0 = stroke.position_x[0] * scale;
+        float y0 = (1-stroke.position_y[0]) * scale;        
+        float p0 = stroke.pressure[0];
+        for (int i=1; i<stroke.N; i++) {
+			if (interrupt) return;
+        	float x1 = stroke.position_x[i] * scale;
+            float y1 = (1-stroke.position_y[i]) * scale;
+            float p1 = stroke.pressure[i];
+            addRawContent(""+(scaled_pen_thickness*(p0+p1)/2)+" w\n");
+            addRawContent(""+x0+" "+y0+" m\n");
+            addRawContent(""+x1+" "+y1+" l\n");
+            addRawContent("S\n");
+            x0 = x1;
+            y0 = y1;
+            p0 = p1;
+        }
+	}
+	
+	private void addStrokePencil(Stroke stroke) {
+		float scale = height;
+		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
+        addRawContent(""+scaled_pen_thickness+" w\n");  // line width
+        addRawContent("1 J\n");   // round cap
+        addRawContent("1 j\n");   // round join
+        float x = stroke.position_x[0] * scale;
+        float y = (1-stroke.position_y[0]) * scale;        
+        addRawContent(""+x+" "+y+" m\n");
+        for (int i=1; i<stroke.N; i++) {
+			if (interrupt) return;
+         	x = stroke.position_x[i] * scale;
+            y = (1-stroke.position_y[i]) * scale;
+            addRawContent(""+x+" "+y+" l\n");
+        }
+        addRawContent("S\n");
+	}
+
+	public void addPageNumber() {
+        setFont(StandardFonts.SUBTYPE, StandardFonts.COURIER_BOLD);
+        addRawContent("0 0 0 rg\n");
+        int margin = 20;
+        addText(width-page_number_size-margin, height-page_number_size-margin, 
+                page_number_size, ""+page_number);
+        page_number++;
+	}
+	
+	public String generateHelloWorldPDF() {
+		PDFWriter mPDFWriter = new PDFWriter(PaperSize.FOLIO_WIDTH, PaperSize.FOLIO_HEIGHT);
+        mPDFWriter.setFont(StandardFonts.SUBTYPE, StandardFonts.TIMES_ROMAN);
+        mPDFWriter.addRawContent("1 0 0 rg\n");
+        mPDFWriter.addText(70, 50, 12, "hello world");
+        mPDFWriter.setFont(StandardFonts.SUBTYPE, StandardFonts.COURIER, StandardFonts.WIN_ANSI_ENCODING);
+        mPDFWriter.addRawContent("0 0 0 rg\n");
+        mPDFWriter.addText(30, 90, 10, "� CRL", StandardFonts.DEGREES_270_ROTATION);
+        mPDFWriter.newPage();
+        mPDFWriter.addRawContent("[] 0 d\n");
+        mPDFWriter.addRawContent("1 w\n");
+        mPDFWriter.addRawContent("0 0 1 RG\n");
+        mPDFWriter.addRawContent("0 1 0 rg\n");
+        mPDFWriter.addRectangle(40, 50, 280, 50);
+        mPDFWriter.addText(85, 75, 18, "Code Research Laboratories");
+        mPDFWriter.newPage();
+        mPDFWriter.setFont(StandardFonts.SUBTYPE, StandardFonts.COURIER_BOLD);
+        mPDFWriter.addText(150, 150, 14, "http://coderesearchlabs.com");
+        mPDFWriter.addLine(150, 140, 270, 140);
+        String s = mPDFWriter.asString();
+        return s;
+	}
+	
+	public void export(File file) {
+		String out = asString();
+        outputToFile(file, out, "ISO-8859-1");	
+	}
+	
+	
+	private void outputToFile(File file, String pdfContent, String encoding) {
+        try {
+            file.createNewFile();
+            try {
+            	FileOutputStream pdfFile = new FileOutputStream(file);
+            	pdfFile.write(pdfContent.getBytes(encoding));
+                pdfFile.close();
+            } catch(FileNotFoundException e) {
+				Log.e(TAG, "Error saving PDF file: "+e.toString());
+            }
+        } catch(IOException e) {
+			Log.e(TAG, "Error creating PDF file "+e.toString());
+        }
+	}
+
+	
+	public int get_progress() {
+		return (int)(100*progress);
+	}
+	
+	public void interrupt() {
+		interrupt = true;
+	}	
+}

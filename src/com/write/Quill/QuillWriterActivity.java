@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
@@ -36,13 +37,14 @@ public class QuillWriterActivity extends Activity {
 	public static final int DIALOG_COLOR = 1;
 	public static final int DIALOG_THICKNESS = 2;
 	public static final int DIALOG_PAPER_ASPECT = 3;
+	public static final int DIALOG_EXPORT = 4;
 
-	Book book;
-    HandwriterView mView;
-    Menu mMenu;
-    Toast mToast;
-    Intent mPreferencesIntent;
-    
+	private Book book;
+    private HandwriterView mView;
+    private Menu mMenu;
+    private Toast mToast;
+    private Intent mPreferencesIntent;
+
     @Override
 	public Object onRetainNonConfigurationInstance() {
 	    return book;
@@ -80,10 +82,14 @@ public class QuillWriterActivity extends Activity {
     		return (Dialog)create_dialog_color();
     	case DIALOG_PAPER_ASPECT:
     		return (Dialog)create_dialog_paper_aspect();
+    	case DIALOG_EXPORT:
+        	ExportDialog.Builder builder = new ExportDialog.Builder(this);        	
+        	builder.setPage(mView.page);
+    		return (Dialog)builder.create();
     	}
     	return null;
     }
-        
+     
     private Dialog create_dialog_thickness() { 
     	final CharSequence[] items = {"Single pixel", "Ultra-fine", "Thin", "Medium", "Thick", "Giant"};
     	final int[] actual_thickness = {0, 1, 2, 4, 8, 20};
@@ -229,7 +235,10 @@ public class QuillWriterActivity extends Activity {
     		mView.set_page_and_zoom_out(book.delete_page());
     		menu_prepare_page_has_changed();
     		return true;
-    	default:
+    	case R.id.export:
+    		showDialog(DIALOG_EXPORT);
+    		return true;
+   	default:
     		return super.onOptionsItemSelected(item);
     	}
     }

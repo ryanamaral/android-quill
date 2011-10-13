@@ -22,15 +22,11 @@ public class Stroke {
 		FOUNTAINPEN, PENCIL, MOVE, ERASER
 	}
 	
-	public final int N;
-	public final float[] position_x;
-	public final float[] position_y;
-	public final float[] pressure;
-	protected float x_min = 0f;
-	protected float x_max = 0f;
-	protected float y_min = 0f;
-	protected float y_max = 0f;
-	protected RectF bBox;
+	protected final int N;
+	protected final float[] position_x;
+	protected final float[] position_y;
+	protected final float[] pressure;
+	private RectF bBox;
 	private boolean recompute_bounding_box = true;
 	
 	private float offset_x = 0f;
@@ -38,9 +34,9 @@ public class Stroke {
 	private float scale = 1.0f;
 	
 	private final Paint mPen = new Paint();
-	private int pen_thickness = 0;
-	private PenType pen_type = PenType.FOUNTAINPEN;
-	private int pen_color = Color.BLACK;
+	protected int pen_thickness = 0;
+	protected PenType pen_type = PenType.FOUNTAINPEN;
+	protected int pen_color = Color.BLACK;
 	
 	public Stroke(float[] x, float[] y, float[] p, int from, int to) {
 		N = to-from;
@@ -68,14 +64,21 @@ public class Stroke {
 		recompute_bounding_box = true;
 	}
 	
+	// static method that exports the pen scaling algorithm
 	public static float get_scaled_pen_thickness(float scale, float pen_thickness) {
 		return pen_thickness * scale * LINE_THICKNESS_SCALE;
 	}
 	
+	// this computes the argument to Paint.setStrokeWidth()
 	public float get_scaled_pen_thickness() {
 		return get_scaled_pen_thickness(scale, pen_thickness);
 	}
-	
+
+	// Get the scaled thickness for a different scale factor (i.e. printing)
+	public float get_scaled_pen_thickness(float scale) {
+		return get_scaled_pen_thickness(scale, pen_thickness);
+	}
+
 	private void compute_bounding_box() {
 		float x0, x1, y0, y1, x, y;
 		x0 = x1 = position_x[0] * scale + offset_x;

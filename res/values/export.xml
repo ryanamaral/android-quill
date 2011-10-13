@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_file_format_header">File format:</string>
+    <string name="export_button_text">Export</string>
+    <string name="export_cancel_text">Cancel</string>
+    <string name="export_via_header">Share file via:</string>
+    <string-array name="export_via">
+        <item>Share via Android</item>
+        <item>Evernote</item>
+        <item>Save to external SD card</item>
+    </string-array>
+    <string-array name="export_file_format">
+        <item>Portable Document Format (PDF)</item>
+    </string-array>
+    <string name="export_title">Export current page as...</string>
+    <string name="export_name_header">Name:</string>
+    <string name="err_evernote_not_found">You must first install Evernote</string>
+    <string name="export_saved_as">Saved as</string>
+    <string name="err_no_way_to_share">No way to share</string>
+    <string name="export_share_title">Export page via</string>
+    
+</resources>
