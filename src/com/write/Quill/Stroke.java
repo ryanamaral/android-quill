@@ -16,7 +16,7 @@ public class Stroke {
 	private static final String TAG = "Stroke";
 	
 	// line thickness in fraction of the larger dimension of the page
-	public static final float LINE_THICKNESS_SCALE = 1/800f;
+	public static final float LINE_THICKNESS_SCALE = 1/1600f;
 	
 	public enum PenType {
 		FOUNTAINPEN, PENCIL, MOVE, ERASER
@@ -160,7 +160,7 @@ public class Stroke {
 	}
 
 	public void write_to_stream(DataOutputStream out) throws IOException {
-		out.writeInt(1);  // protocol #1
+		out.writeInt(2);  // protocol #1
 		out.writeInt(pen_color);
 		out.writeInt(pen_thickness);
 		out.writeInt(pen_type.ordinal());
@@ -173,8 +173,8 @@ public class Stroke {
 	}
 	
 	public Stroke(DataInputStream in) throws IOException {
-	int version = in.readInt();
-		if (version != 1)
+		int version = in.readInt();
+		if (version < 1  ||  version > 2)
 			throw new IOException("Unknown version!");
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
@@ -188,6 +188,10 @@ public class Stroke {
 			position_x[i] = in.readFloat();
 			position_y[i] = in.readFloat();
 			pressure[i] = in.readFloat();
+		}
+		if (version == 1) {
+			// I changed the thickness quantization for v2
+			pen_thickness *= 2;
 		}
 	}
 	

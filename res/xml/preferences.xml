@@ -1,10 +1,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
- 
- <PreferenceCategory android:title="Preferences"><CheckBoxPreference android:title="Stylus only" android:summary="Filter out finger touch events when writing." android:key="only_pen_input" android:defaultValue="true"/>
+ <PreferenceCategory android:title="Preferences">
+  <CheckBoxPreference android:title="Stylus only" android:summary="Filter out finger touch events when writing." android:key="only_pen_input" android:defaultValue="true"/>
  
  
  </PreferenceCategory><PreferenceCategory>
-     <Preference android:key="import_backup" android:title="Import Backup" android:summary='Overwrite your notes with a backup (Use "Export" to make backups)'></Preference>
+     <Preference android:summary='Overwrite your notes with a backup (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
  </PreferenceCategory>
  
 </PreferenceScreen>

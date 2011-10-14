@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,16 +27,18 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 
 
-public class ExportDialog 
-	extends Dialog 
+public class ExportActivity 
+	extends Activity 
 	implements OnClickListener, OnItemSelectedListener {
 
-	private static final String TAG = "ExportDialog";
-
-    private Context context;
+	private static final String TAG = "ExportActivity";
+	
+	// Tag for the Intent extra data carrying the book
+	protected static final String INTENT_EXTRA_BOOK = "Quill_Book"; 
+	
 	private View layout;
-	private Page page;
 	private Book book;
+	private Page page;
 	private Handler handler = new Handler();
 	private ProgressBar progressBar;
 	private String filename;
@@ -44,62 +47,41 @@ public class ExportDialog
 	private Thread exportThread;
 	private String fullFilename;
 	private File file;
+	private Spinner sizes;
 	private ArrayAdapter<CharSequence> exportSizes;
 	
-	public ExportDialog(Context context, int theme) {
-        super(context, theme);
-    }
- 
-    public ExportDialog(Context context) {
-        super(context);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        book = QuillWriterActivity.getBook();
+        page = book.current_page();
+        
+    	LayoutInflater inflater = getLayoutInflater();
+    	
+    	layout = inflater.inflate(R.layout.export, null);
+    	exportButton = (Button)layout.findViewById(R.id.export_button);
+    	exportButton.setOnClickListener(this);
+    	Button cancel = (Button)layout.findViewById(R.id.export_cancel);
+    	cancel.setOnClickListener(this);
 
-    public static class Builder {
-        private Context context;
-        private Book book;
-        Builder(Context c) {
-        	context = c;
-        }
-        public Builder setBook(Book bk) {
-        	book = bk;
-        	return this;
-        }
-        public ExportDialog create() {
-        	ExportDialog dlg = new ExportDialog(context);
-        	dlg.setTitle(R.string.export_title);
-        	LayoutInflater inflater = (LayoutInflater) 
-        		context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        	View layout = inflater.inflate(R.layout.export, null);
-        	Button ok = (Button)layout.findViewById(R.id.export_button);
-        	ok.setOnClickListener(dlg);
-        	Button cancel = (Button)layout.findViewById(R.id.export_cancel);
-        	cancel.setOnClickListener(dlg);
+		LinkedList<String> sizes_values = new LinkedList<String>();
+    	exportSizes = new ArrayAdapter(this,
+    			android.R.layout.simple_spinner_item, sizes_values);
+		String [] strings = getResources().getStringArray(R.array.export_size_vector);
+		exportSizes.addAll(strings);
+    	exportSizes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    	sizes = (Spinner)layout.findViewById(R.id.export_size);
+    	sizes.setAdapter(exportSizes);
 
-			LinkedList<String> sizes_values = new LinkedList<String>();
-        	dlg.exportSizes = new ArrayAdapter(context,
-        			android.R.layout.simple_spinner_item, sizes_values);
- 			String [] strings = context.getResources().getStringArray(R.array.export_size_vector);
- 			dlg.exportSizes.addAll(strings);
-        	dlg.exportSizes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
-        	sizes.setAdapter(dlg.exportSizes);
+    	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
+    	format.setOnItemSelectedListener(this);
 
-        	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
-        	format.setOnItemSelectedListener(dlg);
-        	
-        	dlg.setContentView(layout);
-        	dlg.layout = layout;
-        	assert book != null : "You must call Builder.setBook()";
-        	dlg.page = book.current_page();
-        	dlg.book = book;
-        	dlg.context = context;
-        	dlg.progressBar = (ProgressBar)layout.findViewById(R.id.export_progress);
-        	dlg.exportButton = ok;
-        	return dlg;
-       }
-    } // Builder
+    	progressBar = (ProgressBar)layout.findViewById(R.id.export_progress);
+    	setContentView(layout);
+	}
+	
     
-    // Somebody clicked on Cancel, Export, Output format
+    // Somebody clicked on Cancel, Export
 	@Override
     public void onClick(View v) {
       	switch (v.getId()) {
@@ -109,37 +91,40 @@ public class ExportDialog
     	case R.id.export_cancel:
     		doCancel();
     		return;
-    	case R.id.export_file_format:
-    		changeExportFileFormat((Spinner)v);
-    		return;
     	}
     }
 
+	void changeFileExtensionTo(String ext) {
+		
+	}
+	
 	@Override
 	public void onItemSelected(AdapterView<?> spinner, View view, int position,
 			long id) {
-      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
       	Log.v(TAG, "Format "+position);
       	String[] strings;
       	switch (position) {
-		case 0:  // PDF format
+		case OUTPUT_FORMAT_PDF:  // PDF format
 			sizes.setEnabled(true);
-			strings = context.getResources().getStringArray(R.array.export_size_vector);
+			strings = getResources().getStringArray(R.array.export_size_vector);
 			exportSizes.clear();
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
+        	changeFileExtensionTo(".pdf");
 			return;
-		case 1:  // Raster image format
+		case OUTPUT_FORMAT_PNG:  // Raster image format
 			sizes.setEnabled(true);
-			strings = context.getResources().getStringArray(R.array.export_size_raster);
+			strings = getResources().getStringArray(R.array.export_size_raster);
 			exportSizes.clear();
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
+        	changeFileExtensionTo(".png");
 			return;
-		case 2:  // Quill backup archive
+		case OUTPUT_FORMAT_BACKUP:  // Quill backup archive
 			sizes.setEnabled(false);
 			exportSizes.clear();
         	exportSizes.notifyDataSetChanged();
+        	changeFileExtensionTo(".quill");
 			return;
 		}		
 	}
@@ -161,11 +146,11 @@ public class ExportDialog
 		switch (format.getSelectedItemPosition()) {
 		case OUTPUT_FORMAT_PDF:
 			sizes.setEnabled(true);
-			sizes.setAdapter(new ArrayAdapter<String>(context, R.array.export_size_vector));
+			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_vector));
 			return;
 		case OUTPUT_FORMAT_PNG:
 			sizes.setEnabled(true);
-			sizes.setAdapter(new ArrayAdapter<String>(context, R.array.export_size_raster));
+			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_raster));
 			return;
 		case OUTPUT_FORMAT_BACKUP:
 			sizes.setEnabled(false);
@@ -174,27 +159,9 @@ public class ExportDialog
 	}
 
     protected void doExport() {
-    	Log.v(TAG, "do_export()");
+    	Log.v(TAG, "doExport()");
     	if (pdfExporter != null) return;
-    	
-    	TextView text = (TextView)layout.findViewById(R.id.export_name);
-		filename = text.getText().toString();
-		file = new File(context.getExternalFilesDir(null), filename);
-		try {
-			fullFilename = file.getCanonicalPath();
-		} catch (IOException e) {
-			Log.e(TAG, "Path does not exist: "+e.toString());
-        	Toast.makeText(context, "Path does not exist", Toast.LENGTH_LONG).show();
-			return;
-		}
-		try {
-			file.createNewFile();
-		} catch(IOException e) {
-			Log.e(TAG, "Error creating file "+e.toString());
-        	Toast.makeText(context, "Unable to create file "+fullFilename, Toast.LENGTH_LONG).show();
-        	return;
-        }
-		
+    	if (!openShareFile()) return;
     	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
     	switch (format.getSelectedItemPosition()) {
 		case OUTPUT_FORMAT_PDF:
@@ -214,17 +181,19 @@ public class ExportDialog
     		book.saveArchive(file);
     	} catch (IOException e) {
 			Log.e(TAG, "Error writing file "+e.toString());
-        	Toast.makeText(context, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();   		
+        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();   		
     	}
+    	doShare();
     }
 
     
     private void doExportPng() {
     	// TODO
+    	doShare();
     }
     
     private void doExportPdf() {
-		threadLockDialog();
+		threadLockActivity();
         assert pdfExporter == null : "Trying to run two export threads??";
     	pdfExporter = new PDFExporter();
         exportThread = new Thread(new Runnable() {
@@ -239,28 +208,78 @@ public class ExportDialog
     
     protected void doCancel() {
     	if (pdfExporter == null) {
-    		dismiss();
-    		threadUnlockDialog();
+    		finish();
+    		threadUnlockActivity();
     	} else
     		pdfExporter.interrupt();
 	}
+    
+    private static final int SHARE_GENERIC = 0;
+    private static final int SHARE_EVERNOTE = 1;
+    private static final int SHARE_EXTERNAL = 2;
+    private static final int SHARE_INTERNAL = 3;
+    private static final int SHARE_USB = 4;
+
     
     private void doShare() {
       	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
     	int pos = spinner.getSelectedItemPosition();
     	switch (pos) {
-    	case 0: // Generic share using Android intents
+    	case SHARE_GENERIC:
     		doShareGeneric();
     		return;
-    	case 1: // Evernote
+    	case SHARE_EVERNOTE:
     		doShareEvernote();
     		return;
-    	case 2: // SD card
-        	Toast.makeText(context, 
-    				context.getString(R.string.export_saved_as)+" "+fullFilename, 
+    	case SHARE_EXTERNAL:
+    	case SHARE_INTERNAL:
+    	case SHARE_USB:
+        	Toast.makeText(this, getString(R.string.export_saved_as)+" "+fullFilename, 
     				Toast.LENGTH_LONG).show();
+        	finish();
 		return;
     	}
+    }
+    
+    private boolean openShareFile() {
+      	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
+    	int pos = spinner.getSelectedItemPosition();
+    	TextView text = (TextView)layout.findViewById(R.id.export_name);
+		filename = text.getText().toString();
+		if (filename.startsWith("/"))
+    		file = new File(filename);
+		else
+			switch (pos) {
+			case SHARE_GENERIC:
+			case SHARE_EVERNOTE:
+				file = new File(getExternalFilesDir(null), filename);
+				break;
+			case SHARE_INTERNAL:
+				// file = new File(getExternalFilesDir(null), filename);
+				file = new File("/mnt/sdcard", filename);
+				break;
+			case SHARE_EXTERNAL:
+				file = new File("/mnt/external_sd", filename);
+				break;
+			case SHARE_USB:
+				file = new File("/mnt/usbdrive", filename);
+				break;
+			}
+		try {
+			fullFilename = file.getCanonicalPath();
+		} catch (IOException e) {
+			Log.e(TAG, "Path does not exist: "+e.toString());
+        	Toast.makeText(this, "Path does not exist", Toast.LENGTH_LONG).show();
+			return false;
+		}
+		try {
+			file.createNewFile();
+		} catch(IOException e) {
+			Log.e(TAG, "Error creating file "+e.toString());
+        	Toast.makeText(this, "Unable to create file "+fullFilename, Toast.LENGTH_LONG).show();
+        	return false;
+        }
+		return true;
     }
     
     private void doShareGeneric() {
@@ -269,12 +288,11 @@ public class ExportDialog
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
         try {
-            context.startActivity(Intent.createChooser(intent, 
-            		context.getString(R.string.export_share_title)));
+            startActivity(Intent.createChooser(intent, 
+            		getString(R.string.export_share_title)));
+            finish();
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(context, 
-            		context.getString(R.string.err_no_way_to_share),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.err_no_way_to_share), Toast.LENGTH_LONG).show();
         }
     	
     }
@@ -319,19 +337,19 @@ public class ExportDialog
         uriList.add(Uri.fromFile(file));
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM , uriList);
         try {
-        	context.startActivity(intent);
+        	startActivity(intent);
+        	finish();
         } catch (android.content.ActivityNotFoundException ex) {
-        	Toast.makeText(context, R.string.err_evernote_not_found, Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, getString(R.string.err_evernote_not_found), Toast.LENGTH_LONG).show();
         } 
-
     }
-    
-    private void threadLockDialog() {
+            
+    private void threadLockActivity() {
     	exportButton.setPressed(true);
         handler.post(mUpdateProgress);
     }
     
-    private void threadUnlockDialog() {
+    private void threadUnlockActivity() {
     	progressBar.setProgress(0);
     	handler.removeCallbacks(mUpdateProgress);
     	exportButton.setPressed(false);
@@ -342,9 +360,8 @@ public class ExportDialog
     	   public void run() {
     		   PDFExporter exporter = pdfExporter;
     		   if (exporter == null) {
-    			   threadUnlockDialog();
+    			   threadUnlockActivity();
     			   doShare();
-    			   dismiss();
        		   return;
     		   }
     		   exportButton.setPressed(true);

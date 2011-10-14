@@ -1,6 +1,10 @@
 package com.write.Quill;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.write.Quill.R;
+import com.write.Quill.Page.PaperType;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,20 +41,26 @@ public class QuillWriterActivity extends Activity {
 	public static final int DIALOG_COLOR = 1;
 	public static final int DIALOG_THICKNESS = 2;
 	public static final int DIALOG_PAPER_ASPECT = 3;
-	public static final int DIALOG_EXPORT = 4;
+	public static final int DIALOG_PAPER_TYPE = 4;
 
-	private Book book;
+	private static Book book;
     private HandwriterView mView;
     private Menu mMenu;
     private Toast mToast;
-    private Intent mPreferencesIntent;
 
+    // Other activities can access the book though this static method 
+    public static Book getBook() {
+        assert (book != null) : "Book object not initialized.";
+    	return book;
+    }
+    
     @Override
 	public Object onRetainNonConfigurationInstance() {
 	    return book;
 	}
     
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    @Override 
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
@@ -70,8 +80,8 @@ public class QuillWriterActivity extends Activity {
         	book = new Book(getApplicationContext());
         }
         assert (book != null) : "Book object not initialized.";
-    	mView.set_page_and_zoom_out(book.current_page());
-           }
+    	mView.set_page_and_zoom_out(book.current_page());       
+    }
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -82,17 +92,15 @@ public class QuillWriterActivity extends Activity {
     		return (Dialog)create_dialog_color();
     	case DIALOG_PAPER_ASPECT:
     		return (Dialog)create_dialog_paper_aspect();
-    	case DIALOG_EXPORT:
-        	ExportDialog.Builder builder = new ExportDialog.Builder(this);        	
-        	builder.setBook(book);
-    		return (Dialog)builder.create();
+    	case DIALOG_PAPER_TYPE:
+    		return (Dialog)create_dialog_paper_type();
     	}
     	return null;
     }
-     
+    
     private Dialog create_dialog_thickness() { 
     	final CharSequence[] items = {"Single pixel", "Ultra-fine", "Thin", "Medium", "Thick", "Giant"};
-    	final int[] actual_thickness = {0, 1, 2, 4, 8, 20};
+    	final int[] actual_thickness = {0, 1, 2, 5, 12, 40};
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle("Pen thickness");
     	int pen_thickness_index = 0;
@@ -133,8 +141,33 @@ public class QuillWriterActivity extends Activity {
     	    		}
     			});
     	return builder.create();
-    }    	
+    }    
     
+    private Dialog create_dialog_paper_type() { 
+    	final CharSequence[] items = new CharSequence[Page.PaperTypes.length];
+    	final Page.PaperType[] values = new Page.PaperType[Page.PaperTypes.length];
+    	for (int i=0; i<Page.PaperTypes.length; i++) {
+    		items[i] = Page.PaperTypes[i].name;
+    		values[i] = Page.PaperTypes[i].type;
+    	}
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Paper type");
+    	int select_item = -1;
+    	for (int i=0; i<values.length; i++)
+    		if (values[i] == mView.page.paper_type)
+    			select_item = i;
+    	builder.setSingleChoiceItems(items, select_item, 
+    			new DialogInterface.OnClickListener() {
+    	    		public void onClick(DialogInterface dialog, int item) {
+    	    			if (item == -1) return;
+    	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
+    	    			mView.page.set_paper_type(Page.PaperType.values()[item]);
+    	    			dialog.dismiss();
+    	    		}
+    			});
+    	return builder.create();
+    }    	
+   
     private Dialog create_dialog_color() {
         AmbilWarnaDialog dlg = new AmbilWarnaDialog(QuillWriterActivity.this, mView.pen_color, 
         	new OnAmbilWarnaListener()
@@ -159,13 +192,29 @@ public class QuillWriterActivity extends Activity {
         menu_prepare_page_has_changed();
         return true;
     }
-
+    
+    private static final int ACTIVITY_PREFERENCES = 0;
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	Log.v(TAG, "onActivityResult "+requestCode+" "+resultCode);
+    	if (requestCode == ACTIVITY_PREFERENCES &&  resultCode == Preferences.RESULT_RESTORE_BACKUP) {
+    		String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
+    		try {
+    			book = Book.loadArchive(new File(filename));
+    		} catch (IOException e) {
+    			Log.e(TAG, "Error loading the backup file, sorry");
+    			return;
+    		}
+    		mView.set_page_and_zoom_out(book.current_page());
+    	}
+    }
+    
     @Override public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
     	case R.id.settings:
-    		if (mPreferencesIntent == null)
-    			mPreferencesIntent = new Intent(this, Preferences.class);
-    		startActivity(mPreferencesIntent);
+    		Intent mPreferencesIntent = new Intent(QuillWriterActivity.this, Preferences.class);
+    		startActivityForResult(mPreferencesIntent, ACTIVITY_PREFERENCES);
     		return true;
     	case R.id.fountainpen:
     		mView.set_pen_type(Stroke.PenType.FOUNTAINPEN);
@@ -236,7 +285,8 @@ public class QuillWriterActivity extends Activity {
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
-    		showDialog(DIALOG_EXPORT);
+    		Intent mExportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
+    		startActivity(mExportIntent);
     		return true;
    	default:
     		return super.onOptionsItemSelected(item);

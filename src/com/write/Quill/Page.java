@@ -25,19 +25,31 @@ public class Page {
 		EMPTY, LINES, SQUARE, HEX
 	}
 	
-	public static class AspectRatio {
-		AspectRatio(CharSequence n, float a) { name = n; aspect = a; }
+	public static class PaperTypeName {
+		PaperTypeName(CharSequence n, PaperType t) { name = n; type = t; }
+		protected CharSequence name;
+		protected PaperType type;
+	}
+	
+	public static final PaperTypeName[] PaperTypes = {
+		new PaperTypeName("Blank",  PaperType.EMPTY),
+		new PaperTypeName("Lines",  PaperType.LINES),
+		new PaperTypeName("Grid",  PaperType.SQUARE),
+	};
+	
+	public static class AspectRatioName {
+		AspectRatioName(CharSequence n, float a) { name = n; aspect = a; }
 		protected CharSequence name;
 		protected float aspect;
 	}
 	
-	public static final AspectRatio[] AspectRatios = {
-		new AspectRatio("Portrait Screen",  800f/1232f),
-		new AspectRatio("Landscape Screen",  1280f/752f),
-		new AspectRatio("A4 Paper", 1f/(float)Math.sqrt(2)),
-		new AspectRatio("US Letter",  8f/11f),
-		new AspectRatio("Projector (4:3)",  4f/3f),
-		new AspectRatio("HDTV (16:9)", 16f/9f)
+	public static final AspectRatioName[] AspectRatios = {
+		new AspectRatioName("Portrait Screen",  800f/1232f),
+		new AspectRatioName("Landscape Screen",  1280f/752f),
+		new AspectRatioName("A4 Paper", 1f/(float)Math.sqrt(2)),
+		new AspectRatioName("US Letter",  8f/11f),
+		new AspectRatioName("Projector (4:3)",  4f/3f),
+		new AspectRatioName("HDTV (16:9)", 16f/9f)
 	};
 	
 	// persistent data

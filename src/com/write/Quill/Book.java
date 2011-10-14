@@ -162,14 +162,17 @@ public class Book {
 	
 	// Save an archive 
 	public void saveArchive(File file) throws IOException {
-		FileOutputStream fos = null;
-	   	try {
-    		fos = new FileOutputStream(file);
-    		save_index(fos);
+		FileOutputStream fos = new FileOutputStream(file);
+	    BufferedOutputStream buffer;
+	    DataOutputStream dataOut = null;
+    	try {
+    		buffer = new BufferedOutputStream(fos);
+    		dataOut = new DataOutputStream(buffer);
+    		save_index(dataOut);
     		for (int i=0; i<pages.size(); i++)
-    			save_page(i, fos);
+    			save_page(i, dataOut);
     	} finally {
-    		if (fos != null) fos.close();
+    		if (dataOut != null) dataOut.close();
 		}
 
 	}
@@ -177,14 +180,18 @@ public class Book {
     // Save an archive 
     public static Book loadArchive(File file) throws IOException {
 		Book book = new Book();
-    	FileInputStream fis = null;
-    	try {
+    	FileInputStream fis;
+	    BufferedInputStream buffer;
+	    DataInputStream dataIn = null;
+ 	  	try {
     		fis = new FileInputStream(file);
-    		int n_pages = book.load_index(fis);
+    		buffer = new BufferedInputStream(fis);
+    		dataIn = new DataInputStream(buffer);
+    		int n_pages = book.load_index(dataIn);
     		for (int i=0; i<n_pages; i++)
-    			book.pages.add(book.load_page(i, fis));
+    			book.pages.add(book.load_page(i, dataIn));
         } finally {
-        	if (fis != null) fis.close();
+        	if (dataIn != null) dataIn.close();
     	}
         // recover from errors
         if (book.pages.isEmpty()) book.pages.add(new Page());
@@ -197,67 +204,63 @@ public class Book {
 
 	
 	private int load_index(Context context) throws IOException {
-	    FileInputStream fis;
-    	fis = context.openFileInput(FILENAME_STEM + ".index");
+	    FileInputStream fis = context.openFileInput(FILENAME_STEM + ".index");
+	    BufferedInputStream buffer;
+	    DataInputStream dataIn = null;
     	try {
-    		return load_index(fis);
+    		buffer = new BufferedInputStream(fis);
+    		dataIn = new DataInputStream(buffer);
+    		return load_index(dataIn);
     	} finally {
-			fis.close();
+    		if (dataIn != null)	dataIn.close();
 		}
 	}
 	
 	private void save_index(Context context) throws IOException {
 	    FileOutputStream fos;
     	fos = context.openFileOutput(FILENAME_STEM + ".index", Context.MODE_PRIVATE);
+		BufferedOutputStream buffer;
+		DataOutputStream dataOut = null;
     	try {
-    		save_index(fos);
+    		buffer = new BufferedOutputStream(fos);
+    		dataOut = new DataOutputStream(buffer);
+    		save_index(dataOut);
     	} finally {
-			fos.close();
+    		if (dataOut != null) dataOut.close();
 		}
 	}
 	
-
-	private int load_index(FileInputStream fis) throws IOException {
+	private int load_index(DataInputStream dataIn) throws IOException {
 		Log.d(TAG, "Loading book index");
-		BufferedInputStream buffer = new BufferedInputStream(fis);
-		DataInputStream dataIn = new DataInputStream(buffer);
 		int n_pages;
-		try {
-			int version = dataIn.readInt();
-			if (version == 1) {
-				n_pages = dataIn.readInt();
-				currentPage = dataIn.readInt();
-			} else
-				throw new IOException("Unknown version in load_index()");				
-		} finally {
-			dataIn.close();
-			buffer.close();
-		}
+		int version = dataIn.readInt();
+		if (version == 1) {
+			n_pages = dataIn.readInt();
+			currentPage = dataIn.readInt();
+		} else
+			throw new IOException("Unknown version in load_index()");				
 		return n_pages;
 	}
 	
-	private void save_index(FileOutputStream fos) throws IOException {
+	private void save_index(DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book index");
-		BufferedOutputStream buffer = new BufferedOutputStream(fos);
-		DataOutputStream dataOut = new DataOutputStream(buffer);
-		try {
-			dataOut.writeInt(1);
-			dataOut.writeInt(pages.size());
-			dataOut.writeInt(currentPage);				
-		} finally {
-			dataOut.close();
-			buffer.close();
-		}
+		dataOut.writeInt(1);
+		dataOut.writeInt(pages.size());
+		dataOut.writeInt(currentPage);				
 	}
 
 	private Page load_page(int i, Context context) throws IOException {
 		String filename = FILENAME_STEM + ".page." + i;
 	    FileInputStream fis;
 	    fis = context.openFileInput(filename);
+	    BufferedInputStream buffer;
+	    DataInputStream dataIn = null;
     	try {
-    		return load_page(i, fis);
+    		buffer = new BufferedInputStream(fis);
+    		dataIn = new DataInputStream(buffer);
+    		return load_page(i, dataIn);
     	} finally {
-			fis.close();
+    		if (dataIn != null) dataIn.close();
 		}
 	}
 	
@@ -265,35 +268,25 @@ public class Book {
 		String filename = FILENAME_STEM + ".page." + i;
 	    FileOutputStream fos;
 	    fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+		BufferedOutputStream buffer;
+		DataOutputStream dataOut = null;
     	try {
-    		save_page(i, fos);
+    		buffer = new BufferedOutputStream(fos);
+    		dataOut = new DataOutputStream(buffer);
+    		save_page(i, dataOut);
     	} finally {
-			fos.close();
-		}
+    		if (dataOut != null) dataOut.close();
+    	}
 	}
  	
-	private Page load_page(int i, FileInputStream fis) throws IOException {
+	private Page load_page(int i, DataInputStream dataIn) throws IOException {
 		Log.d(TAG, "Loading book page "+i);
-		BufferedInputStream buffer = new BufferedInputStream(fis);
-		DataInputStream dataIn = new DataInputStream(buffer);
-		try {
-			return new Page(dataIn);
-		} finally {
-			dataIn.close();
-			buffer.close();
-		}
+		return new Page(dataIn);
 	}
 	
-	private void save_page(int i, FileOutputStream fos) throws IOException {
+	private void save_page(int i, DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book page "+i);
-		BufferedOutputStream buffer = new BufferedOutputStream(fos);
-		DataOutputStream dataOut = new DataOutputStream(buffer);
-		try {
-			pages.get(i).write_to_stream(dataOut);
-		} finally {
-			dataOut.close();
-			buffer.close();
-		}
+		pages.get(i).write_to_stream(dataOut);
 	}
 	
 

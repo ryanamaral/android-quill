@@ -7,8 +7,9 @@
     <string-array name="export_via">
         <item>Share via Android</item>
         <item>Evernote</item>
-        <item>Save to SD card</item>
-        <item>Choose folder</item>
+        <item>External SD card</item><item>Internal memory</item>
+        
+        <item>USB memory stick</item>
     </string-array>
     <string-array name="export_file_format">
         <item>Current page as vector graphics (PDF)</item>
@@ -33,5 +34,6 @@
         <item>1024 x 768 pixels</item>
         <item>800 x 600 pixels</item>
     </string-array>
+    <string name="err_folder_pick_not_found">You need to install a file manager to pick a directory</string>
     
 </resources>
