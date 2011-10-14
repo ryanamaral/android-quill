@@ -3,6 +3,7 @@ package com.write.Quill;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -13,27 +14,37 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 
-public class ExportDialog extends Dialog implements OnClickListener {
+
+public class ExportDialog 
+	extends Dialog 
+	implements OnClickListener, OnItemSelectedListener {
+
 	private static final String TAG = "ExportDialog";
 
     private Context context;
 	private View layout;
 	private Page page;
+	private Book book;
 	private Handler handler = new Handler();
-	private ProgressBar progress_bar;
+	private ProgressBar progressBar;
 	private String filename;
-	private Button export_button;
-	private PDFExporter pdf_exporter;
-	private Thread export_thread;
+	private Button exportButton;
+	private PDFExporter pdfExporter;
+	private Thread exportThread;
 	private String fullFilename;
 	private File file;
+	private ArrayAdapter<CharSequence> exportSizes;
 	
 	public ExportDialog(Context context, int theme) {
         super(context, theme);
@@ -45,12 +56,12 @@ public class ExportDialog extends Dialog implements OnClickListener {
 
     public static class Builder {
         private Context context;
-        private Page page;
+        private Book book;
         Builder(Context c) {
         	context = c;
         }
-        public Builder setPage(Page p) {
-        	page = p;
+        public Builder setBook(Book bk) {
+        	book = bk;
         	return this;
         }
         public ExportDialog create() {
@@ -63,31 +74,108 @@ public class ExportDialog extends Dialog implements OnClickListener {
         	ok.setOnClickListener(dlg);
         	Button cancel = (Button)layout.findViewById(R.id.export_cancel);
         	cancel.setOnClickListener(dlg);
+
+			LinkedList<String> sizes_values = new LinkedList<String>();
+        	dlg.exportSizes = new ArrayAdapter(context,
+        			android.R.layout.simple_spinner_item, sizes_values);
+ 			String [] strings = context.getResources().getStringArray(R.array.export_size_vector);
+ 			dlg.exportSizes.addAll(strings);
+        	dlg.exportSizes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
+        	sizes.setAdapter(dlg.exportSizes);
+
+        	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
+        	format.setOnItemSelectedListener(dlg);
+        	
         	dlg.setContentView(layout);
         	dlg.layout = layout;
-        	assert page != null : "You must call Builder.setPage()";
-        	dlg.page = page;
+        	assert book != null : "You must call Builder.setBook()";
+        	dlg.page = book.current_page();
+        	dlg.book = book;
         	dlg.context = context;
-        	dlg.progress_bar = (ProgressBar)layout.findViewById(R.id.export_progress);
-        	dlg.export_button = ok;
+        	dlg.progressBar = (ProgressBar)layout.findViewById(R.id.export_progress);
+        	dlg.exportButton = ok;
         	return dlg;
        }
     } // Builder
     
+    // Somebody clicked on Cancel, Export, Output format
+	@Override
     public void onClick(View v) {
-    	switch (v.getId()) {
+      	switch (v.getId()) {
     	case R.id.export_button:
-    		do_export();
+    		doExport();
     		return;
     	case R.id.export_cancel:
-    		do_cancel();
+    		doCancel();
+    		return;
+    	case R.id.export_file_format:
+    		changeExportFileFormat((Spinner)v);
     		return;
     	}
     }
 
-    protected void do_export() {
+	@Override
+	public void onItemSelected(AdapterView<?> spinner, View view, int position,
+			long id) {
+      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
+      	Log.v(TAG, "Format "+position);
+      	String[] strings;
+      	switch (position) {
+		case 0:  // PDF format
+			sizes.setEnabled(true);
+			strings = context.getResources().getStringArray(R.array.export_size_vector);
+			exportSizes.clear();
+			exportSizes.addAll(strings);
+        	exportSizes.notifyDataSetChanged();
+			return;
+		case 1:  // Raster image format
+			sizes.setEnabled(true);
+			strings = context.getResources().getStringArray(R.array.export_size_raster);
+			exportSizes.clear();
+			exportSizes.addAll(strings);
+        	exportSizes.notifyDataSetChanged();
+			return;
+		case 2:  // Quill backup archive
+			sizes.setEnabled(false);
+			exportSizes.clear();
+        	exportSizes.notifyDataSetChanged();
+			return;
+		}		
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		Log.v(TAG, "onNothingSelected");
+	}
+    
+	private static final int OUTPUT_FORMAT_PDF = 0;
+	private static final int OUTPUT_FORMAT_PNG = 1;
+	private static final int OUTPUT_FORMAT_BACKUP = 2;
+
+	
+	// somebody changed the Output format
+	private void changeExportFileFormat(Spinner format) {
+      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
+      	Log.v(TAG, "Format "+format.getSelectedItemPosition());
+		switch (format.getSelectedItemPosition()) {
+		case OUTPUT_FORMAT_PDF:
+			sizes.setEnabled(true);
+			sizes.setAdapter(new ArrayAdapter<String>(context, R.array.export_size_vector));
+			return;
+		case OUTPUT_FORMAT_PNG:
+			sizes.setEnabled(true);
+			sizes.setAdapter(new ArrayAdapter<String>(context, R.array.export_size_raster));
+			return;
+		case OUTPUT_FORMAT_BACKUP:
+			sizes.setEnabled(false);
+			return;
+		}
+	}
+
+    protected void doExport() {
     	Log.v(TAG, "do_export()");
-    	if (pdf_exporter != null) return;
+    	if (pdfExporter != null) return;
     	
     	TextView text = (TextView)layout.findViewById(R.id.export_name);
 		filename = text.getText().toString();
@@ -106,38 +194,66 @@ public class ExportDialog extends Dialog implements OnClickListener {
         	Toast.makeText(context, "Unable to create file "+fullFilename, Toast.LENGTH_LONG).show();
         	return;
         }
+		
+    	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
+    	switch (format.getSelectedItemPosition()) {
+		case OUTPUT_FORMAT_PDF:
+			doExportPdf();
+			return;
+		case OUTPUT_FORMAT_PNG:
+			doExportPng();
+			return;
+		case OUTPUT_FORMAT_BACKUP:
+			doExportArchive();
+			return;
+    	}
+    }
+    
+    private void doExportArchive() {
+    	try {
+    		book.saveArchive(file);
+    	} catch (IOException e) {
+			Log.e(TAG, "Error writing file "+e.toString());
+        	Toast.makeText(context, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();   		
+    	}
+    }
 
-
-		thread_lock_dialog();
-        assert pdf_exporter == null : "Trying to run two export threads??";
-    	pdf_exporter = new PDFExporter();
-        export_thread = new Thread(new Runnable() {
+    
+    private void doExportPng() {
+    	// TODO
+    }
+    
+    private void doExportPdf() {
+		threadLockDialog();
+        assert pdfExporter == null : "Trying to run two export threads??";
+    	pdfExporter = new PDFExporter();
+        exportThread = new Thread(new Runnable() {
             public void run() {
-            	pdf_exporter.add(page);
-            	pdf_exporter.export(file);
-            	pdf_exporter = null;
+            	pdfExporter.add(page);
+            	pdfExporter.export(file);
+            	pdfExporter = null;
             }});
-        // export_thread.setPriority(Thread.MIN_PRIORITY);
-        export_thread.start();
+        // exportThread.setPriority(Thread.MIN_PRIORITY);
+        exportThread.start();
    }
     
-    protected void do_cancel() {
-    	if (pdf_exporter == null) {
+    protected void doCancel() {
+    	if (pdfExporter == null) {
     		dismiss();
-    		thread_unlock_dialog();
+    		threadUnlockDialog();
     	} else
-    		pdf_exporter.interrupt();
+    		pdfExporter.interrupt();
 	}
     
-    private void do_share() {
+    private void doShare() {
       	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
     	int pos = spinner.getSelectedItemPosition();
     	switch (pos) {
     	case 0: // Generic share using Android intents
-    		do_share_generic();
+    		doShareGeneric();
     		return;
     	case 1: // Evernote
-    		do_share_evernote();
+    		doShareEvernote();
     		return;
     	case 2: // SD card
         	Toast.makeText(context, 
@@ -147,7 +263,7 @@ public class ExportDialog extends Dialog implements OnClickListener {
     	}
     }
     
-    private void do_share_generic() {
+    private void doShareGeneric() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("application/pdf");
@@ -171,7 +287,7 @@ public class ExportDialog extends Dialog implements OnClickListener {
     public static final String EXTRA_QUICK_SEND            = "QUICK_SEND";
     public static final String EXTRA_TAGS                  = "TAG_NAME_LIST";
 
-    private void do_share_evernote() {
+    private void doShareEvernote() {
         Intent intent = new Intent();
         intent.setAction(ACTION_NEW_NOTE);
         intent.putExtra(Intent.EXTRA_TITLE, filename);
@@ -210,30 +326,30 @@ public class ExportDialog extends Dialog implements OnClickListener {
 
     }
     
-    private void thread_lock_dialog() {
-    	export_button.setPressed(true);
+    private void threadLockDialog() {
+    	exportButton.setPressed(true);
         handler.post(mUpdateProgress);
     }
     
-    private void thread_unlock_dialog() {
-    	progress_bar.setProgress(0);
+    private void threadUnlockDialog() {
+    	progressBar.setProgress(0);
     	handler.removeCallbacks(mUpdateProgress);
-    	export_button.setPressed(false);
+    	exportButton.setPressed(false);
     }
     
 
     private Runnable mUpdateProgress = new Runnable() {
     	   public void run() {
-    		   PDFExporter exporter = pdf_exporter;
+    		   PDFExporter exporter = pdfExporter;
     		   if (exporter == null) {
-    			   thread_unlock_dialog();
-    			   do_share();
+    			   threadUnlockDialog();
+    			   doShare();
     			   dismiss();
        		   return;
     		   }
-    		   export_button.setPressed(true);
-    		   progress_bar.setProgress(exporter.get_progress());
-    		   progress_bar.invalidate();
+    		   exportButton.setPressed(true);
+    		   progressBar.setProgress(exporter.get_progress());
+    		   progressBar.invalidate();
                handler.postDelayed(mUpdateProgress, 200);
     	   }
     	};

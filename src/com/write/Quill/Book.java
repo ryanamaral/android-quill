@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -118,6 +119,7 @@ public class Book {
 		return book;
 	}
 	
+	// Loads the book. This is the complement to the save() method
 	public Book(Context context) {
 		int n_pages;
 		try {
@@ -139,6 +141,8 @@ public class Book {
 		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 	}
 			
+	// save data internally. Will be used automatically
+	// the next time we start. To load, use the constructor.
 	public void save(Context context) {
 		try {
 			save_index(context);
@@ -155,6 +159,42 @@ public class Book {
 		}
 		
 	}
+	
+	// Save an archive 
+	public void saveArchive(File file) throws IOException {
+		FileOutputStream fos = null;
+	   	try {
+    		fos = new FileOutputStream(file);
+    		save_index(fos);
+    		for (int i=0; i<pages.size(); i++)
+    			save_page(i, fos);
+    	} finally {
+    		if (fos != null) fos.close();
+		}
+
+	}
+	
+    // Save an archive 
+    public static Book loadArchive(File file) throws IOException {
+		Book book = new Book();
+    	FileInputStream fis = null;
+    	try {
+    		fis = new FileInputStream(file);
+    		int n_pages = book.load_index(fis);
+    		for (int i=0; i<n_pages; i++)
+    			book.pages.add(book.load_page(i, fis));
+        } finally {
+        	if (fis != null) fis.close();
+    	}
+        // recover from errors
+        if (book.pages.isEmpty()) book.pages.add(new Page());
+        if (book.currentPage <0) book.currentPage = 0;
+        if (book.currentPage >= book.pages.size()) book.currentPage = book.pages.size() - 1;
+		return book;
+   }
+    	
+    	
+
 	
 	private int load_index(Context context) throws IOException {
 	    FileInputStream fis;

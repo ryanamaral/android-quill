@@ -84,7 +84,7 @@ public class QuillWriterActivity extends Activity {
     		return (Dialog)create_dialog_paper_aspect();
     	case DIALOG_EXPORT:
         	ExportDialog.Builder builder = new ExportDialog.Builder(this);        	
-        	builder.setPage(mView.page);
+        	builder.setBook(book);
     		return (Dialog)builder.create();
     	}
     	return null;
