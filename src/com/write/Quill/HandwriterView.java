@@ -132,7 +132,6 @@ public class HandwriterView extends View {
 		if (curW < w) curW = w;
 		if (curH < h) curH = h;
 
-		if (bitmap != null) bitmap.recycle();
 		Bitmap newBitmap = Bitmap.createBitmap(curW, curH,
 				Bitmap.Config.RGB_565);
 		Canvas newCanvas = new Canvas();
@@ -172,6 +171,7 @@ public class HandwriterView extends View {
 	@Override protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
 		if (pen_type == Stroke.PenType.MOVE && fingerId2 != -1) {
+			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();
 			float H = canvas.getHeight();
@@ -184,6 +184,7 @@ public class HandwriterView extends View {
 			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
 			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
 		} else if (pen_type == Stroke.PenType.MOVE && fingerId1 != -1) {
+			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = newX-oldX;
 			float y = newY-oldY; 
