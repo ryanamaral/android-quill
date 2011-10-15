@@ -20,9 +20,10 @@ import android.util.Log;
 
 public class Page {
 	private static final String TAG = "Page";
-
+	private final Background background = new Background();
+	
 	public enum PaperType {
-		EMPTY, LINES, SQUARE, HEX
+		EMPTY, RULED, QUAD, HEX
 	}
 	
 	public static class PaperTypeName {
@@ -33,54 +34,30 @@ public class Page {
 	
 	public static final PaperTypeName[] PaperTypes = {
 		new PaperTypeName("Blank",  PaperType.EMPTY),
-		new PaperTypeName("College ruled",  PaperType.LINES),
-		new PaperTypeName("Quad paper",  PaperType.SQUARE),
+		new PaperTypeName("Legal ruled",  PaperType.RULED),
+		new PaperTypeName("Quad paper",  PaperType.QUAD),
 	};
 	
-	public static class AspectRatioName {
-		AspectRatioName(CharSequence n, float a) { name = n; aspect = a; }
-		protected CharSequence name;
-		protected float aspect;
-	}
 	
-	public static final AspectRatioName[] AspectRatios = {
-		new AspectRatioName("Portrait Screen",  800f/1232f),
-		new AspectRatioName("Landscape Screen",  1280f/752f),
-		new AspectRatioName("A4 Paper", 1f/(float)Math.sqrt(2)),
-		new AspectRatioName("US Letter",  8f/11f),
-		new AspectRatioName("US Legal",  8f/14f),
-		new AspectRatioName("Projector (4:3)",  4f/3f),
-		new AspectRatioName("HDTV (16:9)", 16f/9f)
-	};
 	
 	// persistent data
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
-	public float aspect_ratio = AspectRatios[0].aspect;
+	public float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
 	protected PaperType paper_type = PaperType.EMPTY;
 	
 	protected float offset_x = 0f;
 	protected float offset_y = 0f;
 	protected float scale = 1.0f;
+	protected Transformation transformation = new Transformation();
 	
 	protected boolean is_modified = false;
 
 	private final RectF mRectF = new RectF();
-	private final RectF paper = new RectF();
 	private final Paint paint = new Paint();
 	
 	public boolean is_empty() {
 		return strokes.isEmpty();
-	}
-	
-	private void draw_paper(Canvas canvas, RectF bBox) {
-		//Log.v(TAG, "draw_paper at scale "+scale);
-		// the paper is 1 high and aspect_ratio wide
-		paper.set(offset_x, offset_y, offset_x+aspect_ratio*scale, offset_y+scale);
-		if (!paper.contains(bBox))
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-		paint.setARGB(0xff, 0xff, 0xff, 0xff);
-		canvas.drawRect(paper, paint);
 	}
 	
 	protected void touch() {
@@ -95,17 +72,22 @@ public class Page {
 	public void set_paper_type(PaperType type) {
 		paper_type = type;
 		is_modified = true;
+		background.setPaperType(paper_type);
 	}
 	
 	public void set_aspect_ratio(float aspect) {
 		aspect_ratio = aspect;
 		is_modified = true;
+		background.setAspectRatio(aspect_ratio);
 	}
 	
 	protected void set_transform(float dx, float dy, float s) {
 		offset_x = dx;
 		offset_y = dy;
 		scale = s;
+		transformation.offset_x = offset_x;
+		transformation.offset_y = offset_y;
+		transformation.scale = scale;
 	    ListIterator<Stroke> siter = strokes.listIterator();
 	    while (siter.hasNext())
 	    	siter.next().set_transform(offset_x, offset_y, scale);
@@ -134,7 +116,7 @@ public class Page {
 	    ListIterator<Stroke> siter = strokes.listIterator();
 		canvas.save();
 		canvas.clipRect(bounding_box);
-		draw_paper(canvas, bounding_box);
+		background.draw(canvas, bounding_box, transformation);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
 		   	if (!canvas.quickReject(s.get_bounding_box(), Canvas.EdgeType.AA))
@@ -181,7 +163,10 @@ public class Page {
 	
 	
 	public void write_to_stream(DataOutputStream out) throws IOException {
-		out.writeInt(1);  // protocol #1
+		out.writeInt(2);  // protocol #1
+		out.writeInt(paper_type.ordinal());
+		out.writeInt(0); // reserved1
+		out.writeInt(0); // reserved2
 		out.writeBoolean(is_readonly);
 		out.writeFloat(aspect_ratio);
 		out.writeInt(strokes.size());
@@ -201,7 +186,14 @@ public class Page {
 
 	public Page(DataInputStream in) throws IOException {
 	int version = in.readInt();
-		if (version != 1)
+		if (version == 1)
+			paper_type = PaperType.EMPTY;
+		else {
+			paper_type = PaperType.values()[in.readInt()];
+			in.readInt();
+			in.readInt();
+		}
+		if (version < 0 || version > 2)
 			throw new IOException("Unknown version!");
 		is_readonly = in.readBoolean();
 		aspect_ratio = in.readFloat();
@@ -209,6 +201,8 @@ public class Page {
 		for (int i=0; i<N; i++) {
 			strokes.add(new Stroke(in));
 		}
+		background.setAspectRatio(aspect_ratio);
+		background.setPaperType(paper_type);
 	}
 }
 

@@ -19,10 +19,11 @@
             <item android:id="@+id/page_delete" android:title="Delete"></item>
             <item android:title="Clear" android:id="@+id/page_clear"></item>
             <item android:id="@+id/page_aspect" android:title="Aspect ratio"></item>
-            <item android:id="@+id/page_insert" android:title="Insert"></item>
+            <item android:id="@+id/page_type" android:title="Paper"></item><item android:id="@+id/page_insert" android:title="Insert"></item>
             <item android:id="@+id/page_next" android:title="Next"></item>
             <item android:id="@+id/page_prev" android:title="Previous"></item>
             <item android:id="@+id/page_last" android:title="Last"></item>
+            
         </menu>
     </item>
 </group><item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="Settings"></item>

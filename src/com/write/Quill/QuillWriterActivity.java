@@ -122,11 +122,11 @@ public class QuillWriterActivity extends Activity {
     }    	
 
     private Dialog create_dialog_paper_aspect() { 
-    	final CharSequence[] items = new CharSequence[Page.AspectRatios.length];
-    	final float[] values = new float[Page.AspectRatios.length];
-    	for (int i=0; i<Page.AspectRatios.length; i++) {
-    		items[i] = Page.AspectRatios[i].name;
-    		values[i] = Page.AspectRatios[i].aspect;
+    	final CharSequence[] items = new CharSequence[AspectRatio.Table.length];
+    	final float[] values = new float[AspectRatio.Table.length];
+    	for (int i=0; i<AspectRatio.Table.length; i++) {
+    		items[i] = AspectRatio.Table[i].name;
+    		values[i] = AspectRatio.Table[i].ratio;
     	}
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle("Paper type");
@@ -164,7 +164,7 @@ public class QuillWriterActivity extends Activity {
     	    		public void onClick(DialogInterface dialog, int item) {
     	    			if (item == -1) return;
     	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	    			mView.page.set_paper_type(Page.PaperType.values()[item]);
+    	    			mView.set_page_paper_type(Page.PaperType.values()[item]);
     	    			dialog.dismiss();
     	    		}
     			});
@@ -266,6 +266,9 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.page_aspect:
     		showDialog(DIALOG_PAPER_ASPECT);
+    		return true;
+    	case R.id.page_type:
+    		showDialog(DIALOG_PAPER_TYPE);
     		return true;
     	case R.id.prev:
     	case R.id.page_prev:
