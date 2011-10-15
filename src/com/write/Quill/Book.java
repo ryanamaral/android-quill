@@ -197,6 +197,9 @@ public class Book {
         if (book.pages.isEmpty()) book.pages.add(new Page());
         if (book.currentPage <0) book.currentPage = 0;
         if (book.currentPage >= book.pages.size()) book.currentPage = book.pages.size() - 1;
+		ListIterator<Page> piter = book.pages.listIterator(); 
+		while (piter.hasNext())
+			piter.next().is_modified = true;
 		return book;
    }
     	

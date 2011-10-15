@@ -185,7 +185,7 @@ public class Page {
 	
 
 	public Page(DataInputStream in) throws IOException {
-	int version = in.readInt();
+		int version = in.readInt();
 		if (version == 1)
 			paper_type = PaperType.EMPTY;
 		else {

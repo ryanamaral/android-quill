@@ -1,4 +1,5 @@
 package com.write.Quill;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,8 +14,8 @@ public class Background {
 	public static final String TAG = "Background"; 
 	private static final float INCH_in_CM = 2.54f;
 
-	private PaperType paperType;
-	private AspectRatio aspectRatio;
+	private PaperType paperType= PaperType.EMPTY;
+	private AspectRatio aspectRatio = AspectRatio.Table[0];
 	private float heightMm, widthMm;
 	
 	private final RectF paper = new RectF();
