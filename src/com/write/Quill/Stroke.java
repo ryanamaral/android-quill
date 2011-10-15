@@ -25,10 +25,12 @@ public class Stroke {
 		FOUNTAINPEN, PENCIL, MOVE, ERASER
 	}
 	
-	protected final int N;
-	protected final float[] position_x;
-	protected final float[] position_y;
-	protected final float[] pressure;
+	// the actual data
+	protected int N;
+	protected float[] position_x;
+	protected float[] position_y;
+	protected float[] pressure;
+
 	private RectF bBox;
 	private boolean recompute_bounding_box = true;
 	
@@ -195,6 +197,7 @@ public class Stroke {
 		if (version == 1) {
 			// I changed the thickness quantization for v2
 			pen_thickness *= 2;
+			simplify();
 		}
 	}
 
@@ -204,15 +207,40 @@ public class Stroke {
 	// for example, using apply_inverse_transform
 	// non-standard metric for "perpendicular distance" for numerical stability
 	protected void simplify() {
+		compute_bounding_box(); // cache the bounding box before removing points to overpaint everything
 		LinkedList<Integer> points = new LinkedList<Integer>();
 		points.add(0);
 		points.add(N-1);
 		ListIterator<Integer> point_iter = points.listIterator(1);
 		simplify_recursion(0, N-1, point_iter);
-		
+		int new_N = points.size();
+		float[] new_position_x = new float[new_N];
+		float[] new_position_y = new float[new_N];
+		float[] new_pressure = new float[new_N];
+		int n = 0;
+		point_iter = points.listIterator();
+		while (point_iter.hasNext()) {
+			int p = point_iter.next();
+			new_position_x[n] = position_x[p];
+			new_position_y[n] = position_y[p];
+			new_pressure[n] = pressure[p];
+			n++;
+		}
+		assert n==new_N;
+
+//		String s = "";
+//		point_iter = points.listIterator();
+//		while (point_iter.hasNext()) 
+//			s += point_iter.next() + " ";
+//		Log.v(TAG, "Simplified "+N+" to "+new_N+" points: "+s);
+
+		N = new_N;
+		position_x = new_position_x;
+		position_y = new_position_y;
+		pressure = new_pressure;
 	}
 
-	private static float EPSILON = 1f;
+	private static float EPSILON = 2e-4f;
 	
 	private void simplify_recursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
 		float x0 = position_x[point0];
@@ -242,11 +270,16 @@ public class Stroke {
 			float x = position_x[i];
 			float y = position_y[i];
 			float p = pressure[i];
-
+			float distance = 0;
+			
 			// distance in pressure
-			float p_0_avg = (p0+p)/2;
-			float p_1_avg = (p1+p)/2;
-			float distance = Math.max(Math.abs(p_0_avg-p_avg), Math.abs(p_1_avg-p_avg)) * LINE_THICKNESS_SCALE;
+			if (pen_type == PenType.FOUNTAINPEN) {
+				float p_0_avg = (p0+p)/2;
+				float p_1_avg = (p1+p)/2;
+				float pressure_difference = 
+					Math.max(Math.abs(p_0_avg-p_avg), Math.abs(p_1_avg-p_avg)) * LINE_THICKNESS_SCALE * 3;
+				distance = Math.max(distance, pressure_difference);
+			}
 			
 			// distance for degenerate triangles where midpoint is far away from p0, p1
 			float dx0 = x-x0;
@@ -260,7 +293,7 @@ public class Stroke {
 			
 			// perpendicular distance
 			if (distance_01>EPSILON) {
-				float d = (a*x+b*y+c)/normal_abs;
+				float d = Math.abs(a*x+b*y+c)/normal_abs;
 				distance = Math.max(distance, d);
 			}
 			
@@ -269,11 +302,11 @@ public class Stroke {
 				mid = i;
 			}
 		}
-		if (mid == -1) return; // no simplification necessary
+		if (distance_max < EPSILON || mid == -1) return; // no simplification necessary
 		iter.add(mid);
-		ListIterator<Integer> iter_prev = iter;  iter_prev.previous();
-		simplify_recursion(point0, mid, iter_prev);
-		simplify_recursion(mid, point1, iter);		
+		simplify_recursion(mid, point1, iter);
+		iter.previous();
+		simplify_recursion(point0, mid, iter);		
 	}
 	
 }

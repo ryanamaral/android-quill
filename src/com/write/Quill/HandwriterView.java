@@ -17,6 +17,7 @@ import android.graphics.RectF;
 import android.graphics.Path;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -194,29 +195,9 @@ public class HandwriterView extends View {
 			canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 
-
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		int action = event.getAction();
-		int keyCode = event.getKeyCode();
-		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			if (action == KeyEvent.ACTION_UP) {
-				Log.v(TAG, "Vol up");
-			}
-			return true;
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			if (action == KeyEvent.ACTION_DOWN) {
-				Log.v(TAG, "Vol down");
-			}
-			return true;
-		default:
-			return super.dispatchKeyEvent(event);
-		}
-	}
-	
 	@Override public boolean onTouchEvent(MotionEvent event) {
+//		InputDevice dev = event.getDevice();
+//		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
 //		Log.v(TAG, "Touch: "+event.getDevice().getName()
 //				+" action="+event.getActionMasked()
 //				+" pressure="+event.getPressure()
@@ -454,11 +435,11 @@ public class HandwriterView extends View {
 			page.add_stroke(s);
 			page.draw(canvas, s.get_bounding_box());
 		}
+		N = 0;
 		s.get_bounding_box().round(mRect);
 		int extra = -(int)(get_scaled_pen_thickness()/2) - 1;
 		mRect.inset(extra, extra);
 		invalidate(mRect);
-		N = 0;
 	}
 	
 	

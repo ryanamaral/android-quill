@@ -1,6 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
  <PreferenceCategory android:title="Preferences">
   <CheckBoxPreference android:title="Stylus only" android:summary="Filter out finger touch events when writing." android:key="only_pen_input" android:defaultValue="true"/>
+  <CheckBoxPreference android:key="volume_key_navigation" android:defaultValue="true" android:summary="Press volume-up for next page, volume-down for previous page" android:title="Volume key navigation"></CheckBoxPreference>
  
  
  </PreferenceCategory><PreferenceCategory>
