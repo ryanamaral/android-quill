@@ -1,11 +1,14 @@
 package com.write.Quill;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.Math;
 
+import android.util.FloatMath;
 import android.util.Log;
 import android.graphics.RectF;
 import android.graphics.Canvas;
@@ -193,6 +196,84 @@ public class Stroke {
 			// I changed the thickness quantization for v2
 			pen_thickness *= 2;
 		}
+	}
+
+	// Reduce the number of points
+	// http://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+	// Assumes that x,y coordinates and pressure are scaled to be within [0,1]
+	// for example, using apply_inverse_transform
+	// non-standard metric for "perpendicular distance" for numerical stability
+	protected void simplify() {
+		LinkedList<Integer> points = new LinkedList<Integer>();
+		points.add(0);
+		points.add(N-1);
+		ListIterator<Integer> point_iter = points.listIterator(1);
+		simplify_recursion(0, N-1, point_iter);
+		
+	}
+
+	private static float EPSILON = 1f;
+	
+	private void simplify_recursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
+		float x0 = position_x[point0];
+		float y0 = position_y[point0];
+		float p0 = pressure[point0];
+		float x1 = position_x[point1];
+		float y1 = position_y[point1];
+		float p1 = pressure[point1];
+
+		// the line has the equation ax + by + c = 0 
+		float a = y1-y0;
+		float b = x0-x1;
+		float c = x1*y0-x0*y1;
+		float normal_abs = FloatMath.sqrt(a*a+b*b);
+
+		// distance between p0 and p1
+		float dx = x1-x0;
+		float dy = y1-y0;
+		float distance_01 = FloatMath.sqrt(dx*dx+dy*dy);
+
+		// average pressure is the 3rd dimension (line thickness is determined by it)
+		float p_avg = (p0+p1)/2;
+
+		int mid = -1;
+		float distance_max = 0;
+		for (int i=point0+1; i<point1; i++) {
+			float x = position_x[i];
+			float y = position_y[i];
+			float p = pressure[i];
+
+			// distance in pressure
+			float p_0_avg = (p0+p)/2;
+			float p_1_avg = (p1+p)/2;
+			float distance = Math.max(Math.abs(p_0_avg-p_avg), Math.abs(p_1_avg-p_avg)) * LINE_THICKNESS_SCALE;
+			
+			// distance for degenerate triangles where midpoint is far away from p0, p1
+			float dx0 = x-x0;
+			float dy0 = y-y0;
+			float distance_p0 = FloatMath.sqrt(dx0*dx0+dy0*dy0);
+			distance = Math.max(distance, distance_p0-distance_01);
+			float dx1 = x-x1;
+			float dy1 = y-y1;
+			float distance_p1 = FloatMath.sqrt(dx1*dx1+dy1*dy1);
+			distance = Math.max(distance, distance_p1-distance_01);
+			
+			// perpendicular distance
+			if (distance_01>EPSILON) {
+				float d = (a*x+b*y+c)/normal_abs;
+				distance = Math.max(distance, d);
+			}
+			
+			if (distance > distance_max) {
+				distance_max = distance;
+				mid = i;
+			}
+		}
+		if (mid == -1) return; // no simplification necessary
+		iter.add(mid);
+		ListIterator<Integer> iter_prev = iter;  iter_prev.previous();
+		simplify_recursion(point0, mid, iter_prev);
+		simplify_recursion(mid, point1, iter);		
 	}
 	
 }

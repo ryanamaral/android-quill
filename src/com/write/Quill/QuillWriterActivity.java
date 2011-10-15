@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
@@ -167,7 +168,29 @@ public class QuillWriterActivity extends Activity {
     			});
     	return builder.create();
     }    	
-   
+
+    // The HandWriterView is not focussable and therefore does not receive KeyEvents
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+		int action = event.getAction();
+		int keyCode = event.getKeyCode();
+		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			if (action == KeyEvent.ACTION_UP) {
+				flip_page_next();
+			}
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			if (action == KeyEvent.ACTION_DOWN) {
+				flip_page_prev();
+			}
+			return true;
+		default:
+			return super.dispatchKeyEvent(event);
+		}
+    }
+
     private Dialog create_dialog_color() {
         AmbilWarnaDialog dlg = new AmbilWarnaDialog(QuillWriterActivity.this, mView.pen_color, 
         	new OnAmbilWarnaListener()
@@ -244,29 +267,11 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.prev:
     	case R.id.page_prev:
-    		if (book.is_first_page()) 
-    			toast_page_number("Already on first page"); 
-    		else
-    			mView.set_page_and_zoom_out(book.previous_page());
-    			if (book.is_first_page()) 
-    				toast_page_number("Showing first page"); 
-    			else
-    				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
-     		menu_prepare_page_has_changed();
-   		return true;
+    		flip_page_next();
+    		return true;
     	case R.id.next:
     	case R.id.page_next:
-    		if (book.is_last_page()) {
-    			mView.set_page_and_zoom_out(book.insert_page());
-    			toast_page_number("Inserted new page at end");
-    		} else {
-    			mView.set_page_and_zoom_out(book.next_page());
-    			if (book.is_last_page())
-    				toast_page_number("Showing last page");
-    			else 
-    				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
-    		}
-    		menu_prepare_page_has_changed();
+    		flip_page_prev();
     		return true;
     	case R.id.page_last:
     		mView.set_page_and_zoom_out(book.last_page());
@@ -293,6 +298,33 @@ public class QuillWriterActivity extends Activity {
     	}
     }
 
+    private void flip_page_next() {
+    	if (book.is_first_page()) 
+    		toast_page_number("Already on first page"); 
+		else	
+			mView.set_page_and_zoom_out(book.previous_page());
+			if (book.is_first_page()) 
+				toast_page_number("Showing first page"); 
+			else
+				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+ 		menu_prepare_page_has_changed();
+   	
+    }
+    
+    private void flip_page_prev() {
+		if (book.is_last_page()) {
+			mView.set_page_and_zoom_out(book.insert_page());
+			toast_page_number("Inserted new page at end");
+		} else {
+			mView.set_page_and_zoom_out(book.next_page());
+			if (book.is_last_page())
+				toast_page_number("Showing last page");
+			else 
+				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+		}
+		menu_prepare_page_has_changed();
+    }
+    
     private void toast_page_number(String s) {
     	if (mToast == null)
         	mToast = Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT);

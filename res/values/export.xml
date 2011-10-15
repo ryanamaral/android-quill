@@ -13,7 +13,7 @@
     </string-array>
     <string-array name="export_file_format">
         <item>Current page as vector graphics (PDF)</item>
-        <item>Raster image (PNG)</item>
+        <item>Raster image (PNG) [not yet implemented]</item>
         <item>All notes as Quill backup archive</item>
     </string-array>
     <string name="export_title">Export current page as...</string>

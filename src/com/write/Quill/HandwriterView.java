@@ -17,6 +17,7 @@ import android.graphics.RectF;
 import android.graphics.Path;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -193,6 +194,28 @@ public class HandwriterView extends View {
 			canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		int action = event.getAction();
+		int keyCode = event.getKeyCode();
+		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			if (action == KeyEvent.ACTION_UP) {
+				Log.v(TAG, "Vol up");
+			}
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			if (action == KeyEvent.ACTION_DOWN) {
+				Log.v(TAG, "Vol down");
+			}
+			return true;
+		default:
+			return super.dispatchKeyEvent(event);
+		}
+	}
+	
 	@Override public boolean onTouchEvent(MotionEvent event) {
 //		Log.v(TAG, "Touch: "+event.getDevice().getName()
 //				+" action="+event.getActionMasked()

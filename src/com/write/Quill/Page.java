@@ -33,8 +33,8 @@ public class Page {
 	
 	public static final PaperTypeName[] PaperTypes = {
 		new PaperTypeName("Blank",  PaperType.EMPTY),
-		new PaperTypeName("Lines",  PaperType.LINES),
-		new PaperTypeName("Grid",  PaperType.SQUARE),
+		new PaperTypeName("College ruled",  PaperType.LINES),
+		new PaperTypeName("Quad paper",  PaperType.SQUARE),
 	};
 	
 	public static class AspectRatioName {
@@ -48,6 +48,7 @@ public class Page {
 		new AspectRatioName("Landscape Screen",  1280f/752f),
 		new AspectRatioName("A4 Paper", 1f/(float)Math.sqrt(2)),
 		new AspectRatioName("US Letter",  8f/11f),
+		new AspectRatioName("US Legal",  8f/14f),
 		new AspectRatioName("Projector (4:3)",  4f/3f),
 		new AspectRatioName("HDTV (16:9)", 16f/9f)
 	};
@@ -124,6 +125,7 @@ public class Page {
 	public void add_stroke(Stroke s) {
 		s.set_transform(offset_x, offset_y, scale);
 		s.apply_inverse_transform();
+		s.simplify();
 		strokes.add(s);
 		is_modified = true;
 	}
