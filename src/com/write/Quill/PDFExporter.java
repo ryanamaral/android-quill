@@ -25,6 +25,8 @@ public class PDFExporter extends PDFWriter {
 	protected int page_number_size = 14;
 	protected int page_number = 1;
 	private boolean first_page = true;
+	private float scale;
+	private boolean rotate;
 	
 	private volatile float progress = 0;
 	private volatile boolean interrupt = false;
@@ -49,7 +51,30 @@ public class PDFExporter extends PDFWriter {
 		}
 	}
 
+	private float scaled_x(float x, float y) {
+		if (rotate)
+			return y * scale;
+		else
+			return x * scale;
+	}
+	
+	private float scaled_y(float x, float y) {
+		if (rotate)
+			return x * scale;
+		else
+			return (1-y) * scale;
+	}
+
 	public void add(Page page) {
+		boolean page_is_portrait = (page.aspect_ratio < 1);
+		boolean paper_is_portrait = (width < height);
+		if (page_is_portrait ^ paper_is_portrait) {
+			rotate = true;
+			scale = Math.min(height/page.aspect_ratio, width);
+		} else {
+			rotate = false;
+			scale = Math.min(height, width/page.aspect_ratio);
+		}
 		if (!first_page)
 			newPage();
 		first_page = false;
@@ -82,17 +107,16 @@ public class PDFExporter extends PDFWriter {
 	}
 	
 	private void addStrokeFountainpen(Stroke stroke) {
-		float scale = height;
 		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
         addRawContent("1 J\n");   // round cap
         addRawContent("1 j\n");   // round join
-        float x0 = stroke.position_x[0] * scale;
-        float y0 = (1-stroke.position_y[0]) * scale;        
+        float x0 = scaled_x(stroke.position_x[0], stroke.position_y[0]);
+        float y0 = scaled_y(stroke.position_x[0], stroke.position_y[0]);        
         float p0 = stroke.pressure[0];
         for (int i=1; i<stroke.N; i++) {
 			if (interrupt) return;
-        	float x1 = stroke.position_x[i] * scale;
-            float y1 = (1-stroke.position_y[i]) * scale;
+        	float x1 = scaled_x(stroke.position_x[i], stroke.position_y[i]);
+            float y1 = scaled_y(stroke.position_x[i], stroke.position_y[i]);
             float p1 = stroke.pressure[i];
             addRawContent(""+(scaled_pen_thickness*(p0+p1)/2)+" w\n");
             addRawContent(""+x0+" "+y0+" m\n");
@@ -105,18 +129,17 @@ public class PDFExporter extends PDFWriter {
 	}
 	
 	private void addStrokePencil(Stroke stroke) {
-		float scale = height;
 		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
         addRawContent(""+scaled_pen_thickness+" w\n");  // line width
         addRawContent("1 J\n");   // round cap
         addRawContent("1 j\n");   // round join
-        float x = stroke.position_x[0] * scale;
-        float y = (1-stroke.position_y[0]) * scale;        
+        float x = scaled_x(stroke.position_x[0], stroke.position_y[0]);
+        float y = scaled_y(stroke.position_x[0], stroke.position_y[0]);        
         addRawContent(""+x+" "+y+" m\n");
         for (int i=1; i<stroke.N; i++) {
 			if (interrupt) return;
-         	x = stroke.position_x[i] * scale;
-            y = (1-stroke.position_y[i]) * scale;
+         	x = scaled_x(stroke.position_x[i], stroke.position_y[i]);
+            y = scaled_y(stroke.position_x[i], stroke.position_y[i]);
             addRawContent(""+x+" "+y+" l\n");
         }
         addRawContent("S\n");
