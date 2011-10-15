@@ -353,6 +353,7 @@ public class QuillWriterActivity extends Activity {
     	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
     	mView.set_pen_type(Stroke.PenType.values()[type]);
     	mView.only_pen_input = settings.getBoolean("only_pen_input", false);
+    	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	Log.d(TAG, "only_pen_input: "+mView.only_pen_input);
     	mView.requestFocus();
@@ -368,6 +369,7 @@ public class QuillWriterActivity extends Activity {
         editor.putInt("pen_thickness", mView.pen_thickness);
         editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
         editor.putBoolean("only_pen_input", mView.only_pen_input);
+        editor.putBoolean("double_tap_while_writing", mView.doubleTapWhileWriting);
         editor.commit();
     }
     

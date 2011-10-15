@@ -22,7 +22,7 @@
        android:layout_alignBaseline="@id/export_name_header"
        android:layout_height="wrap_content" 
        android:layout_width="fill_parent"
-       android:text="Quill.pdf"
+       android:text="Filename.pdf"
        android:singleLine="true"
        android:selectAllOnFocus="true"
   >

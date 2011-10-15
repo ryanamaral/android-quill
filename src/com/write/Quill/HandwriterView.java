@@ -55,6 +55,7 @@ public class HandwriterView extends View {
 	protected PenType pen_type = PenType.FOUNTAINPEN;
 	protected int pen_color = Color.BLACK;
 	protected boolean only_pen_input = true;
+	protected boolean doubleTapWhileWriting = true;
 	
 	public void set_pen_type(PenType t) {
 		pen_type = t;
@@ -110,6 +111,36 @@ public class HandwriterView extends View {
 		page.draw(canvas);
 		invalidate();
 	}
+
+	public void centerAndFillScreen(float xCenter, float yCenter) {
+		float W = canvas.getWidth();
+		float H = canvas.getHeight();
+		float scaleToFill = Math.max(H, W / page.aspect_ratio);
+		float scaleToSeeAll = Math.min(H, W / page.aspect_ratio);
+		float scale;
+		boolean seeAll = (page.scale == scaleToFill); // toggle
+		if (seeAll) 
+			scale = scaleToSeeAll;
+		else
+			scale = scaleToFill;
+		float x = (xCenter - page.offset_x) / page.scale * scale;
+		float y = (yCenter - page.offset_y) / page.scale * scale;
+		float dx, dy;
+		if (seeAll) {
+			dx = (W-scale*page.aspect_ratio)/2;
+			dy = (H-scale)/2;
+		} else if (scale == H) {
+			dx = W/2-x;// + (-scale*page.aspect_ratio)/2;
+			dy = 0;
+		} else {
+			dx = 0;
+			dy = H/2-y;// + (-scale)/2;
+		}
+		page.set_transform(dx, dy, scale, canvas);
+		page.draw(canvas);
+		invalidate();
+	}
+
 	
 	public void clear() {
 		if (canvas == null || page == null) return;		
@@ -268,6 +299,12 @@ public class HandwriterView extends View {
 		else if (action == MotionEvent.ACTION_DOWN) {  // start move
 			oldX = newX = event.getX();
 			oldY = newY = event.getY();
+			newT = System.currentTimeMillis();
+			if (Math.abs(newT-oldT) < 250) { // double-tap
+				centerAndFillScreen(newX, newY);
+				return true;
+			}
+			oldT = newT;
 			fingerId1 = event.getPointerId(0); 
 			fingerId2 = -1;
 			// Log.v(TAG, "ACTION_DOWN "+fingerId1);
@@ -338,6 +375,16 @@ public class HandwriterView extends View {
 		return false;
 	}
 	
+	// whether to use the MotionEvent for writing
+	private boolean useForWriting(MotionEvent event) {
+		return !only_pen_input || event.getTouchMajor() == 0.0f;
+	}
+
+	// whether to use the MotionEvent for move/zoom
+	private boolean useForTouch(MotionEvent event) {
+		return !only_pen_input || !useForWriting(event); 
+	}
+
 	private boolean touch_handler_pen(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
@@ -379,9 +426,20 @@ public class HandwriterView extends View {
 			return true;
 		}		
 		else if (action == MotionEvent.ACTION_DOWN) {
-			if (penID != -1) return true;
-			if (only_pen_input && event.getTouchMajor() != 0.0f)
-					return true;   // eat non-pen events
+			newT = System.currentTimeMillis();
+			if (useForTouch(event) && doubleTapWhileWriting && Math.abs(newT-oldT) < 250) {
+				// double-tap
+				centerAndFillScreen(event.getX(), event.getY());
+				return true;
+			}
+			oldT = newT;
+			if (penID != -1) {
+				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
+				penID = -1;
+				return true;
+			}
+			if (!useForWriting(event)) 
+				return true;   // eat non-pen events
 			// Log.v(TAG, "ACTION_DOWN");
 			if (page.is_readonly) {
 				toast_is_readonly();
@@ -390,7 +448,6 @@ public class HandwriterView extends View {
 			position_x[0] = newX = event.getX();
 			position_y[0] = newY = event.getY();
 			pressure[0] = newPressure = event.getPressure();
-			newT = System.currentTimeMillis();
 			N = 1;
 			penID = event.getPointerId(0);
 			pen.setStrokeWidth(get_scaled_pen_thickness());

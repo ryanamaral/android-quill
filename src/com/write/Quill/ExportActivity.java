@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class ExportActivity
 	private File file;
 	private Spinner sizes;
 	private ArrayAdapter<CharSequence> exportSizes;
+	private TextView name;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,8 @@ public class ExportActivity
     	sizes = (Spinner)layout.findViewById(R.id.export_size);
     	sizes.setAdapter(exportSizes);
 
+    	name = (TextView)layout.findViewById(R.id.export_name);
+    	
     	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
     	format.setOnItemSelectedListener(this);
 
@@ -95,8 +99,14 @@ public class ExportActivity
     }
 
 	void changeFileExtensionTo(String ext) {
-		
-	}
+		String txt = name.getText().toString();
+		int dot = txt.lastIndexOf('.');
+		if (dot == -1 || dot == 0) 
+			txt = txt + ext;
+		else
+			txt = txt.substring(0, dot) + ext;
+		name.setText(txt);
+	}	
 	
 	@Override
 	public void onItemSelected(AdapterView<?> spinner, View view, int position,
@@ -244,8 +254,7 @@ public class ExportActivity
     private boolean openShareFile() {
       	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
     	int pos = spinner.getSelectedItemPosition();
-    	TextView text = (TextView)layout.findViewById(R.id.export_name);
-		filename = text.getText().toString();
+		filename = name.getText().toString();
 		if (filename.startsWith("/"))
     		file = new File(filename);
 		else
