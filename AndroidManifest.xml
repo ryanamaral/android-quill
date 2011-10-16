@@ -18,6 +18,7 @@
         <activity android:name="com.write.Quill.ExportActivity"
             android:theme="@android:style/Theme.Holo.Light.Dialog" 
         ></activity>
+        <activity android:name="com.write.Quill.TagsListActivity" android:theme="@android:style/Theme.Holo.Light"></activity>
 
     </application>
 </manifest>

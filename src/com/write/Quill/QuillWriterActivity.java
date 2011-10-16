@@ -2,10 +2,13 @@ package com.write.Quill;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 
 import com.write.Quill.R;
 import com.write.Quill.Page.PaperType;
 
+import android.app.ActionBar;
+import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -21,16 +24,25 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
@@ -48,6 +60,7 @@ public class QuillWriterActivity extends Activity {
     private HandwriterView mView;
     private Menu mMenu;
     private Toast mToast;
+    private Button tagButton;
     
     private boolean volumeKeyNavigation;
 
@@ -71,8 +84,45 @@ public class QuillWriterActivity extends Activity {
         mView = new HandwriterView(this);
         setContentView(mView);
         
-        getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
-        
+        ActionBar bar = getActionBar();
+        bar.setDisplayShowTitleEnabled(false);
+        bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
+
+//        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+//        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, 
+//        		R.array.someArrayForDisplayInList,
+//                android.R.layout.simple_spinner_dropdown_item);
+//        bar.setListNavigationCallbacks(mSpinnerAdapter, null);
+
+        tagButton = new Button(this);
+        tagButton.setText(R.string.tag_button);
+        bar.setCustomView(tagButton);
+        bar.setDisplayShowCustomEnabled(true);
+
+      	tagButton.setOnClickListener(
+        new OnClickListener() {
+            public void onClick(View v) {
+//                View tag_menu = getLayoutInflater().inflate(R.layout.tag_action_menu, null);
+//                ListAdapter mListAdapter = ArrayAdapter.createFromResource(getApplicationContext(), 
+//                		R.array.someArrayForDisplayInList,
+//                		android.R.layout.simple_list_item_1);
+//                ListView lv = (ListView) findViewById(R.id.tag_list);
+//                assert mListAdapter != null;
+//                assert lv != null;
+//                lv.setAdapter(mListAdapter);
+                
+//            	TagsListView tag_menu = new TagsListView(getApplicationContext());
+//                PopupWindow pw = new PopupWindow((View)tag_menu,
+//        				200, 200, true);
+//        		pw.setBackgroundDrawable(new );
+//        		pw.showAsDropDown(tagButton);
+              // do something when the button is clicked
+            	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
+            	startActivity(i);
+            }
+        });
+
+
         final Object data = getLastNonConfigurationInstance();
         if (data != null) {
         	Log.v(TAG, "Got book handed through.");
@@ -85,7 +135,8 @@ public class QuillWriterActivity extends Activity {
         assert (book != null) : "Book object not initialized.";
     	mView.set_page_and_zoom_out(book.current_page());       
     }
-
+    
+    
     @Override
     protected Dialog onCreateDialog(int id) {
     	switch (id) {
@@ -180,12 +231,12 @@ public class QuillWriterActivity extends Activity {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (action == KeyEvent.ACTION_UP) {
-				flip_page_next();
+				flip_page_prev();
 			}
 			return true;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (action == KeyEvent.ACTION_DOWN) {
-				flip_page_prev();
+				flip_page_next();
 			}
 			return true;
 		default:
