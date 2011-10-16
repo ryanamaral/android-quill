@@ -81,7 +81,8 @@ public class Preferences extends PreferenceActivity {
 		    }};
 //		String[] entries = dir.listFiles(filter);
 		File[] entries = dir.listFiles();
-		ArrayList<String> files = new ArrayList<String>();	
+		ArrayList<String> files = new ArrayList<String>();
+		if (entries == null) return files;
 		for (int i=0; i<entries.length; i++) {
 			files.add(entries[i].getAbsolutePath());
 		}
