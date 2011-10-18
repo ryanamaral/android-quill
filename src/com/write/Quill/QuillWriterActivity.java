@@ -400,13 +400,17 @@ public class QuillWriterActivity extends Activity {
     
     @Override protected void onResume() {
         super.onResume();
+        String model = android.os.Build.MODEL;
+        Log.v(TAG, "Model = >"+model+"<");
+        // TODO set defaults
+        
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
     	mView.set_pen_color(settings.getInt("pen_color", mView.pen_color));
     	mView.set_pen_thickness(settings.getInt("pen_thickness", mView.pen_thickness));
     	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
     	mView.set_pen_type(Stroke.PenType.values()[type]);
-    	mView.only_pen_input = settings.getBoolean("only_pen_input", false);
+    	mView.only_pen_input = settings.getBoolean("only_pen_input", true);
     	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	Log.d(TAG, "only_pen_input: "+mView.only_pen_input);
