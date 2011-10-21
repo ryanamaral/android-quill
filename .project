@@ -3,6 +3,7 @@
 	<name>Quill</name>
 	<comment></comment>
 	<projects>
+		<project>AmbilWarna</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

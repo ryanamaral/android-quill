@@ -27,7 +27,7 @@
     ></EditText>
     
     <ListView 
-    	android:id="@+id/list" 
+    	android:id="@+id/tag_list" 
         android:layout_below="@id/tag_text"
         android:layout_height="fill_parent"
     	android:layout_width="fill_parent" 

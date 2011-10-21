@@ -42,9 +42,10 @@ public class Page {
 	
 	// persistent data
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
+	public final TagManager.TagSet tags;
 	public float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
-	protected PaperType paper_type = PaperType.EMPTY;
+	protected PaperType paper_type = PaperType.RULED;
 	
 	protected float offset_x = 0f;
 	protected float offset_y = 0f;
@@ -175,9 +176,12 @@ public class Page {
 			siter.next().write_to_stream(out);
 	}
 	
-	public Page() {}
+	public Page() {
+		tags = TagManager.newTagSet();
+	}
 
 	public Page(Page template) {
+		tags = template.tags.copy();
 		set_paper_type(template.paper_type);
 		set_aspect_ratio(template.aspect_ratio);
 		set_transform(template.offset_x, template.offset_y, template.scale);
@@ -185,6 +189,9 @@ public class Page {
 	
 
 	public Page(DataInputStream in) throws IOException {
+		// TODO
+		tags = TagManager.newTagSet();
+		
 		int version = in.readInt();
 		if (version == 1)
 			paper_type = PaperType.EMPTY;
@@ -205,6 +212,7 @@ public class Page {
 		background.setPaperType(paper_type);
 	}
 }
+
 
 
 

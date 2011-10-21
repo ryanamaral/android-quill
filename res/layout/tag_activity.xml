@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+   	android:id="@+id/linearLayout1" 
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" android:orientation="vertical">
+    android:layout_height="fill_parent" 
+    android:orientation="horizontal">
+    <com.write.Quill.TagListView 
+    	android:id="@+id/tag_list_view" 
+    	android:layout_width="wrap_content" 
+    	android:layout_height="fill_parent"
+    ></com.write.Quill.TagListView>
+    <LinearLayout 
+    	android:layout_height="fill_parent" 
+    	android:id="@+id/linearLayout2" 
+    	android:layout_width="fill_parent" 
+    	android:orientation="vertical">
+   		<com.write.Quill.TagCloudView 
+   			android:id="@+id/tag_cloud_view" 
+   			android:layout_width="fill_parent" 
+   			android:layout_height="match_parent">
+   		</com.write.Quill.TagCloudView>
+	    <EditText 
+	    	android:layout_weight="1" 
+	    	android:layout_height="14dp" 
+	    	android:id="@+id/status" 
+	    	android:layout_width="fill_parent"  	
+	    	android:text="Status bar">
+   		</EditText>    	
+    </LinearLayout>
 </LinearLayout>
