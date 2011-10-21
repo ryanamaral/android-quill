@@ -43,6 +43,7 @@ public class TagsListActivity extends Activity {
 		assert tagList != null: "Tag list not created.";
 		assert tagCloud != null: "Tag cloud not created.";
 		tagList.setTagSet(tags);
+		tagCloud.setTagSet(tags);
 		
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
