@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -14,8 +15,10 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-public class TagsListActivity extends Activity 
-	implements AdapterView.OnItemClickListener, View.OnKeyListener {
+public class TagsListActivity extends Activity implements 
+		AdapterView.OnItemClickListener, 
+		View.OnKeyListener, 
+		View.OnTouchListener {
 	
 	private static final String TAG = "TagsListActivity";
 	private Button tagButton;
@@ -53,8 +56,26 @@ public class TagsListActivity extends Activity
 		tagList.notifyTagsChanged();
 		tagCloud.notifyTagSelectionChanged();
 	}
-	
-	
+
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		Log.d(TAG, "Motion");
+		if (view.getId() == R.id.tag_cloud_view) {
+			Log.d(TAG, "tag_cloud");
+			float x = event.getX();
+			float y = event.getY();
+			Tag t = tagCloud.findTagAt(x,y);
+			if (t != null) {
+				if (tags.contains(t))
+					tags.remove(t);
+				else
+					tags.add(t);
+				tagList.notifyTagsChanged();
+				tagCloud.notifyTagSelectionChanged(); 
+			}
+		}
+		return false;
+	}
 
 	
 	@Override
@@ -84,6 +105,7 @@ public class TagsListActivity extends Activity
 		tagCloud = (TagCloudView) findViewById(R.id.tag_cloud_view);
 		tagList.setOnItemClickListener(this);
 		tagList.setOnKeyListener(this);
+		tagCloud.setOnTouchListener(this);
 		assert tagList != null: "Tag list not created.";
 		assert tagCloud != null: "Tag cloud not created.";
 		tagList.setTagSet(tags);
@@ -103,7 +125,8 @@ public class TagsListActivity extends Activity
       	            }});
       	
 	}
-	
-	
+
+
+
 	
 }

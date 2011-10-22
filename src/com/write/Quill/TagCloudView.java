@@ -24,7 +24,7 @@ import android.text.Layout.Alignment;
 
 public class TagCloudView extends View {
 	private static final String TAG = "TagCloudView";
-	private static int MAX_TAG_WIDTH = 300; 
+	private static float MAX_TAG_WIDTH = 10f; 
 	private static int CLOUD_PAD = 2;
 
 	private TagSet tags;
@@ -35,6 +35,11 @@ public class TagCloudView extends View {
 	private final TextPaint styleNormal, styleHighlight;
 	private final Rect rect = new Rect();
 	private Handler handler = new Handler();
+
+//	@Override
+//	public void setOnTouchListener(View.OnTouchListener listener) {
+//		
+//	}
 
 	public TagCloudView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -82,8 +87,8 @@ public class TagCloudView extends View {
 
 
 	private LinkedList<TagLayout> tagLayout = new LinkedList<TagLayout>();
-	private int cloud_width = 0;
-	private int cloud_height = 0;
+	private int cloudWidth = 0;
+	private int cloudHeight = 0;
 	private int centerX = 0;
 	private int centerY = 0;
 	
@@ -105,25 +110,30 @@ public class TagCloudView extends View {
 			style.setTypeface(Typeface.SERIF);
 			style.setColor(Color.DKGRAY);
 			style.setAntiAlias(true);
-			if (tagLayout.size() == 0)
-				style.setTextSize(48);
-			else if (tagLayout.size() <= 3)
-				style.setTextSize(36);
-			else if (tagLayout.size() <= 7)
-				style.setTextSize(24);
-			else if (tagLayout.size() <= 15)
-				style.setTextSize(18);
-			else if (tagLayout.size() <= 25)
-				style.setTextSize(14);
-			else if (tagLayout.size() <= 35)
-				style.setTextSize(12);
+			float s = 120 * 
+				20f/(20+tags.allTags().size()) * 
+				3f/(3+tagLayout.size());
+			style.setTextSize(s);
+//			if (tagLayout.size() == 0)
+//				style.setTextSize(48);
+//			else if (tagLayout.size() <= 3)
+//				style.setTextSize(36);
+//			else if (tagLayout.size() <= 7)
+//				style.setTextSize(24);
+//			else if (tagLayout.size() <= 15)
+//				style.setTextSize(18);
+//			else if (tagLayout.size() <= 25)
+//				style.setTextSize(14);
+//			else if (tagLayout.size() <= 35)
+//				style.setTextSize(12);
 		}
 		protected TagLayout(Tag mTag) {
 			tag = mTag;
 			initTextStyle();
 			setHighlight();
 			layout = new StaticLayout(
-					tag.name, style, MAX_TAG_WIDTH, 
+					tag.name, style, 
+					(int)(MAX_TAG_WIDTH*style.getTextSize()), 
 					Alignment.ALIGN_NORMAL, 1, 0, false);
 			height = layout.getHeight();
 			width = 0;
@@ -204,8 +214,8 @@ public class TagCloudView extends View {
 						delta.s = -(moving.rect.right-obstacle.rect.left) / vx;
 					r.set(moving.rect);	
 					delta.apply(r);
-					collision_x = (Math.max(r.top, obstacle.rect.top) < 
-								   Math.min(r.bottom, obstacle.rect.bottom));
+					collision_x =  (Math.min(r.bottom, obstacle.rect.bottom) >=
+							        Math.max(r.top, obstacle.rect.top) - 1);
 				}
 				float sx = delta.s;
 				if (vy == 0) {  
@@ -217,8 +227,8 @@ public class TagCloudView extends View {
 						delta.s = -(moving.rect.bottom-obstacle.rect.top) / vy;
 					r.set(moving.rect);	
 					delta.apply(r);					
-					collision_y = (Math.min(r.right, obstacle.rect.right) >
-								   Math.max(r.left, obstacle.rect.left));
+					collision_y = (Math.min(r.right, obstacle.rect.right) >=
+								   Math.max(r.left, obstacle.rect.left) - 1);
 				}
 				float sy = delta.s;
 
@@ -237,15 +247,16 @@ public class TagCloudView extends View {
 		Log.d(TAG, "onSizeChanged "+w+" "+h+" "+oldw+" "+oldh);
 		handler.removeCallbacks(mIncrementalDraw);
 		super.onSizeChanged(w, h, oldw, oldh);
-		cloud_width = w;
-		cloud_height = h;
+		cloudWidth = w;
+		cloudHeight = h;
 		centerX = w/2;
 		centerY = h/2;
-		tagLayout.clear();
-		if ((w!=oldw || h!=oldh) && tags != null) {
+		if ((w!=oldw && h!=oldh) && tags != null) {
+			tagLayout.clear();
 			tagIter = tags.allTags().listIterator();
 			handler.post(mIncrementalDraw);
-		}
+		} else 
+			invalidate();
 	}
 
 
@@ -253,9 +264,6 @@ public class TagCloudView extends View {
 	// returns whether there was space to add tag
 	public boolean addTagToCloud(Tag tag) {
 		TagLayout t = new TagLayout(tag);
-//		float phi = (float)(Math.random() * 2 * Math.PI);
-//		t.positionSlideInFromInfinty(FloatMath.cos(phi), FloatMath.sin(phi));
-//		t.positionSlideInFromInfinty(1, -2);
 		float phi_min = 0;
 		float r_min = 0;
 		int N = 36;
@@ -264,7 +272,6 @@ public class TagCloudView extends View {
 			t.moveToOrigin();
 			t.positionSlideInFromInfinty(FloatMath.cos(phi), FloatMath.sin(phi));
 			float r = FloatMath.sqrt(t.x*t.x+t.y*t.y);
-			Log.d(TAG, "r = "+r);
 			if (i==0) 
 				r_min = r;
 			else if (r<r_min) {
@@ -278,6 +285,18 @@ public class TagCloudView extends View {
 		return true;
 	}
 
+	public Tag findTagAt(float xEvent, float yEvent) {
+		int x = (int)(xEvent - centerX);
+		int y = (int)(yEvent - centerY);
+		ListIterator<TagLayout> iter = tagLayout.listIterator();
+		while (iter.hasNext()) {
+			TagLayout tl = iter.next();
+			if (tl.rect.contains(x,y)) {
+				return tl.tag;
+			}
+		}		
+		return null;
+	}
 	
 	@Override
 	public void onDraw(Canvas canvas) {
