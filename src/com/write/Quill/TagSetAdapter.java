@@ -16,13 +16,11 @@ import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class TagSetAdapter extends ArrayAdapter 
-	implements ListView.OnItemClickListener, View.OnKeyListener {
+public class TagSetAdapter extends ArrayAdapter {
 	
 	private static final String TAG = "TagSetAdapter";
 	
 	private TagSet tags;
-	private TagManager tagManager = TagManager.getTagManager();
 	private Context context;
 
 	public TagSetAdapter(Context mContext, TagSet active_tags) {
@@ -33,33 +31,6 @@ public class TagSetAdapter extends ArrayAdapter
 		
 	}
 
-	
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        // If the event is a key-down event on the "enter" button
-    	EditText text = (EditText)v;
-        if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-            (keyCode == KeyEvent.KEYCODE_ENTER)) {
-        	TagManager tm = TagManager.getTagManager();
-        	Tag t = tm.makeTag(text.getText().toString());
-        	tags.add(t);
-    		notifyDataSetChanged();
-        	return true;
-        }
-        return false;
-    }
-	
-	
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Log.v(TAG, "onItemClick");
-		Tag t = tagManager.get(position);
-		if (tags.contains(t))
-			tags.remove(t);
-		else
-			tags.add(t);
-		Log.d(TAG, "Click: "+tags.size());
-		notifyDataSetChanged();
-	}
-	
 	
 	@Override
     public View getView(int position, View convertView, ViewGroup parent) {

@@ -77,7 +77,7 @@ public class TagManager {
 		ListIterator<Tag> iter = tags.listIterator();
 		while (iter.hasNext()) {
 			Tag t = iter.next();
-			if (t.name == name)
+			if (name.equalsIgnoreCase(t.name))
 				return t;
 		}
 		Tag t = new Tag(name);

@@ -25,6 +25,10 @@ public class TagListView extends RelativeLayout {
 	protected ListView list;
 	protected EditText edittext;
 
+	public void notifyTagsChanged() {
+		adapter.notifyDataSetChanged();
+	}
+	
 	public TagListView(Context mContext, AttributeSet attrs) {
 		super(mContext, attrs);
 		context = mContext;
@@ -46,15 +50,21 @@ public class TagListView extends RelativeLayout {
         edittext = (EditText) findViewById(R.id.tag_text);	
     }
 
+	public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {
+		list.setOnItemClickListener(listener);
+	}
+	
+	public void setOnKeyListener(View.OnKeyListener listener) {
+        edittext.setOnKeyListener(listener);
+	}
+
+	
 	public void setTagSet(TagSet tags) {
         Log.d(TAG, "setTagSet");
 
 		adapter = new TagSetAdapter(context, tags);
         Log.d("adapter size", String.format("%d",adapter.getCount()));
-        list.setOnItemClickListener(adapter);
         list.setAdapter(adapter);
-        list.setOnItemClickListener(adapter);
-        edittext.setOnKeyListener(adapter);
 	}
 	
 }
