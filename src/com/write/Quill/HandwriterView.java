@@ -40,6 +40,7 @@ public class HandwriterView extends View {
 	private float oldX, oldY, newX, newY;  // main pointer
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
+	private TagOverlay overlay = null;
 	
     private int N = 0;
 	private static final int Nmax = 1024;
@@ -109,6 +110,7 @@ public class HandwriterView extends View {
 			page.set_transform(0, 0, dimension);
 		Log.v(TAG, "set_page at scale "+page.scale+" canvas w="+W+" h="+H);
 		page.draw(canvas);
+		overlay = new TagOverlay(page.tags);
 		invalidate();
 	}
 
@@ -224,6 +226,8 @@ public class HandwriterView extends View {
 			canvas.drawBitmap(bitmap, x, y, null);
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
+		if (overlay != null) 
+			overlay.draw(canvas);
 	}
 
 	@Override public boolean onTouchEvent(MotionEvent event) {
