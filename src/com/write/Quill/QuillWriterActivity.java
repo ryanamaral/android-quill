@@ -56,7 +56,8 @@ public class QuillWriterActivity extends Activity {
 	public static final int DIALOG_PAPER_ASPECT = 3;
 	public static final int DIALOG_PAPER_TYPE = 4;
 
-	private static Book book;
+	private Book book = Book.getBook();
+	
     private HandwriterView mView;
     private Menu mMenu;
     private Toast mToast;
@@ -64,16 +65,12 @@ public class QuillWriterActivity extends Activity {
     
     private boolean volumeKeyNavigation;
 
-    // Other activities can access the book though this static method 
-    public static Book getBook() {
-        assert (book != null) : "Book object not initialized.";
-    	return book;
-    }
+    private static final String HAVE_BOOK = "have_book";
     
     @Override
-	public Object onRetainNonConfigurationInstance() {
-	    return book;
-	}
+	public void onSaveInstanceState(Bundle state) {
+    	state.putBoolean(HAVE_BOOK, true);
+    }
     
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,14 +99,13 @@ public class QuillWriterActivity extends Activity {
         });
 
 
-        final Object data = getLastNonConfigurationInstance();
-        if (data != null) {
+        if (savedInstanceState != null &&
+        	savedInstanceState.getBoolean(HAVE_BOOK)) {
         	Log.v(TAG, "Got book handed through.");
-    		assert data instanceof Book: "unknown data";
-        	book = (Book)data;
+        	book = Book.getBook();
         } else {
         	Log.v(TAG, "Reading book from storage.");
-        	book = new Book(getApplicationContext());
+        	book.load(getApplicationContext());
         }
         assert (book != null) : "Book object not initialized.";
     	mView.set_page_and_zoom_out(book.current_page());       
@@ -248,28 +244,39 @@ public class QuillWriterActivity extends Activity {
         return true;
     }
     
-    private static final int ACTIVITY_PREFERENCES = 0;
-    
+    protected static final int ACTIVITY_PREFERENCES = 0;
+    protected static final int ACTIVITY_TAG_PAGE = 1;
+    protected static final int ACTIVITY_TAG_FILTER = 2;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	Log.v(TAG, "onActivityResult "+requestCode+" "+resultCode);
-    	if (requestCode == ACTIVITY_PREFERENCES &&  resultCode == Preferences.RESULT_RESTORE_BACKUP) {
-    		String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
-    		try {
-    			book = Book.loadArchive(new File(filename));
-    		} catch (IOException e) {
-    			Log.e(TAG, "Error loading the backup file, sorry");
-    			return;
+    	switch (requestCode) {
+    	case ACTIVITY_PREFERENCES:
+    		if (resultCode == Preferences.RESULT_RESTORE_BACKUP) {
+    			String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
+    			try {
+    				book.loadArchive(new File(filename));
+    			} catch (IOException e) {
+    				Log.e(TAG, "Error loading the backup file, sorry");
+    				return;
+    			}
     		}
-    		mView.set_page_and_zoom_out(book.current_page());
+        	mView.set_page_and_zoom_out(book.current_page());
+        	return;
+   		case ACTIVITY_TAG_FILTER:
+   		case ACTIVITY_TAG_PAGE:
+        	mView.updateOverlay();
+        	return;
     	}
     }
     
     @Override public boolean onOptionsItemSelected(MenuItem item) {
+    	Intent i;
     	switch (item.getItemId()) {
     	case R.id.settings:
-    		Intent mPreferencesIntent = new Intent(QuillWriterActivity.this, Preferences.class);
-    		startActivityForResult(mPreferencesIntent, ACTIVITY_PREFERENCES);
+    		i = new Intent(QuillWriterActivity.this, Preferences.class);
+    		startActivityForResult(i, ACTIVITY_PREFERENCES);
     		return true;
     	case R.id.fountainpen:
     		mView.set_pen_type(Stroke.PenType.FOUNTAINPEN);
@@ -327,6 +334,15 @@ public class QuillWriterActivity extends Activity {
     	case R.id.export:
     		Intent mExportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
     		startActivity(mExportIntent);
+    		return true;
+    	case R.id.tag_page:
+    		i = new Intent(getApplicationContext(), TagsListActivity.class);    
+        	startActivityForResult(i, ACTIVITY_TAG_PAGE);
+    		return true;
+    	case R.id.tag_filter:
+    	case android.R.id.home:
+    		i = new Intent(getApplicationContext(), OverviewActivity.class);    
+        	startActivityForResult(i, ACTIVITY_TAG_FILTER);
     		return true;
    	default:
     		return super.onOptionsItemSelected(item);

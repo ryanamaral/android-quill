@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.write.Quill.TagManager.Tag;
+import com.write.Quill.TagManager.TagSet;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -18,11 +21,20 @@ import android.util.Log;
 public class Book {
 	private static final String TAG = "Book";
 	private static final String FILENAME_STEM = "quill";
-	// the book always has at least one page. 
-	// deleting the last page is only clearing it etc.
 	
+	// the singleton instance
+	private static Book book = makeEmptyBook(FILENAME_STEM);
+	private Book() {}
+	
+	// Returns always the same instance 
+	public static Book getBook() {
+		return book;
+	}
+	
+	// persistent data
 	protected final LinkedList<Page> pages = new LinkedList<Page>();
 	protected int currentPage = 0;
+	protected TagSet filter = TagManager.newTagSet();
 	
 	private void touch_all_subsequent_pages() {
 		for (int i=currentPage; i<pages.size(); i++)
@@ -33,12 +45,28 @@ public class Book {
 		return pages.get(n);
 	}
 	
+	public TagSet getFilter() {
+		return filter;
+	}
+	
+	public boolean pageMatchesFilter(Page page) {
+		ListIterator<Tag> iter = page.tags.tagIterator();
+		while (iter.hasNext()) {
+			Tag t = iter.next();
+			if (!filter.contains(t))
+				return false;
+		}
+		return true;
+	}
+	
 	public Page current_page() {
 		Log.v(TAG, "current_page() "+currentPage+"/"+pages.size());
 		return pages.get(currentPage);
 	}
 	
 	// deletes page but makes sure that there is at least one page
+	// the book always has at least one page. 
+	// deleting the last page is only clearing it etc.
 	public Page delete_page() {		
 		Log.d(TAG, "delete_page() "+currentPage+"/"+pages.size());
 		if (pages.size() == 1) {
@@ -100,27 +128,27 @@ public class Book {
 			piter.next().write_to_stream(out);
 	}
 	
-	public Book(DataInputStream in) throws IOException {
+	public Book loadFromStream(DataInputStream in) throws IOException {
 		int version = in.readInt();
 		if (version != 1)	
 			throw new IOException("Unknown version!");
 		currentPage = in.readInt();
 		int N = in.readInt();
+		pages.clear();
 		for (int i=0; i<N; i++) {
-			pages.add(new Page(in));
+			book.pages.add(new Page(in));
 		}
+		return book;
 	}
 	
-	private Book() {}
-	
-	public static Book make_empty_Book(String filename_stem) {
+	private static Book makeEmptyBook(String filename_stem) {
 		Book book = new Book();
 		book.pages.add(new Page());
 		return book;
 	}
 	
 	// Loads the book. This is the complement to the save() method
-	public Book(Context context) {
+	public void load(Context context) {
 		int n_pages;
 		try {
 			n_pages = load_index(context);
@@ -128,6 +156,7 @@ public class Book {
 			Log.e(TAG, "Error opening book index page ");
 			n_pages = 1;
 		}
+		pages.clear();
 		for (int i=0; i<n_pages; i++) {
 			try {
 				pages.add(load_page(i, context));
@@ -178,8 +207,7 @@ public class Book {
 	}
 	
     // Save an archive 
-    public static Book loadArchive(File file) throws IOException {
-		Book book = new Book();
+    public void loadArchive(File file) throws IOException {
     	FileInputStream fis;
 	    BufferedInputStream buffer;
 	    DataInputStream dataIn = null;
@@ -187,20 +215,20 @@ public class Book {
     		fis = new FileInputStream(file);
     		buffer = new BufferedInputStream(fis);
     		dataIn = new DataInputStream(buffer);
-    		int n_pages = book.load_index(dataIn);
+    		int n_pages = load_index(dataIn);
+    		pages.clear();
     		for (int i=0; i<n_pages; i++)
-    			book.pages.add(book.load_page(i, dataIn));
+    			pages.add(load_page(i, dataIn));
         } finally {
         	if (dataIn != null) dataIn.close();
     	}
         // recover from errors
-        if (book.pages.isEmpty()) book.pages.add(new Page());
-        if (book.currentPage <0) book.currentPage = 0;
-        if (book.currentPage >= book.pages.size()) book.currentPage = book.pages.size() - 1;
-		ListIterator<Page> piter = book.pages.listIterator(); 
+        if (pages.isEmpty()) pages.add(new Page());
+        if (currentPage <0) currentPage = 0;
+        if (currentPage >= pages.size()) currentPage = pages.size() - 1;
+		ListIterator<Page> piter = pages.listIterator(); 
 		while (piter.hasNext())
 			piter.next().is_modified = true;
-		return book;
    }
     	
     	

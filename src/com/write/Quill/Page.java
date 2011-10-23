@@ -38,8 +38,6 @@ public class Page {
 		new PaperTypeName("Quad paper",  PaperType.QUAD),
 	};
 	
-	
-	
 	// persistent data
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	public final TagManager.TagSet tags;

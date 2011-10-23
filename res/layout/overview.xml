@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+>
+    <com.write.Quill.TagListView 
+    	android:id="@+id/tag_list_view" 
+    	android:layout_width="wrap_content" 
+    	android:layout_height="fill_parent"
+    ></com.write.Quill.TagListView>
+    
+    <com.write.Quill.IconView 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="fill_parent" 
+    	android:id="@+id/icons" 
+    ></com.write.Quill.IconView>
+
+</LinearLayout>

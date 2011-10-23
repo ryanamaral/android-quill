@@ -4,10 +4,14 @@ import com.write.Quill.TagManager.TagSet;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +32,7 @@ public class TagsListActivity extends Activity implements
 	protected TagListView tagList;
 	protected TagCloudView tagCloud;
 	protected TextView status;
+	protected Menu menu;
 	
 	protected TagManager tagManager = TagManager.getTagManager();
 	protected TagSet tags = TagManager.newTagSet();
@@ -39,7 +44,7 @@ public class TagsListActivity extends Activity implements
        	else
        		tagCloud.notifyTagsChanged();
    		updateStatusBar();
-    	QuillWriterActivity.getBook().current_page().is_modified = true;
+    	Book.getBook().current_page().is_modified = true;
 	}
 	
     public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -90,6 +95,31 @@ public class TagsListActivity extends Activity implements
 		status.setText("Selected "+tags.size()+" / "+tags.allTags().size()+" tags");
 	}
 	
+    @Override
+    public boolean onCreateOptionsMenu(Menu mMenu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.tag_list, mMenu);
+        menu = mMenu;
+        return true;
+    }
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent i;
+	    switch (item.getItemId()) {
+	        case android.R.id.home:
+	        	finish();
+	        	return true;
+	        case R.id.menu_tag_filter:
+	        	finish();
+	    		i = new Intent(getApplicationContext(), OverviewActivity.class);    
+	        	startActivityForResult(i, QuillWriterActivity.ACTIVITY_TAG_FILTER);
+	    		return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -97,7 +127,7 @@ public class TagsListActivity extends Activity implements
 		Log.d(TAG, "onCreate");
 		TagManager tm = TagManager.getTagManager();
 		tm.sort();
-		tags = QuillWriterActivity.getBook().current_page().tags;
+		tags = Book.getBook().current_page().tags;
 		
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);
@@ -115,18 +145,19 @@ public class TagsListActivity extends Activity implements
 		updateStatusBar();
 		
         ActionBar bar = getActionBar();
-        bar.setDisplayShowTitleEnabled(false);
-        
-        tagButton = new Button(this);
-        tagButton.setText(R.string.tag_button);
-        bar.setCustomView(tagButton);
-        bar.setDisplayShowCustomEnabled(true);
-      	tagButton.setOnClickListener(
-      	        new OnClickListener() {
-      	            public void onClick(View v) {
-      	            	finish();
-      	            }});
-      	
+        bar.setTitle(R.string.title_tag);
+        bar.setDisplayShowTitleEnabled(true);
+        bar.setDisplayHomeAsUpEnabled(true);
+       
+//        tagButton = new Button(this);
+//        tagButton.setText(R.string.tag_button);
+//        bar.setCustomView(tagButton);
+//        bar.setDisplayShowCustomEnabled(true);
+//      	tagButton.setOnClickListener(
+//      	        new OnClickListener() {
+//      	            public void onClick(View v) {
+//      	            	finish();
+//      	            }});      	
 	}
 
 

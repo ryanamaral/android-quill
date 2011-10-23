@@ -7,8 +7,8 @@
     <item android:showAsAction="always" android:menuCategory="container" android:enabled="true" android:checked="false" android:visible="true" android:title="Erase" android:checkable="true" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
     <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="always|withText" android:title="Previous page"></item>
     <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="always|withText" android:title="Next page"></item>
-    <item android:title="Pen1" android:id="@+id/pen1" android:showAsAction="ifRoom"></item>
-    <item android:title="Pen2" android:id="@+id/pen2" android:showAsAction="ifRoom"></item>    
+    <item android:title="Pen1" android:id="@+id/pen1" android:showAsAction="ifRoom" android:visible="false"></item>
+    <item android:title="Pen2" android:id="@+id/pen2" android:showAsAction="ifRoom" android:visible="false"></item>    
     </group>
     
     <item android:showAsAction="ifRoom|withText" android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item>
@@ -24,13 +24,22 @@
             <item android:id="@+id/page_type" android:title="Paper"></item><item android:id="@+id/page_insert" android:title="Insert"></item>
             <item android:id="@+id/page_next" android:title="Next"></item>
             <item android:id="@+id/page_prev" android:title="Previous"></item>
-            <item android:id="@+id/page_last" android:title="Last"></item>            
+            <item android:id="@+id/page_last" android:title="Last"></item>
+            <item android:title="Tags" android:id="@+id/tag_page"></item>            
         </menu>
     </item>
     </group>
     
     <item android:id="@+id/export" android:title="Export"></item>
     <item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="Settings"></item>
+    <group android:id="@+id/tag_group">
+        <item android:id="@+id/tag" android:title="Tags">
+            <menu>
+                <item android:id="@+id/tag_page" android:title="Tag current page"></item>
+                <item android:id="@+id/tag_filter" android:title="Filter"></item>
+            </menu>
+        </item>
+    </group>
 
 
 

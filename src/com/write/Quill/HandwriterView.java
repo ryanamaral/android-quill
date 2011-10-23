@@ -110,8 +110,12 @@ public class HandwriterView extends View {
 			page.set_transform(0, 0, dimension);
 		Log.v(TAG, "set_page at scale "+page.scale+" canvas w="+W+" h="+H);
 		page.draw(canvas);
-		overlay = new TagOverlay(page.tags);
+		updateOverlay();
 		invalidate();
+	}
+	
+	public void updateOverlay() {
+		overlay = new TagOverlay(page.tags);
 	}
 
 	public void centerAndFillScreen(float xCenter, float yCenter) {

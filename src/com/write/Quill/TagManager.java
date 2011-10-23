@@ -99,6 +99,10 @@ public class TagManager {
 			return rc;
 		}
 		
+		public ListIterator<Tag> tagIterator() {
+			return tags.listIterator();
+		}
+		
 		public LinkedList<Tag> allTags() {
 			return tagManager.tags;
 		}

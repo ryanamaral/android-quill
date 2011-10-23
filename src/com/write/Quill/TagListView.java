@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class TagListView extends RelativeLayout {
 	private static final String TAG = "TagsListView";
@@ -24,7 +25,23 @@ public class TagListView extends RelativeLayout {
 	protected TagSetAdapter adapter = null;
 	protected ListView list;
 	protected EditText edittext;
+	protected TextView label;
 
+	public void showNewTextEdit(boolean show) {
+		if (show) {
+			edittext.setVisibility(View.VISIBLE);
+			label.setVisibility(View.VISIBLE);
+		} else {
+			edittext.setVisibility(View.GONE);
+			label.setVisibility(View.GONE);
+			list.setPadding(
+					list.getPaddingLeft(), 
+					0,
+					list.getPaddingRight(), 
+					list.getPaddingBottom()); 
+		}
+	}
+	
 	public void notifyTagsChanged() {
 		adapter.notifyDataSetChanged();
 	}
@@ -48,6 +65,7 @@ public class TagListView extends RelativeLayout {
 		layout = layoutInflater.inflate(R.layout.tag_list, this);
         list = (ListView) findViewById(R.id.tag_list);     
         edittext = (EditText) findViewById(R.id.tag_text);	
+        label = (TextView) findViewById(R.id.tag_new_label);
     }
 
 	public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {

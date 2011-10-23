@@ -22,6 +22,9 @@
         	android:name="com.write.Quill.TagsListActivity" 
         	android:theme="@android:style/Theme.Holo.Light">
         </activity>
-
+        <activity 
+        	android:name="com.write.Quill.OverviewActivity"
+        	android:theme="@android:style/Theme.Holo.Light">
+        </activity>
     </application>
 </manifest>

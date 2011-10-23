@@ -25,6 +25,7 @@ public class TagOverlay {
 	private final StaticLayout layout;
 	
 	public TagOverlay(TagSet ts) {
+		TagSet filter = Book.getBook().getFilter();
 		tagSet = ts;
 		style.setTextAlign(Align.RIGHT);
 		style.setAntiAlias(true);
@@ -32,10 +33,18 @@ public class TagOverlay {
 		String s = "";
 		if (ts.tags.size() > 0) {
 			s = "Tags:";
-			ListIterator<Tag> iter = ts.tags.listIterator();
+			ListIterator<Tag> iter = ts.tagIterator();
 			while (iter.hasNext()) {
 				Tag t = iter.next();
 				s += "\n" + t.name;
+				if (filter.contains(t))
+					s += " (required)";
+			}
+			iter = filter.tagIterator();
+			while (iter.hasNext()) {
+				Tag t = iter.next();
+				if (!ts.contains(t)) 
+					s += "\n" + t.name + " (missing)";
 			}
 		}
 		layout = new StaticLayout(
