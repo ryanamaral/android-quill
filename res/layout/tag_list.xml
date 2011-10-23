@@ -15,6 +15,15 @@
         android:text="New"
     />
 
+    
+    <ListView 
+    	android:id="@+id/tag_list" 
+        android:layout_below="@id/tag_new_label"
+        android:layout_height="fill_parent"
+    	android:layout_width="fill_parent" 
+    	android:paddingTop="15dp"
+    ></ListView>
+	
     <EditText 
         android:id="@+id/tag_text" 
         android:layout_toRightOf="@id/tag_new_label"
@@ -25,14 +34,6 @@
        	android:singleLine="true"
        	android:selectAllOnFocus="true"
     ></EditText>
-    
-    <ListView 
-    	android:id="@+id/tag_list" 
-        android:layout_below="@id/tag_text"
-        android:layout_height="fill_parent"
-    	android:layout_width="fill_parent" 
-    ></ListView>
-	
 
     
 </RelativeLayout>

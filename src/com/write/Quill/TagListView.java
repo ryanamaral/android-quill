@@ -60,10 +60,7 @@ public class TagListView extends RelativeLayout {
 
 	
 	public void setTagSet(TagSet tags) {
-        Log.d(TAG, "setTagSet");
-
 		adapter = new TagSetAdapter(context, tags);
-        Log.d("adapter size", String.format("%d",adapter.getCount()));
         list.setAdapter(adapter);
 	}
 	

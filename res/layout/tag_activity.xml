@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-   	android:id="@+id/linearLayout1" 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" 
-    android:orientation="horizontal">
+	android:orientation="horizontal"
+	android:gravity="center" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:padding="0dp"
+	>
     <com.write.Quill.TagListView 
     	android:id="@+id/tag_list_view" 
     	android:layout_width="wrap_content" 
     	android:layout_height="fill_parent"
     ></com.write.Quill.TagListView>
-    <LinearLayout 
-    	android:layout_height="fill_parent" 
-    	android:id="@+id/linearLayout2" 
-    	android:layout_width="fill_parent" 
-    	android:orientation="vertical">
-   		<com.write.Quill.TagCloudView 
-   			android:id="@+id/tag_cloud_view" 
-   			android:layout_width="fill_parent" 
-   			android:layout_height="match_parent">
-   		</com.write.Quill.TagCloudView>
-	    <EditText 
-	    	android:layout_weight="1" 
-	    	android:layout_height="14dp" 
-	    	android:id="@+id/status" 
-	    	android:layout_width="fill_parent"  	
-	    	android:text="Status bar">
-   		</EditText>    	
-    </LinearLayout>
-</LinearLayout>
+	<TextView 
+	    android:layout_height="wrap_content" 
+	    android:layout_alignBottom="@id/tag_list_view"
+	    android:id="@+id/status" 
+ 	    android:layout_toRightOf="@id/tag_list_view"
+	    android:layout_width="fill_parent"
+	    android:textSize="12dp"
+	    android:text="Status bar"
+   		android:paddingTop="0dp"
+   		android:paddingBottom="5dp"
+   		android:paddingRight="15dp"
+   		android:gravity="right"
+    >
+   	</TextView>    	
+ 	<com.write.Quill.TagCloudView 
+ 	    android:layout_toRightOf="@id/tag_list_view"
+		android:layout_above="@id/status"
+   		android:id="@+id/tag_cloud_view" 
+   		android:layout_width="fill_parent" 
+   		android:layout_height="fill_parent"
+	>
+   	</com.write.Quill.TagCloudView>
+</RelativeLayout>
+

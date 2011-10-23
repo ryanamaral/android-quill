@@ -4,6 +4,7 @@ import com.write.Quill.TagManager.TagSet;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -13,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class TagsListActivity extends Activity implements 
@@ -25,9 +27,20 @@ public class TagsListActivity extends Activity implements
 	private View layout;
 	protected TagListView tagList;
 	protected TagCloudView tagCloud;
+	protected TextView status;
 	
 	protected TagManager tagManager = TagManager.getTagManager();
 	protected TagSet tags = TagManager.newTagSet();
+	
+	protected void tagsChanged(boolean onlySelection) {
+       	tagList.notifyTagsChanged();
+       	if (onlySelection)
+       		tagCloud.notifyTagSelectionChanged();
+       	else
+       		tagCloud.notifyTagsChanged();
+   		updateStatusBar();
+    	QuillWriterActivity.getBook().current_page().is_modified = true;
+	}
 	
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // If the event is a key-down event on the "enter" button
@@ -38,8 +51,7 @@ public class TagsListActivity extends Activity implements
         	TagManager tm = TagManager.getTagManager();
         	Tag t = tm.makeTag(text.getText().toString());
         	tags.add(t);
-        	tagList.notifyTagsChanged();
-        	tagCloud.notifyTagsChanged();
+        	tagsChanged(false);
         	return true;
         }
         return false;
@@ -53,15 +65,13 @@ public class TagsListActivity extends Activity implements
 		else
 			tags.add(t);
 		Log.d(TAG, "Click: "+tags.size());
-		tagList.notifyTagsChanged();
-		tagCloud.notifyTagSelectionChanged();
+    	tagsChanged(true);
 	}
 
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		Log.d(TAG, "Motion");
 		if (view.getId() == R.id.tag_cloud_view) {
-			Log.d(TAG, "tag_cloud");
+			Log.d(TAG, "onTouch");
 			float x = event.getX();
 			float y = event.getY();
 			Tag t = tagCloud.findTagAt(x,y);
@@ -70,13 +80,15 @@ public class TagsListActivity extends Activity implements
 					tags.remove(t);
 				else
 					tags.add(t);
-				tagList.notifyTagsChanged();
-				tagCloud.notifyTagSelectionChanged(); 
+	        	tagsChanged(true);
 			}
 		}
 		return false;
 	}
 
+	protected void updateStatusBar() {
+		status.setText("Selected "+tags.size()+" / "+tags.allTags().size()+" tags");
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,20 +96,8 @@ public class TagsListActivity extends Activity implements
 		
 		Log.d(TAG, "onCreate");
 		TagManager tm = TagManager.getTagManager();
-		tags.add(tm.makeTag("Selection 1"));
-		tags.add(tm.makeTag("Selection 2"));
-		tags.add(tm.makeTag("Selection 3"));
-		tm.makeTag("Tag 4");
-		tm.makeTag("Tag 5");
-		tm.makeTag("Tag 6");
-		tm.makeTag("Tag 7");
-		tm.makeTag("Tag 8");
-		tm.makeTag("Tag 9");
-		tm.makeTag("Tag 10");
-		tm.makeTag("Tag 11");
-
-//		view = new TagsListView(this, tags);
-//		setContentView(view);
+		tm.sort();
+		tags = QuillWriterActivity.getBook().current_page().tags;
 		
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);
@@ -110,6 +110,9 @@ public class TagsListActivity extends Activity implements
 		assert tagCloud != null: "Tag cloud not created.";
 		tagList.setTagSet(tags);
 		tagCloud.setTagSet(tags);
+		
+		status = (TextView) findViewById(R.id.status);
+		updateStatusBar();
 		
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);

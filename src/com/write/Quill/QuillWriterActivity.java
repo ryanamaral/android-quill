@@ -88,12 +88,6 @@ public class QuillWriterActivity extends Activity {
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
 
-//        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-//        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, 
-//        		R.array.someArrayForDisplayInList,
-//                android.R.layout.simple_spinner_dropdown_item);
-//        bar.setListNavigationCallbacks(mSpinnerAdapter, null);
-
         tagButton = new Button(this);
         tagButton.setText(R.string.tag_button);
         bar.setCustomView(tagButton);
@@ -102,21 +96,6 @@ public class QuillWriterActivity extends Activity {
       	tagButton.setOnClickListener(
         new OnClickListener() {
             public void onClick(View v) {
-//                View tag_menu = getLayoutInflater().inflate(R.layout.tag_action_menu, null);
-//                ListAdapter mListAdapter = ArrayAdapter.createFromResource(getApplicationContext(), 
-//                		R.array.someArrayForDisplayInList,
-//                		android.R.layout.simple_list_item_1);
-//                ListView lv = (ListView) findViewById(R.id.tag_list);
-//                assert mListAdapter != null;
-//                assert lv != null;
-//                lv.setAdapter(mListAdapter);
-                
-//            	TagsListView tag_menu = new TagsListView(getApplicationContext());
-//                PopupWindow pw = new PopupWindow((View)tag_menu,
-//        				200, 200, true);
-//        		pw.setBackgroundDrawable(new );
-//        		pw.showAsDropDown(tagButton);
-              // do something when the button is clicked
             	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
             	startActivity(i);
             }

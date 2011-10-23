@@ -164,7 +164,8 @@ public class Page {
 	
 	
 	public void write_to_stream(DataOutputStream out) throws IOException {
-		out.writeInt(2);  // protocol #1
+		out.writeInt(3);  // protocol #1
+		tags.write_to_stream(out);
 		out.writeInt(paper_type.ordinal());
 		out.writeInt(0); // reserved1
 		out.writeInt(0); // reserved2
@@ -193,14 +194,19 @@ public class Page {
 		tags = TagManager.newTagSet();
 		
 		int version = in.readInt();
-		if (version == 1)
+		if (version == 1) {
 			paper_type = PaperType.EMPTY;
-		else {
+		} else if (version == 2) {
+			paper_type = PaperType.values()[in.readInt()];
+			in.readInt();
+			in.readInt();
+		} else {
+			tags.set(TagManager.loadTagSet(in));
 			paper_type = PaperType.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
 		}
-		if (version < 0 || version > 2)
+		if (version < 0 || version > 3)
 			throw new IOException("Unknown version!");
 		is_readonly = in.readBoolean();
 		aspect_ratio = in.readFloat();

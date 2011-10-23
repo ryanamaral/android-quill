@@ -113,19 +113,8 @@ public class TagCloudView extends View {
 			float s = 120 * 
 				20f/(20+tags.allTags().size()) * 
 				3f/(3+tagLayout.size());
+			s = Math.min(s, 90);
 			style.setTextSize(s);
-//			if (tagLayout.size() == 0)
-//				style.setTextSize(48);
-//			else if (tagLayout.size() <= 3)
-//				style.setTextSize(36);
-//			else if (tagLayout.size() <= 7)
-//				style.setTextSize(24);
-//			else if (tagLayout.size() <= 15)
-//				style.setTextSize(18);
-//			else if (tagLayout.size() <= 25)
-//				style.setTextSize(14);
-//			else if (tagLayout.size() <= 35)
-//				style.setTextSize(12);
 		}
 		protected TagLayout(Tag mTag) {
 			tag = mTag;
@@ -152,7 +141,7 @@ public class TagCloudView extends View {
 		public void draw(Canvas canvas) {
 			canvas.save();
 			canvas.translate(centerX, centerY);
-			canvas.drawRect(rect, paint);
+			// canvas.drawRect(rect, paint);
 			canvas.translate(rect.left+CLOUD_PAD, rect.top+CLOUD_PAD);
 			layout.draw(canvas);
 			canvas.restore();
@@ -245,13 +234,13 @@ public class TagCloudView extends View {
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {
 		Log.d(TAG, "onSizeChanged "+w+" "+h+" "+oldw+" "+oldh);
-		handler.removeCallbacks(mIncrementalDraw);
 		super.onSizeChanged(w, h, oldw, oldh);
 		cloudWidth = w;
 		cloudHeight = h;
 		centerX = w/2;
 		centerY = h/2;
 		if ((w!=oldw && h!=oldh) && tags != null) {
+			handler.removeCallbacks(mIncrementalDraw);
 			tagLayout.clear();
 			tagIter = tags.allTags().listIterator();
 			handler.post(mIncrementalDraw);
@@ -305,14 +294,13 @@ public class TagCloudView extends View {
 			TagLayout tl = iter.next();
 			tl.draw(canvas);
 		}		
-		Log.d(TAG, "TagLayout "+tagLayout.size());
 	}
 	
 	
     private Runnable mIncrementalDraw = new Runnable() {
  	   public void run() {
  		   if (tags == null) return;
- 		   Log.d(TAG, "mIncrementalDraw "+tags.allTags().size());
+ 		   //  Log.d(TAG, "mIncrementalDraw "+tags.allTags().size());
  		   if (tagIter != null) {
  				if (!tagIter.hasNext()) {
  					tagIter = null;
