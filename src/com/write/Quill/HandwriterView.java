@@ -95,6 +95,7 @@ public class HandwriterView extends View {
 	public void set_page_and_zoom_out(Page new_page) {
 		if (new_page == null) return;
 		page = new_page;
+		updateOverlay();
 		if (canvas == null) return;
 		// if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) 
 		float H = canvas.getHeight();
@@ -110,12 +111,12 @@ public class HandwriterView extends View {
 			page.set_transform(0, 0, dimension);
 		Log.v(TAG, "set_page at scale "+page.scale+" canvas w="+W+" h="+H);
 		page.draw(canvas);
-		updateOverlay();
 		invalidate();
 	}
 	
 	public void updateOverlay() {
 		overlay = new TagOverlay(page.tags);
+		invalidate();
 	}
 
 	public void centerAndFillScreen(float xCenter, float yCenter) {

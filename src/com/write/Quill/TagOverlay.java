@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.Log;
 
 public class TagOverlay {
 	private static final String TAG = "TagOverlay";
@@ -31,7 +32,7 @@ public class TagOverlay {
 		style.setAntiAlias(true);
 		style.setColor(Color.DKGRAY);
 		String s = "";
-		if (ts.tags.size() > 0) {
+		if (ts.size() > 0 || filter.size() > 0) {
 			s = "Tags:";
 			ListIterator<Tag> iter = ts.tagIterator();
 			while (iter.hasNext()) {

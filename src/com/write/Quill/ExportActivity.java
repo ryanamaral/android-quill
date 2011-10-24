@@ -56,7 +56,7 @@ public class ExportActivity
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         book = Book.getBook();
-        page = book.current_page();
+        page = book.currentPage();
         
     	LayoutInflater inflater = getLayoutInflater();
     	

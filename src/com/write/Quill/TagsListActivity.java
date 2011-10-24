@@ -44,7 +44,7 @@ public class TagsListActivity extends Activity implements
        	else
        		tagCloud.notifyTagsChanged();
    		updateStatusBar();
-    	Book.getBook().current_page().is_modified = true;
+    	Book.getBook().currentPage().is_modified = true;
 	}
 	
     public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -103,6 +103,8 @@ public class TagsListActivity extends Activity implements
         return true;
     }
 	
+    protected static int RESULT_TAGS_CHANGED = 1;
+    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent i;
@@ -113,7 +115,7 @@ public class TagsListActivity extends Activity implements
 	        case R.id.menu_tag_filter:
 	        	finish();
 	    		i = new Intent(getApplicationContext(), OverviewActivity.class);    
-	        	startActivityForResult(i, QuillWriterActivity.ACTIVITY_TAG_FILTER);
+	        	startActivity(i);
 	    		return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
@@ -127,7 +129,7 @@ public class TagsListActivity extends Activity implements
 		Log.d(TAG, "onCreate");
 		TagManager tm = TagManager.getTagManager();
 		tm.sort();
-		tags = Book.getBook().current_page().tags;
+		tags = Book.getBook().currentPage().tags;
 		
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);

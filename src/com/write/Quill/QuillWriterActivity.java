@@ -108,7 +108,7 @@ public class QuillWriterActivity extends Activity {
         	book.load(getApplicationContext());
         }
         assert (book != null) : "Book object not initialized.";
-    	mView.set_page_and_zoom_out(book.current_page());       
+    	mView.set_page_and_zoom_out(book.currentPage());       
     }
     
     
@@ -262,12 +262,10 @@ public class QuillWriterActivity extends Activity {
     				return;
     			}
     		}
-        	mView.set_page_and_zoom_out(book.current_page());
+        	mView.set_page_and_zoom_out(book.currentPage());
         	return;
-   		case ACTIVITY_TAG_FILTER:
-   		case ACTIVITY_TAG_PAGE:
-        	mView.updateOverlay();
-        	return;
+   		// case ACTIVITY_TAG_FILTER:
+   		// case ACTIVITY_TAG_PAGE:
     	}
     }
     
@@ -299,7 +297,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.readonly:        	
     		item.setChecked(!item.isChecked());
-    		book.current_page().set_readonly(item.isChecked());
+    		book.currentPage().set_readonly(item.isChecked());
     		return true;
     	case R.id.page_aspect:
     		showDialog(DIALOG_PAPER_ASPECT);
@@ -309,18 +307,24 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.prev:
     	case R.id.page_prev:
-    		flip_page_next();
+    		flip_page_prev();
     		return true;
     	case R.id.next:
     	case R.id.page_next:
-    		flip_page_prev();
+    		flip_page_next();
+    		return true;
+    	case R.id.page_prev_unfiltered:
+    		flip_page_prev_unfiltered();
+    		return true;
+    	case R.id.page_next_unfiltered:
+    		flip_page_next_unfiltered();
     		return true;
     	case R.id.page_last:
-    		mView.set_page_and_zoom_out(book.last_page());
+    		mView.set_page_and_zoom_out(book.lastPage());
     		menu_prepare_page_has_changed();
     		return true;	
     	case R.id.page_insert:
-    		mView.set_page_and_zoom_out(book.insert_page()); 
+    		mView.set_page_and_zoom_out(book.insertPage()); 
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.page_clear:
@@ -328,7 +332,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.page_delete:
     		toast_page_number("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
-    		mView.set_page_and_zoom_out(book.delete_page());
+    		mView.set_page_and_zoom_out(book.deletePage());
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
@@ -337,38 +341,63 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.tag_page:
     		i = new Intent(getApplicationContext(), TagsListActivity.class);    
-        	startActivityForResult(i, ACTIVITY_TAG_PAGE);
+        	startActivity(i);
     		return true;
     	case R.id.tag_filter:
     	case android.R.id.home:
     		i = new Intent(getApplicationContext(), OverviewActivity.class);    
-        	startActivityForResult(i, ACTIVITY_TAG_FILTER);
+        	startActivity(i);
     		return true;
    	default:
     		return super.onOptionsItemSelected(item);
     	}
     }
 
+    private void flip_page_prev() {
+    	if (book.isFirstPage()) 
+    		toast_page_number("Already on first tagged page"); 
+		else	
+			mView.set_page_and_zoom_out(book.previousPage());
+			if (book.isFirstPage()) 
+				toast_page_number("Showing first tagged page"); 
+			else
+				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+ 		menu_prepare_page_has_changed();
+    }
+    
     private void flip_page_next() {
-    	if (book.is_first_page()) 
+		if (book.isLastPage()) {
+			mView.set_page_and_zoom_out(book.insertPage());
+			toast_page_number("Inserted new page at end");
+		} else {
+			mView.set_page_and_zoom_out(book.nextPage());
+			if (book.isLastPage())
+				toast_page_number("Showing last tagged page");
+			else 
+				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+		}
+		menu_prepare_page_has_changed();
+    }
+    
+    private void flip_page_prev_unfiltered() {
+    	if (book.isFirstPageUnfiltered()) 
     		toast_page_number("Already on first page"); 
 		else	
-			mView.set_page_and_zoom_out(book.previous_page());
-			if (book.is_first_page()) 
+			mView.set_page_and_zoom_out(book.previousPageUnfiltered());
+			if (book.isFirstPageUnfiltered()) 
 				toast_page_number("Showing first page"); 
 			else
 				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
  		menu_prepare_page_has_changed();
-   	
     }
     
-    private void flip_page_prev() {
-		if (book.is_last_page()) {
-			mView.set_page_and_zoom_out(book.insert_page());
+    private void flip_page_next_unfiltered() {
+		if (book.isLastPageUnfiltered()) {
+			mView.set_page_and_zoom_out(book.insertPage());
 			toast_page_number("Inserted new page at end");
 		} else {
-			mView.set_page_and_zoom_out(book.next_page());
-			if (book.is_last_page())
+			mView.set_page_and_zoom_out(book.nextPageUnfiltered());
+			if (book.isLastPageUnfiltered())
 				toast_page_number("Showing last page");
 			else 
 				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
@@ -386,15 +415,18 @@ public class QuillWriterActivity extends Activity {
     }
     
     private void menu_prepare_page_has_changed() {
-    	mMenu.findItem(R.id.readonly).setChecked(book.current_page().is_readonly);
-		boolean first = (book.is_first_page());
-		boolean last  = (book.is_last_page());
+    	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().is_readonly);
+		boolean first = (book.isFirstPage());
+		boolean last  = (book.isLastPage());
 		mMenu.findItem(R.id.page_prev).setEnabled(!first);
 		mMenu.findItem(R.id.page_next).setEnabled(!last); 
     }
     
     @Override protected void onResume() {
         super.onResume();
+        book.filterChanged();
+        mView.updateOverlay();
+        
         String model = android.os.Build.MODEL;
         Log.v(TAG, "Model = >"+model+"<");
         // TODO set defaults

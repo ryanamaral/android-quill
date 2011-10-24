@@ -142,8 +142,6 @@ public class TagManager {
 			in.readInt();  // reserved1
 			in.readInt();  // reserved2
 		}
-
-
 	}
 	
 	

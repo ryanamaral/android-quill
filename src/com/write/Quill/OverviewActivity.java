@@ -36,6 +36,8 @@ public class OverviewActivity extends Activity implements
        	tagList.notifyTagsChanged();
 	}
 	
+	protected static final int RESULT_FILTER_CHANGED = 2;
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
