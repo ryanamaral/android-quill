@@ -1,7 +1,9 @@
 package com.write.Quill;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -9,6 +11,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,13 +48,16 @@ public class ExportActivity
 	private ProgressBar progressBar;
 	private String filename;
 	private Button exportButton;
-	private PDFExporter pdfExporter;
+	private PDFExporter pdfExporter = null;
 	private Thread exportThread;
 	private String fullFilename;
 	private File file;
+	private FileOutputStream outStream = null;
 	private Spinner sizes;
 	private ArrayAdapter<CharSequence> exportSizes;
 	private TextView name;
+	
+	private int size_raster_width, size_raster_height;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -196,10 +203,47 @@ public class ExportActivity
     	doShare();
     }
 
-    
+	private static final int SIZE_RASTER_1920 = 0;
+	private static final int SIZE_RASTER_1280 = 1;
+	private static final int SIZE_RASTER_1024 = 2;
+	private static final int SIZE_RASTER_800= 3;
+
+
     private void doExportPng() {
-    	// TODO
-    	doShare();
+		threadLockActivity();
+		int pos = sizes.getSelectedItemPosition();
+		int dim_big = 0, dim_small = 0;
+		switch (pos) {
+			case SIZE_RASTER_1920:  dim_big = 1920; dim_small = 1080; break;
+			case SIZE_RASTER_1280:  dim_big = 1280; dim_small = 800; break;
+			case SIZE_RASTER_1024:  dim_big = 1024; dim_small = 768; break;
+			case SIZE_RASTER_800:   dim_big =  800; dim_small = 600; break;
+			default: assert false : "Unreachable";
+    	}
+		if (page.aspect_ratio > 1) {
+			size_raster_width = dim_big;    size_raster_height = dim_small;
+		} else {
+			size_raster_width = dim_small;  size_raster_height = dim_big;
+		}
+    	try {
+			outStream = new FileOutputStream(file);
+		} catch (IOException e) {
+			Log.e(TAG, "Error writing file "+e.toString());
+        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();
+		}
+        exportThread = new Thread(new Runnable() {
+            public void run() {
+            	sizes.getSelectedItemPosition();
+            	Bitmap bitmap = page.renderBitmap(size_raster_width, size_raster_height);
+            	bitmap.compress(CompressFormat.PNG, 0, outStream);
+            	try {
+            		outStream.close();
+            	} catch (IOException e) {
+        			Log.e(TAG, "Error closing file "+e.toString());
+            	}
+            	outStream = null;
+            }});
+        exportThread.start();
     }
     
     private void doExportPdf() {
@@ -367,14 +411,17 @@ public class ExportActivity
 
     private Runnable mUpdateProgress = new Runnable() {
     	   public void run() {
-    		   PDFExporter exporter = pdfExporter;
-    		   if (exporter == null) {
+    		   boolean isFinished = true;
+    		   isFinished &= (pdfExporter == null);
+    		   isFinished &= (outStream == null);
+    		   if (isFinished) {
     			   threadUnlockActivity();
     			   doShare();
        		   return;
     		   }
     		   exportButton.setPressed(true);
-    		   progressBar.setProgress(exporter.get_progress());
+    		   if (pdfExporter != null)
+    			   progressBar.setProgress(pdfExporter.get_progress());
     		   progressBar.invalidate();
                handler.postDelayed(mUpdateProgress, 200);
     	   }

@@ -238,7 +238,10 @@ public class Page {
 		newTrans.offset_x = 0;
 		newTrans.offset_y = 0;
 		newTrans.scale = Math.min(height, width/aspect_ratio);
-		Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+		int actual_width  = (int)Math.rint(newTrans.scale*aspect_ratio);
+		int actual_height = (int)Math.rint(newTrans.scale);
+		Bitmap bitmap = Bitmap.createBitmap
+			(actual_width, actual_height, Config.ARGB_8888);
 		Canvas c = new Canvas(bitmap);
 		setTransform(newTrans);
 		draw(c);

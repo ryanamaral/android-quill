@@ -171,55 +171,7 @@ public class QuillWriterActivity extends Activity {
     	}
     }
     
-    private Dialog create_dialog_paper_aspect() { 
-    	final CharSequence[] items = new CharSequence[AspectRatio.Table.length];
-    	final float[] values = new float[AspectRatio.Table.length];
-    	for (int i=0; i<AspectRatio.Table.length; i++) {
-    		items[i] = AspectRatio.Table[i].name;
-    		values[i] = AspectRatio.Table[i].ratio;
-    	}
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Paper type");
-    	int select_item = -1;
-    	for (int i=0; i<values.length; i++)
-    		if (values[i] == mView.page.aspect_ratio)
-    			select_item = i;
-    	builder.setSingleChoiceItems(items, select_item, 
-    			new DialogInterface.OnClickListener() {
-    	    		public void onClick(DialogInterface dialog, int item) {
-    	    			if (item == -1) return;
-    	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	    			mView.setPageAspectRatio(values[item]);
-    	            	dialog.dismiss();
-    	    		}
-    			});
-    	return builder.create();
-    }    
     
-    private Dialog create_dialog_paper_type() { 
-    	final CharSequence[] items = new CharSequence[Page.PaperTypes.length];
-    	final Page.PaperType[] values = new Page.PaperType[Page.PaperTypes.length];
-    	for (int i=0; i<Page.PaperTypes.length; i++) {
-    		items[i] = Page.PaperTypes[i].name;
-    		values[i] = Page.PaperTypes[i].type;
-    	}
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Paper type");
-    	int select_item = -1;
-    	for (int i=0; i<values.length; i++)
-    		if (values[i] == mView.page.paper_type)
-    			select_item = i;
-    	builder.setSingleChoiceItems(items, select_item, 
-    			new DialogInterface.OnClickListener() {
-    	    		public void onClick(DialogInterface dialog, int item) {
-    	    			if (item == -1) return;
-    	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	    			mView.setPagePaperType(Page.PaperType.values()[item]);
-    	    			dialog.dismiss();
-    	    		}
-    			});
-    	return builder.create();
-    }    	
 
     // The HandWriterView is not focussable and therefore does not receive KeyEvents
     @Override
