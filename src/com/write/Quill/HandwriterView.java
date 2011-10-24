@@ -58,28 +58,28 @@ public class HandwriterView extends View {
 	protected boolean only_pen_input = true;
 	protected boolean doubleTapWhileWriting = true;
 	
-	public void set_pen_type(PenType t) {
+	public void setPenType(PenType t) {
 		pen_type = t;
 	}
 
-	public void set_pen_color(int c) {
+	public void setPenColor(int c) {
 		pen_color = c;
 		pen.setARGB(Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c));
 	}
 	
-	public void set_pen_thickness(int thickness) {
+	public void setPenThickness(int thickness) {
 		pen_thickness = thickness;
 	}
 	
-	public void set_page_paper_type(Page.PaperType paper_type) {
-		page.set_paper_type(paper_type);
+	public void setPagePaperType(Page.PaperType paper_type) {
+		page.setPaperType(paper_type);
 		page.draw(canvas);
 		invalidate();
 	}
 
-	public void set_page_aspect_ratio(float aspect_ratio) {
-		page.set_aspect_ratio(aspect_ratio);
-		set_page_and_zoom_out(page);
+	public void setPageAspectRatio(float aspect_ratio) {
+		page.setAspectRatio(aspect_ratio);
+		setPageAndZoomOut(page);
 		invalidate();
 	}
 
@@ -92,7 +92,7 @@ public class HandwriterView extends View {
 		pen.setStrokeCap(Paint.Cap.ROUND);
 	}
 
-	public void set_page_and_zoom_out(Page new_page) {
+	public void setPageAndZoomOut(Page new_page) {
 		if (new_page == null) return;
 		page = new_page;
 		updateOverlay();
@@ -104,12 +104,12 @@ public class HandwriterView extends View {
 		float h = dimension; 
 		float w = dimension*page.aspect_ratio;
 		if (h<H)
-			page.set_transform(0, (H-h)/2, dimension);
+			page.setTransform(0, (H-h)/2, dimension);
 		else if (w<W)
-			page.set_transform((W-w)/2, 0, dimension);
+			page.setTransform((W-w)/2, 0, dimension);
 		else
-			page.set_transform(0, 0, dimension);
-		Log.v(TAG, "set_page at scale "+page.scale+" canvas w="+W+" h="+H);
+			page.setTransform(0, 0, dimension);
+		Log.v(TAG, "set_page at scale "+page.transformation.scale+" canvas w="+W+" h="+H);
 		page.draw(canvas);
 		invalidate();
 	}
@@ -120,18 +120,21 @@ public class HandwriterView extends View {
 	}
 
 	public void centerAndFillScreen(float xCenter, float yCenter) {
+		float page_offset_x = page.transformation.offset_x;
+		float page_offset_y = page.transformation.offset_y;
+		float page_scale = page.transformation.scale;
 		float W = canvas.getWidth();
 		float H = canvas.getHeight();
 		float scaleToFill = Math.max(H, W / page.aspect_ratio);
 		float scaleToSeeAll = Math.min(H, W / page.aspect_ratio);
 		float scale;
-		boolean seeAll = (page.scale == scaleToFill); // toggle
+		boolean seeAll = (page_scale == scaleToFill); // toggle
 		if (seeAll) 
 			scale = scaleToSeeAll;
 		else
 			scale = scaleToFill;
-		float x = (xCenter - page.offset_x) / page.scale * scale;
-		float y = (yCenter - page.offset_y) / page.scale * scale;
+		float x = (xCenter - page_offset_x) / page_scale * scale;
+		float y = (yCenter - page_offset_y) / page_scale * scale;
 		float dx, dy;
 		if (seeAll) {
 			dx = (W-scale*page.aspect_ratio)/2;
@@ -143,7 +146,7 @@ public class HandwriterView extends View {
 			dx = 0;
 			dy = H/2-y;// + (-scale)/2;
 		}
-		page.set_transform(dx, dy, scale, canvas);
+		page.setTransform(dx, dy, scale, canvas);
 		page.draw(canvas);
 		invalidate();
 	}
@@ -156,7 +159,7 @@ public class HandwriterView extends View {
 		invalidate();
 	}
 	
-	protected void add_strokes(Object data) {
+	protected void addStrokes(Object data) {
 		assert data instanceof LinkedList<?>: "unknown data";
 		LinkedList<Stroke> new_strokes = (LinkedList<Stroke>)data;
 		page.strokes.addAll(new_strokes);
@@ -181,10 +184,10 @@ public class HandwriterView extends View {
 		}
 		bitmap = newBitmap;
 		canvas = newCanvas;
-		set_page_and_zoom_out(page);
+		setPageAndZoomOut(page);
 	}
 
-	private float pinch_zoom_scale_factor() {
+	private float pinchZoomScaleFactor() {
 		float dx, dy;
 		dx = oldX-oldX2;
 		dy = oldY-oldY2;
@@ -204,8 +207,8 @@ public class HandwriterView extends View {
 		return scale;
 	}
 	
-	public float get_scaled_pen_thickness() {
-		return Stroke.get_scaled_pen_thickness(page.scale, pen_thickness);
+	public float getScaledPenThickness() {
+		return Stroke.getScaledPenThickness(page.transformation, pen_thickness);
 	}
 	
 	@Override protected void onDraw(Canvas canvas) {
@@ -215,7 +218,7 @@ public class HandwriterView extends View {
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();
 			float H = canvas.getHeight();
-			float scale = pinch_zoom_scale_factor();
+			float scale = pinchZoomScaleFactor();
 			float x0 = (oldX + oldX2)/2;
 			float y0 = (oldY + oldY2)/2;
 			float x1 = (newX + newX2)/2;
@@ -246,16 +249,16 @@ public class HandwriterView extends View {
 		switch (pen_type) {
 		case FOUNTAINPEN:
 		case PENCIL:	
-			return touch_handler_pen(event);
+			return touchHandlerPen(event);
 		case MOVE:
-			return touch_handler_move_zoom(event);
+			return touchHandlerMoveZoom(event);
 		case ERASER:
-			return touch_handler_eraser(event);
+			return touchHandlerEraser(event);
 		}
 		return false;
 	}
 		
-	private boolean touch_handler_eraser(MotionEvent event) {
+	private boolean touchHandlerEraser(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (penID == -1) return true;
@@ -266,7 +269,7 @@ public class HandwriterView extends View {
 			mRectF.set(oldX, oldY, newX, newY);
 			mRectF.sort();
 			mRectF.inset(-15, -15);
-			boolean erased = page.erase_strokes_in(mRectF, canvas);
+			boolean erased = page.eraseStrokesIn(mRectF, canvas);
 			if (erased)
 				invalidate();
 			oldX = newX;
@@ -284,7 +287,7 @@ public class HandwriterView extends View {
 	}
 	
 	
-	private boolean touch_handler_move_zoom(MotionEvent event) {
+	private boolean touchHandlerMoveZoom(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (fingerId1 == -1) return true;
@@ -331,7 +334,7 @@ public class HandwriterView extends View {
 			float dx = newX-oldX;
 			float dy = newY-oldY; 
 			// Log.v(TAG, "ACTION_UP "+fingerId1+" dx="+dx+", dy="+dy);
-			page.set_transform(page.offset_x+dx, page.offset_y+dy, page.scale, canvas);
+			page.setTransform(page.transformation.offset(dx,dy), canvas);
 			page.draw(canvas);
 			invalidate();
 			fingerId1 = fingerId2 = -1;
@@ -354,8 +357,11 @@ public class HandwriterView extends View {
 				return true;
 			// Log.v(TAG, "ACTION_POINTER_UP "+fingerId2+" + "+fingerId1);
 			// compute scale factor
-			float scale = pinch_zoom_scale_factor();
-			float new_page_scale = page.scale * scale;
+			float page_offset_x = page.transformation.offset_x;
+			float page_offset_y = page.transformation.offset_y;
+			float page_scale = page.transformation.scale;
+			float scale = pinchZoomScaleFactor();
+			float new_page_scale = page_scale * scale;
 			// clamp scale factor
 			float W = canvas.getWidth();
 			float H = canvas.getHeight();
@@ -363,16 +369,16 @@ public class HandwriterView extends View {
 			float min_WH = Math.min(W, H);
 			new_page_scale = Math.min(new_page_scale, 5*max_WH);
 			new_page_scale = Math.max(new_page_scale, 0.4f*min_WH);
-			scale = new_page_scale / page.scale;
+			scale = new_page_scale / page_scale;
 			// compute offset
 			float x0 = (oldX + oldX2)/2;
 			float y0 = (oldY + oldY2)/2;
 			float x1 = (newX + newX2)/2;
 			float y1 = (newY + newY2)/2;
-			float new_offset_x = page.offset_x*scale-x0*scale+x1;
-			float new_offset_y = page.offset_y*scale-y0*scale+y1;
+			float new_offset_x = page_offset_x*scale-x0*scale+x1;
+			float new_offset_y = page_offset_y*scale-y0*scale+y1;
 			// perform pinch-to-zoom here
-			page.set_transform(new_offset_x, new_offset_y, new_page_scale, canvas);
+			page.setTransform(new_offset_x, new_offset_y, new_page_scale, canvas);
 			page.draw(canvas);
 			invalidate();
 			fingerId1 = fingerId2 = -1;
@@ -394,7 +400,7 @@ public class HandwriterView extends View {
 		return !only_pen_input || !useForWriting(event); 
 	}
 
-	private boolean touch_handler_pen(MotionEvent event) {
+	private boolean touchHandlerPen(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (penID == -1 || N == 0) return true;
@@ -413,7 +419,7 @@ public class HandwriterView extends View {
 			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
 				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
 				oldX = newX; oldY = newY;
-				save_stroke();
+				saveStroke();
 				position_x[0] = newX;
 				position_y[0] = newY;
 				pressure[0] = newPressure;
@@ -422,7 +428,7 @@ public class HandwriterView extends View {
 			drawOutline();
 			
 			int n = event.getHistorySize();
-			if (N+n+1 >= Nmax) save_stroke();
+			if (N+n+1 >= Nmax) saveStroke();
 			for (int i = 0; i < n; i++) {
 				position_x[N+i] = event.getHistoricalX(penIdx, i);
 				position_y[N+i] = event.getHistoricalY(penIdx, i);
@@ -451,7 +457,7 @@ public class HandwriterView extends View {
 				return true;   // eat non-pen events
 			// Log.v(TAG, "ACTION_DOWN");
 			if (page.is_readonly) {
-				toast_is_readonly();
+				toastIsReadonly();
 				return true;
 			}
 			position_x[0] = newX = event.getX();
@@ -459,13 +465,13 @@ public class HandwriterView extends View {
 			pressure[0] = newPressure = event.getPressure();
 			N = 1;
 			penID = event.getPointerId(0);
-			pen.setStrokeWidth(get_scaled_pen_thickness());
+			pen.setStrokeWidth(getScaledPenThickness());
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_UP) {
 			if (event.getPointerId(0) != penID) return true;
 			// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
-			save_stroke();
+			saveStroke();
 			N = 0;
 			penID = -1;
 			return true;
@@ -483,7 +489,7 @@ public class HandwriterView extends View {
 		return false;
 	}
 
-	private void toast_is_readonly() {
+	private void toastIsReadonly() {
 		String s = "Page is readonly";
 	   	if (toast == null)
         	toast = Toast.makeText(getContext(), s, Toast.LENGTH_SHORT);
@@ -493,17 +499,17 @@ public class HandwriterView extends View {
 	   	toast.show();
 	}
 	
-	private void save_stroke() {
+	private void saveStroke() {
 		if (N==0) return;
 		Stroke s = new Stroke(position_x, position_y, pressure, 0, N);
-		s.set_pen(pen_type, pen_thickness, pen_color);
+		s.setPen(pen_type, pen_thickness, pen_color);
 		if (page != null) {
-			page.add_stroke(s);
+			page.addStroke(s);
 			page.draw(canvas, s.get_bounding_box());
 		}
 		N = 0;
 		s.get_bounding_box().round(mRect);
-		int extra = -(int)(get_scaled_pen_thickness()/2) - 1;
+		int extra = -(int)(getScaledPenThickness()/2) - 1;
 		mRect.inset(extra, extra);
 		invalidate(mRect);
 	}
@@ -511,7 +517,7 @@ public class HandwriterView extends View {
 	
 	private void drawOutline() {
 		if (pen_type==PenType.FOUNTAINPEN) {
-			float scaled_pen_thickness = get_scaled_pen_thickness() * (oldPressure+newPressure)/2f;
+			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
 			pen.setStrokeWidth(scaled_pen_thickness);
 		}
 		canvas.drawLine(oldX, oldY, newX, newY, pen);

@@ -52,11 +52,11 @@ public class Stroke {
 	}
 
 	public RectF get_bounding_box() {
-		if (recompute_bounding_box) compute_bounding_box();
+		if (recompute_bounding_box) computeBoundingBox();
 		return bBox;
 	}
 	
-	void set_pen(PenType new_pen_type, int new_pen_thickness, int new_pen_color) {
+	void setPen(PenType new_pen_type, int new_pen_thickness, int new_pen_color) {
 		assert new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL:
 			"Pen type is not actual pen.";
 		pen_thickness = new_pen_thickness;
@@ -70,21 +70,27 @@ public class Stroke {
 	}
 	
 	// static method that exports the pen scaling algorithm
-	public static float get_scaled_pen_thickness(float scale, float pen_thickness) {
+	public static float getScaledPenThickness(float scale, float pen_thickness) {
 		return pen_thickness * scale * LINE_THICKNESS_SCALE;
 	}
 	
+	// static method that exports the pen scaling algorithm
+	public static float getScaledPenThickness
+			(Transformation transform, float pen_thickness) {
+		return pen_thickness * transform.scale * LINE_THICKNESS_SCALE;
+	}
+
 	// this computes the argument to Paint.setStrokeWidth()
-	public float get_scaled_pen_thickness() {
-		return get_scaled_pen_thickness(scale, pen_thickness);
+	public float getScaledPenThickness() {
+		return getScaledPenThickness(scale, pen_thickness);
 	}
 
 	// Get the scaled thickness for a different scale factor (i.e. printing)
-	public float get_scaled_pen_thickness(float scale) {
-		return get_scaled_pen_thickness(scale, pen_thickness);
+	public float getScaledPenThickness(float scale) {
+		return getScaledPenThickness(scale, pen_thickness);
 	}
 
-	private void compute_bounding_box() {
+	protected void computeBoundingBox() {
 		float x0, x1, y0, y1, x, y;
 		x0 = x1 = position_x[0] * scale + offset_x;
 		y0 = y1 = position_y[0] * scale + offset_y;
@@ -97,19 +103,26 @@ public class Stroke {
 			y1 = Math.max(y1, y);
 		}
 		bBox = new RectF(x0, y0, x1, y1);
-		float extra = -get_scaled_pen_thickness()/2-1;
+		float extra = -getScaledPenThickness()/2-1;
 		bBox.inset(extra, extra);		
 		recompute_bounding_box = false;
 	}
 	
-	protected void set_transform(float dx, float dy, float s) {
+	protected void setTransform(float dx, float dy, float s) {
 		offset_x = dx;
 		offset_y = dy;
 		scale = s;
 		recompute_bounding_box = true;
 	}
 	
-	protected void apply_inverse_transform() {
+	protected void setTransform(Transformation transform) {
+		offset_x = transform.offset_x;
+		offset_y = transform.offset_y;
+		scale = transform.scale;	
+		recompute_bounding_box = true;
+	}
+	
+	protected void applyInverseTransform() {
 		float x, y;
 		for (int i=0; i<N; i++) {
 			x = position_x[i];
@@ -143,8 +156,8 @@ public class Stroke {
 	}
 	
 	public void render(Canvas c) {
-		if (recompute_bounding_box) compute_bounding_box();	
-		final float scaled_pen_thickness = get_scaled_pen_thickness();
+		if (recompute_bounding_box) computeBoundingBox();	
+		final float scaled_pen_thickness = getScaledPenThickness();
 		if (pen_type == PenType.PENCIL)
 			mPen.setStrokeWidth(scaled_pen_thickness);
 		float x0, x1, y0, y1, p0, p1=0;
@@ -164,7 +177,7 @@ public class Stroke {
 		}
 	}
 
-	public void write_to_stream(DataOutputStream out) throws IOException {
+	public void writeToStream(DataOutputStream out) throws IOException {
 		out.writeInt(2);  // protocol #1
 		out.writeInt(pen_color);
 		out.writeInt(pen_thickness);
@@ -184,7 +197,7 @@ public class Stroke {
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
 		pen_type = PenType.values()[in.readInt()];
-		set_pen(pen_type, pen_thickness, pen_color);
+		setPen(pen_type, pen_thickness, pen_color);
 		N = in.readInt();
 		position_x = new float[N];
 		position_y = new float[N];
@@ -207,12 +220,11 @@ public class Stroke {
 	// for example, using apply_inverse_transform
 	// non-standard metric for "perpendicular distance" for numerical stability
 	protected void simplify() {
-		compute_bounding_box(); // cache the bounding box before removing points to overpaint everything
 		LinkedList<Integer> points = new LinkedList<Integer>();
 		points.add(0);
 		points.add(N-1);
 		ListIterator<Integer> point_iter = points.listIterator(1);
-		simplify_recursion(0, N-1, point_iter);
+		simplifyRecursion(0, N-1, point_iter);
 		int new_N = points.size();
 		float[] new_position_x = new float[new_N];
 		float[] new_position_y = new float[new_N];
@@ -227,13 +239,6 @@ public class Stroke {
 			n++;
 		}
 		assert n==new_N;
-
-//		String s = "";
-//		point_iter = points.listIterator();
-//		while (point_iter.hasNext()) 
-//			s += point_iter.next() + " ";
-//		Log.v(TAG, "Simplified "+N+" to "+new_N+" points: "+s);
-
 		N = new_N;
 		position_x = new_position_x;
 		position_y = new_position_y;
@@ -242,7 +247,7 @@ public class Stroke {
 
 	private static float EPSILON = 2e-4f;
 	
-	private void simplify_recursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
+	private void simplifyRecursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
 		float x0 = position_x[point0];
 		float y0 = position_y[point0];
 		float p0 = pressure[point0];
@@ -304,9 +309,9 @@ public class Stroke {
 		}
 		if (distance_max < EPSILON || mid == -1) return; // no simplification necessary
 		iter.add(mid);
-		simplify_recursion(mid, point1, iter);
+		simplifyRecursion(mid, point1, iter);
 		iter.previous();
-		simplify_recursion(point0, mid, iter);		
+		simplifyRecursion(point0, mid, iter);		
 	}
 	
 }

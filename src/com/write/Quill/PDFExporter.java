@@ -107,7 +107,7 @@ public class PDFExporter extends PDFWriter {
 	}
 	
 	private void addStrokeFountainpen(Stroke stroke) {
-		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
+		float scaled_pen_thickness = stroke.getScaledPenThickness(scale);
         addRawContent("1 J\n");   // round cap
         addRawContent("1 j\n");   // round join
         float x0 = scaled_x(stroke.position_x[0], stroke.position_y[0]);
@@ -129,7 +129,7 @@ public class PDFExporter extends PDFWriter {
 	}
 	
 	private void addStrokePencil(Stroke stroke) {
-		float scaled_pen_thickness = stroke.get_scaled_pen_thickness(scale);
+		float scaled_pen_thickness = stroke.getScaledPenThickness(scale);
         addRawContent(""+scaled_pen_thickness+" w\n");  // line width
         addRawContent("1 J\n");   // round cap
         addRawContent("1 j\n");   // round join

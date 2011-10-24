@@ -22,4 +22,11 @@ public class Transformation {
 		return (y-offset_y)/scale;
 	}
 
+	public Transformation offset(float dx, float dy) {
+		Transformation result = new Transformation();
+		result.offset_x = offset_x + dx;
+		result.offset_y = offset_y + dy;
+		result.scale = scale;
+		return result;
+	}	
 }

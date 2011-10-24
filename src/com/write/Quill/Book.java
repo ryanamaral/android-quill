@@ -247,7 +247,7 @@ public class Book {
 		out.writeInt(pages.size());
 		ListIterator<Page> piter = pages.listIterator(); 
 		while (piter.hasNext())
-			piter.next().write_to_stream(out);
+			piter.next().writeToStream(out);
 	}
 	
 	public Book loadFromStream(DataInputStream in) throws IOException {
@@ -447,7 +447,7 @@ public class Book {
 	
 	private void savePage(int i, DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book page "+i);
-		pages.get(i).write_to_stream(dataOut);
+		pages.get(i).writeToStream(dataOut);
 	}
 	
 

@@ -67,6 +67,10 @@ public class QuillWriterActivity extends Activity {
 
     private static final String HAVE_BOOK = "have_book";
     
+    private static final DialogThickness dialogThickness = new DialogThickness();
+    private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
+    private static final DialogPaperType dialogPaperType = new DialogPaperType();
+
     @Override
 	public void onSaveInstanceState(Bundle state) {
     	state.putBoolean(HAVE_BOOK, true);
@@ -109,45 +113,64 @@ public class QuillWriterActivity extends Activity {
         	book.load(getApplicationContext());
         }
         assert (book != null) : "Book object not initialized.";
-    	mView.set_page_and_zoom_out(book.currentPage());
+    	mView.setPageAndZoomOut(book.currentPage());
     }
-    
     
     @Override
     protected Dialog onCreateDialog(int id) {
+    	DialogInterface.OnClickListener listener;
     	switch (id) {
     	case DIALOG_THICKNESS:
-    		return (Dialog)create_dialog_thickness();
+        	listener = new DialogInterface.OnClickListener() {
+        		public void onClick(DialogInterface dialog, int i) {
+        			Toast.makeText(getApplicationContext(), 
+        				dialogThickness.getItem(i), Toast.LENGTH_SHORT).show();
+        			mView.setPenThickness(dialogThickness.getValue(i));
+        			dialog.dismiss();
+        		}};
+    		return dialogThickness.create(this, listener);
     	case DIALOG_COLOR:
    		return (Dialog)create_dialog_color();
     	case DIALOG_PAPER_ASPECT:
-    		return (Dialog)create_dialog_paper_aspect();
+			listener = new DialogInterface.OnClickListener() {
+	    		public void onClick(DialogInterface dialog, int i) {
+	    			Toast.makeText(getApplicationContext(), 
+	    					dialogAspectRatio.getItem(i), Toast.LENGTH_SHORT).show();
+	    			mView.setPageAspectRatio(dialogAspectRatio.getValue(i));
+	            	dialog.dismiss();
+	    		}};
+	    	return dialogAspectRatio.create(this, listener);
     	case DIALOG_PAPER_TYPE:
-    		return (Dialog)create_dialog_paper_type();
+    		listener = new DialogInterface.OnClickListener() {
+    			public void onClick(DialogInterface dialog, int i) {
+    				Toast.makeText(getApplicationContext(), 
+    					dialogPaperType.getItem(i), Toast.LENGTH_SHORT).show();
+    				mView.setPagePaperType(dialogPaperType.getValue(i));
+    			dialog.dismiss();
+    		}};
+    		return dialogPaperType.create(this, listener);
     	}
     	return null;
     }
-    
-    private Dialog create_dialog_thickness() { 
-    	final CharSequence[] items = {"Single pixel", "Ultra-fine", "Thin", "Medium", "Thick", "Giant"};
-    	final int[] actual_thickness = {0, 1, 2, 5, 12, 40};
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Pen thickness");
-    	int pen_thickness_index = 0;
-    	for (int i=0; i<actual_thickness.length; i++)
-    		if (actual_thickness[i] == mView.pen_thickness)
-    			pen_thickness_index = i;
-    	builder.setSingleChoiceItems(items, pen_thickness_index, 
-    			new DialogInterface.OnClickListener() {
-    	    		public void onClick(DialogInterface dialog, int item) {
-    	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	            	mView.set_pen_thickness(actual_thickness[item]);
-    	            	dialog.dismiss();
-    	    		}
-    			});
-    	return builder.create();
-    }    	
 
+    @Override
+    protected void onPrepareDialog(int id, Dialog dlg) {
+    	Log.d(TAG, "onPrepareDialog "+id);
+    	switch (id) {
+    	case DIALOG_THICKNESS:
+    		dialogThickness.setSelectionByValue(mView.pen_thickness);
+    		return;
+    	case DIALOG_COLOR:
+    		return;
+    	case DIALOG_PAPER_ASPECT:
+    		dialogAspectRatio.setSelectionByValue(mView.page.aspect_ratio);
+    		return;
+    	case DIALOG_PAPER_TYPE:
+    		dialogPaperType.setSelectionByValue(mView.page.paper_type);
+    		return;
+    	}
+    }
+    
     private Dialog create_dialog_paper_aspect() { 
     	final CharSequence[] items = new CharSequence[AspectRatio.Table.length];
     	final float[] values = new float[AspectRatio.Table.length];
@@ -166,7 +189,7 @@ public class QuillWriterActivity extends Activity {
     	    		public void onClick(DialogInterface dialog, int item) {
     	    			if (item == -1) return;
     	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	    			mView.set_page_aspect_ratio(values[item]);
+    	    			mView.setPageAspectRatio(values[item]);
     	            	dialog.dismiss();
     	    		}
     			});
@@ -191,7 +214,7 @@ public class QuillWriterActivity extends Activity {
     	    		public void onClick(DialogInterface dialog, int item) {
     	    			if (item == -1) return;
     	    			Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-    	    			mView.set_page_paper_type(Page.PaperType.values()[item]);
+    	    			mView.setPagePaperType(Page.PaperType.values()[item]);
     	    			dialog.dismiss();
     	    		}
     			});
@@ -229,7 +252,7 @@ public class QuillWriterActivity extends Activity {
         		}
         		@Override
         		public void onOk(AmbilWarnaDialog dialog, int color) {
-        			mView.set_pen_color(color);
+        			mView.setPenColor(color);
         		}
         	});
         dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -260,11 +283,11 @@ public class QuillWriterActivity extends Activity {
     			try {
     				book.loadArchive(new File(filename));
     			} catch (IOException e) {
-    				Log.e(TAG, "Error loading the backup file, sorry");
+    				Log.e(TAG, "Error loading th)e backup file, sorry");
     				return;
     			}
     		}
-        	mView.set_page_and_zoom_out(book.currentPage());
+        	mView.setPageAndZoomOut(book.currentPage());
         	return;
    		// case ACTIVITY_TAG_FILTER:
    		// case ACTIVITY_TAG_PAGE:
@@ -300,19 +323,19 @@ public class QuillWriterActivity extends Activity {
     		startActivityForResult(i, ACTIVITY_PREFERENCES);
     		return true;
     	case R.id.fountainpen:
-    		mView.set_pen_type(Stroke.PenType.FOUNTAINPEN);
+    		mView.setPenType(Stroke.PenType.FOUNTAINPEN);
     		setActionBarIconActive(Stroke.PenType.FOUNTAINPEN);
     		return true;
     	case R.id.pencil:
-    		mView.set_pen_type(Stroke.PenType.PENCIL);
+    		mView.setPenType(Stroke.PenType.PENCIL);
     		setActionBarIconActive(Stroke.PenType.PENCIL);
     		return true;
     	case R.id.eraser:
-    		mView.set_pen_type(Stroke.PenType.ERASER);
+    		mView.setPenType(Stroke.PenType.ERASER);
     		setActionBarIconActive(Stroke.PenType.ERASER);
     		return true;
     	case R.id.move:
-    		mView.set_pen_type(Stroke.PenType.MOVE);
+    		mView.setPenType(Stroke.PenType.MOVE);
     		setActionBarIconActive(Stroke.PenType.MOVE);
     		return true;
     	case R.id.width:
@@ -323,7 +346,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.readonly:        	
     		item.setChecked(!item.isChecked());
-    		book.currentPage().set_readonly(item.isChecked());
+    		book.currentPage().setReadonly(item.isChecked());
     		return true;
     	case R.id.page_aspect:
     		showDialog(DIALOG_PAPER_ASPECT);
@@ -346,11 +369,11 @@ public class QuillWriterActivity extends Activity {
     		flip_page_next_unfiltered();
     		return true;
     	case R.id.page_last:
-    		mView.set_page_and_zoom_out(book.lastPage());
+    		mView.setPageAndZoomOut(book.lastPage());
     		menu_prepare_page_has_changed();
     		return true;	
     	case R.id.page_insert:
-    		mView.set_page_and_zoom_out(book.insertPage()); 
+    		mView.setPageAndZoomOut(book.insertPage()); 
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.page_clear:
@@ -358,7 +381,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.page_delete:
     		toast_page_number("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
-    		mView.set_page_and_zoom_out(book.deletePage());
+    		mView.setPageAndZoomOut(book.deletePage());
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
@@ -383,7 +406,7 @@ public class QuillWriterActivity extends Activity {
     	if (book.isFirstPage()) 
     		toast_page_number("Already on first tagged page"); 
 		else	
-			mView.set_page_and_zoom_out(book.previousPage());
+			mView.setPageAndZoomOut(book.previousPage());
 			if (book.isFirstPage()) 
 				toast_page_number("Showing first tagged page"); 
 			else
@@ -393,10 +416,10 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next() {
 		if (book.isLastPage()) {
-			mView.set_page_and_zoom_out(book.insertPageAtEnd());
+			mView.setPageAndZoomOut(book.insertPageAtEnd());
 			toast_page_number("Inserted new page at end");
 		} else {
-			mView.set_page_and_zoom_out(book.nextPage());
+			mView.setPageAndZoomOut(book.nextPage());
 			if (book.isLastPage())
 				toast_page_number("Showing last tagged page");
 			else 
@@ -409,7 +432,7 @@ public class QuillWriterActivity extends Activity {
     	if (book.isFirstPageUnfiltered()) 
     		toast_page_number("Already on first page"); 
 		else	
-			mView.set_page_and_zoom_out(book.previousPageUnfiltered());
+			mView.setPageAndZoomOut(book.previousPageUnfiltered());
 			if (book.isFirstPageUnfiltered()) 
 				toast_page_number("Showing first page"); 
 			else
@@ -419,10 +442,10 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next_unfiltered() {
 		if (book.isLastPageUnfiltered()) {
-			mView.set_page_and_zoom_out(book.insertPageAtEnd());
+			mView.setPageAndZoomOut(book.insertPageAtEnd());
 			toast_page_number("Inserted new page at end");
 		} else {
-			mView.set_page_and_zoom_out(book.nextPageUnfiltered());
+			mView.setPageAndZoomOut(book.nextPageUnfiltered());
 			if (book.isLastPageUnfiltered())
 				toast_page_number("Showing last page");
 			else 
@@ -446,6 +469,8 @@ public class QuillWriterActivity extends Activity {
 		boolean last  = (book.isLastPage());
 		mMenu.findItem(R.id.page_prev).setEnabled(!first);
 		mMenu.findItem(R.id.page_next).setEnabled(!last); 
+		boolean first_unfiltered = (book.isFirstPageUnfiltered());
+		mMenu.findItem(R.id.page_prev_unfiltered).setEnabled(!first_unfiltered);
     }
     
     @Override protected void onResume() {
@@ -459,10 +484,10 @@ public class QuillWriterActivity extends Activity {
         
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-    	mView.set_pen_color(settings.getInt("pen_color", mView.pen_color));
-    	mView.set_pen_thickness(settings.getInt("pen_thickness", mView.pen_thickness));
+    	mView.setPenColor(settings.getInt("pen_color", mView.pen_color));
+    	mView.setPenThickness(settings.getInt("pen_thickness", mView.pen_thickness));
     	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
-    	mView.set_pen_type(Stroke.PenType.values()[type]);
+    	mView.setPenType(Stroke.PenType.values()[type]);
     	mView.only_pen_input = settings.getBoolean("only_pen_input", true);
     	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);

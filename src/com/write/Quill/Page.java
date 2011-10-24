@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import com.write.Quill.Stroke.PenType;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -45,15 +47,14 @@ public class Page {
 	protected boolean is_readonly = false;
 	protected PaperType paper_type = PaperType.RULED;
 	
-	protected float offset_x = 0f;
-	protected float offset_y = 0f;
-	protected float scale = 1.0f;
+	// coordinate transformation Stroke -> screen
 	protected Transformation transformation = new Transformation();
 	
 	protected boolean is_modified = false;
 
 	private final RectF mRectF = new RectF();
 	private final Paint paint = new Paint();
+	
 	
 	public boolean is_empty() {
 		return strokes.isEmpty();
@@ -63,49 +64,65 @@ public class Page {
 		is_modified = true;
 	}
 
-	public void set_readonly(boolean ro) {
+	public void setReadonly(boolean ro) {
 		is_readonly = ro;
 		is_modified = true;
 	}
 	
-	public void set_paper_type(PaperType type) {
+	public void setPaperType(PaperType type) {
 		paper_type = type;
 		is_modified = true;
 		background.setPaperType(paper_type);
 	}
 	
-	public void set_aspect_ratio(float aspect) {
+	public void setAspectRatio(float aspect) {
 		aspect_ratio = aspect;
 		is_modified = true;
 		background.setAspectRatio(aspect_ratio);
 	}
 	
-	protected void set_transform(float dx, float dy, float s) {
-		offset_x = dx;
-		offset_y = dy;
-		scale = s;
-		transformation.offset_x = offset_x;
-		transformation.offset_y = offset_y;
-		transformation.scale = scale;
+	protected void setTransform(float dx, float dy, float s) {
+		transformation.offset_x = dx;
+		transformation.offset_y = dy;
+		transformation.scale = s;
+		ListIterator<Stroke> siter = strokes.listIterator();
+	    while (siter.hasNext())
+	    	siter.next().setTransform(transformation);
+	}
+	
+	protected void setTransform(Transformation newTrans) {
+		transformation.offset_x = newTrans.offset_x;
+		transformation.offset_y = newTrans.offset_y;
+		transformation.scale = newTrans.scale;
 	    ListIterator<Stroke> siter = strokes.listIterator();
 	    while (siter.hasNext())
-	    	siter.next().set_transform(offset_x, offset_y, scale);
+	    	siter.next().setTransform(transformation);
 	}
 
 	// set transform but clamp the offset such that the page stays visible
-	protected void set_transform(float dx, float dy, float s, Canvas canvas) {
+	protected void setTransform(float dx, float dy, float s, Canvas canvas) {
 		float W = canvas.getWidth();
 		float H = canvas.getHeight();
 		dx = Math.min(dx, 2*W/3);
 		dx = Math.max(dx,   W/3 - s*aspect_ratio);
 		dy = Math.min(dy, 2*H/3);
 		dy = Math.max(dy,   H/3 - s);
-		set_transform(dx, dy, s);
+		setTransform(dx, dy, s);
 	}
 	
-	public void add_stroke(Stroke s) {
-		s.set_transform(offset_x, offset_y, scale);
-		s.apply_inverse_transform();
+	protected void setTransform(Transformation newTrans, Canvas canvas) {
+		setTransform(newTrans.offset_x, newTrans.offset_y, newTrans.scale, canvas);
+	}
+
+	
+	protected Transformation getTransform() {
+		return transformation;
+	}
+	
+	public void addStroke(Stroke s) {
+		s.setTransform(transformation);
+		s.applyInverseTransform();
+		s.computeBoundingBox(); // simplify might make the box smaller
 		s.simplify();
 		strokes.add(s);
 		is_modified = true;
@@ -118,13 +135,14 @@ public class Page {
 		background.draw(canvas, bounding_box, transformation);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
-		   	if (!canvas.quickReject(s.get_bounding_box(), Canvas.EdgeType.AA))
+		   	if (!canvas.quickReject(s.get_bounding_box(), 
+		   				 			Canvas.EdgeType.AA))
 		   		s.render(canvas);
 	    }
 		canvas.restore();
 	}
 	
-	public Stroke find_stroke_at(float x, float y, float radius) {
+	public Stroke findStrokeAt(float x, float y, float radius) {
 	    ListIterator<Stroke> siter = strokes.listIterator();
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
@@ -135,7 +153,7 @@ public class Page {
 		return null;
 	}
 
-	public boolean erase_strokes_in(RectF r, Canvas canvas) {
+	public boolean eraseStrokesIn(RectF r, Canvas canvas) {
 		mRectF.set(r);
 	    ListIterator<Stroke> siter = strokes.listIterator();
 	    boolean need_redraw = false;
@@ -161,7 +179,7 @@ public class Page {
 	}
 	
 	
-	public void write_to_stream(DataOutputStream out) throws IOException {
+	public void writeToStream(DataOutputStream out) throws IOException {
 		out.writeInt(3);  // protocol #1
 		tags.write_to_stream(out);
 		out.writeInt(paper_type.ordinal());
@@ -172,7 +190,7 @@ public class Page {
 		out.writeInt(strokes.size());
 		ListIterator<Stroke> siter = strokes.listIterator(); 
 		while (siter.hasNext())
-			siter.next().write_to_stream(out);
+			siter.next().writeToStream(out);
 	}
 	
 	public Page() {
@@ -181,14 +199,13 @@ public class Page {
 
 	public Page(Page template) {
 		tags = template.tags.copy();
-		set_paper_type(template.paper_type);
-		set_aspect_ratio(template.aspect_ratio);
-		set_transform(template.offset_x, template.offset_y, template.scale);
+		setPaperType(template.paper_type);
+		setAspectRatio(template.aspect_ratio);
+		setTransform(template.transformation);
 	}
 	
 
 	public Page(DataInputStream in) throws IOException {
-		// TODO
 		tags = TagManager.newTagSet();
 		
 		int version = in.readInt();
@@ -198,13 +215,12 @@ public class Page {
 			paper_type = PaperType.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
-		} else {
+		} else if (version == 3) {
 			tags.set(TagManager.loadTagSet(in));
 			paper_type = PaperType.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
-		}
-		if (version < 0 || version > 3)
+		} else 
 			throw new IOException("Unknown version!");
 		is_readonly = in.readBoolean();
 		aspect_ratio = in.readFloat();
@@ -215,23 +231,20 @@ public class Page {
 		background.setAspectRatio(aspect_ratio);
 		background.setPaperType(paper_type);
 	}
+	
+	public Bitmap renderBitmap(int width, int height) {
+		Transformation backup = transformation;
+		Transformation newTrans = new Transformation();
+		newTrans.offset_x = 0;
+		newTrans.offset_y = 0;
+		newTrans.scale = Math.min(height, width/aspect_ratio);
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+		Canvas c = new Canvas(bitmap);
+		setTransform(newTrans);
+		draw(c);
+		setTransform(backup);
+		return bitmap;
+	}
 }
-
-
-
-
-//private class RenderStrokeTask extends AsyncTask<Stroke, Void, Path> {
-//protected Path doInBackground(Stroke... s) {
-//	for (int i=0; i<s.length; i++)
-//		s[i].generate_path();
-//	Log.v(TAG, "x=("+s[0].x_min+","+s[0].x_max+"), y=("+s[0].y_min+","+s[0].y_max+")");
-//	Bitmap newBitmap = Bitmap.createBitmap(20, 20, Bitmap.Config.RGB_565);
-//	return newBitmap;
-//}
-//
-//protected void onPostExecute(Bitmap result) {
-//	//mImageView.setImageBitmap(result);
-//}
-//}
 
 
