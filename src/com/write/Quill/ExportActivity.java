@@ -208,7 +208,6 @@ public class ExportActivity
 	private static final int SIZE_RASTER_1024 = 2;
 	private static final int SIZE_RASTER_800= 3;
 
-
     private void doExportPng() {
 		threadLockActivity();
 		int pos = sizes.getSelectedItemPosition();
