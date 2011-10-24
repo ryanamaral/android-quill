@@ -53,13 +53,27 @@ public class Book {
 			if (pageMatchesFilter(p))
 				filteredPages.add(p);
 		}
-		if (filteredPages.isEmpty()) {
-			Page curr = currentPage();
-			lastPageUnfiltered();
-			Page new_page = insertPage(curr);
-			new_page.tags.set(filter);
-			filteredPages.add(new_page);
+		ensureNonEmpty(null);
+	}
+	
+	// make sure the book and filteredPages is non-empty
+	// call after every operation that potentially removed pages
+	private void ensureNonEmpty(Page template) {
+		if (currentPage <0) currentPage = 0;
+		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
+		if (template == null && pages.size() > 0) 
+			template = currentPage();
+		if (filteredPages.isEmpty()) 
+			insertPage(template, pages.size());
+		// remove empty pages
+		Page curr = currentPage();
+		ListIterator<Page> iter = pages.listIterator();
+		while (iter.hasNext()) {
+			Page p = iter.next();
+			if (p == curr) continue;
+			if (p.is_empty()) iter.remove();
 		}
+		currentPage = pages.indexOf(curr);
 	}
 	
 	public Page getPage(int n) {
@@ -90,16 +104,18 @@ public class Book {
 	// deleting the last page is only clearing it etc.
 	public Page deletePage() {		
 		Log.d(TAG, "delete_page() "+currentPage+"/"+pages.size());
-		if (pages.size() == 1) {
-			insertPage();
-			if (pages.size() == 1) // the current page is empty
-				return currentPage();
+		Page curr = currentPage();
+		touchAllSubsequentPages();
+		if (filteredPages.size() == 1 && curr == filteredPages.getFirst()) {
+			pages.remove(curr);
+			insertPage(curr, pages.size());
+		} else if (isLastPage()) {
 			previousPage();
-			pages.remove(currentPage);
+			pages.remove(curr);
 		} else {
-			pages.remove(currentPage);
-			if (currentPage == pages.size())
-				currentPage -= 1;
+			nextPage();
+			pages.remove(curr);
+			currentPage --;
 		}
 		filterChanged();
 		touchAllSubsequentPages();
@@ -180,20 +196,28 @@ public class Book {
 		return pages.get(currentPage);
 	}
 	
-	// inserts a page _if_ it makes sense
-	public Page insertPage(Page template) {
-		if (currentPage().is_empty())
-			return currentPage();
+	// inserts a page at position 
+	// if currentPage is empty, it will be removed
+	public Page insertPage(Page template, int position) {
 		Page new_page;
-		new_page = new Page(template);
-		pages.add(++currentPage, new_page);
-		filterChanged();
+		if (template != null)
+			new_page = new Page(template);
+		else
+			new_page = new Page();
+		new_page.tags.add(filter);
+		pages.add(position, new_page);
+		currentPage = position;
 		touchAllSubsequentPages();
+		filterChanged();
 		return new_page;
 	}
 	
 	public Page insertPage() {
-		return insertPage(currentPage());
+		return insertPage(currentPage(), currentPage+1);
+	}
+	
+	public Page insertPageAtEnd() {
+		return insertPage(currentPage(), pages.size());
 	}
 	
 	public boolean isFirstPage() {
@@ -262,8 +286,6 @@ public class Book {
 		}
 		// recover from errors
 		if (pages.isEmpty()) pages.add(new Page());
-		if (currentPage <0) currentPage = 0;
-		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 		filterChanged();
 	}
 			

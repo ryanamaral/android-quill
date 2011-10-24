@@ -93,6 +93,16 @@ public class TagManager {
 			return false;
 		}
 		
+		public boolean add(TagSet tagSet) {
+			ListIterator<Tag> iter = tagSet.tagIterator();
+			boolean rc = true;
+			while (iter.hasNext()) {
+				Tag t = iter.next();
+				rc = rc && add(t);
+			}
+			return rc;
+		}
+		
 		public boolean remove(Tag tag) {
 			boolean rc = tags.remove(tag);
 			if (rc) tag.count -= 1;

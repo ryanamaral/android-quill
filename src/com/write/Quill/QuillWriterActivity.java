@@ -367,7 +367,7 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next() {
 		if (book.isLastPage()) {
-			mView.set_page_and_zoom_out(book.insertPage());
+			mView.set_page_and_zoom_out(book.insertPageAtEnd());
 			toast_page_number("Inserted new page at end");
 		} else {
 			mView.set_page_and_zoom_out(book.nextPage());
@@ -393,7 +393,7 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next_unfiltered() {
 		if (book.isLastPageUnfiltered()) {
-			mView.set_page_and_zoom_out(book.insertPage());
+			mView.set_page_and_zoom_out(book.insertPageAtEnd());
 			toast_page_number("Inserted new page at end");
 		} else {
 			mView.set_page_and_zoom_out(book.nextPageUnfiltered());
