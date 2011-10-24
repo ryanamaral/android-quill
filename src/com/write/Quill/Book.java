@@ -63,17 +63,21 @@ public class Book {
 		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 		if (template == null && pages.size() > 0) 
 			template = currentPage();
-		if (filteredPages.isEmpty()) 
-			insertPage(template, pages.size());
 		// remove empty pages
 		Page curr = currentPage();
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
 			Page p = iter.next();
 			if (p == curr) continue;
-			if (p.is_empty()) iter.remove();
+			if (p.is_empty()) {
+				iter.remove();
+				filteredPages.remove(p);
+			}
 		}
 		currentPage = pages.indexOf(curr);
+		// make sure at least one page is in filteredPages
+		if (filteredPages.isEmpty()) 
+			insertPage(template, pages.size());
 	}
 	
 	public Page getPage(int n) {
