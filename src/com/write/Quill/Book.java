@@ -45,7 +45,7 @@ public class Book {
 			getPage(i).touch();
 	}
 	
-	public void filterChanged() {
+	public void filterChanged(boolean removeEmpty) {
 		filteredPages.clear();
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
@@ -53,31 +53,37 @@ public class Book {
 			if (pageMatchesFilter(p))
 				filteredPages.add(p);
 		}
-		ensureNonEmpty(null);
+		ensureNonEmpty(null, removeEmpty);
+	}
+	
+	public void filterChanged() {
+		filterChanged(true);
 	}
 	
 	// make sure the book and filteredPages is non-empty
 	// call after every operation that potentially removed pages
-	private void ensureNonEmpty(Page template) {
+	private void ensureNonEmpty(Page template, boolean removeEmpty) {
 		if (currentPage <0) currentPage = 0;
 		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 		if (template == null && pages.size() > 0) 
 			template = currentPage();
 		// remove empty pages
-		Page curr = currentPage();
-		ListIterator<Page> iter = pages.listIterator();
-		while (iter.hasNext()) {
-			Page p = iter.next();
-			if (p == curr) continue;
-			if (p.is_empty()) {
-				iter.remove();
-				filteredPages.remove(p);
+		if (removeEmpty) {
+			Page curr = currentPage();
+			ListIterator<Page> iter = pages.listIterator();
+			while (iter.hasNext()) {
+				Page p = iter.next();
+				if (p == curr) continue;
+				if (p.is_empty()) {
+					iter.remove();
+					filteredPages.remove(p);
+				}
 			}
+			currentPage = pages.indexOf(curr);
 		}
-		currentPage = pages.indexOf(curr);
 		// make sure at least one page is in filteredPages
 		if (filteredPages.isEmpty()) 
-			insertPage(template, pages.size());
+			insertPage(template, pages.size(), false);
 	}
 	
 	public Page getPage(int n) {
@@ -112,7 +118,7 @@ public class Book {
 		touchAllSubsequentPages();
 		if (filteredPages.size() == 1 && curr == filteredPages.getFirst()) {
 			pages.remove(curr);
-			insertPage(curr, pages.size());
+			insertPage(curr, pages.size(), true);
 		} else if (isLastPage()) {
 			previousPage();
 			pages.remove(curr);
@@ -202,7 +208,7 @@ public class Book {
 	
 	// inserts a page at position 
 	// if currentPage is empty, it will be removed
-	public Page insertPage(Page template, int position) {
+	public Page insertPage(Page template, int position, boolean removeEmpty) {
 		Page new_page;
 		if (template != null)
 			new_page = new Page(template);
@@ -212,16 +218,18 @@ public class Book {
 		pages.add(position, new_page);
 		currentPage = position;
 		touchAllSubsequentPages();
-		filterChanged();
+		assert pageMatchesFilter(new_page) : "missing tags?";
+		filterChanged(removeEmpty);
+		assert new_page == currentPage() : "wrong page";
 		return new_page;
 	}
 	
 	public Page insertPage() {
-		return insertPage(currentPage(), currentPage+1);
+		return insertPage(currentPage(), currentPage+1, true);
 	}
 	
 	public Page insertPageAtEnd() {
-		return insertPage(currentPage(), pages.size());
+		return insertPage(currentPage(), pages.size(), true);
 	}
 	
 	public boolean isFirstPage() {
