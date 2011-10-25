@@ -11,11 +11,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import junit.framework.Assert;
+
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 
 public class Book {
@@ -23,7 +26,7 @@ public class Book {
 	private static final String FILENAME_STEM = "quill";
 	
 	// the singleton instance
-	private static Book book = makeEmptyBook(FILENAME_STEM);
+	private static Book book = null;
 	private Book() {}
 	
 	// Returns always the same instance 
@@ -46,6 +49,7 @@ public class Book {
 	}
 	
 	public void filterChanged(boolean removeEmpty) {
+		Page curr = currentPage();
 		filteredPages.clear();
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
@@ -54,6 +58,7 @@ public class Book {
 				filteredPages.add(p);
 		}
 		ensureNonEmpty(null, removeEmpty);
+		Assert.assertTrue("current page must not change", curr == currentPage());
 	}
 	
 	public void filterChanged() {
@@ -80,10 +85,15 @@ public class Book {
 				}
 			}
 			currentPage = pages.indexOf(curr);
+			Assert.assertTrue("Current page removed?", currentPage >= 0);
 		}
 		// make sure at least one page is in filteredPages
-		if (filteredPages.isEmpty()) 
+		if (filteredPages.isEmpty()) {
+			Page curr = currentPage();
 			insertPage(template, pages.size(), false);
+			currentPage = pages.indexOf(curr);
+			Assert.assertTrue("Current page removed?", currentPage >= 0);
+		}
 	}
 	
 	public Page getPage(int n) {
@@ -98,8 +108,10 @@ public class Book {
 		ListIterator<Tag> iter = filter.tagIterator();
 		while (iter.hasNext()) {
 			Tag t = iter.next();
-			if (!page.tags.contains(t))
+			if (!page.tags.contains(t)) {
+				// Log.d(TAG, "does not match: "+t.name+" "+page.tags.size());
 				return false;
+			}
 		}
 		return true;
 	}
@@ -165,7 +177,7 @@ public class Book {
 		if (next == null)
 			return currentPage();
 		currentPage = pages.indexOf(next);
-		assert currentPage >= 0;
+		Assert.assertTrue(currentPage >= 0);
 		return next;
 	}
 	
@@ -190,7 +202,7 @@ public class Book {
 		if (prev == null)
 			return currentPage();
 		currentPage = pages.indexOf(prev);
-		assert currentPage >= 0;
+		Assert.assertTrue(currentPage >= 0);
 		return prev;
 	}
 	
@@ -218,9 +230,9 @@ public class Book {
 		pages.add(position, new_page);
 		currentPage = position;
 		touchAllSubsequentPages();
-		assert pageMatchesFilter(new_page) : "missing tags?";
-		filterChanged(removeEmpty);
-		assert new_page == currentPage() : "wrong page";
+		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
+		filterChanged(true); 
+		Assert.assertTrue("wrong page", new_page == currentPage());
 		return new_page;
 	}
 	
@@ -268,37 +280,68 @@ public class Book {
 		for (int i=0; i<N; i++) {
 			book.pages.add(new Page(in));
 		}
+		if (pages.isEmpty()) insertPage(null, 0, false);
 		filterChanged();
 		return book;
 	}
 	
-	private static Book makeEmptyBook(String filename_stem) {
+	private static Book makeEmptyBook() {
 		Book book = new Book();
 		book.pages.add(new Page());
 		book.filterChanged();
-		return book;
+		Book.book = book;
+		return getBook();
 	}
 	
 	// Loads the book. This is the complement to the save() method
-	public void load(Context context) {
+	public static Book load(Context context) {
+		Book book = new Book();
 		int n_pages;
 		try {
-			n_pages = loadIndex(context);
+			n_pages = book.loadIndex(context);
 		} catch (IOException e) {
 			Log.e(TAG, "Error opening book index page ");
-			n_pages = 1;
+			Toast.makeText(context, 
+					"Page index missing, recovering...", Toast.LENGTH_LONG);
+			return recoverFromMissingIndex(context);
 		}
-		pages.clear();
 		for (int i=0; i<n_pages; i++) {
 			try {
-				pages.add(loadPage(i, context));
+				book.pages.add(book.loadPage(i, context));
 			} catch (IOException e) {
-				Log.e(TAG, "Error opening book page "+i+" of "+n_pages);
+				Log.e(TAG, "Error loading book page "+i+" of "+n_pages);
+				Toast.makeText(context, 
+						"Error loading book page "+i+" of "+n_pages, 
+						Toast.LENGTH_LONG);
 			}
 		}
 		// recover from errors
-		if (pages.isEmpty()) pages.add(new Page());
-		filterChanged();
+		if (book.pages.isEmpty()) book.insertPage(null, 0, false);
+		book.filterChanged(false);
+		Book.book = book;
+		return getBook();
+	}
+			
+	// Loads the book. This is the complement to the save() method
+	public static Book recoverFromMissingIndex(Context context) {
+		Book book = new Book();
+		int pos = 0;
+		while (true) {
+			Page page;
+			Log.d(TAG, "Trying to recover page "+pos);
+			try {
+				page = book.loadPage(pos++, context);
+			} catch (IOException e) {
+				break;
+			}
+			page.touch();
+			book.pages.add(page);
+		}
+		// recover from errors
+		if (book.pages.isEmpty()) book.insertPage(null, 0, false);
+		book.filterChanged(false);
+		Book.book = book;
+		return getBook();
 	}
 			
 	// save data internally. Will be used automatically
@@ -308,6 +351,9 @@ public class Book {
 			saveIndex(context);
 		} catch (IOException e) {
 			Log.e(TAG, "Error saving book index page ");
+			Toast.makeText(context, 
+					"Error saving book index page", 
+					Toast.LENGTH_LONG);
 		}
 		for (int i=0; i<pages.size(); i++) {
 			if (!pages.get(i).is_modified) continue;
@@ -315,6 +361,9 @@ public class Book {
 				savePage(i, context);
 			} catch (IOException e) {
 				Log.e(TAG, "Error saving book page "+i+" of "+pages.size());
+				Toast.makeText(context, 
+						"Error saving book page "+i+" of "+pages.size(), 
+						Toast.LENGTH_LONG);
 			}
 		}
 		
@@ -338,7 +387,7 @@ public class Book {
 	}
 	
     // Save an archive 
-    public void loadArchive(File file) throws IOException {
+    public Book loadArchive(File file) throws IOException {
     	FileInputStream fis;
 	    BufferedInputStream buffer;
 	    DataInputStream dataIn = null;
@@ -360,7 +409,9 @@ public class Book {
 		ListIterator<Page> piter = pages.listIterator(); 
 		while (piter.hasNext())
 			piter.next().is_modified = true;
-		filterChanged();
+		if (pages.isEmpty()) insertPage(null, 0, false);
+		filterChanged(false);
+		return getBook();
    }
     	
     	

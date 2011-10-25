@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import junit.framework.Assert;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -217,7 +219,7 @@ public class ExportActivity
 			case SIZE_RASTER_1280:  dim_big = 1280; dim_small = 800; break;
 			case SIZE_RASTER_1024:  dim_big = 1024; dim_small = 768; break;
 			case SIZE_RASTER_800:   dim_big =  800; dim_small = 600; break;
-			default: assert false : "Unreachable";
+			default: Assert.assertTrue("Unreachable", false);
     	}
 		if (page.aspect_ratio > 1) {
 			size_raster_width = dim_big;    size_raster_height = dim_small;
@@ -247,7 +249,7 @@ public class ExportActivity
     
     private void doExportPdf() {
 		threadLockActivity();
-        assert pdfExporter == null : "Trying to run two export threads??";
+        Assert.assertTrue("Trying to run two export threads??",  pdfExporter == null);
     	pdfExporter = new PDFExporter();
         exportThread = new Thread(new Runnable() {
             public void run() {

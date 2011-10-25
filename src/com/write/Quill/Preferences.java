@@ -49,20 +49,54 @@ public class Preferences extends PreferenceActivity {
 						showDialog(DIALOG_RESTORE_BACKUP);
 						return true;
 					}});
+
+		Preference recovery = findPreference("recovery");
+		recovery.setOnPreferenceClickListener(
+				new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						showDialog(DIALOG_RECOVERY);
+						return true;
+					}});
 	}
 
 
 	public static final int DIALOG_RESTORE_BACKUP = 0;
+	public static final int DIALOG_RECOVERY = 1;
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case DIALOG_RESTORE_BACKUP:
 			return (Dialog)create_dialog_restore();
+		case DIALOG_RECOVERY:
+			return (Dialog)create_dialog_recovery();
 		}
 		return null;
 	}
 
+	
+	private AlertDialog create_dialog_recovery() {
+		DialogInterface.OnClickListener dialogClickListener = 
+			new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int button) {
+		        switch (button){
+		        case DialogInterface.BUTTON_NEGATIVE:  break;
+		        case DialogInterface.BUTTON_POSITIVE:
+		        	Book.getBook().recoverFromMissingIndex(getApplicationContext());
+		        	dialog.dismiss();
+		            break;
+		        }
+		    }};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Are you sure?")
+			.setPositiveButton("Yes", dialogClickListener)
+		    .setNegativeButton("No", dialogClickListener);
+		return builder.create();
+	}
+	
+	
 	
 	private ArrayList<String> tryMakeFileList() {
 		ArrayList<String> files = new ArrayList<String>();

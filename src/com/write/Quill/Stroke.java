@@ -8,6 +8,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.Math;
 
+import junit.framework.Assert;
+
 import android.util.FloatMath;
 import android.util.Log;
 import android.graphics.RectF;
@@ -45,7 +47,7 @@ public class Stroke {
 	
 	public Stroke(float[] x, float[] y, float[] p, int from, int to) {
 		N = to-from;
-		assert N>0: "Stroke must consist of at least one point";
+		Assert.assertTrue("Stroke must consist of at least one point", N>0);
 		position_x = Arrays.copyOfRange(x, from, to);
 		position_y = Arrays.copyOfRange(y, from, to);
 		pressure = Arrays.copyOfRange(p, from, to);
@@ -57,8 +59,8 @@ public class Stroke {
 	}
 	
 	void setPen(PenType new_pen_type, int new_pen_thickness, int new_pen_color) {
-		assert new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL:
-			"Pen type is not actual pen.";
+		Assert.assertTrue("Pen type is not actual pen.",
+				new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL);
 		pen_thickness = new_pen_thickness;
 		pen_type = new_pen_type;
 		pen_color = new_pen_color;
@@ -238,7 +240,7 @@ public class Stroke {
 			new_pressure[n] = pressure[p];
 			n++;
 		}
-		assert n==new_N;
+		Assert.assertEquals(n, new_N);
 		N = new_N;
 		position_x = new_position_x;
 		position_y = new_position_y;

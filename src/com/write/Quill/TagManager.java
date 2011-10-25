@@ -95,10 +95,11 @@ public class TagManager {
 		
 		public boolean add(TagSet tagSet) {
 			ListIterator<Tag> iter = tagSet.tagIterator();
-			boolean rc = true;
+			boolean rc = false;
 			while (iter.hasNext()) {
 				Tag t = iter.next();
-				rc = rc && add(t);
+				boolean tIsNew = add(t);
+				rc = rc || tIsNew; // beware of short-circuit
 			}
 			return rc;
 		}

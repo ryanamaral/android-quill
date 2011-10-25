@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import junit.framework.Assert;
+
 import com.write.Quill.Stroke.PenType;
 
 import android.content.Context;
@@ -160,7 +162,7 @@ public class HandwriterView extends View {
 	}
 	
 	protected void addStrokes(Object data) {
-		assert data instanceof LinkedList<?>: "unknown data";
+		Assert.assertTrue("unknown data", data instanceof LinkedList<?>);
 		LinkedList<Stroke> new_strokes = (LinkedList<Stroke>)data;
 		page.strokes.addAll(new_strokes);
 	}

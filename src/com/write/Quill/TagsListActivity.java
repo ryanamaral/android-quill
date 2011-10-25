@@ -1,4 +1,6 @@
 package com.write.Quill;
+import junit.framework.Assert;
+
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
 
@@ -138,8 +140,8 @@ public class TagsListActivity extends Activity implements
 		tagList.setOnItemClickListener(this);
 		tagList.setOnKeyListener(this);
 		tagCloud.setOnTouchListener(this);
-		assert tagList != null: "Tag list not created.";
-		assert tagCloud != null: "Tag cloud not created.";
+		Assert.assertTrue("Tag list not created.", tagList != null);
+		Assert.assertTrue("Tag cloud not created.", tagCloud != null);
 		tagList.setTagSet(tags);
 		tagCloud.setTagSet(tags);
 		

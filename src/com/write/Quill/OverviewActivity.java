@@ -1,5 +1,7 @@
 package com.write.Quill;
 
+import junit.framework.Assert;
+
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
 
@@ -62,7 +64,7 @@ public class OverviewActivity extends Activity implements
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
 		tagList.setOnItemClickListener(this);
-		assert tagList != null: "Tag list not created.";
+		Assert.assertTrue("Tag list not created.", tagList != null);
 		tagList.setTagSet(tags);
 		tagList.showNewTextEdit(false);
 		

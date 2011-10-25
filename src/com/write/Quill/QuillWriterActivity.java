@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import junit.framework.Assert;
+
 import com.write.Quill.R;
 import com.write.Quill.Page.PaperType;
 
@@ -56,7 +58,7 @@ public class QuillWriterActivity extends Activity {
 	public static final int DIALOG_PAPER_ASPECT = 3;
 	public static final int DIALOG_PAPER_TYPE = 4;
 
-	private Book book = Book.getBook();
+	private Book book = null;
 	
     private HandwriterView mView;
     private Menu mMenu;
@@ -71,10 +73,6 @@ public class QuillWriterActivity extends Activity {
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
 
-    @Override
-	public void onSaveInstanceState(Bundle state) {
-    	state.putBoolean(HAVE_BOOK, true);
-    }
     
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,16 +101,13 @@ public class QuillWriterActivity extends Activity {
             }
         });
 
-
-        if (savedInstanceState != null &&
-        	savedInstanceState.getBoolean(HAVE_BOOK)) {
-        	Log.v(TAG, "Got book handed through.");
-        	book = Book.getBook();
-        } else {
+      	book = Book.getBook();
+      	if (book == null) {
         	Log.v(TAG, "Reading book from storage.");
-        	book.load(getApplicationContext());
+        	Book.load(getApplicationContext());
+        	book = Book.getBook();
         }
-        assert (book != null) : "Book object not initialized.";
+        Assert.assertTrue("Book object not initialized.", book != null);
     	mView.setPageAndZoomOut(book.currentPage());
     }
     
@@ -427,8 +422,10 @@ public class QuillWriterActivity extends Activity {
     
     @Override protected void onResume() {
         super.onResume();
-        book.filterChanged();
-        mView.updateOverlay();
+        if (book != null) {
+        	book.filterChanged();
+        	mView.updateOverlay();
+        }
         
         String model = android.os.Build.MODEL;
         Log.v(TAG, "Model = >"+model+"<");
@@ -449,7 +446,8 @@ public class QuillWriterActivity extends Activity {
     
     @Override protected void onPause() {
         super.onPause();
-        book.save(getApplicationContext());
+        if (book != null)
+        	book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.pen_type.ordinal());

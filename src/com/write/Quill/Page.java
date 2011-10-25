@@ -195,6 +195,9 @@ public class Page {
 	
 	public Page() {
 		tags = TagManager.newTagSet();
+		setPaperType(paper_type);
+		setAspectRatio(aspect_ratio);
+		setTransform(transformation);
 	}
 
 	public Page(Page template) {
