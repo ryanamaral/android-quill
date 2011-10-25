@@ -29,4 +29,12 @@ public class Transformation {
 		result.scale = scale;
 		return result;
 	}	
+	
+	public Transformation copy() {
+		Transformation t = new Transformation();
+		t.offset_x = offset_x;
+		t.offset_y = offset_y;
+		t.scale = scale;
+		return t;
+	}
 }

@@ -236,17 +236,14 @@ public class Page {
 	}
 	
 	public Bitmap renderBitmap(int width, int height) {
-		Transformation backup = transformation;
-		Transformation newTrans = new Transformation();
-		newTrans.offset_x = 0;
-		newTrans.offset_y = 0;
-		newTrans.scale = Math.min(height, width/aspect_ratio);
-		int actual_width  = (int)Math.rint(newTrans.scale*aspect_ratio);
-		int actual_height = (int)Math.rint(newTrans.scale);
+		Transformation backup = getTransform().copy();
+		float scale = Math.min(height, width/aspect_ratio);
+		setTransform(0, 0, scale);
+		int actual_width  = (int)Math.rint(scale*aspect_ratio);
+		int actual_height = (int)Math.rint(scale);
 		Bitmap bitmap = Bitmap.createBitmap
 			(actual_width, actual_height, Config.ARGB_8888);
 		Canvas c = new Canvas(bitmap);
-		setTransform(newTrans);
 		draw(c);
 		setTransform(backup);
 		return bitmap;
