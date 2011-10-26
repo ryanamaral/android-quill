@@ -43,57 +43,73 @@ public class Book {
 	// filteredPages is never empty
 	protected final LinkedList<Page> filteredPages = new LinkedList<Page>();
 
-	private void touchAllSubsequentPages() {
-		for (int i=currentPage; i<pages.size(); i++)
+	// mark all subsequent pages as changed so that they are saved again
+	private void touchAllSubsequentPages(int fromPage) {
+		for (int i=fromPage; i<pages.size(); i++)
 			getPage(i).touch();
 	}
 	
-	public void filterChanged(boolean removeEmpty) {
+	private void touchAllSubsequentPages(Page fromPage) {
+		touchAllSubsequentPages(pages.indexOf(fromPage));
+	}
+
+	private void touchAllSubsequentPages() {
+		touchAllSubsequentPages(currentPage);
+	}
+
+	// Call this whenever the filter changed
+	// will ensure that there is at least one page matching the filter
+	// but will not change the current page (which need not match).
+	public void filterChanged() {
 		Page curr = currentPage();
 		filteredPages.clear();
+		removeEmptyPages(true);
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
 			Page p = iter.next();
 			if (pageMatchesFilter(p))
 				filteredPages.add(p);
 		}
-		ensureNonEmpty(null, removeEmpty);
+		ensureNonEmpty(curr);
 		Assert.assertTrue("current page must not change", curr == currentPage());
 	}
 	
-	public void filterChanged() {
-		filterChanged(true);
+	// remove empty pages
+	// If keepCurrent is false and current page is empty, then 
+	// currentPage is invalidated! 
+	private void removeEmptyPages(boolean keepCurrent) {
+		Page curr = currentPage();
+		ListIterator<Page> iter = pages.listIterator();
+		while (iter.hasNext()) {
+			Page p = iter.next();
+			if (keepCurrent && p == curr) continue;
+			if (p.is_empty()) {
+				touchAllSubsequentPages(p);
+				iter.remove();
+				filteredPages.remove(p);
+			}
+		}
+		currentPage = pages.indexOf(curr);
+		Assert.assertTrue("Current page removed?", !keepCurrent || currentPage>=0);
 	}
+		
 	
 	// make sure the book and filteredPages is non-empty
 	// call after every operation that potentially removed pages
-	private void ensureNonEmpty(Page template, boolean removeEmpty) {
-		if (currentPage <0) currentPage = 0;
-		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
-		if (template == null && pages.size() > 0) 
-			template = currentPage();
-		// remove empty pages
-		if (removeEmpty) {
-			Page curr = currentPage();
-			ListIterator<Page> iter = pages.listIterator();
-			while (iter.hasNext()) {
-				Page p = iter.next();
-				if (p == curr) continue;
-				if (p.is_empty()) {
-					iter.remove();
-					filteredPages.remove(p);
-				}
-			}
-			currentPage = pages.indexOf(curr);
-			Assert.assertTrue("Current page removed?", currentPage >= 0);
-		}
-		// make sure at least one page is in filteredPages
-		if (filteredPages.isEmpty()) {
-			Page curr = currentPage();
-			insertPage(template, pages.size(), false);
-			currentPage = pages.indexOf(curr);
-			Assert.assertTrue("Current page removed?", currentPage >= 0);
-		}
+	// the current page is not changed
+	private void ensureNonEmpty(Page template) {
+		if (!filteredPages.isEmpty()) return;
+		Page curr = currentPage();
+		Page new_page;
+		if (template != null)
+			new_page = new Page(template);
+		else
+			new_page = new Page();
+		new_page.tags.add(filter);
+		pages.add(pages.size(), new_page);
+		filteredPages.add(new_page);
+		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
+		Assert.assertTrue("Current page removed?", curr == currentPage());
 	}
 	
 	public Page getPage(int n) {
@@ -118,6 +134,7 @@ public class Book {
 	
 	public Page currentPage() {
 		// Log.v(TAG, "current_page() "+currentPage+"/"+pages.size());
+		Assert.assertTrue(currentPage >= 0 && currentPage < pages.size());
 		return pages.get(currentPage);
 	}
 	
@@ -128,19 +145,26 @@ public class Book {
 		Log.d(TAG, "delete_page() "+currentPage+"/"+pages.size());
 		Page curr = currentPage();
 		touchAllSubsequentPages();
-		if (filteredPages.size() == 1 && curr == filteredPages.getFirst()) {
+		int initialIndex = currentPage;
+		int lastIndex  = pages.indexOf(filteredPages.getLast());
+		int firstIndex = pages.indexOf(filteredPages.getFirst());
+		if (currentPage < firstIndex) {
 			pages.remove(curr);
-			insertPage(curr, pages.size(), true);
-		} else if (isLastPage()) {
-			previousPage();
+			currentPage = firstIndex-1;
+		} else if (currentPage==firstIndex && currentPage == lastIndex) {
 			pages.remove(curr);
-		} else {
+			filteredPages.clear();
+			return insertPage(curr, currentPage);
+		} else if (currentPage>=firstIndex && currentPage < lastIndex) {
 			nextPage();
+			Assert.assertTrue(initialIndex < currentPage);
 			pages.remove(curr);
 			currentPage --;
+		} else if (currentPage >= lastIndex) {
+			previousPage();
+			pages.remove(curr);
 		}
 		filterChanged();
-		touchAllSubsequentPages();
 		return currentPage();
 	}
 
@@ -218,9 +242,9 @@ public class Book {
 		return pages.get(currentPage);
 	}
 	
-	// inserts a page at position 
-	// if currentPage is empty, it will be removed
-	public Page insertPage(Page template, int position, boolean removeEmpty) {
+	// inserts a page at position and makes it the current page
+	// empty pages are removed
+	public Page insertPage(Page template, int position) {
 		Page new_page;
 		if (template != null)
 			new_page = new Page(template);
@@ -230,18 +254,19 @@ public class Book {
 		pages.add(position, new_page);
 		currentPage = position;
 		touchAllSubsequentPages();
+		removeEmptyPages(true);
+		filterChanged(); 
 		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
-		filterChanged(true); 
 		Assert.assertTrue("wrong page", new_page == currentPage());
 		return new_page;
 	}
 	
 	public Page insertPage() {
-		return insertPage(currentPage(), currentPage+1, true);
+		return insertPage(currentPage(), currentPage+1);
 	}
 	
 	public Page insertPageAtEnd() {
-		return insertPage(currentPage(), pages.size(), true);
+		return insertPage(currentPage(), pages.size());
 	}
 	
 	public boolean isFirstPage() {
@@ -260,6 +285,27 @@ public class Book {
 		return currentPage+1 == pages.size();
 	}
 
+	
+	/////////////////////////////////////////////////////
+	// Input/Output
+	
+	// Pick a current page if it is out of bounds
+	private void makeCurrentPageConsistent() {
+		if (currentPage <0) currentPage = 0;
+		if (currentPage >= pages.size()) currentPage = pages.size() - 1;
+		if (pages.isEmpty()) {
+			Page p = new Page();
+			p.tags.add(filter);
+			pages.add(p);
+			currentPage = 0;
+		}
+	}
+	
+	// this is always called after the book was loaded
+	private void loadingFinishedHook() {
+		makeCurrentPageConsistent();
+		filterChanged();
+	}
 	
 	public void writeToStream(DataOutputStream out) throws IOException {
 		out.writeInt(1);  // protocol #1
@@ -280,16 +326,15 @@ public class Book {
 		for (int i=0; i<N; i++) {
 			book.pages.add(new Page(in));
 		}
-		if (pages.isEmpty()) insertPage(null, 0, false);
-		filterChanged();
+		loadingFinishedHook();
 		return book;
 	}
 	
 	private static Book makeEmptyBook() {
 		Book book = new Book();
 		book.pages.add(new Page());
-		book.filterChanged();
 		Book.book = book;
+		book.loadingFinishedHook();
 		return getBook();
 	}
 	
@@ -316,8 +361,7 @@ public class Book {
 			}
 		}
 		// recover from errors
-		if (book.pages.isEmpty()) book.insertPage(null, 0, false);
-		book.filterChanged(false);
+		book.loadingFinishedHook();
 		Book.book = book;
 		return getBook();
 	}
@@ -338,8 +382,7 @@ public class Book {
 			book.pages.add(page);
 		}
 		// recover from errors
-		if (book.pages.isEmpty()) book.insertPage(null, 0, false);
-		book.filterChanged(false);
+		book.loadingFinishedHook();
 		Book.book = book;
 		return getBook();
 	}
@@ -409,8 +452,7 @@ public class Book {
 		ListIterator<Page> piter = pages.listIterator(); 
 		while (piter.hasNext())
 			piter.next().is_modified = true;
-		if (pages.isEmpty()) insertPage(null, 0, false);
-		filterChanged(false);
+		loadingFinishedHook();
 		return getBook();
    }
     	

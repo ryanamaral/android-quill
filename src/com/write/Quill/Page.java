@@ -198,6 +198,7 @@ public class Page {
 		setPaperType(paper_type);
 		setAspectRatio(aspect_ratio);
 		setTransform(transformation);
+		is_modified = true;
 	}
 
 	public Page(Page template) {
@@ -205,6 +206,7 @@ public class Page {
 		setPaperType(template.paper_type);
 		setAspectRatio(template.aspect_ratio);
 		setTransform(template.transformation);
+		is_modified = true;
 	}
 	
 
