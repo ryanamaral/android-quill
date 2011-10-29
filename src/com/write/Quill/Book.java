@@ -34,6 +34,14 @@ public class Book {
 		return book;
 	}
 	
+	// Call this in the activity's onCreate method before accessing getBook()
+	public static void onCreate(Context context) {
+      	if (book == null) {
+        	Log.v(TAG, "Reading book from storage.");
+        	Book.load(context);
+        }
+	}
+	
 	// persistent data
 	// pages is never empty
 	protected final LinkedList<Page> pages = new LinkedList<Page>();

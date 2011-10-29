@@ -77,6 +77,9 @@ public class QuillWriterActivity extends Activity {
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+      	Book.onCreate(getApplicationContext());
+      	book = Book.getBook();
+        Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
         // Create and attach the view that is responsible for painting.
@@ -101,13 +104,6 @@ public class QuillWriterActivity extends Activity {
             }
         });
 
-      	book = Book.getBook();
-      	if (book == null) {
-        	Log.v(TAG, "Reading book from storage.");
-        	Book.load(getApplicationContext());
-        	book = Book.getBook();
-        }
-        Assert.assertTrue("Book object not initialized.", book != null);
     	mView.setPageAndZoomOut(book.currentPage());
     }
     

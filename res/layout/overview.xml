@@ -11,10 +11,10 @@
     	android:layout_height="fill_parent"
     ></com.write.Quill.TagListView>
     
-    <com.write.Quill.IconView 
+    <com.write.Quill.ThumbnailView 
     	android:layout_width="fill_parent" 
     	android:layout_height="fill_parent" 
-    	android:id="@+id/icons" 
-    ></com.write.Quill.IconView>
+    	android:id="@+id/thumbnail_grid" 
+    ></com.write.Quill.ThumbnailView>
 
 </LinearLayout>

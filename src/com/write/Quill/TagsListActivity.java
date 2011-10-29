@@ -129,6 +129,7 @@ public class TagsListActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		
 		Log.d(TAG, "onCreate");
+      	Book.onCreate(getApplicationContext());
 		TagManager tm = TagManager.getTagManager();
 		tm.sort();
 		tags = Book.getBook().currentPage().tags;

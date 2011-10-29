@@ -20,6 +20,7 @@ public class OverviewActivity extends Activity implements
 	
 	private View layout;
 	protected TagListView tagList;
+	protected ThumbnailView thumbnailGrid;
 	
 	protected TagManager tagManager = TagManager.getTagManager();
 	protected TagSet tags = TagManager.newTagSet();
@@ -36,6 +37,8 @@ public class OverviewActivity extends Activity implements
 
 	protected void tagsChanged(boolean onlySelection) {
        	tagList.notifyTagsChanged();
+		Book.getBook().filterChanged();
+       	thumbnailGrid.notifyTagsChanged();
 	}
 	
 	protected static final int RESULT_FILTER_CHANGED = 2;
@@ -55,6 +58,7 @@ public class OverviewActivity extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
+      	Book.onCreate(getApplicationContext());
 		
 		TagManager tm = TagManager.getTagManager();
 		tm.sort();
@@ -68,6 +72,9 @@ public class OverviewActivity extends Activity implements
 		tagList.setTagSet(tags);
 		tagList.showNewTextEdit(false);
 		
+		thumbnailGrid = (ThumbnailView) findViewById(R.id.thumbnail_grid);
+		Assert.assertTrue("Thumbnail grid not created.", thumbnailGrid != null);
+
         ActionBar bar = getActionBar();
         bar.setTitle(R.string.title_filter);
         bar.setDisplayHomeAsUpEnabled(true);

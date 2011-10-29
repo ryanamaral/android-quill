@@ -26,6 +26,7 @@ public class TagCloudView extends View {
 	private static final String TAG = "TagCloudView";
 	private static float MAX_TAG_WIDTH = 10f; 
 	private static int CLOUD_PAD = 2;
+	private static final int HIGHLIGHT = Color.YELLOW;
 
 	private TagSet tags;
 	private ListIterator<Tag> tagIter = null;
@@ -35,6 +36,8 @@ public class TagCloudView extends View {
 	private final TextPaint styleNormal, styleHighlight;
 	private final Rect rect = new Rect();
 	private Handler handler = new Handler();
+	
+	
 
 //	@Override
 //	public void setOnTouchListener(View.OnTouchListener listener) {
@@ -50,7 +53,7 @@ public class TagCloudView extends View {
 		styleNormal.setAntiAlias(true);
 		styleHighlight = new TextPaint();
 		styleHighlight.setTypeface(Typeface.SERIF);
-		styleHighlight.setShadowLayer(10, 0, 0, Color.BLUE);
+		styleHighlight.setShadowLayer(10, 0, 0, HIGHLIGHT);
 		styleHighlight.setColor(Color.BLACK);
 		styleHighlight.setAntiAlias(true);
 		paint.setARGB(0x10, 0x10, 0, 0);
@@ -101,9 +104,9 @@ public class TagCloudView extends View {
 		protected TextPaint style;
 		protected void setHighlight() {
 			if (tags.contains(tag)) 
-				style.setShadowLayer(10, 0, 0, Color.BLUE);
+				style.setShadowLayer(10, 0, 0, HIGHLIGHT);
 			else
-				style.setShadowLayer(0, 0, 0, Color.BLUE);	
+				style.setShadowLayer(0, 0, 0, HIGHLIGHT);	
 		}
 		protected void initTextStyle() {
 			style = new TextPaint();
