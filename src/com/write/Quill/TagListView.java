@@ -4,6 +4,7 @@ import com.write.Quill.TagManager.TagSet;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -79,6 +80,7 @@ public class TagListView extends RelativeLayout {
 	
 	public void setTagSet(TagSet tags) {
 		adapter = new TagSetAdapter(context, tags);
+		adapter.setHighlightColor(Color.BLUE);
         list.setAdapter(adapter);
 	}
 	

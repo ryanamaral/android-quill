@@ -22,7 +22,7 @@ public class TagSetAdapter extends ArrayAdapter {
 	
 	private TagSet tags;
 	private Context context;
-	private static final int HIGHLIGHT = Color.YELLOW;
+	private int highlight = Color.YELLOW;
 
 	public TagSetAdapter(Context mContext, TagSet active_tags) {
 		super(mContext, R.layout.tag_item, 
@@ -32,6 +32,9 @@ public class TagSetAdapter extends ArrayAdapter {
 		
 	}
 
+	public void setHighlightColor(int color) {
+		highlight = color;
+	}
 	
 	@Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -45,10 +48,10 @@ public class TagSetAdapter extends ArrayAdapter {
         Tag t = tags.allTags().get(position);
         tv.setText(t.name);
         if (tags.contains(t)) {
-        	tv.setShadowLayer(20, 0, 0, HIGHLIGHT);
+        	tv.setShadowLayer(20, 0, 0, highlight);
         	tv.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
-        	tv.setShadowLayer(0, 0, 0, HIGHLIGHT);
+        	tv.setShadowLayer(0, 0, 0, highlight);
         	tv.setTypeface(Typeface.DEFAULT);
 	
         }

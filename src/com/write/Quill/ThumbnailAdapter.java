@@ -61,6 +61,7 @@ public class ThumbnailAdapter extends BaseAdapter {
     	protected Bitmap bitmap;
     	protected Page page;
     	protected TagOverlay tagOverlay = null;
+    	protected boolean checked = false;
     	
 		public Thumbnail(Context context) {
 			super(context);	
@@ -93,6 +94,10 @@ public class ThumbnailAdapter extends BaseAdapter {
 			float y = (getHeight()-bitmap.getHeight())/2;
 			canvas.drawBitmap(bitmap, 0, y, paint);
 			tagOverlay.draw(canvas);
+			
+	        Boolean checked = selectedPages.get(page);
+	        if (checked != null && checked == true)
+	        	canvas.drawARGB(0x50, 0, 0xff, 0);
 		}
 		
     }
@@ -115,7 +120,8 @@ public class ThumbnailAdapter extends BaseAdapter {
     	
     
     IdentityHashMap<Page, Bitmap> thumbnailBitmaps = new IdentityHashMap<Page, Bitmap>();
-    
+    IdentityHashMap<Page, Boolean> selectedPages = new IdentityHashMap<Page, Boolean>();
+
     protected boolean renderThumbnail() {
     	for (Map.Entry<Page, Bitmap> entry : thumbnailBitmaps.entrySet()) {
     		// Log.d(TAG, "renderThumbnail "+entry.getKey()+" "+entry.getValue()+" "+thumbnailBitmaps.size());
@@ -156,6 +162,15 @@ public class ThumbnailAdapter extends BaseAdapter {
 		return thumb;
 	}
 	
+    public void checkedStateChanged(int position, boolean checked) {
+        Book book = Book.getBook();
+    	Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
+    	selectedPages.put(page, checked);
+    }
 	
+    public void uncheckAll() {
+    	selectedPages.clear();
+    }
+
 	
 }

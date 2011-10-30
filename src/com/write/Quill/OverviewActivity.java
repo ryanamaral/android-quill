@@ -10,9 +10,13 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 public class OverviewActivity extends Activity implements 
 	AdapterView.OnItemClickListener {
@@ -87,9 +91,59 @@ public class OverviewActivity extends Activity implements
 		thumbnailGrid = (ThumbnailView) findViewById(R.id.thumbnail_grid);
 		Assert.assertTrue("Thumbnail grid not created.", thumbnailGrid != null);
 		thumbnailGrid.setOnItemClickListener(this);
+		thumbnailGrid.setMultiChoiceModeListener(new MultiselectCallback());
 		
         ActionBar bar = getActionBar();
         bar.setTitle(R.string.title_filter);
         bar.setDisplayHomeAsUpEnabled(true);
 	}
+	
+	
+	
+    private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {
+
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        	// MenuInflater inflater = getMenuInflater();
+            // inflater.inflate(R.menu.menu, menu);
+            mode.setTitle("Select Items");
+            return true;
+        }
+
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return true;
+        }
+
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+            default:
+                Toast.makeText(getBaseContext(), "Clicked " + item.getTitle(),
+                        Toast.LENGTH_SHORT).show();
+                mode.finish();
+                break;
+            }
+            return true;
+        }
+
+        public void onDestroyActionMode(ActionMode mode) {
+        	thumbnailGrid.uncheckAll();
+        }
+
+        public void onItemCheckedStateChanged(ActionMode mode,
+                int position, long id, boolean checked) {
+            final int checkedCount = thumbnailGrid.getCheckedItemCount();
+            thumbnailGrid.checkedStateChanged(position, checked);
+            switch (checkedCount) {
+                case 0:
+                    mode.setSubtitle(null);
+                    break;
+                case 1:
+                    mode.setSubtitle("One page selected");
+                    break;
+                default:
+                    mode.setSubtitle("" + checkedCount + " pages selected");
+                    break;
+            }
+        }
+    }
+
 }
