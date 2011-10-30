@@ -419,8 +419,12 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (book != null) {
-        	book.filterChanged();
-        	mView.updateOverlay();
+        	if (mView.page == book.currentPage()) {
+        		book.filterChanged();
+        		mView.updateOverlay();
+        	} else {
+        		mView.setPageAndZoomOut(book.currentPage());
+        	}
         }
         
         String model = android.os.Build.MODEL;

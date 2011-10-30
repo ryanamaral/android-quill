@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
+import com.write.Quill.ThumbnailAdapter.Thumbnail;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,13 +27,24 @@ public class OverviewActivity extends Activity implements
 	protected TagSet tags = TagManager.newTagSet();
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Tag t = tagManager.get(position);
-		if (tags.contains(t))
-			tags.remove(t);
-		else
-			tags.add(t);
+		switch (parent.getId()) {
+		case R.id.tag_list:
+			Tag t = tagManager.get(position);
+			if (tags.contains(t))
+				tags.remove(t);
+			else
+				tags.add(t);
+	    	tagsChanged(true);
+			break;
+		case R.id.thumbnail_grid:
+			Log.d(TAG, "onItemClick "+parent.getId()+" "+id+ " ");
+			Book book = Book.getBook();
+			Thumbnail thumb = (Thumbnail)view; 
+			book.setCurrentPage(thumb.page);
+			finish();
+			break;
+		}
 		Log.d(TAG, "Click: "+tags.size());
-    	tagsChanged(true);
 	}
 
 	protected void tagsChanged(boolean onlySelection) {
@@ -74,7 +86,8 @@ public class OverviewActivity extends Activity implements
 		
 		thumbnailGrid = (ThumbnailView) findViewById(R.id.thumbnail_grid);
 		Assert.assertTrue("Thumbnail grid not created.", thumbnailGrid != null);
-
+		thumbnailGrid.setOnItemClickListener(this);
+		
         ActionBar bar = getActionBar();
         bar.setTitle(R.string.title_filter);
         bar.setDisplayHomeAsUpEnabled(true);

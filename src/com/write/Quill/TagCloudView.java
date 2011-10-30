@@ -26,7 +26,7 @@ public class TagCloudView extends View {
 	private static final String TAG = "TagCloudView";
 	private static float MAX_TAG_WIDTH = 10f; 
 	private static int CLOUD_PAD = 2;
-	private static final int HIGHLIGHT = Color.YELLOW;
+	private static final int HIGHLIGHT = Color.BLUE;
 
 	private TagSet tags;
 	private ListIterator<Tag> tagIter = null;

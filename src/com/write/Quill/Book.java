@@ -146,6 +146,19 @@ public class Book {
 		return pages.get(currentPage);
 	}
 	
+	public void setCurrentPage(Page page) {
+		currentPage = pages.indexOf(page);
+		Assert.assertTrue(currentPage >= 0);
+	}
+	
+	public int filteredPagesSize() {
+		return filteredPages.size();
+	}
+	
+	public Page getFilteredPage(int position) {
+		return filteredPages.get(position);
+	}
+	
 	// deletes page but makes sure that there is at least one page
 	// the book always has at least one page. 
 	// deleting the last page is only clearing it etc.
