@@ -41,7 +41,6 @@ public class OverviewActivity extends Activity implements
 	    	tagsChanged(true);
 			break;
 		case R.id.thumbnail_grid:
-			Log.d(TAG, "onItemClick "+parent.getId()+" "+id+ " ");
 			Book book = Book.getBook();
 			Thumbnail thumb = (Thumbnail)view; 
 			book.setCurrentPage(thumb.page);

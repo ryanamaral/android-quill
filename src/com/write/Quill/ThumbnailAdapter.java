@@ -109,7 +109,6 @@ public class ThumbnailAdapter extends BaseAdapter {
     }
     
     private void computeItemHeights() {
-    	Log.d(TAG, "computeItemHeights");
     	LinkedList<Page> pages = Book.getBook().filteredPages;
     	heightOfItem = new int[pages.size()];
     	ListIterator<Page> iter = pages.listIterator();
@@ -124,7 +123,6 @@ public class ThumbnailAdapter extends BaseAdapter {
 
     protected boolean renderThumbnail() {
     	for (Map.Entry<Page, Bitmap> entry : thumbnailBitmaps.entrySet()) {
-    		// Log.d(TAG, "renderThumbnail "+entry.getKey()+" "+entry.getValue()+" "+thumbnailBitmaps.size());
     		if (entry.getValue() != null) continue;
     		Page page = entry.getKey();
     		Bitmap bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width);

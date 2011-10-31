@@ -504,6 +504,7 @@ public class HandwriterView extends View {
 	private void saveStroke() {
 		if (N==0) return;
 		Stroke s = new Stroke(position_x, position_y, pressure, 0, N);
+		PenHistory.add(pen_type, pen_thickness, pen_color);
 		s.setPen(pen_type, pen_thickness, pen_color);
 		if (page != null) {
 			page.addStroke(s);

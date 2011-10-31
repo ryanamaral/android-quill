@@ -8,6 +8,7 @@ import junit.framework.Assert;
 
 import com.write.Quill.R;
 import com.write.Quill.Page.PaperType;
+import com.write.Quill.Stroke.PenType;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -27,9 +28,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -38,6 +42,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -102,8 +107,7 @@ public class QuillWriterActivity extends Activity {
             	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
             	startActivity(i);
             }
-        });
-
+        });      	
     	mView.setPageAndZoomOut(book.currentPage());
     }
     
@@ -117,6 +121,7 @@ public class QuillWriterActivity extends Activity {
         			Toast.makeText(getApplicationContext(), 
         				dialogThickness.getItem(i), Toast.LENGTH_SHORT).show();
         			mView.setPenThickness(dialogThickness.getValue(i));
+        			updatePenHistoryIcon();
         			dialog.dismiss();
         		}};
     		return dialogThickness.create(this, listener);
@@ -196,6 +201,7 @@ public class QuillWriterActivity extends Activity {
         		@Override
         		public void onOk(AmbilWarnaDialog dialog, int color) {
         			mView.setPenColor(color);
+        			updatePenHistoryIcon();
         		}
         	});
         dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -209,7 +215,8 @@ public class QuillWriterActivity extends Activity {
         mMenu = menu;
         menu_prepare_page_has_changed();
     	setActionBarIconActive(mView.pen_type);
-        return true;
+    	updatePenHistoryIcon();
+    	return true;
     }
     
     protected static final int ACTIVITY_PREFERENCES = 0;
@@ -238,6 +245,7 @@ public class QuillWriterActivity extends Activity {
     }
     
     protected void setActionBarIconActive(Stroke.PenType penType) {
+		updatePenHistoryIcon();
     	mMenu.findItem(R.id.fountainpen).setIcon(R.drawable.ic_menu_quill);
     	mMenu.findItem(R.id.pencil).setIcon(R.drawable.ic_menu_pencil);
     	mMenu.findItem(R.id.move).setIcon(R.drawable.ic_menu_resize);
@@ -261,6 +269,9 @@ public class QuillWriterActivity extends Activity {
     @Override public boolean onOptionsItemSelected(MenuItem item) {
     	Intent i;
     	switch (item.getItemId()) {
+    	case R.id.prev_pen:
+    		switchPenHistory();
+    		return true;
     	case R.id.settings:
     		i = new Intent(QuillWriterActivity.this, Preferences.class);
     		startActivityForResult(i, ACTIVITY_PREFERENCES);
@@ -344,7 +355,7 @@ public class QuillWriterActivity extends Activity {
     		return super.onOptionsItemSelected(item);
     	}
     }
-
+    
     private void flip_page_prev() {
     	if (book.isFirstPage()) 
     		toast_page_number("Already on first tagged page"); 
@@ -416,6 +427,48 @@ public class QuillWriterActivity extends Activity {
 		mMenu.findItem(R.id.page_prev_unfiltered).setEnabled(!first_unfiltered);
     }
     
+
+	private void switchPenHistory() {
+		PenHistory h = PenHistory.getPenHistory();
+		if (h.size() <= 1) {
+			Toast.makeText(getApplicationContext(), 
+					"No other pen styles in history.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		int penHistoryItem = h.nextHistoryItem();
+		// Log.d(TAG, "switchPenHistory "+penHistoryItem+" "+h.size());
+		mView.setPenColor(h.getColor(penHistoryItem));
+		mView.setPenThickness(h.getThickness(penHistoryItem));
+		mView.setPenType(h.getPenType(penHistoryItem));
+		setActionBarIconActive(h.getPenType(penHistoryItem));
+	}
+  
+    private void updatePenHistoryIcon() {
+    	if (mMenu == null) return;
+    	MenuItem item = mMenu.findItem(R.id.prev_pen);
+    	if (item == null) return;
+    	Drawable icon = item.getIcon();
+    	if (icon == null) return;
+    	
+    	int w = icon.getIntrinsicWidth();
+    	int h = icon.getIntrinsicHeight();
+    	Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+    	Canvas c = new Canvas(bitmap);
+    	c.drawARGB(0xa0, Color.red(mView.pen_color), 
+    			Color.green(mView.pen_color), Color.blue(mView.pen_color));
+    	if (mView.pen_type == PenType.FOUNTAINPEN) {
+        	final Drawable iconStrokeFountainpen = getResources().getDrawable(R.drawable.ic_pen_fountainpen);
+    		iconStrokeFountainpen.setBounds(0, 0, w, h);
+    		iconStrokeFountainpen.draw(c);
+    	} else if (mView.pen_type == PenType.PENCIL) {
+        	final Drawable iconStrokePencil = getResources().getDrawable(R.drawable.ic_pen_pencil);
+        	iconStrokePencil.setBounds(0, 0, w, h);
+    		iconStrokePencil.draw(c);
+    	}
+        item.setIcon(new BitmapDrawable(bitmap));
+    }
+
+    
     @Override protected void onResume() {
         super.onResume();
         if (book != null) {
@@ -433,10 +486,17 @@ public class QuillWriterActivity extends Activity {
         
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-    	mView.setPenColor(settings.getInt("pen_color", mView.pen_color));
-    	mView.setPenThickness(settings.getInt("pen_thickness", mView.pen_thickness));
-    	int type = settings.getInt("pen_type", mView.pen_type.ordinal());
-    	mView.setPenType(Stroke.PenType.values()[type]);
+       
+    	int penColor = settings.getInt("pen_color", mView.pen_color);
+    	int penThickness = settings.getInt("pen_thickness", mView.pen_thickness);
+    	int penTypeInt = settings.getInt("pen_type", mView.pen_type.ordinal());
+    	Stroke.PenType penType = Stroke.PenType.values()[penTypeInt];
+    	mView.setPenColor(penColor);
+    	mView.setPenThickness(penThickness);
+    	mView.setPenType(penType);
+    	PenHistory.add(penType, penThickness, penColor);
+    	updatePenHistoryIcon();
+
     	mView.only_pen_input = settings.getBoolean("only_pen_input", true);
     	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
@@ -465,5 +525,21 @@ public class QuillWriterActivity extends Activity {
     }
     
     
+//    @Override
+//    public void onCreateContextMenu(ContextMenu menu, View v,
+//                                    ContextMenuInfo menuInfo) {
+//      super.onCreateContextMenu(menu, v, menuInfo);
+//      MenuInflater inflater = getMenuInflater();
+//      inflater.inflate(R.menu.menu, menu);
+//    }
+//
+//    @Override
+//    public boolean onContextItemSelected(MenuItem item) {
+//      AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+//      switch (item.getItemId()) {
+//      default:
+//        return super.onContextItemSelected(item);
+//      }
+//    }
 }
 

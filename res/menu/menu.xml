@@ -7,9 +7,8 @@
     <item android:showAsAction="always" android:menuCategory="container" android:enabled="true" android:checked="false" android:visible="true" android:title="Erase" android:checkable="true" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
     <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="always|withText" android:title="Previous page"></item>
     <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="always|withText" android:title="Next page"></item>
-    <item android:title="Pen1" android:id="@+id/pen1" android:showAsAction="ifRoom" android:visible="false"></item>
-    <item android:title="Pen2" android:id="@+id/pen2" android:showAsAction="ifRoom" android:visible="false"></item>    
-    </group>
+    <item android:showAsAction="ifRoom" android:icon="@drawable/ic_pen_pencil" android:visible="true" android:title="Previous pen" android:id="@+id/prev_pen"></item>    
+    </group><item android:id="@+id/pen_history" android:title="Pen history" android:visible="false"></item>
     
     <item android:showAsAction="ifRoom|withText" android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item>
     <item android:showAsAction="ifRoom|withText" android:titleCondensed="Width" android:id="@+id/width" android:title="Thickness"></item>    
@@ -23,7 +22,7 @@
             <item android:id="@+id/page_aspect" android:title="Aspect ratio"></item>
             <item android:id="@+id/page_type" android:title="Paper"></item><item android:id="@+id/page_insert" android:title="Insert"></item>
             <item android:id="@+id/page_next" android:title="Next"></item>
-            <item android:title="Unfiltered next" android:id="@+id/page_next_unfiltered"></item><item android:id="@+id/page_prev" android:title="Previous"></item><item android:title="Unfiltered previous" android:id="@+id/page_prev_unfiltered"></item>
+            <item android:id="@+id/page_prev" android:title="Previous"></item><item android:title="Unfiltered next" android:id="@+id/page_next_unfiltered"></item><item android:title="Unfiltered previous" android:id="@+id/page_prev_unfiltered"></item>
             <item android:id="@+id/page_last" android:title="Last"></item>
             <item android:title="Tags" android:id="@+id/tag_page"></item>
             
@@ -42,6 +41,7 @@
             </menu>
         </item>
     </group>
+    
 
 
 
