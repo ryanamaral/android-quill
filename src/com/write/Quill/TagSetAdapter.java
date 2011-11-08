@@ -1,7 +1,10 @@
 package com.write.Quill;
 
+
+import com.write.Quill.R;
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;

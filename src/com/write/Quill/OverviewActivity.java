@@ -2,6 +2,7 @@ package com.write.Quill;
 
 import junit.framework.Assert;
 
+import com.write.Quill.R;
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
 import com.write.Quill.ThumbnailAdapter.Thumbnail;

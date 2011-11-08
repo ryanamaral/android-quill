@@ -1,5 +1,7 @@
 package com.write.Quill;
 
+
+import com.write.Quill.R;
 import com.write.Quill.TagManager.TagSet;
 
 import android.app.ListActivity;

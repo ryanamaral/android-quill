@@ -33,3 +33,8 @@ Javier Santo Domingo
 j-a-s-d@coderesearchlabs.com
 
 
+= Haru PDF Library =
+
+http://libharu.org
+
+ZLIB license

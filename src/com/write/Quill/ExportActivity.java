@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import com.write.Quill.R;
+
 import junit.framework.Assert;
 
 import android.app.Activity;

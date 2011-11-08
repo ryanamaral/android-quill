@@ -3,9 +3,11 @@ package com.write.Quill;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.write.Quill.Stroke.PenType;
+
+
 import android.util.Log;
 
-import com.write.Quill.Stroke.PenType;
 
 public class PenHistory {
 	private static final String TAG = "PenHistory";

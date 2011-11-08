@@ -11,10 +11,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import junit.framework.Assert;
-
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
+
+
+import junit.framework.Assert;
+
 
 import android.content.Context;
 import android.util.Log;

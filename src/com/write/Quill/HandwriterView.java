@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.write.Quill.Stroke.PenType;
+
+
 import junit.framework.Assert;
 
-import com.write.Quill.Stroke.PenType;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -252,11 +254,11 @@ public class HandwriterView extends View {
 	@Override public boolean onTouchEvent(MotionEvent event) {
 //		InputDevice dev = event.getDevice();
 //		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
-		Log.v(TAG, "Touch: "+event.getDevice().getName()
-				+" action="+event.getActionMasked()
-				+" pressure="+event.getPressure()
-				+" fat="+event.getTouchMajor()
-				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
+//		Log.v(TAG, "Touch: "+event.getDevice().getName()
+//				+" action="+event.getActionMasked()
+//				+" pressure="+event.getPressure()
+//				+" fat="+event.getTouchMajor()
+//				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
 		switch (pen_type) {
 		case FOUNTAINPEN:
 		case PENCIL:	
@@ -363,7 +365,7 @@ public class HandwriterView extends View {
 			oldX2 = newX2 = event.getX(idx2);
 			oldY2 = newY2 = event.getY(idx2);
 			fingerId2 = event.getPointerId(idx2);
-			Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1);
+			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1);
 		}
 		else if (action == MotionEvent.ACTION_POINTER_UP) {  // stop pinch
 			if (fingerId1 == -1) return true; // ignore after pinch-to-zoom finished
@@ -496,7 +498,7 @@ public class HandwriterView extends View {
 				penID = -1;
 				return true;
 			}
-			Log.v(TAG, "ACTION_DOWN");
+			// Log.v(TAG, "ACTION_DOWN");
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
 			if (page.is_readonly) {
@@ -552,7 +554,7 @@ public class HandwriterView extends View {
 			if (distance > 200) {
 				fingerId2 = event.getPointerId(idx2);
 			}
-			Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
+			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
 		}
 		return false;
 	}

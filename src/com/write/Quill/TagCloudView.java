@@ -6,6 +6,8 @@ import java.util.ListIterator;
 import com.write.Quill.TagManager.Tag;
 import com.write.Quill.TagManager.TagSet;
 
+
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;

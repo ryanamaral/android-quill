@@ -1,5 +1,7 @@
 package com.write.Quill;
 
+import com.write.Quill.Page.PaperType;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.write.Quill.Page.PaperType;
 
 public class Background {
 	public static final String TAG = "Background"; 
