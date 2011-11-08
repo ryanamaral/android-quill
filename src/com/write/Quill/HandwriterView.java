@@ -278,6 +278,10 @@ public class HandwriterView extends View {
 			oldY = newY;
 			return true;
 		} else if (action == MotionEvent.ACTION_DOWN) {  // start move
+			if (page.is_readonly) {
+				toastIsReadonly();
+				return true;
+			}
 			penID = event.getPointerId(0);
 			oldX = newX = event.getX();
 			oldY = newY = event.getY();
