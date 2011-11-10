@@ -1,5 +1,6 @@
 package org.libharu;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -25,7 +26,7 @@ public class Document {
 	}
 	
 	// Save the PDF to file
-	public native void saveToFile(String filename);
+	public native void saveToFile(String filename) throws IOException;
 	
 	// It is your responsibility to call Document.destructAll() when you are finished.
 	public void destructAll() {

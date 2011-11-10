@@ -12,9 +12,11 @@
         <item>USB memory stick</item>
     </string-array>
     <string-array name="export_file_format">
-        <item>Current page as vector graphics (PDF)</item>
-        <item>Raster image (PNG)</item>
+        <item>Current page as raster image (PNG)</item><item>Current page as vector graphics (PDF)</item>
+        <item >Tagged pages as vector graphics (PDF)</item><item >All notes as vector graphics (PDF)</item>
         <item>All notes as Quill backup archive</item>
+        
+        
     </string-array>
     <string name="export_title">Export current page as...</string>
     <string name="export_name_header">Name:</string>

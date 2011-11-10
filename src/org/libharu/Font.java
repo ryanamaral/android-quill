@@ -11,17 +11,17 @@ public class Font {
 		construct(document, font, encodingName);
 	}
 		
-	public Font(Document document, BuiltinFont fontName) {
+	public Font(Document document, BuiltinFont font) {
 		parent = document;
-		construct(document, fontName, "StandardEncoding");
+		construct(document, font, "StandardEncoding");
 	}
 		
 	// the standard PDF fonts (do not need to be embedded)
 	public enum BuiltinFont {
-		  COURIER, COURIER_BOLD, COURIER_OBLIQUE, COURIER_BOLD_OBLIQUE,
-		  HELVETICA, HELVETICA_BOLD, HELVETICA_OBLIQUE, HELVETICA_BOLD_OBLIQUE,
-		  TIMES_ROMAN, TIMES_BOLD, TIMES_ITALIC, TIMES_BOLD_ITALIC,
-		  SYMBOL, ZAPFDINGBATS
+		  COURIER, COURIER_BOLD, COURIER_OBLIQUE, COURIER_BOLD_OBLIQUE //,
+//		  HELVETICA, HELVETICA_BOLD, HELVETICA_OBLIQUE, HELVETICA_BOLD_OBLIQUE,
+//		  TIMES_ROMAN, TIMES_BOLD, TIMES_ITALIC, TIMES_BOLD_ITALIC,
+//		  SYMBOL, ZAPFDINGBATS
 	}
 	
 	///////////////////////////////////////////////////////

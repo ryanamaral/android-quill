@@ -1,6 +1,7 @@
 package org.libharu;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.libharu.Font.BuiltinFont;
 import org.libharu.Page.LineCap;
@@ -20,7 +21,7 @@ public class TestActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		String filename = "/external_sd/test.pdf";
+		String filename = "/test.pdf";
 		File file = new File(filename);
 		
 		Document pdf = new Document();
@@ -34,14 +35,18 @@ public class TestActivity extends Activity {
 		page.stroke();
 		
 		String text = new String("The quick brown fox jumps over the lazy dog.");
-		Font helvetica = pdf.getFont(BuiltinFont.HELVETICA_BOLD_OBLIQUE);
+		Font helvetica = pdf.getFont(BuiltinFont.COURIER_BOLD_OBLIQUE);
 		page.setFontAndSize(helvetica, 24);
 		float tw = page.getTextWidth(text);
 		page.beginText();
 		page.textOut((page.getWidth()-tw)/2, page.getHeight()-50, text);
 		page.endText();
 		
-		pdf.saveToFile(filename);
+		try {
+			pdf.saveToFile(filename);
+		} catch (IOException e) {
+			finish();
+		}
 		
 		Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);

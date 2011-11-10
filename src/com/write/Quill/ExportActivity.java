@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.libharu.Page.PageSize;
+
 import com.write.Quill.R;
 
 import junit.framework.Assert;
@@ -125,7 +127,9 @@ public class ExportActivity
       	Log.v(TAG, "Format "+position);
       	String[] strings;
       	switch (position) {
-		case OUTPUT_FORMAT_PDF:  // PDF format
+		case OUTPUT_FORMAT_PDF_SINGLE:  // PDF format
+		case OUTPUT_FORMAT_PDF_TAGGED:  
+		case OUTPUT_FORMAT_PDF_ALL:     
 			sizes.setEnabled(true);
 			strings = getResources().getStringArray(R.array.export_size_vector);
 			exportSizes.clear();
@@ -155,9 +159,11 @@ public class ExportActivity
 		Log.v(TAG, "onNothingSelected");
 	}
     
-	private static final int OUTPUT_FORMAT_PDF = 0;
-	private static final int OUTPUT_FORMAT_PNG = 1;
-	private static final int OUTPUT_FORMAT_BACKUP = 2;
+	private static final int OUTPUT_FORMAT_PNG = 0;
+	private static final int OUTPUT_FORMAT_PDF_SINGLE = 1;
+	private static final int OUTPUT_FORMAT_PDF_TAGGED = 2;
+	private static final int OUTPUT_FORMAT_PDF_ALL= 3;
+	private static final int OUTPUT_FORMAT_BACKUP = 4;
 
 	
 	// somebody changed the Output format
@@ -165,7 +171,9 @@ public class ExportActivity
       	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
       	Log.v(TAG, "Format "+format.getSelectedItemPosition());
 		switch (format.getSelectedItemPosition()) {
-		case OUTPUT_FORMAT_PDF:
+		case OUTPUT_FORMAT_PDF_SINGLE:
+		case OUTPUT_FORMAT_PDF_TAGGED:
+		case OUTPUT_FORMAT_PDF_ALL:
 			sizes.setEnabled(true);
 			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_vector));
 			return;
@@ -179,14 +187,24 @@ public class ExportActivity
 		}
 	}
 
+	private enum PageRange {
+		CURRENT_PAGE, TAGGED_PAGES, ALL_PAGES
+	}
+	
     protected void doExport() {
     	Log.v(TAG, "doExport()");
     	if (pdfExporter != null) return;
     	if (!openShareFile()) return;
     	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
     	switch (format.getSelectedItemPosition()) {
-		case OUTPUT_FORMAT_PDF:
-			doExportPdf();
+		case OUTPUT_FORMAT_PDF_SINGLE:
+			doExportPdf(PageRange.CURRENT_PAGE);
+			return;
+		case OUTPUT_FORMAT_PDF_TAGGED:
+			doExportPdf(PageRange.TAGGED_PAGES);
+			return;
+		case OUTPUT_FORMAT_PDF_ALL:
+			doExportPdf(PageRange.ALL_PAGES);
 			return;
 		case OUTPUT_FORMAT_PNG:
 			doExportPng();
@@ -249,14 +267,31 @@ public class ExportActivity
         exportThread.start();
     }
     
-    private void doExportPdf() {
+    private static final int SIZE_PDF_A4 = 0;
+    private static final int SIZE_PDF_LETTER = 1;
+    private static final int SIZE_PDF_LEGAL = 2;
+    
+    private void doExportPdf(PageRange range) {
 		threadLockActivity();
         Assert.assertTrue("Trying to run two export threads??",  pdfExporter == null);
     	pdfExporter = new PDFExporter();
+		int pos = sizes.getSelectedItemPosition();
+		switch (pos) {
+			case SIZE_PDF_A4:     pdfExporter.setPageSize(PageSize.A4); break;
+			case SIZE_PDF_LETTER: pdfExporter.setPageSize(PageSize.LETTER); break;
+			case SIZE_PDF_LEGAL:  pdfExporter.setPageSize(PageSize.LEGAL); break;
+			default: Assert.assertTrue("Unreachable", false);
+    	}
+    	switch (range) {
+    	case CURRENT_PAGE:     	pdfExporter.add(page); break;
+    	case TAGGED_PAGES:     	pdfExporter.add(book.filteredPages); break;
+    	case ALL_PAGES:      	pdfExporter.add(book.pages); break;
+    	}
         exportThread = new Thread(new Runnable() {
             public void run() {
-            	pdfExporter.add(page);
+            	pdfExporter.draw();
             	pdfExporter.export(file);
+            	pdfExporter.destructAll();
             	pdfExporter = null;
             }});
         // exportThread.setPriority(Thread.MIN_PRIORITY);
