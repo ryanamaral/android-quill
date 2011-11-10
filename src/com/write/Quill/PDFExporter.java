@@ -37,6 +37,7 @@ public class PDFExporter extends org.libharu.Document {
 		
 	public PDFExporter() {
 		super();
+		setCompressionMode(CompressionMode.COMP_ALL);
 		pageNumberFont = getFont(BuiltinFont.COURIER_BOLD);
 	}
 	

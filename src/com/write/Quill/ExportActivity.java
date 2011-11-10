@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.libharu.Document.CompressionMode;
 import org.libharu.Page.PageSize;
 
 import com.write.Quill.R;
@@ -275,6 +276,7 @@ public class ExportActivity
 		threadLockActivity();
         Assert.assertTrue("Trying to run two export threads??",  pdfExporter == null);
     	pdfExporter = new PDFExporter();
+    	pdfExporter.setCompressionMode(CompressionMode.COMP_ALL);
 		int pos = sizes.getSelectedItemPosition();
 		switch (pos) {
 			case SIZE_PDF_A4:     pdfExporter.setPageSize(PageSize.A4); break;

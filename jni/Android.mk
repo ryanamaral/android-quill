@@ -68,7 +68,7 @@ LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/$(libharu)/src
 
 LOCAL_CFLAGS    := -DLIBHPDF_HAVE_NOPNGLIB
-LOCAL_LDLIBS    := -lz  -lm
+LOCAL_LDLIBS    := -lz -lm -llog
 LOCAL_MODULE    := hpdf
 LOCAL_MODULE_FILENAME    := libhpdf
 LOCAL_SRC_FILES := $(libharu_sources:%=$(libharu)/src/%) $(jni_sources)

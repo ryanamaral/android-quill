@@ -16,7 +16,7 @@ public class Document {
 	
 	public native void setCompressionMode(CompressionMode mode);
 	public enum CompressionMode {
-		COMP_NONE, COMP_TEXT, COMP_IMAGE, COMP_METADATA
+		COMP_NONE, COMP_TEXT, COMP_IMAGE, COMP_METADATA, COMP_ALL
 	}
 	 
 	public native void setPassword(String ownerPassword, String userPassword);
