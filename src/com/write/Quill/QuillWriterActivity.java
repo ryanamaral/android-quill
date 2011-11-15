@@ -479,9 +479,8 @@ public class QuillWriterActivity extends Activity {
         	}
         }
         
-        String model = android.os.Build.MODEL;
-        Log.v(TAG, "Model = >"+model+"<");
-        // TODO set defaults
+        Hardware hw = Hardware.getHardware();
+        boolean hwPen = hw.hasDedicatedPen;
         
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -498,9 +497,9 @@ public class QuillWriterActivity extends Activity {
     	PenHistory.add(penType, penThickness, penColor);
     	updatePenHistoryIcon();
 
-    	mView.onlyPenInput = settings.getBoolean("only_pen_input", true);
-    	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
-    	mView.moveGestureWhileWriting = settings.getBoolean("move_gesture_while_writing", true);
+    	mView.onlyPenInput = settings.getBoolean("only_pen_input", hwPen);
+    	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", hwPen);
+    	mView.moveGestureWhileWriting = settings.getBoolean("move_gesture_while_writing", hwPen);
     	mView.moveGestureMinDistance = settings.getInt("move_gesture_min_distance", 400);
     	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
