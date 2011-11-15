@@ -245,6 +245,7 @@ public class QuillWriterActivity extends Activity {
     }
     
     protected void setActionBarIconActive(Stroke.PenType penType) {
+    	if (mMenu == null) return;
 		updatePenHistoryIcon();
     	mMenu.findItem(R.id.fountainpen).setIcon(R.drawable.ic_menu_quill);
     	mMenu.findItem(R.id.pencil).setIcon(R.drawable.ic_menu_pencil);
@@ -495,7 +496,7 @@ public class QuillWriterActivity extends Activity {
     	mView.setPenThickness(penThickness);
     	mView.setPenType(penType);
     	PenHistory.add(penType, penThickness, penColor);
-    	updatePenHistoryIcon();
+		setActionBarIconActive(penType);
 
     	mView.onlyPenInput = settings.getBoolean("only_pen_input", hwPen);
     	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", hwPen);

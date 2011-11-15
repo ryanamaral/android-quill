@@ -1,7 +1,31 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
  <PreferenceCategory android:title="Preferences">
-  <CheckBoxPreference android:title="Stylus only" android:summary="Filter out finger touch events when writing." android:key="only_pen_input" android:defaultValue="true"/>
-  <CheckBoxPreference android:defaultValue="true" android:key="double_tap_while_write" android:title="Double tap while writing" android:summary="Zoom in/out by double tapping the screen with fingers while writing"></CheckBoxPreference><CheckBoxPreference android:key="volume_key_navigation" android:defaultValue="true" android:summary="Press volume-up for next page, volume-down for previous page" android:title="Volume key navigation"></CheckBoxPreference>
+  <CheckBoxPreference 
+  	android:title="Stylus only" 
+  	android:summary="Filter out finger touch events when writing." 
+  	android:key="only_pen_input" 
+  	android:defaultValue="true"/>
+  	
+  <CheckBoxPreference 
+  	android:defaultValue="true" 
+  	android:key="double_tap_while_write" 
+  	android:title="Double tap while writing" 
+  	android:summary="Zoom in/out by double tapping the screen with fingers while writing">
+  </CheckBoxPreference>
+  
+  <CheckBoxPreference 
+  	android:defaultValue="true" 
+  	android:key="move_gesture_while_writing" 
+  	android:title="Move gesture while writing" 
+  	android:summary="Drag the page around with two finger touch while writing">
+  </CheckBoxPreference>
+  
+  <CheckBoxPreference 
+  	android:key="volume_key_navigation" 
+  	android:defaultValue="true" 
+  	android:summary="Press volume-up for next page, volume-down for previous page" 
+  	android:title="Volume key navigation">
+  </CheckBoxPreference>
   
  
  
