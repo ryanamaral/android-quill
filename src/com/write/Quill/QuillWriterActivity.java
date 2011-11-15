@@ -348,8 +348,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.tag_filter:
     	case android.R.id.home:
-    		i = new Intent(getApplicationContext(), OverviewActivity.class);    
-        	startActivity(i);
+    		launchOverviewActivity();
     		return true;
    	default:
     		return super.onOptionsItemSelected(item);
@@ -531,22 +530,15 @@ public class QuillWriterActivity extends Activity {
     	super.onStop();
     }
     
+    private void launchOverviewActivity() {
+		Intent i = new Intent(getApplicationContext(), OverviewActivity.class);    
+    	startActivity(i);
+    }
     
-//    @Override
-//    public void onCreateContextMenu(ContextMenu menu, View v,
-//                                    ContextMenuInfo menuInfo) {
-//      super.onCreateContextMenu(menu, v, menuInfo);
-//      MenuInflater inflater = getMenuInflater();
-//      inflater.inflate(R.menu.menu, menu);
-//    }
-//
-//    @Override
-//    public boolean onContextItemSelected(MenuItem item) {
-//      AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-//      switch (item.getItemId()) {
-//      default:
-//        return super.onContextItemSelected(item);
-//      }
-//    }
+    @Override
+    public void onBackPressed() {
+    	launchOverviewActivity();
+    }
+    
 }
 
