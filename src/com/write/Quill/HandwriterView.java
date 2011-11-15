@@ -62,6 +62,7 @@ public class HandwriterView extends View {
 	protected int pen_color = Color.BLACK;
 	protected boolean onlyPenInput = true;
 	protected boolean moveGestureWhileWriting = true;
+	protected int moveGestureMinDistance = 400; // pixels
 	protected boolean doubleTapWhileWriting = true;
 	
 	public void setPenType(PenType t) {
@@ -551,7 +552,7 @@ public class HandwriterView extends View {
 			float dx = newX2-newX1;
 			float dy = newY2-newY1;
 			float distance = FloatMath.sqrt(dx*dx+dy*dy);
-			if (distance > 200) {
+			if (distance >= moveGestureMinDistance) {
 				fingerId2 = event.getPointerId(idx2);
 			}
 			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);

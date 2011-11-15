@@ -491,6 +491,8 @@ public class QuillWriterActivity extends Activity {
     	int penThickness = settings.getInt("pen_thickness", mView.pen_thickness);
     	int penTypeInt = settings.getInt("pen_type", mView.pen_type.ordinal());
     	Stroke.PenType penType = Stroke.PenType.values()[penTypeInt];
+    	if (penType==PenType.ERASER)  // don't start with sharp whirling blades 
+    		penType = PenType.MOVE;
     	mView.setPenColor(penColor);
     	mView.setPenThickness(penThickness);
     	mView.setPenType(penType);
@@ -499,6 +501,9 @@ public class QuillWriterActivity extends Activity {
 
     	mView.onlyPenInput = settings.getBoolean("only_pen_input", true);
     	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", true);
+    	mView.moveGestureWhileWriting = settings.getBoolean("move_gesture_while_writing", true);
+    	mView.moveGestureMinDistance = settings.getInt("move_gesture_min_distance", 400);
+    	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	Log.d(TAG, "only_pen_input: "+mView.onlyPenInput);
     	mView.requestFocus();
@@ -516,6 +521,8 @@ public class QuillWriterActivity extends Activity {
         editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
         editor.putBoolean("only_pen_input", mView.onlyPenInput);
         editor.putBoolean("double_tap_while_writing", mView.doubleTapWhileWriting);
+    	editor.putBoolean("move_gesture_while_writing", mView.moveGestureWhileWriting);
+    	editor.putInt("move_gesture_min_distance", mView.moveGestureMinDistance);
         editor.commit();
     }
     
