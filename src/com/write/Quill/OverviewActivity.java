@@ -1,5 +1,6 @@
 package com.write.Quill;
 
+import name.vbraun.view.tag.TagListView;
 import junit.framework.Assert;
 
 import com.write.Quill.R;

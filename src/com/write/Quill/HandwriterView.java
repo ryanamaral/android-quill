@@ -37,6 +37,7 @@ public class HandwriterView extends View {
 	private final Rect mRect = new Rect();
 	private final RectF mRectF = new RectF();
 	private final Paint pen;
+	private final name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getHardware(); 
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;

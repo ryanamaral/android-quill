@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import name.vbraun.lib.pen.Hardware;
+
 import junit.framework.Assert;
 
 import com.write.Quill.R;
@@ -480,8 +482,7 @@ public class QuillWriterActivity extends Activity {
         	}
         }
         
-        Hardware hw = Hardware.getHardware();
-        boolean hwPen = hw.hasDedicatedPen;
+        boolean hwPen = Hardware.getHardware().hasDedicatedPen();
         
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
