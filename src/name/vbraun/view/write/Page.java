@@ -8,6 +8,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import junit.framework.Assert;
+
 import name.vbraun.view.write.TagManager.TagSet;
 
 import android.content.Context;
@@ -127,6 +129,11 @@ public class Page {
 		strokes.add(s);
 		is_modified = true;
 	}
+	
+	public void removeStroke(Stroke s) {
+		strokes.remove(s);
+		is_modified = true;
+	}
 
 	public void draw(Canvas canvas, RectF bounding_box) {
 	    ListIterator<Stroke> siter = strokes.listIterator();
@@ -135,7 +142,7 @@ public class Page {
 		background.draw(canvas, bounding_box, transformation);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
-		   	if (!canvas.quickReject(s.get_bounding_box(), 
+		   	if (!canvas.quickReject(s.getBoundingBox(), 
 		   				 			Canvas.EdgeType.AA))
 		   		s.render(canvas);
 	    }
@@ -146,7 +153,7 @@ public class Page {
 	    ListIterator<Stroke> siter = strokes.listIterator();
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
-			if (!s.get_bounding_box().contains(x,y)) continue;
+			if (!s.getBoundingBox().contains(x,y)) continue;
 			if (s.distance(x,y) < radius)
 				return s;
 		}
@@ -159,9 +166,9 @@ public class Page {
 	    boolean need_redraw = false;
 	    while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
-			if (!RectF.intersects(r, s.get_bounding_box())) continue;
+			if (!RectF.intersects(r, s.getBoundingBox())) continue;
 			if (s.intersects(r)) {
-				mRectF.union(s.get_bounding_box());
+				mRectF.union(s.getBoundingBox());
 				siter.remove();
 				need_redraw = true;
 			}

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import name.vbraun.view.write.Stroke.PenType;
+import name.vbraun.view.write.Graphics.Tool;
 
 import junit.framework.Assert;
 
@@ -43,6 +43,7 @@ public class HandwriterView extends View {
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
 	private TagOverlay overlay = null;
+	private GraphicsModifiedListener graphicsListener = null;
 	
     private int N = 0;
 	private static final int Nmax = 1024;
@@ -55,18 +56,38 @@ public class HandwriterView extends View {
 	
 	// preferences
 	private int pen_thickness = 2;
-	private PenType pen_type = PenType.FOUNTAINPEN;
+	private Tool pen_type = Tool.FOUNTAINPEN;
 	protected int pen_color = Color.BLACK;
 	private boolean onlyPenInput = true;
 	private boolean moveGestureWhileWriting = true;
 	private int moveGestureMinDistance = 400; // pixels
 	private boolean doubleTapWhileWriting = true;
 	
-	public void setPenType(PenType t) {
+	public void setOnGraphicsModifiedListener(GraphicsModifiedListener newListener) {
+		graphicsListener = newListener;
+	}
+	
+	public void add(Graphics graphics) {
+		if (graphics instanceof Stroke) {
+			Stroke s = (Stroke)graphics;
+			page.addStroke(s);
+			page.draw(canvas, s.getBoundingBox());
+		} else
+			Assert.fail("Unknown graphics object");
+	}
+	
+	public void remove(Graphics graphics) {
+		if (graphics instanceof Stroke) { 
+			page.removeStroke((Stroke)graphics);
+		} else
+			Assert.fail("Unknown graphics object");
+	}
+	
+	public void setPenType(Tool t) {
 		pen_type = t;
 	}
 
-	public PenType getPenType() {
+	public Tool getPenType() {
 		return pen_type;
 	}
 
@@ -274,7 +295,7 @@ public class HandwriterView extends View {
 	
 	@Override protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
-		if (getPenType() == Stroke.PenType.MOVE && fingerId2 != -1) {
+		if (getPenType() == Stroke.Tool.MOVE && fingerId2 != -1) {
 			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();
@@ -287,13 +308,13 @@ public class HandwriterView extends View {
 			mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
 			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
 			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
-		} else if (getPenType() == Stroke.PenType.MOVE && fingerId1 != -1) {
+		} else if (getPenType() == Stroke.Tool.MOVE && fingerId1 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = newX1-oldX1;
 			float y = newY1-oldY1; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else if ((getPenType() == Stroke.PenType.FOUNTAINPEN || getPenType() == Stroke.PenType.PENCIL)
+		} else if ((getPenType() == Stroke.Tool.FOUNTAINPEN || getPenType() == Stroke.Tool.PENCIL)
 					&& fingerId2 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
@@ -631,15 +652,14 @@ public class HandwriterView extends View {
 	
 	private void saveStroke() {
 		if (N==0) return;
-		Stroke s = new Stroke(position_x, position_y, pressure, 0, N);
-		PenHistory.add(getPenType(), getPenThickness(), pen_color);
-		s.setPen(getPenType(), getPenThickness(), pen_color);
-		if (page != null) {
-			page.addStroke(s);
-			page.draw(canvas, s.get_bounding_box());
+		Stroke s = new Stroke(getPenType(), position_x, position_y, pressure, 0, N);
+		ToolHistory.add(getPenType(), getPenThickness(), pen_color);
+		s.setPen(getPenThickness(), pen_color);
+		if (page != null && graphicsListener != null) {
+			graphicsListener.onGraphicsCreateListener(page, s)
 		}
 		N = 0;
-		s.get_bounding_box().round(mRect);
+		s.getBoundingBox().round(mRect);
 		int extra = -(int)(getScaledPenThickness()/2) - 1;
 		mRect.inset(extra, extra);
 		invalidate(mRect);
@@ -647,7 +667,7 @@ public class HandwriterView extends View {
 	
 	
 	private void drawOutline() {
-		if (getPenType()==PenType.FOUNTAINPEN) {
+		if (getPenType()==Tool.FOUNTAINPEN) {
 			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
 			pen.setStrokeWidth(scaled_pen_thickness);
 		}

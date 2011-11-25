@@ -23,35 +23,26 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Color;
 
-public class Stroke {
+public class Stroke extends Graphics {
 	private static final String TAG = "Stroke";
 	
 	// line thickness in fraction of the larger dimension of the page
 	public static final float LINE_THICKNESS_SCALE = 1/1600f;
-	
-	public enum PenType {
-		FOUNTAINPEN, PENCIL, MOVE, ERASER
-	}
-	
+		
 	// the actual data
 	protected int N;
 	protected float[] position_x;
 	protected float[] position_y;
 	protected float[] pressure;
-
-	private RectF bBox;
-	private boolean recompute_bounding_box = true;
-	
-	private float offset_x = 0f;
-	private float offset_y = 0f;
-	private float scale = 1.0f;
 	
 	private final Paint mPen = new Paint();
 	protected int pen_thickness = 0;
-	protected PenType pen_type = PenType.FOUNTAINPEN;
 	protected int pen_color = Color.BLACK;
 	
-	public Stroke(float[] x, float[] y, float[] p, int from, int to) {
+	public Stroke(Tool pen_type, float[] x, float[] y, float[] p, int from, int to) {
+		super(pen_type);
+		Assert.assertTrue("Pen type is not actual pen.",
+				pen_type == Tool.FOUNTAINPEN || pen_type == Tool.PENCIL);
 		N = to-from;
 		Assert.assertTrue("Stroke must consist of at least one point", N>0);
 		position_x = Arrays.copyOfRange(x, from, to);
@@ -59,16 +50,8 @@ public class Stroke {
 		pressure = Arrays.copyOfRange(p, from, to);
 	}
 
-	public RectF get_bounding_box() {
-		if (recompute_bounding_box) computeBoundingBox();
-		return bBox;
-	}
-	
-	void setPen(PenType new_pen_type, int new_pen_thickness, int new_pen_color) {
-		Assert.assertTrue("Pen type is not actual pen.",
-				new_pen_type == PenType.FOUNTAINPEN || new_pen_type == PenType.PENCIL);
+	void setPen(int new_pen_thickness, int new_pen_color) {
 		pen_thickness = new_pen_thickness;
-		pen_type = new_pen_type;
 		pen_color = new_pen_color;
 		mPen.setARGB(Color.alpha(pen_color), Color.red(pen_color), 
 					 Color.green(pen_color), Color.blue(pen_color));
@@ -110,24 +93,10 @@ public class Stroke {
 			y0 = Math.min(y0, y);
 			y1 = Math.max(y1, y);
 		}
-		bBox = new RectF(x0, y0, x1, y1);
+		bBox.set(x0, y0, x1, y1);
 		float extra = -getScaledPenThickness()/2-1;
 		bBox.inset(extra, extra);		
 		recompute_bounding_box = false;
-	}
-	
-	protected void setTransform(float dx, float dy, float s) {
-		offset_x = dx;
-		offset_y = dy;
-		scale = s;
-		recompute_bounding_box = true;
-	}
-	
-	protected void setTransform(Transformation transform) {
-		offset_x = transform.offset_x;
-		offset_y = transform.offset_y;
-		scale = transform.scale;	
-		recompute_bounding_box = true;
 	}
 	
 	protected void applyInverseTransform() {
@@ -166,7 +135,7 @@ public class Stroke {
 	public void render(Canvas c) {
 		if (recompute_bounding_box) computeBoundingBox();	
 		final float scaled_pen_thickness = getScaledPenThickness();
-		if (pen_type == PenType.PENCIL)
+		if (tool == Tool.PENCIL)
 			mPen.setStrokeWidth(scaled_pen_thickness);
 		float x0, x1, y0, y1, p0, p1=0;
 		//c.drawRect(left, top, right, bottom, paint)
@@ -176,7 +145,7 @@ public class Stroke {
 		for (int i=1; i<N; i++) {			
 			x1 = position_x[i] * scale + offset_x;
 			y1 = position_y[i] * scale + offset_y;
-			if (pen_type == PenType.FOUNTAINPEN) {
+			if (tool == Tool.FOUNTAINPEN) {
 				p1 = pressure[i];
 				mPen.setStrokeWidth((p0+p1)/2 * scaled_pen_thickness);
 			}
@@ -189,7 +158,7 @@ public class Stroke {
 		out.writeInt(2);  // protocol #1
 		out.writeInt(pen_color);
 		out.writeInt(pen_thickness);
-		out.writeInt(pen_type.ordinal());
+		out.writeInt(tool.ordinal());
 		out.writeInt(N);
 		for (int i=0; i<N; i++) {
 			out.writeFloat(position_x[i]);
@@ -199,13 +168,14 @@ public class Stroke {
 	}
 	
 	public Stroke(DataInputStream in) throws IOException {
+		super(Tool.FOUNTAINPEN);
 		int version = in.readInt();
 		if (version < 1  ||  version > 2)
 			throw new IOException("Unknown version!");
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
-		pen_type = PenType.values()[in.readInt()];
-		setPen(pen_type, pen_thickness, pen_color);
+		tool = Tool.values()[in.readInt()];
+		setPen(pen_thickness, pen_color);
 		N = in.readInt();
 		position_x = new float[N];
 		position_y = new float[N];
@@ -289,7 +259,7 @@ public class Stroke {
 			float distance = 0;
 			
 			// distance in pressure
-			if (pen_type == PenType.FOUNTAINPEN) {
+			if (tool == Tool.FOUNTAINPEN) {
 				float p_0_avg = (p0+p)/2;
 				float p_1_avg = (p1+p)/2;
 				float pressure_difference = 
@@ -352,12 +322,12 @@ public class Stroke {
 		return simplified_points;
 	}
 	
-	public void render(org.libharu.Page pdf, StrokeScalePDF scale) {
+	public void render(org.libharu.Page pdf, ScalePDF scale) {
         float red  = Color.red(pen_color)/(float)0xff;
         float green = Color.green(pen_color)/(float)0xff;
         float blue = Color.blue(pen_color)/(float)0xff;
         pdf.setRGBStroke(red, green, blue);
-		switch (pen_type) {
+		switch (tool) {
 		case FOUNTAINPEN:
 			renderFountainpenPDF(pdf, scale);
 			return;
@@ -368,7 +338,7 @@ public class Stroke {
 		Log.e(TAG, "Unknown stroke type.");
 	}
 	
-	private void renderFountainpenPDF(org.libharu.Page pdf, StrokeScalePDF scale) {
+	private void renderFountainpenPDF(org.libharu.Page pdf, ScalePDF scale) {
 		float scaled_pen_thickness = getScaledPenThickness(scale.getScale());
 		pdf.setLineCap(LineCap.ROUND_END);
 		pdf.setLineJoin(LineJoin.ROUND_JOIN);
@@ -389,7 +359,7 @@ public class Stroke {
         }
 	}
 	
-	private void renderPencilPDF(org.libharu.Page pdf, StrokeScalePDF scale) {
+	private void renderPencilPDF(org.libharu.Page pdf, ScalePDF scale) {
 		float scaled_pen_thickness = getScaledPenThickness(scale.getScale());
 		pdf.setLineWidth(scaled_pen_thickness);
 		pdf.setLineCap(LineCap.ROUND_END);

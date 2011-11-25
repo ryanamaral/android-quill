@@ -9,7 +9,7 @@ import java.util.ListIterator;
 
 import name.vbraun.view.write.Page;
 import name.vbraun.view.write.Stroke;
-import name.vbraun.view.write.StrokeScalePDF;
+import name.vbraun.view.write.ScalePDF;
 
 import org.libharu.Font;
 import org.libharu.Font.BuiltinFont;
@@ -24,7 +24,7 @@ import android.util.Log;
 
 public class PDFExporter 
 	extends org.libharu.Document 
-	implements StrokeScalePDF {
+	implements ScalePDF {
 
 	private static final String TAG = "PDFExporter";
 
