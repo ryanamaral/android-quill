@@ -321,6 +321,11 @@ public class HandwriterView extends View {
 		case MOVE:
 			return touchHandlerMoveZoom(event);
 		case ERASER:
+//			String s = "event.getSource() == "+event.getSource();
+//			if (toast == null)
+//	        	toast = Toast.makeText(getContext(), s, Toast.LENGTH_SHORT);
+//			toast.setText(s);
+//			toast.show();
 			return touchHandlerEraser(event);
 		}
 		return false;
@@ -465,12 +470,12 @@ public class HandwriterView extends View {
 	
 	// whether to use the MotionEvent for writing
 	private boolean useForWriting(MotionEvent event) {
-		return !getOnlyPenInput() || event.getTouchMajor() == 0.0f;
+		return !onlyPenInput || hw.isPenEvent(event);
 	}
 
 	// whether to use the MotionEvent for move/zoom
 	private boolean useForTouch(MotionEvent event) {
-		return !getOnlyPenInput() || !useForWriting(event); 
+		return !onlyPenInput || (onlyPenInput && !hw.isPenEvent(event));
 	}
 
 	private boolean touchHandlerPen(MotionEvent event) {

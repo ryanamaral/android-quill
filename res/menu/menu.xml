@@ -14,8 +14,8 @@
     <item android:id="@+id/width" android:title="Thickness"></item>    
     <item android:checked="false" android:enabled="true" android:title="Read only" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
     
-    <group android:enabled="true" android:visible="true" android:menuCategory="secondary" android:id="@+id/page_group">
-    <item android:id="@+id/page" android:menuCategory="secondary" android:title="Page">
+    <group android:enabled="true" android:visible="true" android:id="@+id/page_group">
+    <item android:id="@+id/page" android:title="Page">
         <menu>
             <item android:id="@+id/page_delete" android:title="Delete"></item>
             <item android:title="Clear" android:id="@+id/page_clear"></item>
@@ -41,6 +41,7 @@
             </menu>
         </item>
     </group>
+    <item android:id="@+id/about" android:title="About Quill" android:orderInCategory="-100"></item>
     
 
 

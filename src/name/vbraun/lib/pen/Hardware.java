@@ -18,8 +18,11 @@ public class Hardware {
 			mPenEvent = new PenEventThinkPadTablet();
 		} else {
 			// defaults; this works on HTC devices but might be more general
-			mHasPenDigitizer = false;
-			mPenEvent = new PenEvent();
+			mHasPenDigitizer = context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.pen");
+			if (mHasPenDigitizer) 
+				mPenEvent = new PenEventICS();
+			else
+				mPenEvent = new PenEvent();
 		}
         Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
 	}

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import sheetrock.panda.changelog.ChangeLog;
+
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.PenHistory;
@@ -83,10 +85,16 @@ public class QuillWriterActivity extends Activity {
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
 
 	private name.vbraun.lib.pen.Hardware hw; 
-    
+	private ChangeLog changeLog;
+	
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        changeLog = new ChangeLog(this);
+        if (changeLog.firstRun())
+            changeLog.getLogDialog().show();
+
       	Book.onCreate(getApplicationContext());
       	book = Book.getBook();
         Assert.assertTrue("Book object not initialized.", book != null);
@@ -356,6 +364,9 @@ public class QuillWriterActivity extends Activity {
     	case android.R.id.home:
     		launchOverviewActivity();
     		return true;
+    	case R.id.about:
+    	    changeLog.getFullLogDialog().show();
+    	    return true;
    	default:
     		return super.onOptionsItemSelected(item);
     	}
@@ -488,7 +499,7 @@ public class QuillWriterActivity extends Activity {
         }
         
         if (hw==null)
-    		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext());
+    		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
         boolean hwPen = hw.hasPenDigitizer();
         
         // Restore preferences
@@ -555,9 +566,11 @@ public class QuillWriterActivity extends Activity {
         
         editor.putString(Preferences.KEY_LIST_PEN_INPUT_MODE, pen_input_mode);
         editor.remove("only_pen_input");  // obsoleted
-        
-        editor.putBoolean("double_tap_while_writing", mView.getDoubleTapWhileWriting());
-    	editor.putBoolean("move_gesture_while_writing", mView.getMoveGestureWhileWriting());
+
+        if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
+        	editor.putBoolean(Preferences.KEY_DOUBLE_TAP_WHILE_WRITE, mView.getDoubleTapWhileWriting());
+        	editor.putBoolean(Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, mView.getMoveGestureWhileWriting());
+        }
     	editor.putInt("move_gesture_min_distance", mView.getMoveGestureMinDistance());
         editor.commit();
     }

@@ -38,3 +38,9 @@ j-a-s-d@coderesearchlabs.com
 http://libharu.org
 
 ZLIB license
+
+
+= Change Log = 
+
+Copyright (C) 2011, Karsten Priegnitz
+Free with attribution
