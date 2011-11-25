@@ -1,10 +1,9 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.write.Quill.Stroke.PenType;
-
+import name.vbraun.view.write.Stroke.PenType;
 
 import android.util.Log;
 

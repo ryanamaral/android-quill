@@ -1,12 +1,18 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Queue;
+import java.util.Stack;
+import java.util.Vector;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.Math;
+
+import org.libharu.Page.LineCap;
+import org.libharu.Page.LineJoin;
 
 import junit.framework.Assert;
 
@@ -222,17 +228,18 @@ public class Stroke {
 	// for example, using apply_inverse_transform
 	// non-standard metric for "perpendicular distance" for numerical stability
 	protected void simplify() {
-		LinkedList<Integer> points = new LinkedList<Integer>();
-		points.add(0);
-		points.add(N-1);
-		ListIterator<Integer> point_iter = points.listIterator(1);
-		simplifyRecursion(0, N-1, point_iter);
+		//		points.add(0);
+		//		points.add(N-1);
+		//		ListIterator<Integer> point_iter = points.listIterator(1);
+		//		simplifyRecursion(0, N-1, point_iter);
+		LinkedList<Integer> points = simplifyWithoutRecursion();
+		
 		int new_N = points.size();
 		float[] new_position_x = new float[new_N];
 		float[] new_position_y = new float[new_N];
 		float[] new_pressure = new float[new_N];
 		int n = 0;
-		point_iter = points.listIterator();
+		ListIterator<Integer> point_iter = points.listIterator();
 		while (point_iter.hasNext()) {
 			int p = point_iter.next();
 			new_position_x[n] = position_x[p];
@@ -249,7 +256,9 @@ public class Stroke {
 
 	private static float EPSILON = 2e-4f;
 	
-	private void simplifyRecursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
+	// find the mid point with the largest deviation from a straight line
+	// return -1 if there is none up to the desired precision EPSILON
+	private Integer simplifyFindMidPoint(Integer point0, Integer point1) {
 		float x0 = position_x[point0];
 		float y0 = position_y[point0];
 		float p0 = pressure[point0];
@@ -309,12 +318,92 @@ public class Stroke {
 				mid = i;
 			}
 		}
-		if (distance_max < EPSILON || mid == -1) return; // no simplification necessary
+		if (distance_max < EPSILON || mid == -1) return null;
+		return mid;
+	}
+	
+	private void simplifyRecursion(Integer point0, Integer point1, ListIterator<Integer> iter) {
+		Integer mid = simplifyFindMidPoint(point0, point1);
+		if (mid==null) return;
 		iter.add(mid);
 		simplifyRecursion(mid, point1, iter);
 		iter.previous();
 		simplifyRecursion(point0, mid, iter);		
 	}
+
+	// Implement Ramer-Douglas-Peucker without recursion since stack space is very limited
+	private LinkedList<Integer> simplifyWithoutRecursion() {
+		LinkedList<Integer> simplified_points = new LinkedList<Integer>();
+		simplified_points.add(0);
+		LinkedList<Integer> endpoint = new LinkedList<Integer>();
+		endpoint.addLast(N-1);
+		Integer point0 = 0;
+		while (!endpoint.isEmpty()) {
+			Integer point1 = endpoint.getLast();
+			Integer mid = simplifyFindMidPoint(point0, point1);
+			//	Log.d(TAG, "Simplify "+point0+" - "+point1+" contains "+mid);
+			if (mid == null) { 
+				simplified_points.add(point1);
+				point0 = point1;
+				endpoint.removeLast();
+			} else
+				endpoint.addLast(mid);
+		}
+		return simplified_points;
+	}
 	
+	public void render(org.libharu.Page pdf, StrokeScalePDF scale) {
+        float red  = Color.red(pen_color)/(float)0xff;
+        float green = Color.green(pen_color)/(float)0xff;
+        float blue = Color.blue(pen_color)/(float)0xff;
+        pdf.setRGBStroke(red, green, blue);
+		switch (pen_type) {
+		case FOUNTAINPEN:
+			renderFountainpenPDF(pdf, scale);
+			return;
+		case PENCIL:
+			renderPencilPDF(pdf, scale);
+			return;
+		}
+		Log.e(TAG, "Unknown stroke type.");
+	}
+	
+	private void renderFountainpenPDF(org.libharu.Page pdf, StrokeScalePDF scale) {
+		float scaled_pen_thickness = getScaledPenThickness(scale.getScale());
+		pdf.setLineCap(LineCap.ROUND_END);
+		pdf.setLineJoin(LineJoin.ROUND_JOIN);
+        float x0 = scale.scaledX(position_x[0], position_y[0]);
+        float y0 = scale.scaledY(position_x[0], position_y[0]);        
+        float p0 = pressure[0];
+        for (int i=1; i<N; i++) {
+        	float x1 = scale.scaledX(position_x[i], position_y[i]);
+            float y1 = scale.scaledY(position_x[i], position_y[i]);
+            float p1 = pressure[i];
+            pdf.setLineWidth((scaled_pen_thickness*(p0+p1)/2));
+            pdf.moveTo(x0, y0);
+            pdf.lineTo(x1, y1);
+            pdf.stroke();
+            x0 = x1;
+            y0 = y1;
+            p0 = p1;
+        }
+	}
+	
+	private void renderPencilPDF(org.libharu.Page pdf, StrokeScalePDF scale) {
+		float scaled_pen_thickness = getScaledPenThickness(scale.getScale());
+		pdf.setLineWidth(scaled_pen_thickness);
+		pdf.setLineCap(LineCap.ROUND_END);
+		pdf.setLineJoin(LineJoin.ROUND_JOIN);
+        float x = scale.scaledX(position_x[0], position_y[0]);
+        float y = scale.scaledY(position_x[0], position_y[0]);
+        pdf.moveTo(x, y);
+        for (int i=1; i<N; i++) {
+         	x = scale.scaledX(position_x[i], position_y[i]);
+            y = scale.scaledY(position_x[i], position_y[i]);
+            pdf.lineTo(x, y);
+        }
+        pdf.stroke();
+	}
+
 }
 

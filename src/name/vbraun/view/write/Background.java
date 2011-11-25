@@ -1,7 +1,7 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
-import com.write.Quill.Page.PaperType;
 
+import name.vbraun.view.write.Paper.Type;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,7 +15,7 @@ public class Background {
 	public static final String TAG = "Background"; 
 	private static final float INCH_in_CM = 2.54f;
 
-	private PaperType paperType= PaperType.EMPTY;
+	private Paper.Type paperType= Paper.Type.EMPTY;
 	private AspectRatio aspectRatio = AspectRatio.Table[0];
 	private float heightMm, widthMm;
 	
@@ -23,7 +23,7 @@ public class Background {
 	private final Paint paint = new Paint();
 	
 
-	public void setPaperType(PaperType paper) {
+	public void setPaperType(Paper.Type paper) {
 		paperType = paper;
 		paint.setStrokeCap(Cap.BUTT);
 	}

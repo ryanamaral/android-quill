@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import name.vbraun.view.write.Page;
+
 import org.libharu.Document.CompressionMode;
 import org.libharu.Page.PageSize;
 
@@ -242,7 +244,7 @@ public class ExportActivity
 			case SIZE_RASTER_800:   dim_big =  800; dim_small = 600; break;
 			default: Assert.assertTrue("Unreachable", false);
     	}
-		if (page.aspect_ratio > 1) {
+		if (page.getAspectRatio() > 1) {
 			size_raster_width = dim_big;    size_raster_height = dim_small;
 		} else {
 			size_raster_width = dim_small;  size_raster_height = dim_big;

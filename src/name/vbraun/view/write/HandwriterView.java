@@ -1,14 +1,12 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.write.Quill.Stroke.PenType;
-
+import name.vbraun.view.write.Stroke.PenType;
 
 import junit.framework.Assert;
-
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -22,11 +20,9 @@ import android.graphics.Path;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.InputDevice;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
-import android.os.AsyncTask;
 
 public class HandwriterView extends View {
 	private static final String TAG = "Handwrite";
@@ -37,7 +33,7 @@ public class HandwriterView extends View {
 	private final Rect mRect = new Rect();
 	private final RectF mRectF = new RectF();
 	private final Paint pen;
-	private final name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getHardware(); 
+	private final name.vbraun.lib.pen.Hardware hw; 
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;
@@ -58,41 +54,98 @@ public class HandwriterView extends View {
 	Page page;
 	
 	// preferences
-	protected int pen_thickness = 2;
-	protected PenType pen_type = PenType.FOUNTAINPEN;
+	private int pen_thickness = 2;
+	private PenType pen_type = PenType.FOUNTAINPEN;
 	protected int pen_color = Color.BLACK;
-	protected boolean onlyPenInput = true;
-	protected boolean moveGestureWhileWriting = true;
-	protected int moveGestureMinDistance = 400; // pixels
-	protected boolean doubleTapWhileWriting = true;
+	private boolean onlyPenInput = true;
+	private boolean moveGestureWhileWriting = true;
+	private int moveGestureMinDistance = 400; // pixels
+	private boolean doubleTapWhileWriting = true;
 	
 	public void setPenType(PenType t) {
 		pen_type = t;
 	}
 
+	public PenType getPenType() {
+		return pen_type;
+	}
+
+	public int getPenThickness() {
+		return pen_thickness;
+	}
+
+	public void setPenThickness(int thickness) {
+		pen_thickness = thickness;
+	}
+	
+	public int getPenColor() {
+		return pen_color;
+	}
+	
 	public void setPenColor(int c) {
 		pen_color = c;
 		pen.setARGB(Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c));
 	}
 	
-	public void setPenThickness(int thickness) {
-		pen_thickness = thickness;
+	public Page getPage() {
+		return page;
 	}
 	
-	public void setPagePaperType(Page.PaperType paper_type) {
+	public Paper.Type getPagePaperType() {
+		return page.paper_type;
+	}
+	
+	public void setPagePaperType(Paper.Type paper_type) {
 		page.setPaperType(paper_type);
 		page.draw(canvas);
 		invalidate();
 	}
 
+	public float getPageAspectRatio() {
+		return page.aspect_ratio;
+	}
+	
 	public void setPageAspectRatio(float aspect_ratio) {
 		page.setAspectRatio(aspect_ratio);
 		setPageAndZoomOut(page);
 		invalidate();
 	}
 
+	public boolean getOnlyPenInput() {
+		return onlyPenInput;
+	}
+
+	public void setOnlyPenInput(boolean onlyPenInput) {
+		this.onlyPenInput = onlyPenInput;
+	}
+
+	public boolean getDoubleTapWhileWriting() {
+		return doubleTapWhileWriting;
+	}
+
+	public void setDoubleTapWhileWriting(boolean doubleTapWhileWriting) {
+		this.doubleTapWhileWriting = doubleTapWhileWriting;
+	}
+
+	public boolean getMoveGestureWhileWriting() {
+		return moveGestureWhileWriting;
+	}
+
+	public void setMoveGestureWhileWriting(boolean moveGestureWhileWriting) {
+		this.moveGestureWhileWriting = moveGestureWhileWriting;
+	}
+
+	public int getMoveGestureMinDistance() {
+		return moveGestureMinDistance;
+	}
+
+	public void setMoveGestureMinDistance(int moveGestureMinDistance) {
+		this.moveGestureMinDistance = moveGestureMinDistance;
+	}
+
 	public HandwriterView(Context c) {
 		super(c);
+		hw = new name.vbraun.lib.pen.Hardware(c);
 		setFocusable(true);
 		pen = new Paint();
 		pen.setAntiAlias(true);
@@ -216,12 +269,12 @@ public class HandwriterView extends View {
 	}
 	
 	public float getScaledPenThickness() {
-		return Stroke.getScaledPenThickness(page.transformation, pen_thickness);
+		return Stroke.getScaledPenThickness(page.transformation, getPenThickness());
 	}
 	
 	@Override protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
-		if (pen_type == Stroke.PenType.MOVE && fingerId2 != -1) {
+		if (getPenType() == Stroke.PenType.MOVE && fingerId2 != -1) {
 			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();
@@ -234,13 +287,13 @@ public class HandwriterView extends View {
 			mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
 			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
 			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
-		} else if (pen_type == Stroke.PenType.MOVE && fingerId1 != -1) {
+		} else if (getPenType() == Stroke.PenType.MOVE && fingerId1 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = newX1-oldX1;
 			float y = newY1-oldY1; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else if ((pen_type == Stroke.PenType.FOUNTAINPEN || pen_type == Stroke.PenType.PENCIL)
+		} else if ((getPenType() == Stroke.PenType.FOUNTAINPEN || getPenType() == Stroke.PenType.PENCIL)
 					&& fingerId2 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
@@ -261,7 +314,7 @@ public class HandwriterView extends View {
 //				+" pressure="+event.getPressure()
 //				+" fat="+event.getTouchMajor()
 //				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
-		switch (pen_type) {
+		switch (getPenType()) {
 		case FOUNTAINPEN:
 		case PENCIL:	
 			return touchHandlerPen(event);
@@ -412,25 +465,25 @@ public class HandwriterView extends View {
 	
 	// whether to use the MotionEvent for writing
 	private boolean useForWriting(MotionEvent event) {
-		return !onlyPenInput || event.getTouchMajor() == 0.0f;
+		return !getOnlyPenInput() || event.getTouchMajor() == 0.0f;
 	}
 
 	// whether to use the MotionEvent for move/zoom
 	private boolean useForTouch(MotionEvent event) {
-		return !onlyPenInput || !useForWriting(event); 
+		return !getOnlyPenInput() || !useForWriting(event); 
 	}
 
 	private boolean touchHandlerPen(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
-			if (moveGestureWhileWriting && fingerId1 != -1 && fingerId2 == -1) {
+			if (getMoveGestureWhileWriting() && fingerId1 != -1 && fingerId2 == -1) {
 				int idx1 = event.findPointerIndex(fingerId1);
 				if (idx1 != -1) {
 					oldX1 = newX1 = event.getX(idx1);
 					oldY1 = newY1 = event.getY(idx1);
 				}
 			}
-			if (moveGestureWhileWriting && fingerId2 != -1) {
+			if (getMoveGestureWhileWriting() && fingerId2 != -1) {
 				Assert.assertTrue(fingerId1 != -1);
 				int idx1 = event.findPointerIndex(fingerId1);
 				int idx2 = event.findPointerIndex(fingerId2);
@@ -482,14 +535,14 @@ public class HandwriterView extends View {
 		else if (action == MotionEvent.ACTION_DOWN) {
 			Assert.assertTrue(event.getPointerCount() == 1);
 			newT = System.currentTimeMillis();
-			if (useForTouch(event) && doubleTapWhileWriting && Math.abs(newT-oldT) < 250) {
+			if (useForTouch(event) && getDoubleTapWhileWriting() && Math.abs(newT-oldT) < 250) {
 				// double-tap
 				centerAndFillScreen(event.getX(), event.getY());
 				penID = fingerId1 = fingerId2 = -1;
 				return true;
 			}
 			oldT = newT;
-			if (useForTouch(event) && moveGestureWhileWriting && event.getPointerCount()==1) {
+			if (useForTouch(event) && getMoveGestureWhileWriting() && event.getPointerCount()==1) {
 				fingerId1 = event.getPointerId(0); 
 				fingerId2 = -1;
 				newX1 = oldX1 = event.getX(); 
@@ -522,7 +575,7 @@ public class HandwriterView extends View {
 				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
 				saveStroke();
 				N = 0;
-			} else if (moveGestureWhileWriting && 
+			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
 						fingerId1 != -1 && fingerId2 != -1) {
 				float dx = page.transformation.offset_x + (newX1-oldX1+newX2-oldX2)/2;
@@ -553,7 +606,7 @@ public class HandwriterView extends View {
 			float dx = newX2-newX1;
 			float dy = newY2-newY1;
 			float distance = FloatMath.sqrt(dx*dx+dy*dy);
-			if (distance >= moveGestureMinDistance) {
+			if (distance >= getMoveGestureMinDistance()) {
 				fingerId2 = event.getPointerId(idx2);
 			}
 			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
@@ -574,8 +627,8 @@ public class HandwriterView extends View {
 	private void saveStroke() {
 		if (N==0) return;
 		Stroke s = new Stroke(position_x, position_y, pressure, 0, N);
-		PenHistory.add(pen_type, pen_thickness, pen_color);
-		s.setPen(pen_type, pen_thickness, pen_color);
+		PenHistory.add(getPenType(), getPenThickness(), pen_color);
+		s.setPen(getPenType(), getPenThickness(), pen_color);
 		if (page != null) {
 			page.addStroke(s);
 			page.draw(canvas, s.get_bounding_box());
@@ -589,7 +642,7 @@ public class HandwriterView extends View {
 	
 	
 	private void drawOutline() {
-		if (pen_type==PenType.FOUNTAINPEN) {
+		if (getPenType()==PenType.FOUNTAINPEN) {
 			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
 			pen.setStrokeWidth(scaled_pen_thickness);
 		}

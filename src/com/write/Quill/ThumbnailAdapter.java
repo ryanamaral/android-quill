@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 
+import name.vbraun.view.write.Page;
+import name.vbraun.view.write.TagOverlay;
+
 import junit.framework.Assert;
 
 import android.content.Context;
@@ -114,7 +117,7 @@ public class ThumbnailAdapter extends BaseAdapter {
     	ListIterator<Page> iter = pages.listIterator();
     	int pos = 0;
     	while (iter.hasNext()) 
-    		heightOfItem[pos++] = (int)(thumbnail_width / iter.next().aspect_ratio);
+    		heightOfItem[pos++] = (int)(thumbnail_width / iter.next().getAspectRatio());
     }
     	
     

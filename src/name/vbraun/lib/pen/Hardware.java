@@ -1,37 +1,32 @@
 package name.vbraun.lib.pen;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
 
 public class Hardware {
 	private final static String TAG = "PenHardware";
 	
-	private final static Hardware instance = new Hardware();
-	public static Hardware getHardware() {
-		return instance;
-	}
-	
 	private final String model;
-	private final boolean mHasDedicatedPen;
-	
+	private final boolean mHasPenDigitizer;
 	private final PenEvent mPenEvent;
 	
-	private Hardware() {
+	public Hardware(Context context) {
 		model = android.os.Build.MODEL;
-        Log.v(TAG, "Model = >"+model+"<");
-		if (model == "ThinkPad Tablet") {
-			mHasDedicatedPen = true;
+		if (model.equalsIgnoreCase("ThinkPad Tablet")) {
+			mHasPenDigitizer = true;
 			mPenEvent = new PenEventThinkPadTablet();
 		} else {
-			// defaults
-			mHasDedicatedPen = false;
+			// defaults; this works on HTC devices but might be more general
+			mHasPenDigitizer = false;
 			mPenEvent = new PenEvent();
 		}
+        Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
 	}
 	
-	
-	public boolean hasDedicatedPen() {
-		return mHasDedicatedPen;
+	// whether the device has an active pen
+	public boolean hasPenDigitizer() {
+		return mHasPenDigitizer;
 	}
 	
 	public boolean isPenEvent(MotionEvent event) {

@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
+import name.vbraun.view.write.Page;
+import name.vbraun.view.write.TagManager;
+
+
 
 
 import junit.framework.Assert;
@@ -47,7 +49,7 @@ public class Book {
 	// persistent data
 	// pages is never empty
 	protected final LinkedList<Page> pages = new LinkedList<Page>();
-	protected TagSet filter = TagManager.newTagSet();
+	protected TagManager.TagSet filter = TagManager.getTagManager().getFilter();
 	protected int currentPage = 0;
 	
 	// filteredPages is never empty
@@ -126,14 +128,10 @@ public class Book {
 		return pages.get(n);
 	}
 	
-	public TagSet getFilter() {
-		return filter;
-	}
-	
 	public boolean pageMatchesFilter(Page page) {
-		ListIterator<Tag> iter = filter.tagIterator();
+		ListIterator<TagManager.Tag> iter = filter.tagIterator();
 		while (iter.hasNext()) {
-			Tag t = iter.next();
+			TagManager.Tag t = iter.next();
 			if (!page.tags.contains(t)) {
 				// Log.d(TAG, "does not match: "+t.name+" "+page.tags.size());
 				return false;
@@ -422,7 +420,7 @@ public class Book {
 					Toast.LENGTH_LONG);
 		}
 		for (int i=0; i<pages.size(); i++) {
-			if (!pages.get(i).is_modified) continue;
+			if (!pages.get(i).isModified()) continue;
 			try {
 				savePage(i, context);
 			} catch (IOException e) {
@@ -474,7 +472,7 @@ public class Book {
         if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 		ListIterator<Page> piter = pages.listIterator(); 
 		while (piter.hasNext())
-			piter.next().is_modified = true;
+			piter.next().touch();
 		loadingFinishedHook();
 		return getBook();
    }

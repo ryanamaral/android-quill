@@ -1,9 +1,10 @@
 package com.write.Quill;
 
 
+import name.vbraun.view.write.TagManager.Tag;
+import name.vbraun.view.write.TagManager.TagSet;
+
 import com.write.Quill.R;
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -49,7 +50,7 @@ public class TagSetAdapter extends ArrayAdapter {
             tv = (TextView) convertView;
         }
         Tag t = tags.allTags().get(position);
-        tv.setText(t.name);
+        tv.setText(t.toString());
         if (tags.contains(t)) {
         	tv.setShadowLayer(20, 0, 0, highlight);
         	tv.setTypeface(Typeface.DEFAULT_BOLD);

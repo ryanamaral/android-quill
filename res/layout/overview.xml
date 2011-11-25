@@ -5,11 +5,11 @@
 	android:layout_width="fill_parent" 
 	android:layout_height="fill_parent"
 >
-    <com.write.Quill.TagListView 
+    <name.vbraun.view.tag.TagListView 
     	android:id="@+id/tag_list_view" 
     	android:layout_width="wrap_content" 
     	android:layout_height="fill_parent"
-    ></com.write.Quill.TagListView>
+    ></name.vbraun.view.tag.TagListView>
     
     <com.write.Quill.ThumbnailView 
     	android:layout_width="fill_parent" 

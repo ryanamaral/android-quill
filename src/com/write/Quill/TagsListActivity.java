@@ -1,11 +1,12 @@
 package com.write.Quill;
 import name.vbraun.view.tag.TagCloudView;
 import name.vbraun.view.tag.TagListView;
+import name.vbraun.view.write.TagManager;
+import name.vbraun.view.write.TagManager.Tag;
+import name.vbraun.view.write.TagManager.TagSet;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -49,7 +50,7 @@ public class TagsListActivity extends Activity implements
        	else
        		tagCloud.notifyTagsChanged();
    		updateStatusBar();
-    	Book.getBook().currentPage().is_modified = true;
+    	Book.getBook().currentPage().touch();
 	}
 	
     public boolean onKey(View v, int keyCode, KeyEvent event) {

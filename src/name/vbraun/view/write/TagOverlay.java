@@ -1,11 +1,9 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.util.ListIterator;
 
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
-
-
+import name.vbraun.view.write.TagManager.Tag;
+import name.vbraun.view.write.TagManager.TagSet;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,7 +26,7 @@ public class TagOverlay {
 	private final StaticLayout layout;
 	
 	public TagOverlay(TagSet ts) {
-		TagSet filter = Book.getBook().getFilter();
+		TagSet filter = TagManager.getFilter();
 		tagSet = ts;
 		style.setTextAlign(Align.RIGHT);
 		style.setAntiAlias(true);

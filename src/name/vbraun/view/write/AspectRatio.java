@@ -1,4 +1,4 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 public class AspectRatio {
 	public static final String TAG = "AspectRatio";
@@ -8,11 +8,11 @@ public class AspectRatio {
 	protected String name = null;
 	protected float heightMm;
 	
-	public static class AspectRatioName {
-		AspectRatioName(CharSequence n, float a) { name = n; ratio = a; }
-		protected CharSequence name;
-		protected float ratio;
-	}
+//	public static class AspectRatioName {
+//		AspectRatioName(CharSequence n, float a) { name = n; ratio = a; }
+//		private CharSequence name;
+//		private float ratio;
+//	}
 	
 	private static final float heightA4 = 297;
 	private static final float widthA4 = 210;
@@ -66,5 +66,5 @@ public class AspectRatio {
 	public float guessWidthMm() {
 		return ratio * guessHeightMm();
 	}
-	
+
 }

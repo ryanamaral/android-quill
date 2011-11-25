@@ -1,4 +1,4 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,9 +8,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.write.Quill.Stroke.PenType;
-
-
+import name.vbraun.view.write.TagManager.TagSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,28 +24,12 @@ public class Page {
 	private static final String TAG = "Page";
 	private final Background background = new Background();
 	
-	public enum PaperType {
-		EMPTY, RULED, QUAD, HEX
-	}
-	
-	public static class PaperTypeName {
-		PaperTypeName(CharSequence n, PaperType t) { name = n; type = t; }
-		protected CharSequence name;
-		protected PaperType type;
-	}
-	
-	public static final PaperTypeName[] PaperTypes = {
-		new PaperTypeName("Blank",  PaperType.EMPTY),
-		new PaperTypeName("Legal ruled",  PaperType.RULED),
-		new PaperTypeName("Quad paper",  PaperType.QUAD),
-	};
-	
 	// persistent data
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	public final TagManager.TagSet tags;
-	public float aspect_ratio = AspectRatio.Table[0].ratio;
+	protected float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
-	protected PaperType paper_type = PaperType.RULED;
+	protected Paper.Type paper_type = Paper.Type.RULED;
 	
 	// coordinate transformation Stroke -> screen
 	protected Transformation transformation = new Transformation();
@@ -62,16 +44,32 @@ public class Page {
 		return strokes.isEmpty();
 	}
 	
-	protected void touch() {
+	public void touch() {
 		is_modified = true;
 	}
+	
+	public boolean isModified() {
+		return is_modified;
+	}
 
+	public float getAspectRatio() {
+		return aspect_ratio;
+	}
+	
+	public Paper.Type getPaperType() {
+		return paper_type;
+	}
+	
+	public boolean isReadonly() {
+		return is_readonly;
+	}
+	
 	public void setReadonly(boolean ro) {
 		is_readonly = ro;
 		is_modified = true;
 	}
 	
-	public void setPaperType(PaperType type) {
+	public void setPaperType(Paper.Type type) {
 		paper_type = type;
 		is_modified = true;
 		background.setPaperType(paper_type);
@@ -217,14 +215,14 @@ public class Page {
 		
 		int version = in.readInt();
 		if (version == 1) {
-			paper_type = PaperType.EMPTY;
+			paper_type = Paper.Type.EMPTY;
 		} else if (version == 2) {
-			paper_type = PaperType.values()[in.readInt()];
+			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
 		} else if (version == 3) {
 			tags.set(TagManager.loadTagSet(in));
-			paper_type = PaperType.values()[in.readInt()];
+			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
 		} else 

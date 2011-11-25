@@ -1,11 +1,12 @@
 package com.write.Quill;
 
 import name.vbraun.view.tag.TagListView;
+import name.vbraun.view.write.TagManager;
+import name.vbraun.view.write.TagManager.Tag;
+import name.vbraun.view.write.TagManager.TagSet;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
 import com.write.Quill.ThumbnailAdapter.Thumbnail;
 
 import android.app.ActionBar;

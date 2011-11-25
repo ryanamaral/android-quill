@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import name.vbraun.lib.pen.Hardware;
+import name.vbraun.view.write.HandwriterView;
+import name.vbraun.view.write.PenHistory;
+import name.vbraun.view.write.Stroke;
+import name.vbraun.view.write.Stroke.PenType;
 
 import junit.framework.Assert;
 
 import com.write.Quill.R;
-import com.write.Quill.Page.PaperType;
-import com.write.Quill.Stroke.PenType;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -80,6 +82,7 @@ public class QuillWriterActivity extends Activity {
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
 
+	private name.vbraun.lib.pen.Hardware hw; 
     
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,15 +159,15 @@ public class QuillWriterActivity extends Activity {
     	Log.d(TAG, "onPrepareDialog "+id);
     	switch (id) {
     	case DIALOG_THICKNESS:
-    		dialogThickness.setSelectionByValue(mView.pen_thickness);
+    		dialogThickness.setSelectionByValue(mView.getPenThickness());
     		return;
     	case DIALOG_COLOR:
     		return;
     	case DIALOG_PAPER_ASPECT:
-    		dialogAspectRatio.setSelectionByValue(mView.page.aspect_ratio);
+    		dialogAspectRatio.setSelectionByValue(mView.getPageAspectRatio());
     		return;
     	case DIALOG_PAPER_TYPE:
-    		dialogPaperType.setSelectionByValue(mView.page.paper_type);
+    		dialogPaperType.setSelectionByValue(mView.getPagePaperType());
     		return;
     	}
     }
@@ -194,7 +197,7 @@ public class QuillWriterActivity extends Activity {
     }
 
     private Dialog create_dialog_color() {
-        AmbilWarnaDialog dlg = new AmbilWarnaDialog(QuillWriterActivity.this, mView.pen_color, 
+        AmbilWarnaDialog dlg = new AmbilWarnaDialog(QuillWriterActivity.this, mView.getPenColor(), 
         	new OnAmbilWarnaListener()
         	{	
         		@Override
@@ -216,7 +219,7 @@ public class QuillWriterActivity extends Activity {
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
         menu_prepare_page_has_changed();
-    	setActionBarIconActive(mView.pen_type);
+    	setActionBarIconActive(mView.getPenType());
     	updatePenHistoryIcon();
     	return true;
     }
@@ -420,7 +423,7 @@ public class QuillWriterActivity extends Activity {
     }
     
     private void menu_prepare_page_has_changed() {
-    	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().is_readonly);
+    	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().isReadonly());
 		boolean first = (book.isFirstPage());
 		boolean last  = (book.isLastPage());
 		mMenu.findItem(R.id.page_prev).setEnabled(!first);
@@ -455,26 +458,28 @@ public class QuillWriterActivity extends Activity {
     	int w = icon.getIntrinsicWidth();
     	int h = icon.getIntrinsicHeight();
     	Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-    	Canvas c = new Canvas(bitmap);
-    	c.drawARGB(0xa0, Color.red(mView.pen_color), 
-    			Color.green(mView.pen_color), Color.blue(mView.pen_color));
-    	if (mView.pen_type == PenType.FOUNTAINPEN) {
+    	Canvas canvas = new Canvas(bitmap);
+    	int c = mView.getPenColor();
+    	canvas.drawARGB(0xa0, Color.red(c), Color.green(c), Color.blue(c));
+    	if (mView.getPenType() == PenType.FOUNTAINPEN) {
         	final Drawable iconStrokeFountainpen = getResources().getDrawable(R.drawable.ic_pen_fountainpen);
     		iconStrokeFountainpen.setBounds(0, 0, w, h);
-    		iconStrokeFountainpen.draw(c);
-    	} else if (mView.pen_type == PenType.PENCIL) {
+    		iconStrokeFountainpen.draw(canvas);
+    	} else if (mView.getPenType() == PenType.PENCIL) {
         	final Drawable iconStrokePencil = getResources().getDrawable(R.drawable.ic_pen_pencil);
         	iconStrokePencil.setBounds(0, 0, w, h);
-    		iconStrokePencil.draw(c);
+    		iconStrokePencil.draw(canvas);
     	}
         item.setIcon(new BitmapDrawable(bitmap));
     }
 
     
+    private String pen_input_mode;
+    
     @Override protected void onResume() {
         super.onResume();
         if (book != null) {
-        	if (mView.page == book.currentPage()) {
+        	if (mView.getPage() == book.currentPage()) {
         		book.filterChanged();
         		mView.updateOverlay();
         	} else {
@@ -482,14 +487,16 @@ public class QuillWriterActivity extends Activity {
         	}
         }
         
-        boolean hwPen = Hardware.getHardware().hasDedicatedPen();
+        if (hw==null)
+    		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext());
+        boolean hwPen = hw.hasPenDigitizer();
         
         // Restore preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
        
-    	int penColor = settings.getInt("pen_color", mView.pen_color);
-    	int penThickness = settings.getInt("pen_thickness", mView.pen_thickness);
-    	int penTypeInt = settings.getInt("pen_type", mView.pen_type.ordinal());
+    	int penColor = settings.getInt("pen_color", mView.getPenColor());
+    	int penThickness = settings.getInt("pen_thickness", mView.getPenThickness());
+    	int penTypeInt = settings.getInt("pen_type", mView.getPenType().ordinal());
     	Stroke.PenType penType = Stroke.PenType.values()[penTypeInt];
     	if (penType==PenType.ERASER)  // don't start with sharp whirling blades 
     		penType = PenType.MOVE;
@@ -499,13 +506,39 @@ public class QuillWriterActivity extends Activity {
     	PenHistory.add(penType, penThickness, penColor);
 		setActionBarIconActive(penType);
 
-    	mView.onlyPenInput = settings.getBoolean("only_pen_input", hwPen);
-    	mView.doubleTapWhileWriting = settings.getBoolean("double_tap_while_write", hwPen);
-    	mView.moveGestureWhileWriting = settings.getBoolean("move_gesture_while_writing", hwPen);
-    	mView.moveGestureMinDistance = settings.getInt("move_gesture_min_distance", 400);
+		if (settings.contains("only_pen_input")) { 
+			// import obsoleted setting
+			if (settings.getBoolean("only_pen_input", false)) 
+				pen_input_mode = Preferences.STYLUS_WITH_GESTURES;
+			else 
+				pen_input_mode = Preferences.STYLUS_AND_TOUCH;
+		} else if (hwPen)
+			pen_input_mode = settings.getString(Preferences.KEY_LIST_PEN_INPUT_MODE, Preferences.STYLUS_WITH_GESTURES);
+		else
+			pen_input_mode = Preferences.STYLUS_AND_TOUCH;
+		Log.d(TAG, "pen input mode "+pen_input_mode);
+		if (pen_input_mode.equals(Preferences.STYLUS_ONLY)) {
+			mView.setOnlyPenInput(true);
+			mView.setDoubleTapWhileWriting(false);
+			mView.setMoveGestureWhileWriting(false);
+		}
+		else if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
+			mView.setOnlyPenInput(true);
+			mView.setDoubleTapWhileWriting(settings.getBoolean(
+					Preferences.KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
+    		mView.setMoveGestureWhileWriting(settings.getBoolean(
+    				Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
+		}
+		else if (pen_input_mode.equals(Preferences.STYLUS_AND_TOUCH)) {
+			mView.setOnlyPenInput(false);
+			mView.setDoubleTapWhileWriting(false);
+			mView.setMoveGestureWhileWriting(false);
+		}
+		else Assert.fail();
+    	mView.setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
     	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
-    	Log.d(TAG, "only_pen_input: "+mView.onlyPenInput);
+    	Log.d(TAG, "only_pen_input: "+mView.getOnlyPenInput());
     	mView.requestFocus();
     }
     
@@ -515,14 +548,17 @@ public class QuillWriterActivity extends Activity {
         	book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("pen_type", mView.pen_type.ordinal());
-        editor.putInt("pen_color", mView.pen_color);
-        editor.putInt("pen_thickness", mView.pen_thickness);
+        editor.putInt("pen_type", mView.getPenType().ordinal());
+        editor.putInt("pen_color", mView.getPenColor());
+        editor.putInt("pen_thickness", mView.getPenThickness());
         editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
-        editor.putBoolean("only_pen_input", mView.onlyPenInput);
-        editor.putBoolean("double_tap_while_writing", mView.doubleTapWhileWriting);
-    	editor.putBoolean("move_gesture_while_writing", mView.moveGestureWhileWriting);
-    	editor.putInt("move_gesture_min_distance", mView.moveGestureMinDistance);
+        
+        editor.putString(Preferences.KEY_LIST_PEN_INPUT_MODE, pen_input_mode);
+        editor.remove("only_pen_input");  // obsoleted
+        
+        editor.putBoolean("double_tap_while_writing", mView.getDoubleTapWhileWriting());
+    	editor.putBoolean("move_gesture_while_writing", mView.getMoveGestureWhileWriting());
+    	editor.putInt("move_gesture_min_distance", mView.getMoveGestureMinDistance());
         editor.commit();
     }
     

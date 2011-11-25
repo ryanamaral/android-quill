@@ -3,9 +3,9 @@ package name.vbraun.view.tag;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.write.Quill.TagManager;
-import com.write.Quill.TagManager.Tag;
-import com.write.Quill.TagManager.TagSet;
+import name.vbraun.view.write.TagManager.Tag;
+import name.vbraun.view.write.TagManager.TagSet;
+
 
 
 
@@ -315,7 +315,7 @@ public class TagCloudView extends View {
  					Tag t = tagIter.next();
  					addTagToCloud(t);
  					invalidate();
- 					handler.postDelayed(mIncrementalDraw, 100);
+ 					handler.post(mIncrementalDraw);
  				}
  			}
  	   }

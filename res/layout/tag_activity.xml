@@ -7,11 +7,11 @@
 	android:layout_height="fill_parent"
 	android:padding="0dp"
 	>
-    <com.write.Quill.TagListView 
+    <name.vbraun.view.tag.TagListView 
     	android:id="@+id/tag_list_view" 
     	android:layout_width="wrap_content" 
     	android:layout_height="fill_parent"
-    ></com.write.Quill.TagListView>
+    ></name.vbraun.view.tag.TagListView>
 	<TextView 
 	    android:layout_height="wrap_content" 
 	    android:layout_alignBottom="@id/tag_list_view"
@@ -26,13 +26,13 @@
    		android:gravity="right"
     >
    	</TextView>    	
- 	<com.write.Quill.TagCloudView 
+ 	<name.vbraun.view.tag.TagCloudView 
  	    android:layout_toRightOf="@id/tag_list_view"
 		android:layout_above="@id/status"
    		android:id="@+id/tag_cloud_view" 
    		android:layout_width="fill_parent" 
    		android:layout_height="fill_parent"
 	>
-   	</com.write.Quill.TagCloudView>
+   	</name.vbraun.view.tag.TagCloudView>
 </RelativeLayout>
 

@@ -1,5 +1,7 @@
 package com.write.Quill;
 
+import name.vbraun.view.write.AspectRatio;
+
 public class DialogAspectRatio extends SingleChoiceDialog<Float> {
 	public static final String TAG = "DialogAspectRatio";
 
@@ -8,8 +10,8 @@ public class DialogAspectRatio extends SingleChoiceDialog<Float> {
 
 	public DialogAspectRatio() {
 		for (int i=0; i<AspectRatio.Table.length; i++) {
-			items[i] = AspectRatio.Table[i].name;
-			values[i] = AspectRatio.Table[i].ratio;
+			items[i] = AspectRatio.Table[i].getName();
+			values[i] = AspectRatio.Table[i].getValue();
 		}
 	}
 

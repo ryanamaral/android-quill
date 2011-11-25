@@ -5,13 +5,13 @@
     <item android:id="@+id/pencil" android:title="Pencil" android:menuCategory="container" android:checked="false" android:visible="true" android:checkable="true" android:enabled="true" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item>
     <item android:id="@+id/move" android:title="Move" android:checked="false" android:menuCategory="container" android:visible="true" android:checkable="true" android:showAsAction="always" android:enabled="true" android:icon="@drawable/ic_menu_resize"></item>
     <item android:showAsAction="always" android:menuCategory="container" android:enabled="true" android:checked="false" android:visible="true" android:title="Erase" android:checkable="true" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
-    <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="always|withText" android:title="Previous page"></item>
-    <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="always|withText" android:title="Next page"></item>
-    <item android:showAsAction="ifRoom" android:icon="@drawable/ic_pen_pencil" android:visible="true" android:title="Previous pen" android:id="@+id/prev_pen"></item>    
+    <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="ifRoom|withText" android:title="Previous page"></item>
+    <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="ifRoom|withText" android:title="Next page"></item>
+    <item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:visible="true" android:title="Previous pen" android:id="@+id/prev_pen"></item>    
     </group><item android:id="@+id/pen_history" android:title="Pen history" android:visible="false"></item>
     
-    <item android:showAsAction="ifRoom|withText" android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item>
-    <item android:showAsAction="ifRoom|withText" android:titleCondensed="Width" android:id="@+id/width" android:title="Thickness"></item>    
+    <item android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item>
+    <item android:id="@+id/width" android:title="Thickness"></item>    
     <item android:checked="false" android:enabled="true" android:title="Read only" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
     
     <group android:enabled="true" android:visible="true" android:menuCategory="secondary" android:id="@+id/page_group">

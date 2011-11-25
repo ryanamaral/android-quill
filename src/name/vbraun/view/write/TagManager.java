@@ -1,4 +1,4 @@
-package com.write.Quill;
+package name.vbraun.view.write;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -210,6 +210,12 @@ public class TagManager {
 				return 1;
 			}
 		}
+	}
+	
+	private static TagSet filter = newTagSet();
+	
+	public static TagSet getFilter() {
+		return filter;
 	}
 
 }
