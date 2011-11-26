@@ -32,6 +32,8 @@ public class HandwriterView extends View {
 	private Toast toast;
 	private final Rect mRect = new Rect();
 	private final RectF mRectF = new RectF();
+	private boolean automaticRedraw = true;
+	private final RectF clip = new RectF();  
 	private final Paint pen;
 	private final name.vbraun.lib.pen.Hardware hw; 
 	private int penID = -1;
@@ -71,14 +73,24 @@ public class HandwriterView extends View {
 		if (graphics instanceof Stroke) {
 			Stroke s = (Stroke)graphics;
 			page.addStroke(s);
-			page.draw(canvas, s.getBoundingBox());
+			if (automaticRedraw) {
+				page.draw(canvas, s.getBoundingBox());
+				s.getBoundingBox().round(mRect);
+				invalidate(mRect);
+			}
 		} else
 			Assert.fail("Unknown graphics object");
 	}
 	
 	public void remove(Graphics graphics) {
 		if (graphics instanceof Stroke) { 
-			page.removeStroke((Stroke)graphics);
+			Stroke s = (Stroke)graphics;
+			page.removeStroke(s);
+			if (automaticRedraw) {
+				page.draw(canvas, s.getBoundingBox());
+				s.getBoundingBox().round(mRect);
+				invalidate(mRect);
+			}
 		} else
 			Assert.fail("Unknown graphics object");
 	}
@@ -342,11 +354,6 @@ public class HandwriterView extends View {
 		case MOVE:
 			return touchHandlerMoveZoom(event);
 		case ERASER:
-//			String s = "event.getSource() == "+event.getSource();
-//			if (toast == null)
-//	        	toast = Toast.makeText(getContext(), s, Toast.LENGTH_SHORT);
-//			toast.setText(s);
-//			toast.show();
 			return touchHandlerEraser(event);
 		}
 		return false;
@@ -363,9 +370,7 @@ public class HandwriterView extends View {
 			mRectF.set(oldX, oldY, newX, newY);
 			mRectF.sort();
 			mRectF.inset(-15, -15);
-			boolean erased = page.eraseStrokesIn(mRectF, canvas);
-			if (erased)
-				invalidate();
+			eraseStrokesIn(mRectF);
 			oldX = newX;
 			oldY = newY;
 			return true;
@@ -649,20 +654,45 @@ public class HandwriterView extends View {
     	}
 	   	toast.show();
 	}
+
+	public boolean eraseStrokesIn(RectF r) {
+		Assert.assertTrue(clip != mRectF && mRectF == r);
+		LinkedList<Stroke> toRemove = new LinkedList<Stroke>();
+	    ListIterator<Stroke> siter = page.strokes.listIterator();
+	    while(siter.hasNext()) {	
+			Stroke s = siter.next();	    	
+			if (!RectF.intersects(r, s.getBoundingBox())) continue;
+			if (s.intersects(r)) {
+				toRemove.add(s);
+			}
+		}
+	    siter = toRemove.listIterator();
+	    while (siter.hasNext())
+	    	graphicsListener.onGraphicsEraseListener(page, siter.next());
+		if (toRemove.isEmpty())
+			return false;
+		else {
+			invalidate();
+			return true;
+		}
+	}
 	
 	private void saveStroke() {
 		if (N==0) return;
 		Stroke s = new Stroke(getPenType(), position_x, position_y, pressure, 0, N);
 		ToolHistory.add(getPenType(), getPenThickness(), pen_color);
 		s.setPen(getPenThickness(), pen_color);
+//		s.getBoundingBox().round(mRect);
+		s.setTransform(page.getTransform());
+		s.applyInverseTransform();
+		s.simplify();
 		if (page != null && graphicsListener != null) {
-			graphicsListener.onGraphicsCreateListener(page, s)
+			graphicsListener.onGraphicsCreateListener(page, s);
 		}
 		N = 0;
-		s.getBoundingBox().round(mRect);
-		int extra = -(int)(getScaledPenThickness()/2) - 1;
-		mRect.inset(extra, extra);
-		invalidate(mRect);
+//		int extra = -(int)(getScaledPenThickness()/2) - 1;
+//		mRect.inset(extra, extra);
+//		invalidate(mRect);
 	}
 	
 	

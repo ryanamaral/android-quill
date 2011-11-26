@@ -14,12 +14,18 @@ public class CommandEraseGraphics extends Command {
 
 	@Override
 	public void execute() {
-		getPage().remove(graphics);
+		UndoManager.getApplication().remove(getPage(), graphics);
 	}
 
 	@Override
 	public void revert() {
-		getPage().add(graphics);
+		UndoManager.getApplication().add(getPage(), graphics);
 	}
 	
+	@Override
+	public String toString() {
+		int n = Book.getBook().getPageNumber(getPage());
+		return "Remove pen stroke on page "+n;
+	}
+
 }

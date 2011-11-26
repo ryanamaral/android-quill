@@ -7,10 +7,13 @@ import java.util.LinkedList;
 import sheetrock.panda.changelog.ChangeLog;
 
 import name.vbraun.lib.pen.Hardware;
+import name.vbraun.view.write.Graphics;
 import name.vbraun.view.write.HandwriterView;
+import name.vbraun.view.write.Page;
 import name.vbraun.view.write.ToolHistory;
 import name.vbraun.view.write.Stroke;
 import name.vbraun.view.write.Graphics.Tool;
+import name.vbraun.view.write.ToolHistory.HistoryItem;
 
 import junit.framework.Assert;
 
@@ -86,7 +89,6 @@ public class QuillWriterActivity extends Activity {
 
 	private name.vbraun.lib.pen.Hardware hw; 
 	private ChangeLog changeLog;
-	private UndoManager undoManager = new UndoManager(); 
 	
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +100,14 @@ public class QuillWriterActivity extends Activity {
 
       	Book.onCreate(getApplicationContext());
       	book = Book.getBook();
+      	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
         // Create and attach the view that is responsible for painting.
         mView = new HandwriterView(this);
         setContentView(mView);
-        mView.setOnGraphicsModifiedListener(undoManager);
+        mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
@@ -231,6 +234,7 @@ public class QuillWriterActivity extends Activity {
         menu_prepare_page_has_changed();
     	setActionBarIconActive(mView.getPenType());
     	updatePenHistoryIcon();
+    	updateUndoRedoIcons();
     	return true;
     }
     
@@ -350,7 +354,7 @@ public class QuillWriterActivity extends Activity {
     		mView.clear();
     		return true;
     	case R.id.page_delete:
-    		toast_page_number("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
+    		toast("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
     		mView.setPageAndZoomOut(book.deletePage());
     		menu_prepare_page_has_changed();
     		return true;
@@ -369,6 +373,14 @@ public class QuillWriterActivity extends Activity {
     	case R.id.about:
     	    changeLog.getFullLogDialog().show();
     	    return true;
+    	case R.id.undo:
+    		UndoManager.getUndoManager().undo();
+    		updateUndoRedoIcons();
+    		return true;
+    	case R.id.redo:
+    		UndoManager.getUndoManager().redo();
+    		updateUndoRedoIcons();
+    		return true;
    	default:
     		return super.onOptionsItemSelected(item);
     	}
@@ -376,57 +388,57 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_prev() {
     	if (book.isFirstPage()) 
-    		toast_page_number("Already on first tagged page"); 
+    		toast("Already on first tagged page"); 
 		else	
 			mView.setPageAndZoomOut(book.previousPage());
 			if (book.isFirstPage()) 
-				toast_page_number("Showing first tagged page"); 
+				toast("Showing first tagged page"); 
 			else
-				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
  		menu_prepare_page_has_changed();
     }
     
     private void flip_page_next() {
 		if (book.isLastPage()) {
 			mView.setPageAndZoomOut(book.insertPageAtEnd());
-			toast_page_number("Inserted new page at end");
+			toast("Inserted new page at end");
 		} else {
 			mView.setPageAndZoomOut(book.nextPage());
 			if (book.isLastPage())
-				toast_page_number("Showing last tagged page");
+				toast("Showing last tagged page");
 			else 
-				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
 		}
 		menu_prepare_page_has_changed();
     }
     
     private void flip_page_prev_unfiltered() {
     	if (book.isFirstPageUnfiltered()) 
-    		toast_page_number("Already on first page"); 
+    		toast("Already on first page"); 
 		else	
 			mView.setPageAndZoomOut(book.previousPageUnfiltered());
 			if (book.isFirstPageUnfiltered()) 
-				toast_page_number("Showing first page"); 
+				toast("Showing first page"); 
 			else
-				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
  		menu_prepare_page_has_changed();
     }
     
     private void flip_page_next_unfiltered() {
 		if (book.isLastPageUnfiltered()) {
 			mView.setPageAndZoomOut(book.insertPageAtEnd());
-			toast_page_number("Inserted new page at end");
+			toast("Inserted new page at end");
 		} else {
 			mView.setPageAndZoomOut(book.nextPageUnfiltered());
 			if (book.isLastPageUnfiltered())
-				toast_page_number("Showing last page");
+				toast("Showing last page");
 			else 
-				toast_page_number("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
 		}
 		menu_prepare_page_has_changed();
     }
     
-    private void toast_page_number(String s) {
+    public void toast(String s) {
     	if (mToast == null)
         	mToast = Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT);
     	else {
@@ -491,6 +503,7 @@ public class QuillWriterActivity extends Activity {
     
     @Override protected void onResume() {
         super.onResume();
+    	UndoManager.setApplication(this);
         if (book != null) {
         	if (mView.getPage() == book.currentPage()) {
         		book.filterChanged();
@@ -556,7 +569,8 @@ public class QuillWriterActivity extends Activity {
     }
     
     @Override protected void onPause() {
-        super.onPause();
+    	Log.d(TAG, "onPause");
+    	super.onPause();
         if (book != null)
         	book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
@@ -575,11 +589,7 @@ public class QuillWriterActivity extends Activity {
         }
     	editor.putInt("move_gesture_min_distance", mView.getMoveGestureMinDistance());
         editor.commit();
-    }
-    
-    @Override
-    protected void onStop(){
-    	super.onStop();
+    	UndoManager.setApplication(null);
     }
     
     private void launchOverviewActivity() {
@@ -592,5 +602,61 @@ public class QuillWriterActivity extends Activity {
     	launchOverviewActivity();
     }
     
+    
+    public void add(Page page, int position) {
+    	book.addPage(page, position);
+    	mView.setPageAndZoomOut(book.currentPage());
+    	updateUndoRedoIcons();
+    	menu_prepare_page_has_changed();
+    }
+
+    public void remove(Page page, int position) {
+    	book.removePage(page, position);
+    	mView.setPageAndZoomOut(book.currentPage());
+    	updateUndoRedoIcons();
+    	menu_prepare_page_has_changed();
+    }
+
+    public void add(Page page, Graphics graphics) {
+    	if (page != mView.getPage()) {
+        	Assert.assertTrue("page not in book", book.pages.contains(page));
+        	book.setCurrentPage(page);
+    		mView.setPageAndZoomOut(page);
+    	}
+    	mView.add(graphics);
+    	updateUndoRedoIcons();
+    }
+    
+    public void remove(Page page, Graphics graphics) {
+    	if (page != mView.getPage()) {
+        	Assert.assertTrue("page not in book", book.pages.contains(page));
+        	book.setCurrentPage(page);
+    		mView.setPageAndZoomOut(page);
+    	}
+    	mView.remove(graphics);
+    	updateUndoRedoIcons();
+    }
+    
+    private void updateUndoRedoIcons() {
+    	if (mMenu==null) return;
+    	UndoManager mgr = UndoManager.getUndoManager();
+    	MenuItem undo = mMenu.findItem(R.id.undo);
+    	if (mgr.haveUndo() != undo.isEnabled()) {
+    		undo.setEnabled(mgr.haveUndo());
+    		if (mgr.haveUndo())
+    			undo.setIcon(R.drawable.ic_menu_undo);
+    		else
+    			undo.setIcon(R.drawable.ic_menu_undo_disabled);
+    	}
+    	MenuItem redo = mMenu.findItem(R.id.redo);
+    	if (mgr.haveRedo() != redo.isEnabled()) {
+    		redo.setEnabled(mgr.haveRedo());
+    		if (mgr.haveRedo())
+    			redo.setIcon(R.drawable.ic_menu_redo);
+    		else
+    			redo.setIcon(R.drawable.ic_menu_redo_disabled);
+    	}
+    }
+  
 }
 

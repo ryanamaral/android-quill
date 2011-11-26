@@ -14,12 +14,17 @@ public class CommandCreateGraphics extends Command {
 
 	@Override
 	public void execute() {
-		getPage().add(graphics);
+		UndoManager.getApplication().add(getPage(), graphics);
 	}
 
 	@Override
 	public void revert() {
-		getPage().remove(graphics);
+		UndoManager.getApplication().remove(getPage(), graphics);
 	}
-	
+
+	@Override
+	public String toString() {
+		int n = Book.getBook().getPageNumber(getPage());
+		return "Add pen stroke on page "+n;
+	}
 }

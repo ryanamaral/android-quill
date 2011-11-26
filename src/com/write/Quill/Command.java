@@ -1,5 +1,6 @@
 package com.write.Quill;
 
+import junit.framework.Assert;
 import name.vbraun.view.write.Page;
 
 abstract public class Command {
@@ -16,4 +17,5 @@ abstract public class Command {
 	
 	abstract public void execute();
 	abstract public void revert();
+	abstract public String toString();
 }

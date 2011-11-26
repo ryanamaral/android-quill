@@ -21,6 +21,7 @@ import junit.framework.Assert;
 
 
 import android.content.Context;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -46,11 +47,23 @@ public class Book {
         }
 	}
 	
+	// Report page changes to the undo manager
+	BookModifiedListener listener;
+	public void setOnBookModifiedListener(BookModifiedListener newListener) {
+		listener = newListener;
+	}
+	
 	// persistent data
 	// pages is never empty
 	protected final LinkedList<Page> pages = new LinkedList<Page>();
 	protected TagManager.TagSet filter = TagManager.getTagManager().getFilter();
 	protected int currentPage = 0;
+	
+	// The title 
+	protected String title = "Default Quill notebook";
+	
+	Time ctime = new Time();
+	Time mtime = new Time();
 	
 	// filteredPages is never empty
 	protected final LinkedList<Page> filteredPages = new LinkedList<Page>();
@@ -74,35 +87,43 @@ public class Book {
 	// but will not change the current page (which need not match).
 	public void filterChanged() {
 		Page curr = currentPage();
+		removeEmptyPages();
+		updateFilteredPages();
+		ensureNonEmpty(curr);
+		Assert.assertTrue("current page must not change", curr == currentPage());
+	}
+
+	private void updateFilteredPages() {
 		filteredPages.clear();
-		removeEmptyPages(true);
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
 			Page p = iter.next();
 			if (pageMatchesFilter(p))
 				filteredPages.add(p);
 		}
-		ensureNonEmpty(curr);
-		Assert.assertTrue("current page must not change", curr == currentPage());
 	}
 	
-	// remove empty pages
-	// If keepCurrent is false and current page is empty, then 
-	// currentPage is invalidated! 
-	private void removeEmptyPages(boolean keepCurrent) {
+	// remove empty pages as far as possible 
+	private void removeEmptyPages() {
 		Page curr = currentPage();
+		LinkedList<Page> empty = new LinkedList<Page>();
 		ListIterator<Page> iter = pages.listIterator();
 		while (iter.hasNext()) {
 			Page p = iter.next();
-			if (keepCurrent && p == curr) continue;
+			if (p == curr) continue;
+			if (filteredPages.size()<=1 && filteredPages.contains(p)) continue;
 			if (p.is_empty()) {
-				touchAllSubsequentPages(p);
-				iter.remove();
+				empty.add(p);
 				filteredPages.remove(p);
 			}
 		}
+		iter = empty.listIterator();
+		while (iter.hasNext()) {
+			Page p = iter.next();
+			requestRemovePage(p);
+		}
 		currentPage = pages.indexOf(curr);
-		Assert.assertTrue("Current page removed?", !keepCurrent || currentPage>=0);
+		Assert.assertTrue("Current page removed?", currentPage>=0);
 	}
 		
 	
@@ -118,16 +139,57 @@ public class Book {
 		else
 			new_page = new Page();
 		new_page.tags.add(filter);
-		pages.add(pages.size(), new_page);
-		filteredPages.add(new_page);
+		requestAddPage(new_page, pages.size());   // pages.add(pages.size(), new_page);
+		setCurrentPage(curr);
 		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
-		Assert.assertTrue("Current page removed?", curr == currentPage());
 	}
 	
 	public Page getPage(int n) {
 		return pages.get(n);
 	}
 	
+	public int getPageNumber(Page page) {
+		return pages.indexOf(page);
+	}
+	
+	// to be called from the undo manager
+	public void addPage(Page page, int position) {
+    	Assert.assertFalse("page already in book", book.pages.contains(page));
+		touchAllSubsequentPages(position);
+    	pages.add(position, page);
+    	updateFilteredPages();
+    	setCurrentPage(page);
+	}
+
+	// to be called from the undo manager
+	public void removePage(Page page, int position) {
+		Assert.assertTrue("page not in book", getPage(position) == page);
+		pages.remove(position);
+		updateFilteredPages();
+		touchAllSubsequentPages(position);
+		Assert.assertFalse(pages.isEmpty());
+		if (position>0)
+			setCurrentPage(getPage(position-1));
+		else
+			setCurrentPage(getPage(0));
+		Log.d(TAG, "Removed page "+position+", current = "+currentPage);
+	}
+	
+	private void requestAddPage(Page page, int position) {
+		if (listener == null)
+			addPage(page, position);
+		else
+			listener.onPageInsertListener(page, position);
+	}
+	
+	private void requestRemovePage(Page page) {
+		int position = pages.indexOf(page);
+		if (listener == null)
+			removePage(page, position);
+		else
+			listener.onPageDeleteListener(page, position);
+	}
+
 	public boolean pageMatchesFilter(Page page) {
 		ListIterator<TagManager.Tag> iter = filter.tagIterator();
 		while (iter.hasNext()) {
@@ -170,20 +232,20 @@ public class Book {
 		int lastIndex  = pages.indexOf(filteredPages.getLast());
 		int firstIndex = pages.indexOf(filteredPages.getFirst());
 		if (currentPage < firstIndex) {
-			pages.remove(curr);
+			requestRemovePage(curr);  // pages.remove(curr); 
 			currentPage = firstIndex-1;
 		} else if (currentPage==firstIndex && currentPage == lastIndex) {
-			pages.remove(curr);
+			requestRemovePage(curr);  // pages.remove(curr); 
 			filteredPages.clear();
 			return insertPage(curr, currentPage);
 		} else if (currentPage>=firstIndex && currentPage < lastIndex) {
 			nextPage();
 			Assert.assertTrue(initialIndex < currentPage);
-			pages.remove(curr);
+			requestRemovePage(curr);  // pages.remove(curr); 
 			currentPage --;
 		} else if (currentPage >= lastIndex) {
 			previousPage();
-			pages.remove(curr);
+			requestRemovePage(curr);  // pages.remove(curr); 
 		}
 		filterChanged();
 		return currentPage();
@@ -272,10 +334,9 @@ public class Book {
 		else
 			new_page = new Page();
 		new_page.tags.add(filter);
-		pages.add(position, new_page);
+		requestAddPage(new_page, position);  // pages.add(position, new_page);
 		currentPage = position;
-		touchAllSubsequentPages();
-		removeEmptyPages(true);
+		removeEmptyPages();
 		filterChanged(); 
 		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
 		Assert.assertTrue("wrong page", new_page == currentPage());
@@ -356,6 +417,8 @@ public class Book {
 		book.pages.add(new Page());
 		Book.book = book;
 		book.loadingFinishedHook();
+		book.ctime.setToNow();
+		book.mtime.setToNow();
 		return getBook();
 	}
 	
@@ -390,6 +453,9 @@ public class Book {
 	// Loads the book. This is the complement to the save() method
 	public static Book recoverFromMissingIndex(Context context) {
 		Book book = new Book();
+		book.title = "Recovered notebook";
+		book.ctime.setToNow();
+		book.mtime.setToNow();
 		int pos = 0;
 		while (true) {
 			Page page;
@@ -450,7 +516,7 @@ public class Book {
 
 	}
 	
-    // Save an archive 
+    // Load an archive 
     public Book loadArchive(File file) throws IOException {
     	FileInputStream fis;
 	    BufferedInputStream buffer;
@@ -475,10 +541,28 @@ public class Book {
 			piter.next().touch();
 		loadingFinishedHook();
 		return getBook();
-   }
+    }
     	
-    	
-
+    // Peek an archive: load index data but skip pages except for the first one 
+    public void peekArchive(File file) throws IOException {
+    	FileInputStream fis;
+	    BufferedInputStream buffer;
+	    DataInputStream dataIn = null;
+ 	  	try {
+    		fis = new FileInputStream(file);
+    		buffer = new BufferedInputStream(fis);
+    		dataIn = new DataInputStream(buffer);
+    		int n_pages = loadIndex(dataIn);
+    		pages.clear();
+    		pages.add(loadPage(0, dataIn));
+        } finally {
+        	if (dataIn != null) dataIn.close();
+    	}
+        // recover from errors
+        if (pages.isEmpty()) pages.add(new Page());
+        currentPage = 0;
+    }
+        	
 	
 	private int loadIndex(Context context) throws IOException {
 	    FileInputStream fis = context.openFileInput(FILENAME_STEM + ".index");
@@ -511,7 +595,14 @@ public class Book {
 		Log.d(TAG, "Loading book index");
 		int n_pages;
 		int version = dataIn.readInt();
-		if (version == 2) {
+		if (version == 3) {
+			n_pages = dataIn.readInt();
+			currentPage = dataIn.readInt();
+			title = dataIn.readUTF();
+			ctime.set(dataIn.readLong());
+			mtime.set(dataIn.readLong());
+			filter = TagManager.loadTagSet(dataIn);
+		} else if (version == 2) {
 			n_pages = dataIn.readInt();
 			currentPage = dataIn.readInt();
 			filter = TagManager.loadTagSet(dataIn);
@@ -526,9 +617,12 @@ public class Book {
 	
 	private void saveIndex(DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book index");
-		dataOut.writeInt(2);
+		dataOut.writeInt(3);
 		dataOut.writeInt(pages.size());
 		dataOut.writeInt(currentPage);
+		dataOut.writeUTF(title);
+		dataOut.writeLong(ctime.toMillis(false));
+		dataOut.writeLong(mtime.toMillis(false));
 		filter.write_to_stream(dataOut);
 	}
 

@@ -122,11 +122,8 @@ public class Page {
 	}
 	
 	public void addStroke(Stroke s) {
-		s.setTransform(transformation);
-		s.applyInverseTransform();
-		s.computeBoundingBox(); // simplify might make the box smaller
-		s.simplify();
 		strokes.add(s);
+		s.setTransform(getTransform());
 		is_modified = true;
 	}
 	
@@ -158,26 +155,6 @@ public class Page {
 				return s;
 		}
 		return null;
-	}
-
-	public boolean eraseStrokesIn(RectF r, Canvas canvas) {
-		mRectF.set(r);
-	    ListIterator<Stroke> siter = strokes.listIterator();
-	    boolean need_redraw = false;
-	    while(siter.hasNext()) {	
-			Stroke s = siter.next();	    	
-			if (!RectF.intersects(r, s.getBoundingBox())) continue;
-			if (s.intersects(r)) {
-				mRectF.union(s.getBoundingBox());
-				siter.remove();
-				need_redraw = true;
-			}
-		}
-	    if (need_redraw) {
-	    	draw(canvas, mRectF);
-			is_modified = true;
-	    }
-	    return need_redraw;
 	}
 	
 	public void draw(Canvas canvas) {

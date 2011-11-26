@@ -24,5 +24,11 @@ public class CommandModifyGraphics extends Command {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

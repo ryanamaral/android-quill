@@ -43,7 +43,7 @@ public class ThumbnailView extends GridView {
 		int width = getMeasuredWidth();
 		int columns = width / (ThumbnailAdapter.MIN_THUMBNAIL_WIDTH+PADDING);
 		adapter.thumbnail_width = width / columns - PADDING;
-		Log.d(TAG, "onMeasure "+width+ " " + adapter.thumbnail_width);
+		// Log.d(TAG, "onMeasure "+width+ " " + adapter.thumbnail_width);
 		setColumnWidth(adapter.thumbnail_width + PADDING);
 		setNumColumns(columns);
 		adapter.notifyTagsChanged();
@@ -59,13 +59,13 @@ public class ThumbnailView extends GridView {
 
 	protected void postIncrementalDraw() {
 		handler.removeCallbacks(incrementalDraw);
-        handler.postDelayed(incrementalDraw,10);		
+        handler.post(incrementalDraw);		
 	}
 	
     private Runnable incrementalDraw = new Runnable() {
   	   public void run() {
   		   boolean rc = adapter.renderThumbnail();
-  		   Log.d(TAG, "incrementalDraw "+rc);
+  		   // Log.d(TAG, "incrementalDraw "+rc);
   		   if (rc) {
   			   postIncrementalDraw();
   	  		   invalidateViews();
