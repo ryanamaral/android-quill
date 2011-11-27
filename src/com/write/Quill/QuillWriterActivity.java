@@ -577,7 +577,7 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onPause() {
     	Log.d(TAG, "onPause");
     	super.onPause();
-        bookshelf.save(getApplicationContext());
+        bookshelf.save();
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.getPenType().ordinal());

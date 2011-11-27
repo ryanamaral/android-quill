@@ -105,7 +105,7 @@ public class Bookshelf {
 		b.saveArchive(file);
 	}
 	
-	public void save(Context context) {
+	public void save() {
 		getCurrentBook().save(context);
 		try {
 			saveBook(getCurrentBook());
@@ -122,6 +122,19 @@ public class Bookshelf {
 		saveBook(getCurrentBook());
 		addCurrentBookToNotebooks();
 	}
+	
+	public void newBook(String title) {
+		try {
+			saveBook(getCurrentBook());
+			currentBook = new Book(title);
+			saveBook(getCurrentBook());
+			addCurrentBookToNotebooks();	
+		} catch (IOException ex) {
+			Log.e(TAG, "Error saving notebook");
+			Toast.makeText(context, "Error saving current notebook", 
+					Toast.LENGTH_LONG);	
+		}
+	}
 
 	public void setCurrentBook(Notebook nb) {
 		try {
@@ -129,6 +142,8 @@ public class Bookshelf {
 			currentBook = new Book(nb.file);
 		} catch (IOException ex) {
 			Log.e(TAG, "Error loading book");
+			Toast.makeText(context, "Error saving notebook", 
+					Toast.LENGTH_LONG);	
 		} 
 	}
 	
@@ -151,6 +166,8 @@ public class Bookshelf {
 			data.add(nb);
 		} catch (IOException ex) {
 			Log.e(TAG, "Error loading notebook");
+			Toast.makeText(context, "Error loading notebook", 
+					Toast.LENGTH_LONG);	
 		}
 	}
 	

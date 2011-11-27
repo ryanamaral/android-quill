@@ -31,12 +31,12 @@ public class Book {
 	private static final String TAG = "Book";
 	private static final String FILENAME_STEM = "quill";
 		
-	public Book() {
+	public Book(String description) {
 		pages.add(new Page());
 		ctime.setToNow();
 		mtime.setToNow();
 		uuid = UUID.randomUUID();
-		title = "New Quill notebook created on "+ctime.format2445();
+		title = description;
 		loadingFinishedHook();
 	}
 	
@@ -625,6 +625,7 @@ public class Book {
 		dataOut.writeInt(currentPage);
 		dataOut.writeUTF(title);
 		dataOut.writeLong(ctime.toMillis(false));
+		mtime.setToNow();
 		dataOut.writeLong(mtime.toMillis(false));
 		dataOut.writeUTF(uuid.toString());
 		filter.write_to_stream(dataOut);

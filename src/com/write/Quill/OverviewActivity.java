@@ -17,11 +17,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.content.DialogInterface;
@@ -49,7 +51,7 @@ public class OverviewActivity extends Activity implements
 				tags.remove(t);
 			else
 				tags.add(t);
-	    	tagsChanged(true);
+	    	dataChanged();
 			break;
 		case R.id.thumbnail_grid:
 			Book book = Bookshelf.getCurrentBook();
@@ -69,7 +71,7 @@ public class OverviewActivity extends Activity implements
         return true;
     }
 	
-	protected void tagsChanged(boolean onlySelection) {
+	protected void dataChanged() {
        	tagList.notifyTagsChanged();
 		Bookshelf.getCurrentBook().filterChanged();
        	thumbnailGrid.notifyTagsChanged();
@@ -105,20 +107,41 @@ public class OverviewActivity extends Activity implements
         case DIALOG_NEW_NOTEBOOK:
         	LayoutInflater factory = LayoutInflater.from(this);
         	final View textEntryView = factory.inflate(R.layout.new_notebook, null);
-        	return new AlertDialog.Builder(this)
+        	AlertDialog dlg = new AlertDialog.Builder(this)
         		.setIconAttribute(android.R.attr.alertDialogIcon)
         		.setTitle("Create new notebook")
         		.setView(textEntryView)
         		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
-
-        				/* User clicked OK so do some stuff */
+        				EditText text = (EditText) textEntryView.findViewById(R.id.new_notebook_title);
+        				String title = text.toString();
+        				Bookshelf.getBookshelf().newBook(title);
         		}})
         		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
-        				/* User clicked cancel so do some stuff */
+        				// do nothing
         		}})
         		.create();
+        	
+        	textEntryView.findViewById(R.id.new_notebook_title).setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_ENTER
+                    		&& event.getAction() == KeyEvent.ACTION_UP) {
+                    	String text = ((EditText) v).getText().toString();
+                        int editTextRowCount = text.split("\\n").length;
+                        if (editTextRowCount >= 3) {
+                            int lastBreakIndex = text.lastIndexOf("\n");
+                            String newText = text.substring(0, lastBreakIndex);
+                            ((EditText) v).setText("");
+                            ((EditText) v).append(newText);
+                        }
+                        return true;
+                    }
+                    return false;
+                }});
+
+        	return dlg;
         }
 		return null;
     }
@@ -154,6 +177,7 @@ public class OverviewActivity extends Activity implements
 		tm.sort();
 		tags = Bookshelf.getCurrentBook().filter;
 		tagList.setTagSet(tags);
+		dataChanged();
 	}
 	
 	@Override
