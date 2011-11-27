@@ -50,7 +50,7 @@ public class TagsListActivity extends Activity implements
        	else
        		tagCloud.notifyTagsChanged();
    		updateStatusBar();
-    	Book.getBook().currentPage().touch();
+    	Bookshelf.getCurrentBook().currentPage().touch();
 	}
 	
     public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -133,10 +133,10 @@ public class TagsListActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		
 		Log.d(TAG, "onCreate");
-      	Book.onCreate(getApplicationContext());
+      	Bookshelf.onCreate(getApplicationContext());
 		TagManager tm = TagManager.getTagManager();
 		tm.sort();
-		tags = Book.getBook().currentPage().tags;
+		tags = Bookshelf.getCurrentBook().currentPage().tags;
 		
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);
@@ -157,17 +157,7 @@ public class TagsListActivity extends Activity implements
         bar.setTitle(R.string.title_tag);
         bar.setDisplayShowTitleEnabled(true);
         bar.setDisplayHomeAsUpEnabled(true);
-       
-//        tagButton = new Button(this);
-//        tagButton.setText(R.string.tag_button);
-//        bar.setCustomView(tagButton);
-//        bar.setDisplayShowCustomEnabled(true);
-//      	tagButton.setOnClickListener(
-//      	        new OnClickListener() {
-//      	            public void onClick(View v) {
-//      	            	finish();
-//      	            }});      	
-	}
+}
 
 
 

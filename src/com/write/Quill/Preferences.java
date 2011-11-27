@@ -133,7 +133,7 @@ public class Preferences
 		        switch (button){
 		        case DialogInterface.BUTTON_NEGATIVE:  break;
 		        case DialogInterface.BUTTON_POSITIVE:
-		        	Book.getBook().recoverFromMissingIndex(getApplicationContext());
+		        	Bookshelf.getBookshelf().getCurrentBook().recoverFromMissingIndex(getApplicationContext());
 		        	dialog.dismiss();
 		            break;
 		        }

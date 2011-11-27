@@ -71,7 +71,7 @@ public class ExportActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        book = Book.getBook();
+        book = Bookshelf.getCurrentBook();
         page = book.currentPage();
         
     	LayoutInflater inflater = getLayoutInflater();

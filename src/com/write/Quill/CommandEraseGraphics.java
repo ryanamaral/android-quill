@@ -24,7 +24,7 @@ public class CommandEraseGraphics extends Command {
 	
 	@Override
 	public String toString() {
-		int n = Book.getBook().getPageNumber(getPage());
+		int n = Bookshelf.getCurrentBook().getPageNumber(getPage());
 		return "Remove pen stroke on page "+n;
 	}
 

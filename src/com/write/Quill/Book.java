@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import name.vbraun.view.write.Page;
 import name.vbraun.view.write.TagManager;
@@ -29,22 +30,14 @@ import android.widget.Toast;
 public class Book {
 	private static final String TAG = "Book";
 	private static final String FILENAME_STEM = "quill";
-	
-	// the singleton instance
-	private static Book book = null;
-	private Book() {}
-	
-	// Returns always the same instance 
-	public static Book getBook() {
-		return book;
-	}
-	
-	// Call this in the activity's onCreate method before accessing getBook()
-	public static void onCreate(Context context) {
-      	if (book == null) {
-        	Log.v(TAG, "Reading book from storage.");
-        	Book.load(context);
-        }
+		
+	public Book() {
+		pages.add(new Page());
+		ctime.setToNow();
+		mtime.setToNow();
+		uuid = UUID.randomUUID();
+		title = "New Quill notebook created on "+ctime.format2445();
+		loadingFinishedHook();
 	}
 	
 	// Report page changes to the undo manager
@@ -52,18 +45,29 @@ public class Book {
 	public void setOnBookModifiedListener(BookModifiedListener newListener) {
 		listener = newListener;
 	}
-	
+
+	///////////////////
 	// persistent data
+
+	// the unique identifier
+	protected UUID uuid;
+	
 	// pages is never empty
 	protected final LinkedList<Page> pages = new LinkedList<Page>();
-	protected TagManager.TagSet filter = TagManager.getTagManager().getFilter();
+	protected TagManager.TagSet filter = TagManager.getFilter();
 	protected int currentPage = 0;
 	
 	// The title 
 	protected String title = "Default Quill notebook";
 	
-	Time ctime = new Time();
-	Time mtime = new Time();
+	// creation and last modification time
+	protected Time ctime = new Time();
+	protected Time mtime = new Time();
+
+	// end of persistent data 
+	/////////////////////////
+
+	private boolean allowSave = true;
 	
 	// filteredPages is never empty
 	protected final LinkedList<Page> filteredPages = new LinkedList<Page>();
@@ -154,7 +158,7 @@ public class Book {
 	
 	// to be called from the undo manager
 	public void addPage(Page page, int position) {
-    	Assert.assertFalse("page already in book", book.pages.contains(page));
+    	Assert.assertFalse("page already in book", pages.contains(page));
 		touchAllSubsequentPages(position);
     	pages.add(position, page);
     	updateFilteredPages();
@@ -389,7 +393,7 @@ public class Book {
 		filterChanged();
 	}
 	
-	public void writeToStream(DataOutputStream out) throws IOException {
+	public void writePagesToStream(DataOutputStream out) throws IOException {
 		out.writeInt(1);  // protocol #1
 		out.writeInt(currentPage);
 		out.writeInt(pages.size());
@@ -398,7 +402,7 @@ public class Book {
 			piter.next().writeToStream(out);
 	}
 	
-	public Book loadFromStream(DataInputStream in) throws IOException {
+	public void loadPagesFromStream(DataInputStream in) throws IOException {
 		int version = in.readInt();
 		if (version != 1)	
 			throw new IOException("Unknown version!");
@@ -406,37 +410,27 @@ public class Book {
 		int N = in.readInt();
 		pages.clear();
 		for (int i=0; i<N; i++) {
-			book.pages.add(new Page(in));
+			pages.add(new Page(in));
 		}
 		loadingFinishedHook();
-		return book;
 	}
-	
-	private static Book makeEmptyBook() {
-		Book book = new Book();
-		book.pages.add(new Page());
-		Book.book = book;
-		book.loadingFinishedHook();
-		book.ctime.setToNow();
-		book.mtime.setToNow();
-		return getBook();
-	}
-	
+
 	// Loads the book. This is the complement to the save() method
-	public static Book load(Context context) {
-		Book book = new Book();
+	public Book(Context context) {
 		int n_pages;
 		try {
-			n_pages = book.loadIndex(context);
+			n_pages = loadIndex(context);
 		} catch (IOException e) {
 			Log.e(TAG, "Error opening book index page ");
 			Toast.makeText(context, 
 					"Page index missing, recovering...", Toast.LENGTH_LONG);
-			return recoverFromMissingIndex(context);
+			recoverFromMissingIndex(context);
+			return;
 		}
+		pages.clear();
 		for (int i=0; i<n_pages; i++) {
 			try {
-				book.pages.add(book.loadPage(i, context));
+				pages.add(loadPage(i, context));
 			} catch (IOException e) {
 				Log.e(TAG, "Error loading book page "+i+" of "+n_pages);
 				Toast.makeText(context, 
@@ -445,38 +439,35 @@ public class Book {
 			}
 		}
 		// recover from errors
-		book.loadingFinishedHook();
-		Book.book = book;
-		return getBook();
+		loadingFinishedHook();
 	}
 			
-	// Loads the book. This is the complement to the save() method
-	public static Book recoverFromMissingIndex(Context context) {
-		Book book = new Book();
-		book.title = "Recovered notebook";
-		book.ctime.setToNow();
-		book.mtime.setToNow();
+	protected void recoverFromMissingIndex(Context context) {
+		title = "Recovered notebook";
+		ctime.setToNow();
+		mtime.setToNow();
+		uuid = UUID.randomUUID();
 		int pos = 0;
+		pages.clear();
 		while (true) {
 			Page page;
 			Log.d(TAG, "Trying to recover page "+pos);
 			try {
-				page = book.loadPage(pos++, context);
+				page = loadPage(pos++, context);
 			} catch (IOException e) {
 				break;
 			}
 			page.touch();
-			book.pages.add(page);
+			pages.add(page);
 		}
 		// recover from errors
-		book.loadingFinishedHook();
-		Book.book = book;
-		return getBook();
+		loadingFinishedHook();
 	}
 			
 	// save data internally. Will be used automatically
 	// the next time we start. To load, use the constructor.
 	public void save(Context context) {
+		Assert.assertTrue(allowSave);
 		try {
 			saveIndex(context);
 		} catch (IOException e) {
@@ -501,6 +492,7 @@ public class Book {
 	
 	// Save an archive 
 	public void saveArchive(File file) throws IOException {
+		Assert.assertTrue(allowSave);
 		FileOutputStream fos = new FileOutputStream(file);
 	    BufferedOutputStream buffer;
 	    DataOutputStream dataOut = null;
@@ -516,8 +508,8 @@ public class Book {
 
 	}
 	
-    // Load an archive 
-    public Book loadArchive(File file) throws IOException {
+    // Load an archive; the complement to saveArchive 
+    public Book(File file) throws IOException {
     	FileInputStream fis;
 	    BufferedInputStream buffer;
 	    DataInputStream dataIn = null;
@@ -537,14 +529,13 @@ public class Book {
         if (currentPage <0) currentPage = 0;
         if (currentPage >= pages.size()) currentPage = pages.size() - 1;
 		ListIterator<Page> piter = pages.listIterator(); 
-		while (piter.hasNext())
-			piter.next().touch();
+		touchAllSubsequentPages(0);
 		loadingFinishedHook();
-		return getBook();
     }
     	
     // Peek an archive: load index data but skip pages except for the first one 
-    public void peekArchive(File file) throws IOException {
+    public Book(File file, int pageLimit) throws IOException {
+    	allowSave = false;  // just to be sure that we don't save truncated data back
     	FileInputStream fis;
 	    BufferedInputStream buffer;
 	    DataInputStream dataIn = null;
@@ -553,14 +544,17 @@ public class Book {
     		buffer = new BufferedInputStream(fis);
     		dataIn = new DataInputStream(buffer);
     		int n_pages = loadIndex(dataIn);
+    		n_pages = Math.min(n_pages, pageLimit);
     		pages.clear();
-    		pages.add(loadPage(0, dataIn));
+    		for (int i=0; i<n_pages; i++)
+    			pages.add(loadPage(i, dataIn));
         } finally {
         	if (dataIn != null) dataIn.close();
     	}
         // recover from errors
         if (pages.isEmpty()) pages.add(new Page());
         currentPage = 0;
+		loadingFinishedHook();
     }
         	
 	
@@ -601,14 +595,23 @@ public class Book {
 			title = dataIn.readUTF();
 			ctime.set(dataIn.readLong());
 			mtime.set(dataIn.readLong());
+			uuid = UUID.fromString(dataIn.readUTF());
 			filter = TagManager.loadTagSet(dataIn);
 		} else if (version == 2) {
 			n_pages = dataIn.readInt();
 			currentPage = dataIn.readInt();
+			title = "Imported Quill notebook v2";
+			ctime.setToNow();
+			mtime.setToNow();
+			uuid = UUID.randomUUID();
 			filter = TagManager.loadTagSet(dataIn);
 		} else if (version == 1) {
 			n_pages = dataIn.readInt();
 			currentPage = dataIn.readInt();
+			title = "Imported Quill notebook v1";
+			ctime.setToNow();
+			mtime.setToNow();
+			uuid = UUID.randomUUID();
 			filter = TagManager.newTagSet();
 		} else
 			throw new IOException("Unknown version in load_index()");				
@@ -623,6 +626,7 @@ public class Book {
 		dataOut.writeUTF(title);
 		dataOut.writeLong(ctime.toMillis(false));
 		dataOut.writeLong(mtime.toMillis(false));
+		dataOut.writeUTF(uuid.toString());
 		filter.write_to_stream(dataOut);
 	}
 

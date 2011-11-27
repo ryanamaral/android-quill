@@ -1,10 +1,11 @@
-package com.write.Quill;
+package name.vbraun.view.tag;
 
 
 import name.vbraun.view.write.TagManager.Tag;
 import name.vbraun.view.write.TagManager.TagSet;
 
 import com.write.Quill.R;
+import com.write.Quill.R.layout;
 
 import android.content.Context;
 import android.graphics.Color;

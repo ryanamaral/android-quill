@@ -217,5 +217,4 @@ public class TagManager {
 	public static TagSet getFilter() {
 		return filter;
 	}
-
 }

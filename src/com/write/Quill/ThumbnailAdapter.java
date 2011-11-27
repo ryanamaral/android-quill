@@ -39,7 +39,7 @@ public class ThumbnailAdapter extends BaseAdapter {
 	}
 
     public int getCount() {
-        return Book.getBook().filteredPagesSize();
+        return Bookshelf.getCurrentBook().filteredPagesSize();
     }
 
     public Object getItem(int position) {
@@ -112,7 +112,7 @@ public class ThumbnailAdapter extends BaseAdapter {
     }
     
     private void computeItemHeights() {
-    	LinkedList<Page> pages = Book.getBook().filteredPages;
+    	LinkedList<Page> pages = Bookshelf.getCurrentBook().filteredPages;
     	heightOfItem = new int[pages.size()];
     	ListIterator<Page> iter = pages.listIterator();
     	int pos = 0;
@@ -145,7 +145,7 @@ public class ThumbnailAdapter extends BaseAdapter {
             thumb = (Thumbnail) convertView;
         }
         // Log.d(TAG, "getView "+position);
-        Book book = Book.getBook();
+        Book book = Bookshelf.getCurrentBook();
       //  Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
         Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
         thumb.page = page;
@@ -164,7 +164,7 @@ public class ThumbnailAdapter extends BaseAdapter {
 	}
 	
     public void checkedStateChanged(int position, boolean checked) {
-        Book book = Book.getBook();
+        Book book = Bookshelf.getCurrentBook();
     	Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
     	selectedPages.put(page, checked);
     }

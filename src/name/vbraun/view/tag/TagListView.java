@@ -5,7 +5,6 @@ import name.vbraun.view.write.TagManager;
 import name.vbraun.view.write.TagManager.TagSet;
 
 import com.write.Quill.R;
-import com.write.Quill.TagSetAdapter;
 import com.write.Quill.R.id;
 import com.write.Quill.R.layout;
 

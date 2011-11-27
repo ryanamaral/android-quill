@@ -72,6 +72,7 @@ public class QuillWriterActivity extends Activity {
 	public static final int DIALOG_PAPER_ASPECT = 3;
 	public static final int DIALOG_PAPER_TYPE = 4;
 
+	private Bookshelf bookshelf = null;
 	private Book book = null;
 	
     private HandwriterView mView;
@@ -98,8 +99,9 @@ public class QuillWriterActivity extends Activity {
         if (changeLog.firstRun())
             changeLog.getLogDialog().show();
 
-      	Book.onCreate(getApplicationContext());
-      	book = Book.getBook();
+      	Bookshelf.onCreate(getApplicationContext());
+      	bookshelf = Bookshelf.getBookshelf();
+      	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -250,12 +252,14 @@ public class QuillWriterActivity extends Activity {
     		if (resultCode == Preferences.RESULT_RESTORE_BACKUP) {
     			String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
     			try {
-    				book.loadArchive(new File(filename));
+    				bookshelf.importBook(new File(filename));
     			} catch (IOException e) {
     				Log.e(TAG, "Error loading th)e backup file, sorry");
     				return;
     			}
     		}
+    		book = Bookshelf.getCurrentBook();
+    		UndoManager.getUndoManager().clearHistory();
         	mView.setPageAndZoomOut(book.currentPage());
         	return;
    		// case ACTIVITY_TAG_FILTER:
@@ -286,7 +290,8 @@ public class QuillWriterActivity extends Activity {
     	}
     }
     
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
+    @Override 
+    public boolean onOptionsItemSelected(MenuItem item) {
     	Intent i;
     	switch (item.getItemId()) {
     	case R.id.prev_pen:
@@ -504,6 +509,7 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
     	UndoManager.setApplication(this);
+    	book = Bookshelf.getCurrentBook();
         if (book != null) {
         	if (mView.getPage() == book.currentPage()) {
         		book.filterChanged();
@@ -571,8 +577,7 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onPause() {
     	Log.d(TAG, "onPause");
     	super.onPause();
-        if (book != null)
-        	book.save(getApplicationContext());
+        bookshelf.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.getPenType().ordinal());

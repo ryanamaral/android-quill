@@ -11,6 +11,9 @@ import com.write.Quill.ThumbnailAdapter.Thumbnail;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -20,6 +23,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.content.DialogInterface;
+
 
 public class OverviewActivity extends Activity implements 
 	AdapterView.OnItemClickListener {
@@ -27,12 +33,14 @@ public class OverviewActivity extends Activity implements
 	private static final String TAG = "Overview";
 	
 	private View layout;
+	private Menu menu;
+	
 	protected TagListView tagList;
 	protected ThumbnailView thumbnailGrid;
 	
 	protected TagManager tagManager = TagManager.getTagManager();
 	protected TagSet tags = TagManager.newTagSet();
-
+	
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		switch (parent.getId()) {
 		case R.id.tag_list:
@@ -44,7 +52,7 @@ public class OverviewActivity extends Activity implements
 	    	tagsChanged(true);
 			break;
 		case R.id.thumbnail_grid:
-			Book book = Book.getBook();
+			Book book = Bookshelf.getCurrentBook();
 			Thumbnail thumb = (Thumbnail)view; 
 			book.setCurrentPage(thumb.page);
 			finish();
@@ -52,10 +60,18 @@ public class OverviewActivity extends Activity implements
 		}
 		Log.d(TAG, "Click: "+tags.size());
 	}
-
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu mMenu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.overview, mMenu);
+        menu = mMenu;
+        return true;
+    }
+	
 	protected void tagsChanged(boolean onlySelection) {
        	tagList.notifyTagsChanged();
-		Book.getBook().filterChanged();
+		Bookshelf.getCurrentBook().filterChanged();
        	thumbnailGrid.notifyTagsChanged();
 	}
 	
@@ -63,31 +79,62 @@ public class OverviewActivity extends Activity implements
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent i;
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
 	        	finish();
+	        	return true;
+	        case R.id.switch_notebook:
+	    		i = new Intent(getApplicationContext(), BookshelfActivity.class);    
+	        	startActivity(i);
+	        	return true;
+	        case R.id.new_notebook:
+                showDialog(DIALOG_NEW_NOTEBOOK);
 	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 	
+	
+    private static final int DIALOG_NEW_NOTEBOOK = 0;
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+        case DIALOG_NEW_NOTEBOOK:
+        	LayoutInflater factory = LayoutInflater.from(this);
+        	final View textEntryView = factory.inflate(R.layout.new_notebook, null);
+        	return new AlertDialog.Builder(this)
+        		.setIconAttribute(android.R.attr.alertDialogIcon)
+        		.setTitle("Create new notebook")
+        		.setView(textEntryView)
+        		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+
+        				/* User clicked OK so do some stuff */
+        		}})
+        		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+        			public void onClick(DialogInterface dialog, int whichButton) {
+        				/* User clicked cancel so do some stuff */
+        		}})
+        		.create();
+        }
+		return null;
+    }
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-      	Book.onCreate(getApplicationContext());
-		
-		TagManager tm = TagManager.getTagManager();
-		tm.sort();
-		tags = Book.getBook().filter;
-		
+      	Bookshelf.onCreate(getApplicationContext());
+
 		layout = getLayoutInflater().inflate(R.layout.overview, null);
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
 		tagList.setOnItemClickListener(this);
 		Assert.assertTrue("Tag list not created.", tagList != null);
-		tagList.setTagSet(tags);
 		tagList.showNewTextEdit(false);
 		
 		thumbnailGrid = (ThumbnailView) findViewById(R.id.thumbnail_grid);
@@ -100,8 +147,20 @@ public class OverviewActivity extends Activity implements
         bar.setDisplayHomeAsUpEnabled(true);
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+      	TagManager tm = TagManager.getTagManager();
+		tm.sort();
+		tags = Bookshelf.getCurrentBook().filter;
+		tagList.setTagSet(tags);
+	}
 	
-	
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+		
     private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
