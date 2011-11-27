@@ -185,6 +185,7 @@ public class Bookshelf {
 					Toast.LENGTH_LONG);	
 		} 
 		UndoManager.getUndoManager().clearHistory();
+		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
 	}
 	
 	
