@@ -114,7 +114,7 @@ public class OverviewActivity extends Activity implements
         		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
         				EditText text = (EditText) textEntryView.findViewById(R.id.new_notebook_title);
-        				String title = text.toString();
+        				String title = text.getText().toString();
         				Bookshelf.getBookshelf().newBook(title);
         		}})
         		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
@@ -128,13 +128,14 @@ public class OverviewActivity extends Activity implements
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if (keyCode == KeyEvent.KEYCODE_ENTER
                     		&& event.getAction() == KeyEvent.ACTION_UP) {
-                    	String text = ((EditText) v).getText().toString();
+                    	EditText editText = (EditText)v;
+                    	String text = editText.getText().toString();
                         int editTextRowCount = text.split("\\n").length;
                         if (editTextRowCount >= 3) {
                             int lastBreakIndex = text.lastIndexOf("\n");
                             String newText = text.substring(0, lastBreakIndex);
-                            ((EditText) v).setText("");
-                            ((EditText) v).append(newText);
+                            editText.setText("");
+                            editText.append(newText);
                         }
                         return true;
                     }
@@ -185,6 +186,7 @@ public class OverviewActivity extends Activity implements
 		super.onPause();
 	}
 		
+	
     private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {

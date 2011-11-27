@@ -28,6 +28,7 @@ public class Bookshelf {
 			file = f;
 			preview = new Book(file, 1);
 		}
+		public UUID getUUID() { return preview.uuid; }
 		public String getTitle() { return preview.title; }
 		public String getSummary() {
 			int fmt = DateUtils.FORMAT_SHOW_DATE + DateUtils.FORMAT_SHOW_TIME + 
@@ -103,6 +104,40 @@ public class Bookshelf {
 	private void saveBook(Book b) throws IOException {
 		File file = fileFromUUID(b.uuid);
 		b.saveArchive(file);
+	}
+	
+	public void deleteBook(UUID uuid) {
+		if (data.size() <= 1) {
+			Toast.makeText(context, 
+					"Cannot delete last notebook", Toast.LENGTH_LONG);
+			return;
+		}
+		if (uuid.equals(currentBook.uuid)) {
+			ListIterator<Notebook> iter = data.listIterator();
+			while (iter.hasNext()) {
+				Notebook nb = iter.next();
+				if (nb.getUUID().equals(uuid)) 
+					continue;
+				setCurrentBook(nb);
+				break;
+			}
+		}
+		ListIterator<Notebook> iter = data.listIterator();
+		while (iter.hasNext()) {
+			Notebook nb = iter.next();
+			if (nb.getUUID().equals(uuid)) { 
+				boolean rc = nb.file.delete();
+				if (rc == false) {
+					Log.e(TAG, "Delete failed");
+					Toast.makeText(context, 
+							"Delete failed", Toast.LENGTH_LONG);
+					return;		
+				}
+				data.remove(nb);
+				return;
+			}
+		}
+		Assert.fail("Notebook to delete does not exist");
 	}
 	
 	public void save() {
