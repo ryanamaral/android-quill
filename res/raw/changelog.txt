@@ -20,6 +20,12 @@
     </style>
   </head>
   <body>
+$ 7.0
+  % Version 7.0
+  _ 2011-11-27
+    * Implemented multiple notebooks
+    * Undo/redo
+    * Nicer icons
 $ 6.2
   % Version 6.2
   _ 2011-11-25

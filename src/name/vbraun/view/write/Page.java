@@ -26,6 +26,8 @@ public class Page {
 	private static final String TAG = "Page";
 	private final Background background = new Background();
 	
+	private TagManager tagManager;
+	
 	// persistent data
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	public final TagManager.TagSet tags;
@@ -177,8 +179,9 @@ public class Page {
 			siter.next().writeToStream(out);
 	}
 	
-	public Page() {
-		tags = TagManager.newTagSet();
+	public Page(TagManager tagMgr) {
+		tagManager = tagMgr;
+		tags = tagManager.newTagSet();
 		setPaperType(paper_type);
 		setAspectRatio(aspect_ratio);
 		setTransform(transformation);
@@ -186,6 +189,7 @@ public class Page {
 	}
 
 	public Page(Page template) {
+		tagManager = template.tagManager;
 		tags = template.tags.copy();
 		setPaperType(template.paper_type);
 		setAspectRatio(template.aspect_ratio);
@@ -194,8 +198,9 @@ public class Page {
 	}
 	
 
-	public Page(DataInputStream in) throws IOException {
-		tags = TagManager.newTagSet();
+	public Page(DataInputStream in, TagManager tagMgr) throws IOException {
+		tagManager = tagMgr;
+		tags = tagManager.newTagSet();
 		
 		int version = in.readInt();
 		if (version == 1) {
@@ -205,7 +210,7 @@ public class Page {
 			in.readInt();
 			in.readInt();
 		} else if (version == 3) {
-			tags.set(TagManager.loadTagSet(in));
+			tags.set(tagManager.loadTagSet(in));
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();

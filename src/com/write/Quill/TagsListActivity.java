@@ -40,8 +40,8 @@ public class TagsListActivity extends Activity implements
 	protected TextView status;
 	protected Menu menu;
 	
-	protected TagManager tagManager = TagManager.getTagManager();
-	protected TagSet tags = TagManager.newTagSet();
+	protected TagManager tagManager;
+	protected TagSet tags;
 	
 	protected void tagsChanged(boolean onlySelection) {
        	tagList.notifyTagsChanged();
@@ -59,8 +59,7 @@ public class TagsListActivity extends Activity implements
     	EditText text = (EditText)v;
         if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
             (keyCode == KeyEvent.KEYCODE_ENTER)) {
-        	TagManager tm = TagManager.getTagManager();
-        	Tag t = tm.makeTag(text.getText().toString());
+        	Tag t = tagManager.makeTag(text.getText().toString());
         	tags.add(t);
         	tagsChanged(false);
         	return true;
@@ -134,8 +133,9 @@ public class TagsListActivity extends Activity implements
 		
 		Log.d(TAG, "onCreate");
       	Bookshelf.onCreate(getApplicationContext());
-		TagManager tm = TagManager.getTagManager();
-		tm.sort();
+      	Book book = Bookshelf.getCurrentBook();
+		tagManager = book.getTagManager();
+		tagManager.sort();
 		tags = Bookshelf.getCurrentBook().currentPage().tags;
 		
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);

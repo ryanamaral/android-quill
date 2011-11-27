@@ -360,7 +360,8 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.page_delete:
     		toast("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
-    		mView.setPageAndZoomOut(book.deletePage());
+    		book.deletePage();
+    		mView.setPageAndZoomOut(book.currentPage());
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
@@ -453,6 +454,7 @@ public class QuillWriterActivity extends Activity {
     }
     
     private void menu_prepare_page_has_changed() {
+    	if (mMenu == null) return;
     	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().isReadonly());
 		boolean first = (book.isFirstPage());
 		boolean last  = (book.isLastPage());
@@ -518,7 +520,8 @@ public class QuillWriterActivity extends Activity {
         		mView.setPageAndZoomOut(book.currentPage());
         	}
         }
-        
+    	updateUndoRedoIcons();
+
         if (hw==null)
     		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
         boolean hwPen = hw.hasPenDigitizer();
@@ -577,7 +580,7 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onPause() {
     	Log.d(TAG, "onPause");
     	super.onPause();
-        bookshelf.save();
+        book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.getPenType().ordinal());

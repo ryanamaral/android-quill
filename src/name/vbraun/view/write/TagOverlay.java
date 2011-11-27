@@ -2,6 +2,8 @@ package name.vbraun.view.write;
 
 import java.util.ListIterator;
 
+import com.write.Quill.Bookshelf;
+
 import name.vbraun.view.write.TagManager.Tag;
 import name.vbraun.view.write.TagManager.TagSet;
 
@@ -26,7 +28,7 @@ public class TagOverlay {
 	private final StaticLayout layout;
 	
 	public TagOverlay(TagSet ts) {
-		TagSet filter = TagManager.getFilter();
+		TagSet filter = Bookshelf.getCurrentBook().getFilter();
 		tagSet = ts;
 		style.setTextAlign(Align.RIGHT);
 		style.setAntiAlias(true);

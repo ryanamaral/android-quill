@@ -13,8 +13,7 @@ import android.util.Log;
 
 public class TagManager {
 	private static final String TAG = "TagManager";
-	private static TagManager tagManager = new TagManager(); 
-	private static LinkedList<Tag> tags = new LinkedList<Tag>();
+	private LinkedList<Tag> allTags = new LinkedList<Tag>();
 	
 	public class Tag {
 		protected String name;
@@ -115,7 +114,7 @@ public class TagManager {
 		}
 		
 		public LinkedList<Tag> allTags() {
-			return tagManager.tags;
+			return allTags;
 		}
 		
 		public int size() {
@@ -156,22 +155,16 @@ public class TagManager {
 	}
 	
 	
-	private TagManager() {}
-	
-	public static TagManager getTagManager() {
-		return tagManager;
+	public TagSet newTagSet() {
+		return new TagSet();
 	}
 	
-	public static TagSet newTagSet() {
-		return tagManager.new TagSet();
-	}
-	
-	public static TagSet loadTagSet(DataInputStream in) throws IOException {
-		return tagManager.new TagSet(in);
+	public TagSet loadTagSet(DataInputStream in) throws IOException {
+		return new TagSet(in);
 	}
 	
 	public Tag findTag(String name) {
-		ListIterator<Tag> iter = tags.listIterator();
+		ListIterator<Tag> iter = allTags.listIterator();
 		while (iter.hasNext()) {
 			Tag t = iter.next();
 			if (name.equalsIgnoreCase(t.name))
@@ -184,17 +177,17 @@ public class TagManager {
 		Tag t = findTag(name);
 		if (t == null)
 			t = new Tag(name);
-		tags.add(t);
-		Log.d(TAG, "Created new tag "+name+" "+tagManager.tags.size());
+		allTags.add(t);
+		Log.d(TAG, "Created new tag "+name+" "+allTags.size());
 		return t;
 	}
 	
 	public Tag get(int position) {
-		return tags.get(position);
+		return allTags.get(position);
 	}
 	
 	public void sort() {
-		Collections.sort(tags, new CompareCount());
+		Collections.sort(allTags, new CompareCount());
 	}
 	
 	public class CompareCount implements Comparator<Tag> {
@@ -212,9 +205,9 @@ public class TagManager {
 		}
 	}
 	
-	private static TagSet filter = newTagSet();
-	
-	public static TagSet getFilter() {
-		return filter;
-	}
+//	private final TagSet filter = newTagSet();
+//	
+//	public TagSet getFilter() {
+//		return filter;
+//	}
 }

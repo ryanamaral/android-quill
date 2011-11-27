@@ -118,7 +118,7 @@ public class Bookshelf {
 				Notebook nb = iter.next();
 				if (nb.getUUID().equals(uuid)) 
 					continue;
-				setCurrentBook(nb);
+				setCurrentBook(nb, false);
 				break;
 			}
 		}
@@ -140,16 +140,16 @@ public class Bookshelf {
 		Assert.fail("Notebook to delete does not exist");
 	}
 	
-	public void save() {
-		getCurrentBook().save(context);
-		try {
-			saveBook(getCurrentBook());
-		} catch (IOException ex) {
-			Log.e(TAG, "Error saving notebook");
-			Toast.makeText(context, "Error saving notebook", 
-					Toast.LENGTH_LONG);	
-		}
-	}
+//	public void save() {
+//		getCurrentBook().save(context);
+//		try {
+//			saveBook(getCurrentBook());
+//		} catch (IOException ex) {
+//			Log.e(TAG, "Error saving notebook");
+//			Toast.makeText(context, "Error saving notebook", 
+//					Toast.LENGTH_LONG);	
+//		}
+//	}
 	
 	public void importBook(File file) throws IOException {
 		saveBook(getCurrentBook());
@@ -170,16 +170,21 @@ public class Bookshelf {
 					Toast.LENGTH_LONG);	
 		}
 	}
-
+	
 	public void setCurrentBook(Notebook nb) {
+		setCurrentBook(nb, true);
+	}
+
+	public void setCurrentBook(Notebook nb, boolean saveCurrent) {
 		try {
-			saveBook(getCurrentBook());
+			if (saveCurrent) saveBook(getCurrentBook());
 			currentBook = new Book(nb.file);
 		} catch (IOException ex) {
 			Log.e(TAG, "Error loading book");
 			Toast.makeText(context, "Error saving notebook", 
 					Toast.LENGTH_LONG);	
 		} 
+		UndoManager.getUndoManager().clearHistory();
 	}
 	
 	

@@ -40,8 +40,8 @@ public class OverviewActivity extends Activity implements
 	protected TagListView tagList;
 	protected ThumbnailView thumbnailGrid;
 	
-	protected TagManager tagManager = TagManager.getTagManager();
-	protected TagSet tags = TagManager.newTagSet();
+	protected TagManager tagManager;
+	protected TagSet tags;
 	
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		switch (parent.getId()) {
@@ -116,6 +116,7 @@ public class OverviewActivity extends Activity implements
         				EditText text = (EditText) textEntryView.findViewById(R.id.new_notebook_title);
         				String title = text.getText().toString();
         				Bookshelf.getBookshelf().newBook(title);
+        				reloadTags();
         		}})
         		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
         			public void onClick(DialogInterface dialog, int whichButton) {
@@ -171,14 +172,19 @@ public class OverviewActivity extends Activity implements
         bar.setDisplayHomeAsUpEnabled(true);
 	}
 	
+	private void reloadTags() {
+		Book book = Bookshelf.getCurrentBook();
+      	tagManager = book.getTagManager();
+		tagManager.sort();
+		tags = Bookshelf.getCurrentBook().getFilter();
+		tagList.setTagSet(tags);
+		dataChanged();	
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
-      	TagManager tm = TagManager.getTagManager();
-		tm.sort();
-		tags = Bookshelf.getCurrentBook().filter;
-		tagList.setTagSet(tags);
-		dataChanged();
+		reloadTags();
 	}
 	
 	@Override
