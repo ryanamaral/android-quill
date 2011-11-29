@@ -13,8 +13,8 @@
     </string-array>
     <string-array name="export_file_format">
         <item>Current page as raster image (PNG)</item><item>Current page as vector graphics (PDF)</item>
-        <item >Tagged pages as vector graphics (PDF)</item><item >All notes as vector graphics (PDF)</item>
-        <item>All notes as Quill backup archive</item>
+        <item >Tagged pages as vector graphics (PDF)</item><item >Whole notebook as vector graphics (PDF)</item>
+        <item>Whole notebook as Quill backup archive</item>
         
         
     </string-array>

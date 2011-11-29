@@ -1,6 +1,10 @@
 package com.write.Quill;
 
+import java.util.LinkedList;
+import java.util.ListIterator;
+
 import name.vbraun.view.tag.TagListView;
+import name.vbraun.view.write.Page;
 import name.vbraun.view.write.TagManager;
 import name.vbraun.view.write.TagManager.Tag;
 import name.vbraun.view.write.TagManager.TagSet;
@@ -13,6 +17,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +41,7 @@ public class OverviewActivity extends Activity implements
 	
 	private View layout;
 	private Menu menu;
+	private ProgressDialog progress;
 	
 	protected TagListView tagList;
 	protected ThumbnailView thumbnailGrid;
@@ -93,14 +99,25 @@ public class OverviewActivity extends Activity implements
 	        case R.id.new_notebook:
                 showDialog(DIALOG_NEW_NOTEBOOK);
 	        	return true;
+	        case R.id.send_to_evernote:
+	        	// progress = ProgressDialog.show(this, "", "Exporting pages...", true);
+	        	sendToEvernote();
+	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 	
+	public void sendToEvernote() {
+		Book book = Bookshelf.getCurrentBook();
+		LinkedList<Page> pages = book.getFilteredPages();
+		EvernoteExporter evernote = new EvernoteExporter(book, pages);
+		evernote.doExport(this);
+	}
+	
 	
     private static final int DIALOG_NEW_NOTEBOOK = 0;
-
+    
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {

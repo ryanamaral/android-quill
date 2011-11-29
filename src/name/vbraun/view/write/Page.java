@@ -43,6 +43,9 @@ public class Page {
 	private final RectF mRectF = new RectF();
 	private final Paint paint = new Paint();
 	
+	public TagSet getTags() {
+		return tags;
+	}
 	
 	public boolean is_empty() {
 		return strokes.isEmpty();

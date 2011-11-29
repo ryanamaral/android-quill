@@ -158,6 +158,10 @@ public class Book {
 		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
 	}
 
+	public String getTitle() {
+		return title;
+	}
+	
 	public Page getPage(int n) {
 		return pages.get(n);
 	}
@@ -688,6 +692,14 @@ public class Book {
 	private void savePage(int i, DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book page " + i);
 		pages.get(i).writeToStream(dataOut);
+	}
+
+	public LinkedList<Page> getFilteredPages() {
+		return filteredPages;
+	}
+
+	public LinkedList<Page> getPages() {
+		return pages;
 	}
 
 }

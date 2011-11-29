@@ -288,8 +288,8 @@ public class ExportActivity
     	}
     	switch (range) {
     	case CURRENT_PAGE:     	pdfExporter.add(page); break;
-    	case TAGGED_PAGES:     	pdfExporter.add(book.filteredPages); break;
-    	case ALL_PAGES:      	pdfExporter.add(book.pages); break;
+    	case TAGGED_PAGES:     	pdfExporter.add(book.getFilteredPages()); break;
+    	case ALL_PAGES:      	pdfExporter.add(book.getPages()); break;
     	}
         exportThread = new Thread(new Runnable() {
             public void run() {
