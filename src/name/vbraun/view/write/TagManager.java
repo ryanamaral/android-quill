@@ -187,7 +187,8 @@ public class TagManager {
 	}
 	
 	public void sort() {
-		Collections.sort(allTags, new CompareCount());
+		// Collections.sort(allTags, new CompareCount());
+		Collections.sort(allTags, new CompareLexicographic());
 	}
 	
 	public class CompareCount implements Comparator<Tag> {
@@ -202,6 +203,13 @@ public class TagManager {
 			} else {
 				return 1;
 			}
+		}
+	}
+
+	public class CompareLexicographic implements Comparator<Tag> {
+		@Override
+		public int compare(Tag t0, Tag t1) {
+			return t0.name.compareTo(t1.name);
 		}
 	}
 	

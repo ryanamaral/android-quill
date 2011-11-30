@@ -10,12 +10,16 @@ import java.util.ListIterator;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,8 +27,24 @@ import name.vbraun.view.write.Page;
 import name.vbraun.view.write.TagManager.Tag;
 import name.vbraun.view.write.TagManager.TagSet;
 
-public class EvernoteExporter {
-	private final static String TAG = "EvernoteExporter";
+public class EvernoteExportDialog 
+	extends ProgressDialog 
+	implements DialogInterface.OnCancelListener,
+		DialogInterface.OnClickListener {
+	private final static String TAG = "EvernoteExportDialog";
+
+	public EvernoteExportDialog(Context c) {
+		super(c);
+		context = c;   
+		setIndeterminate(false);
+		setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		setTitle("Send to Evernote");
+		setMessage("Compressing pages...");
+		setCancelable(true);
+		setCanceledOnTouchOutside(true);
+		setOnCancelListener(this);
+		setButton(BUTTON_NEGATIVE, "Cancel", this);
+	}
 	
     // Names of Evernote-specific Intent actions and extras
     public static final String ACTION_NEW_NOTE             = "com.evernote.action.CREATE_NEW_NOTE";
@@ -33,7 +53,13 @@ public class EvernoteExporter {
     public static final String EXTRA_AUTHOR                = "AUTHOR";
     public static final String EXTRA_QUICK_SEND            = "QUICK_SEND";
     public static final String EXTRA_TAGS                  = "TAG_NAME_LIST";
-
+    
+    private Context context;
+	private Thread exportThread;
+	private boolean cancel;
+	private int progress;
+	private Handler handler = new Handler();
+	
     private Book book;
     private LinkedList<Page> pages;
     private UUID uuid;
@@ -42,7 +68,36 @@ public class EvernoteExporter {
     private ArrayList<File> fileList = new ArrayList<File>();
 	private ArrayList<Uri> uriList = new ArrayList<Uri>();
     
-    public EvernoteExporter(Book exportBook, LinkedList<Page> exportPages) {
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		cancel = true;
+	}
+	
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		if (which == BUTTON_NEGATIVE)
+			cancel = true;		
+	}
+
+	@Override
+	public void onStart() {
+		fileList.clear();
+		uriList.clear();
+		cancel = false;
+		progress = 0;
+		super.onStart();
+		doExport();
+        handler.post(mUpdateProgress);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		handler.removeCallbacks(mUpdateProgress);
+	}
+	
+    public void setPages(Book exportBook, LinkedList<Page> exportPages) {
     	book = exportBook;
     	pages = exportPages;
     	tagSet = book.getTagManager().newTagSet();
@@ -51,22 +106,27 @@ public class EvernoteExporter {
     		Page p = iter.next();
     		tagSet.add(p.getTags());
     	}
+    	setMax(pages.size()+1);
     }
     
-    public void setUuid(UUID id) {
+    public void setUUID(UUID id) {
     	uuid = id;
     }
 
-    int width = 800;
-    int height = 800;
-    
-    
-    private void renderPages(Context context) {
-    	File dir = Environment.getExternalStorageDirectory();
+    private int width = 800;
+    private int height = 1280;
+   
+    private void renderPages() {
+    	File dir = context.getExternalCacheDir();
     	ListIterator<Page> iter = pages.listIterator();
     	FileOutputStream outStream;
+    	Log.d(TAG, dir.getAbsolutePath());
+    	progress = 0;
     	while (iter.hasNext()) {
-    		File file = new File(dir, iter.toString()+".png");
+    		if (cancel) return;
+    		UUID id = UUID.randomUUID();
+    		File file = new File(dir, id.toString()+".png");
+    		progress ++;
 			Log.e(TAG, "Writing file "+file.toString());
 			try {
     			outStream = new FileOutputStream(file);
@@ -84,13 +144,27 @@ public class EvernoteExporter {
             	Toast.makeText(context, "Unable to close file "+file.toString(), Toast.LENGTH_LONG).show();
             	return;     		
         	}
+        	file.deleteOnExit();
     		fileList.add(file);
     		uriList.add(Uri.fromFile(file));
     	}
     }
     
     
-    public void doExport(Activity activity) {
+    private void doExport() {
+    	// progress = ProgressDialog.show(this, "", "Exporting pages...", true);
+        exportThread = new Thread(new Runnable() {
+            public void run() {
+            	renderPages();
+            	if (!cancel)
+            		send();
+            	dismiss();
+            }});
+        // exportThread.setPriority(Thread.MIN_PRIORITY);
+        exportThread.start();
+    }
+    	
+    private void send() {
         Intent intent = new Intent();
         intent.setAction(ACTION_NEW_NOTE);
         intent.putExtra(Intent.EXTRA_TITLE, book.getTitle());
@@ -103,33 +177,30 @@ public class EvernoteExporter {
         	tags.add(iter.next().toString());
         Collections.sort(tags);
         intent.putExtra(EXTRA_TAGS, tags);
-        
         if (uuid != null) {
         	String notebookGuid = uuid.toString();
         	intent.putExtra(EXTRA_NOTE_GUID, notebookGuid);
         }
         
         intent.putExtra(EXTRA_SOURCE_APP, "Quill");
-        
-     //   intent.putExtra(EXTRA_QUICK_SEND, true);
-    
-        renderPages(activity.getApplicationContext());
+        intent.putExtra(EXTRA_QUICK_SEND, true);
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM , uriList);
         try {
-        	activity.startActivity(intent);
+        	context.startActivity(intent);
         } catch (android.content.ActivityNotFoundException ex) {
-        	Toast.makeText(activity, activity.getString(R.string.err_evernote_not_found), 
+        	Toast.makeText(context, context.getString(R.string.err_evernote_not_found), 
         			Toast.LENGTH_LONG).show();
         } 
-        cleanUp();
     }
 
     
-    private void cleanUp() {
-    	ListIterator<File> iter = fileList.listIterator();
-    	while (iter.hasNext()) {
-    		File f = iter.next();
-    		f.delete();
-    	}
-    }
+    
+    private Runnable mUpdateProgress = new Runnable() {
+ 	   public void run() {
+// 		   exportButton.setPressed(true); 		   
+ 		   setProgress(progress);
+ 		   handler.postDelayed(mUpdateProgress, 100);
+ 	   }
+ 	};
+	
 }

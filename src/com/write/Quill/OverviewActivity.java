@@ -41,7 +41,6 @@ public class OverviewActivity extends Activity implements
 	
 	private View layout;
 	private Menu menu;
-	private ProgressDialog progress;
 	
 	protected TagListView tagList;
 	protected ThumbnailView thumbnailGrid;
@@ -100,72 +99,82 @@ public class OverviewActivity extends Activity implements
                 showDialog(DIALOG_NEW_NOTEBOOK);
 	        	return true;
 	        case R.id.send_to_evernote:
-	        	// progress = ProgressDialog.show(this, "", "Exporting pages...", true);
-	        	sendToEvernote();
+                showDialog(DIALOG_SEND_TO_EVERNOTE);
 	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 	
-	public void sendToEvernote() {
-		Book book = Bookshelf.getCurrentBook();
-		LinkedList<Page> pages = book.getFilteredPages();
-		EvernoteExporter evernote = new EvernoteExporter(book, pages);
-		evernote.doExport(this);
-	}
-	
 	
     private static final int DIALOG_NEW_NOTEBOOK = 0;
-    
+    private static final int DIALOG_SEND_TO_EVERNOTE = 1;
+
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_NEW_NOTEBOOK:
-        	LayoutInflater factory = LayoutInflater.from(this);
-        	final View textEntryView = factory.inflate(R.layout.new_notebook, null);
-        	AlertDialog dlg = new AlertDialog.Builder(this)
-        		.setIconAttribute(android.R.attr.alertDialogIcon)
-        		.setTitle("Create new notebook")
-        		.setView(textEntryView)
-        		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
-        			public void onClick(DialogInterface dialog, int whichButton) {
-        				EditText text = (EditText) textEntryView.findViewById(R.id.new_notebook_title);
-        				String title = text.getText().toString();
-        				Bookshelf.getBookshelf().newBook(title);
-        				reloadTags();
-        		}})
-        		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-        			public void onClick(DialogInterface dialog, int whichButton) {
-        				// do nothing
-        		}})
-        		.create();
-        	
-        	textEntryView.findViewById(R.id.new_notebook_title).setOnKeyListener(new View.OnKeyListener() {
-                @Override
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (keyCode == KeyEvent.KEYCODE_ENTER
-                    		&& event.getAction() == KeyEvent.ACTION_UP) {
-                    	EditText editText = (EditText)v;
-                    	String text = editText.getText().toString();
-                        int editTextRowCount = text.split("\\n").length;
-                        if (editTextRowCount >= 3) {
-                            int lastBreakIndex = text.lastIndexOf("\n");
-                            String newText = text.substring(0, lastBreakIndex);
-                            editText.setText("");
-                            editText.append(newText);
-                        }
-                        return true;
-                    }
-                    return false;
-                }});
-
-        	return dlg;
+        	return createNewNotebookDialog();
+        case DIALOG_SEND_TO_EVERNOTE:
+        	return new EvernoteExportDialog(this);
         }
 		return null;
     }
-	
-	
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+    	super.onPrepareDialog(id, dialog, args);
+        switch (id) {
+        case DIALOG_SEND_TO_EVERNOTE:
+        	EvernoteExportDialog evernote = (EvernoteExportDialog)dialog;
+    		Book book = Bookshelf.getCurrentBook();
+    		LinkedList<Page> pages = book.getFilteredPages();
+        	evernote.setPages(book, pages);
+        	evernote.setUUID(book.uuid);
+        }    	
+    }
+    
+    private Dialog createNewNotebookDialog() {
+    	LayoutInflater factory = LayoutInflater.from(this);
+    	final View textEntryView = factory.inflate(R.layout.new_notebook, null);
+    	AlertDialog dlg = new AlertDialog.Builder(this)
+    		.setIconAttribute(android.R.attr.alertDialogIcon)
+    		.setTitle("Create new notebook")
+    		.setView(textEntryView)
+    		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+    			public void onClick(DialogInterface dialog, int whichButton) {
+    				EditText text = (EditText) textEntryView.findViewById(R.id.new_notebook_title);
+    				String title = text.getText().toString();
+    				Bookshelf.getBookshelf().newBook(title);
+    				reloadTags();
+    		}})
+    		.setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+    			public void onClick(DialogInterface dialog, int whichButton) {
+    				// do nothing
+    		}})
+    		.create();
+    	
+    	textEntryView.findViewById(R.id.new_notebook_title).setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER
+                		&& event.getAction() == KeyEvent.ACTION_UP) {
+                	EditText editText = (EditText)v;
+                	String text = editText.getText().toString();
+                    int editTextRowCount = text.split("\\n").length;
+                    if (editTextRowCount >= 3) {
+                        int lastBreakIndex = text.lastIndexOf("\n");
+                        String newText = text.substring(0, lastBreakIndex);
+                        editText.setText("");
+                        editText.append(newText);
+                    }
+                    return true;
+                }
+                return false;
+            }});
+    	return dlg;
+    }
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -203,14 +212,8 @@ public class OverviewActivity extends Activity implements
 		super.onResume();
 		reloadTags();
 	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-		
-	
-    private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {
+
+	private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         	// MenuInflater inflater = getMenuInflater();
