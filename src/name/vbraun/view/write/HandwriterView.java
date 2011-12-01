@@ -95,6 +95,14 @@ public class HandwriterView extends View {
 			Assert.fail("Unknown graphics object");
 	}
 	
+	public void interrupt() {
+		Log.d(TAG, "Interrupting current interaction");
+		N = 0;
+		penID = fingerId1 = fingerId2 = -1;
+		page.draw(canvas);
+		invalidate();
+	}
+	
 	public void setPenType(Tool t) {
 		pen_type = t;
 	}
@@ -682,7 +690,6 @@ public class HandwriterView extends View {
 		Stroke s = new Stroke(getPenType(), position_x, position_y, pressure, 0, N);
 		ToolHistory.add(getPenType(), getPenThickness(), pen_color);
 		s.setPen(getPenThickness(), pen_color);
-//		s.getBoundingBox().round(mRect);
 		s.setTransform(page.getTransform());
 		s.applyInverseTransform();
 		s.simplify();
@@ -690,9 +697,6 @@ public class HandwriterView extends View {
 			graphicsListener.onGraphicsCreateListener(page, s);
 		}
 		N = 0;
-//		int extra = -(int)(getScaledPenThickness()/2) - 1;
-//		mRect.inset(extra, extra);
-//		invalidate(mRect);
 	}
 	
 	

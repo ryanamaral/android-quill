@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:enabled="true" android:visible="true" android:menuCategory="container" android:checkableBehavior="none" android:id="@+id/actionbar"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:menuCategory="alternative" android:visible="true" android:enabled="true" android:showAsAction="always" android:checked="true" android:checkable="true" android:icon="@drawable/ic_menu_quill"></item>
-    <item android:id="@+id/pencil" android:title="Pencil" android:menuCategory="container" android:checked="false" android:visible="true" android:checkable="true" android:enabled="true" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item>
-    <item android:id="@+id/move" android:title="Move" android:checked="false" android:menuCategory="container" android:visible="true" android:checkable="true" android:showAsAction="ifRoom" android:enabled="true" android:icon="@drawable/ic_menu_resize"></item>
-    <item android:showAsAction="always" android:menuCategory="container" android:enabled="true" android:checked="false" android:visible="true" android:title="Erase" android:checkable="true" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
+    <group android:enabled="true" android:visible="true" android:menuCategory="container" android:checkableBehavior="none" android:id="@+id/actionbar"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:menuCategory="alternative" android:showAsAction="always" android:icon="@drawable/ic_menu_quill"></item>
+    <item android:id="@+id/pencil" android:title="Pencil" android:menuCategory="container" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item>
+    <item android:id="@+id/move" android:title="Move / Zoom" android:menuCategory="container" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_resize"></item>
+    <item android:showAsAction="always" android:menuCategory="container" android:title="Erase" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
     <item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="ifRoom|withText" android:title="Previous page"></item>
     <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="ifRoom|withText" android:title="Next page"></item>
     <item android:id="@+id/undo" android:icon="@drawable/ic_menu_undo" android:showAsAction="always" android:title="Undo"></item><item android:id="@+id/redo" android:title="Redo" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_redo"></item><item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:visible="true" android:title="Previous pen" android:id="@+id/prev_pen"></item>    

@@ -20,6 +20,13 @@
     </style>
   </head>
   <body>
+$ 7.1
+  % Version 7.1
+  _ 2011-12-01
+    * New launcher icon!
+    * Send multiple pages to Evernote from the page thumbnail window
+    * Tags are now sorted alphabetically
+    * Bugfixes
 $ 7.0
   % Version 7.0
   _ 2011-11-27

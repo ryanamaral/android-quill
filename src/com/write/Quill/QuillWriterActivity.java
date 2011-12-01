@@ -292,6 +292,7 @@ public class QuillWriterActivity extends Activity {
     
     @Override 
     public boolean onOptionsItemSelected(MenuItem item) {
+    	mView.interrupt();
     	Intent i;
     	switch (item.getItemId()) {
     	case R.id.prev_pen:
@@ -580,6 +581,7 @@ public class QuillWriterActivity extends Activity {
     @Override protected void onPause() {
     	Log.d(TAG, "onPause");
     	super.onPause();
+    	mView.interrupt();
         book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
