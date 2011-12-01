@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 7.2
+  % Version 7.2
+  _ 2011-12-01
+    * Fixed one more force close
 $ 7.1
   % Version 7.1
   _ 2011-12-01

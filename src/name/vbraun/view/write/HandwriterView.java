@@ -96,6 +96,8 @@ public class HandwriterView extends View {
 	}
 	
 	public void interrupt() {
+		if (page==null || canvas==null)
+			return;
 		Log.d(TAG, "Interrupting current interaction");
 		N = 0;
 		penID = fingerId1 = fingerId2 = -1;
