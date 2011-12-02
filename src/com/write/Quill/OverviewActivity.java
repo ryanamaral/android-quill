@@ -35,7 +35,8 @@ import android.content.DialogInterface;
 
 
 public class OverviewActivity extends Activity implements 
-	AdapterView.OnItemClickListener {
+	AdapterView.OnItemClickListener, 
+	AdapterView.OnItemLongClickListener {
 	
 	private static final String TAG = "Overview";
 	
@@ -66,6 +67,12 @@ public class OverviewActivity extends Activity implements
 			break;
 		}
 		Log.d(TAG, "Click: "+tags.size());
+	}
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		Log.d(TAG, "Long click: "+tags.size());
+		return false;
 	}
 	
     @Override
@@ -205,6 +212,12 @@ public class OverviewActivity extends Activity implements
 		tags = Bookshelf.getCurrentBook().getFilter();
 		tagList.setTagSet(tags);
 		dataChanged();	
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		tool.debug.MemDebug.logHeap(this.getClass());
 	}
 	
 	@Override
