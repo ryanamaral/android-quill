@@ -235,7 +235,7 @@ public class QuillWriterActivity extends Activity {
         			updatePenHistoryIcon();
         		}
         	});
-        dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+   //     dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         return dlg.getDialog();
     }
     
