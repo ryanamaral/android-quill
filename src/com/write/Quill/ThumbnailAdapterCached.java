@@ -24,7 +24,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 
-public class ThumbnailAdapter extends BaseAdapter {
+public class ThumbnailAdapterCached extends BaseAdapter {
 	private static final String TAG = "ThumbnailAdapter";
 
 	protected static final int MIN_THUMBNAIL_WIDTH = 200;
@@ -33,7 +33,7 @@ public class ThumbnailAdapter extends BaseAdapter {
 	private Context context;
 
 	
-	public ThumbnailAdapter(Context c) {
+	public ThumbnailAdapterCached(Context c) {
 		context = c;
     	computeItemHeights();
 	}
@@ -86,12 +86,18 @@ public class ThumbnailAdapter extends BaseAdapter {
 		
 		@Override
 		protected void onDraw(Canvas canvas) {
+			if (tagOverlay == null) 
+				tagOverlay = new TagOverlay(page.tags);
+			if (bitmap == null)
+				bitmap = thumbnailBitmaps.get(page);
 			if (bitmap == null) {
 				canvas.drawColor(Color.DKGRAY);
 				return;
 			}
 			float y = (getHeight()-bitmap.getHeight())/2;
 			canvas.drawBitmap(bitmap, 0, y, paint);
+			tagOverlay.draw(canvas);
+			
 	        Boolean checked = selectedPages.get(page);
 	        if (checked != null && checked == true)
 	        	canvas.drawARGB(0x50, 0, 0xff, 0);
@@ -115,16 +121,19 @@ public class ThumbnailAdapter extends BaseAdapter {
     }
     	
     
+    IdentityHashMap<Page, Bitmap> thumbnailBitmaps = new IdentityHashMap<Page, Bitmap>();
     IdentityHashMap<Page, Boolean> selectedPages = new IdentityHashMap<Page, Boolean>();
-    LinkedList<Thumbnail> unfinishedThumbnails = new LinkedList<Thumbnail>();
-    
+
     protected boolean renderThumbnail() {
-    	if (unfinishedThumbnails.isEmpty()) return false;
-    	Thumbnail thumb = unfinishedThumbnails.pop();
-		thumb.bitmap = thumb.page.renderBitmap(thumbnail_width, 2*thumbnail_width);
-		Assert.assertTrue(thumb.bitmap != null);
-		thumb.invalidate();
-		return true;
+    	for (Map.Entry<Page, Bitmap> entry : thumbnailBitmaps.entrySet()) {
+    		if (entry.getValue() != null) continue;
+    		Page page = entry.getKey();
+    		Bitmap bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width);
+    		Assert.assertTrue(bitmap != null);
+    		thumbnailBitmaps.put(page, bitmap);
+    		return true;
+    	}
+    	return false;
     }
     
 	@Override
@@ -134,22 +143,23 @@ public class ThumbnailAdapter extends BaseAdapter {
             thumb = new Thumbnail(context);
         } else {
             thumb = (Thumbnail) convertView;
-            if (thumb.position == position)
-            	return thumb;
-            if (thumb.bitmap != null)
-            	thumb.bitmap.recycle();
         }
+        // Log.d(TAG, "getView "+position);
         Book book = Bookshelf.getCurrentBook();
-        //  Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
+      //  Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
         Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
         thumb.page = page;
         thumb.position = position;
-        thumb.bitmap = null;
-        thumb.tagOverlay = new TagOverlay(page.tags);
-        thumb.requestLayout();     
-        unfinishedThumbnails.add(thumb);
-        ThumbnailView grid = (ThumbnailView)parent;
-        grid.postIncrementalDraw();
+        thumb.tagOverlay = null;
+        if (!thumbnailBitmaps.containsKey(page)) {
+        	thumbnailBitmaps.put(page, null);
+        	ThumbnailView thumbnailGrid = (ThumbnailView)parent;
+        	// call renderThumbnail() from handler 
+        	thumbnailGrid.postIncrementalDraw();
+        } else {
+        	thumb.bitmap = thumbnailBitmaps.get(page);
+        }	
+        thumb.requestLayout();         
 		return thumb;
 	}
 	

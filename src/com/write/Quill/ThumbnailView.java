@@ -68,7 +68,6 @@ public class ThumbnailView extends GridView {
   		   // Log.d(TAG, "incrementalDraw "+rc);
   		   if (rc) {
   			   postIncrementalDraw();
-  	  		   invalidateViews();
   		   }
   	   }
   	};
@@ -83,6 +82,9 @@ public class ThumbnailView extends GridView {
     	invalidateViews();
     }
 
-
-
+    @Override
+    protected void onDetachedFromWindow() {
+    	handler.removeCallbacks(incrementalDraw);
+    	super.onDetachedFromWindow();	
+    }
 }
