@@ -20,7 +20,7 @@
     </string-array>
     <string name="export_title">Export current page as...</string>
     <string name="export_name_header">Name:</string>
-    <string name="err_evernote_not_found">You must first install Evernote</string>
+    <string name="err_evernote_not_found">You must first install the Evernote app</string>
     <string name="export_saved_as">Saved as</string>
     <string name="err_no_way_to_share">No way to share</string>
     <string name="export_share_title">Export page via</string>

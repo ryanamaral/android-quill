@@ -43,12 +43,14 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -90,7 +92,7 @@ public class QuillWriterActivity extends Activity {
 
 	private name.vbraun.lib.pen.Hardware hw; 
 	private ChangeLog changeLog;
-	
+		
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,7 +116,17 @@ public class QuillWriterActivity extends Activity {
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
-
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        int w = display.getWidth();
+        if (w<600) Log.e(TAG, "A screen width of 600px is required");
+        if (w>=800) {
+        	createTagButton(bar);
+        }
+    	mView.setPageAndZoomOut(book.currentPage());
+    }
+    
+    private void createTagButton(ActionBar bar) {
         tagButton = new Button(this);
         tagButton.setText(R.string.tag_button);
         // tagButton.setBackgroundResource(R.drawable.actionbar_background);
@@ -127,8 +139,7 @@ public class QuillWriterActivity extends Activity {
             	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
             	startActivity(i);
             }
-        });      	
-    	mView.setPageAndZoomOut(book.currentPage());
+        });      	    	
     }
     
     @Override
@@ -233,13 +244,26 @@ public class QuillWriterActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
+
+        Display display = getWindowManager().getDefaultDisplay();
+    	int w = display.getWidth();
+    	if (w>=800) {
+    		mMenu.findItem(R.id.undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    	}
+    	if (w>=1280) {
+    		mMenu.findItem(R.id.redo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    		mMenu.findItem(R.id.typewriter).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    		mMenu.findItem(R.id.prev).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    		mMenu.findItem(R.id.next).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    	}
+        
         menu_prepare_page_has_changed();
     	setActionBarIconActive(mView.getPenType());
     	updatePenHistoryIcon();
     	updateUndoRedoIcons();
     	return true;
     }
-    
+        
     protected static final int ACTIVITY_PREFERENCES = 0;
     protected static final int ACTIVITY_TAG_PAGE = 1;
     protected static final int ACTIVITY_TAG_FILTER = 2;
@@ -270,22 +294,26 @@ public class QuillWriterActivity extends Activity {
     protected void setActionBarIconActive(Stroke.Tool penType) {
     	if (mMenu == null) return;
 		updatePenHistoryIcon();
-    	mMenu.findItem(R.id.fountainpen).setIcon(R.drawable.ic_menu_quill);
-    	mMenu.findItem(R.id.pencil).setIcon(R.drawable.ic_menu_pencil);
-    	mMenu.findItem(R.id.move).setIcon(R.drawable.ic_menu_resize);
-    	mMenu.findItem(R.id.eraser).setIcon(R.drawable.ic_menu_eraser);
+		MenuItem item_fountainpen = mMenu.findItem(R.id.fountainpen);
+		MenuItem item_pencil      = mMenu.findItem(R.id.pencil);
+		MenuItem item_move        = mMenu.findItem(R.id.move);
+		MenuItem item_eraser      = mMenu.findItem(R.id.eraser);
+		item_fountainpen.setIcon(R.drawable.ic_menu_quill);
+		item_pencil.setIcon(R.drawable.ic_menu_pencil);
+    	item_move.setIcon(R.drawable.ic_menu_resize);
+    	item_eraser.setIcon(R.drawable.ic_menu_eraser);
     	switch (penType) {
     	case FOUNTAINPEN:
-    		mMenu.findItem(R.id.fountainpen).setIcon(R.drawable.ic_menu_quill_active);
+    		item_fountainpen.setIcon(R.drawable.ic_menu_quill_active);
     		return;
     	case PENCIL:
-    		mMenu.findItem(R.id.pencil).setIcon(R.drawable.ic_menu_pencil_active);
+    		item_pencil.setIcon(R.drawable.ic_menu_pencil_active);
     		return;
     	case MOVE:
-    		mMenu.findItem(R.id.move).setIcon(R.drawable.ic_menu_resize_active);
+    		item_move.setIcon(R.drawable.ic_menu_resize_active);
     		return;
     	case ERASER:
-    		mMenu.findItem(R.id.eraser).setIcon(R.drawable.ic_menu_eraser_active);
+    		item_eraser.setIcon(R.drawable.ic_menu_eraser_active);
     		return;
     	}
     }
