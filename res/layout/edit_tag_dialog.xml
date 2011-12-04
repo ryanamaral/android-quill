@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="20dp"
+	android:padding="10dp"
+   	android:orientation="horizontal"
+	android:gravity="center" 
+    >
+
+    <TextView
+        android:id="@+id/edit_tag_header"
+        android:paddingTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/edit_tag_header" />
+
+    <EditText
+        android:id="@+id/edit_tag_text"
+        android:layout_toRightOf="@+id/edit_tag_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+   	    android:selectAllOnFocus="true" >
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/edit_tag_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_tag_text"
+        android:layout_toRightOf="@+id/edit_tag_header"
+        android:text="@string/edit_tag_help" />
+
+    
+    <Button
+        android:id="@+id/edit_tag_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_tag_help"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dip"
+        android:layout_marginLeft="10dip"
+        android:text="@string/edit_tag_button" />
+    <Button
+        android:id="@+id/edit_tag_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/edit_tag_button"
+        android:layout_alignTop="@id/edit_tag_button"
+        android:text="@string/edit_tag_cancel"/>
+    
+    
+</RelativeLayout>

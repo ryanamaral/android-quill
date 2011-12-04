@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import junit.framework.Assert;
 
+import name.vbraun.view.write.Graphics.Tool;
 import name.vbraun.view.write.TagManager.TagSet;
 
 import android.content.Context;
@@ -34,6 +35,7 @@ public class Page {
 	protected float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
 	protected Paper.Type paper_type = Paper.Type.RULED;
+	protected TextBox backgroundText = new TextBox(Tool.TEXT);
 	
 	// coordinate transformation Stroke -> screen
 	protected Transformation transformation = new Transformation();
@@ -142,11 +144,12 @@ public class Page {
 		canvas.save();
 		canvas.clipRect(bounding_box);
 		background.draw(canvas, bounding_box, transformation);
+		backgroundText.draw(canvas, bounding_box);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
 		   	if (!canvas.quickReject(s.getBoundingBox(), 
 		   				 			Canvas.EdgeType.AA))
-		   		s.render(canvas);
+		   		s.draw(canvas, bounding_box);
 	    }
 		canvas.restore();
 	}
@@ -203,17 +206,17 @@ public class Page {
 
 	public Page(DataInputStream in, TagManager tagMgr) throws IOException {
 		tagManager = tagMgr;
-		tags = tagManager.newTagSet();
-		
 		int version = in.readInt();
 		if (version == 1) {
+			tags = tagManager.newTagSet();
 			paper_type = Paper.Type.EMPTY;
 		} else if (version == 2) {
+			tags = tagManager.newTagSet();
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
 		} else if (version == 3) {
-			tags.set(tagManager.loadTagSet(in));
+			tags = tagManager.loadTagSet(in);
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();

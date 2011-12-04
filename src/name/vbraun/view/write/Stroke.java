@@ -132,7 +132,8 @@ public class Stroke extends Graphics {
 		return false;
 	}
 	
-	public void render(Canvas c) {
+	public void draw(Canvas c, RectF bounding_box) {
+		// Page.draw already checked the bounding box, we definitely need to draw
 		if (recompute_bounding_box) computeBoundingBox();	
 		final float scaled_pen_thickness = getScaledPenThickness();
 		if (tool == Tool.PENCIL)

@@ -51,5 +51,5 @@ public abstract class Graphics {
 	
 	abstract public float distance(float x_screen, float y_screen);
 	abstract public boolean intersects(RectF r_screen);
-	abstract public void render(Canvas c);
+	abstract public void draw(Canvas c, RectF bounding_box);
 }

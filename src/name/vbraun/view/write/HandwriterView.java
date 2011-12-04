@@ -17,14 +17,27 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Path;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.text.InputType;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.InputDevice;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.InputMethodSubtype;
+import android.widget.EditText;
 import android.widget.Toast;
 
-public class HandwriterView extends View {
+public class HandwriterView extends ViewGroup {
 	private static final String TAG = "Handwrite";
 
 	private Bitmap bitmap;
@@ -46,6 +59,10 @@ public class HandwriterView extends View {
 	private long oldT, newT;
 	private TagOverlay overlay = null;
 	private GraphicsModifiedListener graphicsListener = null;
+  
+	// text input
+	private InputMethodManager inputMethodManager;
+	private HandwriterInputConnection inputConnection;
 	
     private int N = 0;
 	private static final int Nmax = 1024;
@@ -58,7 +75,7 @@ public class HandwriterView extends View {
 	
 	// preferences
 	private int pen_thickness = 2;
-	private Tool pen_type = Tool.FOUNTAINPEN;
+	private Tool tool_type = Tool.FOUNTAINPEN;
 	protected int pen_color = Color.BLACK;
 	private boolean onlyPenInput = true;
 	private boolean moveGestureWhileWriting = true;
@@ -105,12 +122,26 @@ public class HandwriterView extends View {
 		invalidate();
 	}
 	
-	public void setPenType(Tool t) {
-		pen_type = t;
+	public void setToolType(Tool t) {
+		// clean up after previous tool
+		if (tool_type == Tool.TEXT) {
+			if (editText != null) 
+				removeView(editText);
+			editText = null;
+			setFocusable(false);
+    		setFocusableInTouchMode(false);  
+            inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
+            inputConnection = null;			
+		}
+		
+		// now set the new tool 
+		tool_type = t;
+		boolean kbd = (getResources().getConfiguration().keyboardHidden == Configuration.KEYBOARDHIDDEN_YES);
+		Log.d(TAG, "setToolType " + t.toString()+" "+kbd);
 	}
 
-	public Tool getPenType() {
-		return pen_type;
+	public Tool getToolType() {
+		return tool_type;
 	}
 
 	public int getPenThickness() {
@@ -194,6 +225,13 @@ public class HandwriterView extends View {
 		pen.setAntiAlias(true);
 		pen.setARGB(0xff, 0, 0, 0);	
 		pen.setStrokeCap(Paint.Cap.ROUND);
+		inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputMethodManager.hideSoftInputFromInputMethod(getWindowToken(), 0);
+		inputMethodManager.hideSoftInputFromInputMethod(getApplicationWindowToken(), 0);
+		setAlwaysDrawnWithCacheEnabled(false);
+		setDrawingCacheEnabled(false);
+		setWillNotDraw(false);
+		setBackgroundDrawable(null);
 	}
 
 	public void setPageAndZoomOut(Page new_page) {
@@ -315,9 +353,10 @@ public class HandwriterView extends View {
 		return Stroke.getScaledPenThickness(page.transformation, getPenThickness());
 	}
 	
-	@Override protected void onDraw(Canvas canvas) {
+	@Override 
+	protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
-		if (getPenType() == Stroke.Tool.MOVE && fingerId2 != -1) {
+		if (getToolType() == Stroke.Tool.MOVE && fingerId2 != -1) {
 			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();
@@ -330,19 +369,23 @@ public class HandwriterView extends View {
 			mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
 			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
 			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
-		} else if (getPenType() == Stroke.Tool.MOVE && fingerId1 != -1) {
+		} else if (getToolType() == Stroke.Tool.MOVE && fingerId1 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = newX1-oldX1;
 			float y = newY1-oldY1; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else if ((getPenType() == Stroke.Tool.FOUNTAINPEN || getPenType() == Stroke.Tool.PENCIL)
+		} else if ((getToolType() == Stroke.Tool.FOUNTAINPEN || getToolType() == Stroke.Tool.PENCIL)
 					&& fingerId2 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = (newX1-oldX1+newX2-oldX2)/2;
 			float y = (newY1-oldY1+newY2-oldY2)/2; 
 			canvas.drawBitmap(bitmap, x, y, null);
+		} else if (getToolType() == Tool.TEXT && editText != null) {
+			Log.d(TAG, "painting text");
+			canvas.drawBitmap(bitmap, 0, 0, null);
+			editText.draw(canvas); 
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
 		if (overlay != null) 
@@ -357,7 +400,7 @@ public class HandwriterView extends View {
 //				+" pressure="+event.getPressure()
 //				+" fat="+event.getTouchMajor()
 //				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
-		switch (getPenType()) {
+		switch (getToolType()) {
 		case FOUNTAINPEN:
 		case PENCIL:	
 			return touchHandlerPen(event);
@@ -365,10 +408,69 @@ public class HandwriterView extends View {
 			return touchHandlerMoveZoom(event);
 		case ERASER:
 			return touchHandlerEraser(event);
+		case TEXT:
+			return touchHandlerText(event);
 		}
 		return false;
 	}
 		
+	private EditText editText;
+	
+	private boolean touchHandlerText(MotionEvent event) {
+		invalidate();
+        Log.e(TAG, "onTOUCH");
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+        	if (editText == null) {
+        		editText = new EditText(getContext());
+        		editText.setImeOptions(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        		editText.setTextSize(25f);
+        		editText.setText("Hello Computer");
+        		addView(editText);
+        		editText.setFocusable(true);
+        		editText.setFocusableInTouchMode(true);  
+        		editText.requestFocus();
+        		inputMethodManager.showSoftInput(this, 0);
+        	}
+        }
+        return true;
+	}
+	
+	
+//	
+//	@Override
+//	public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+//		Log.d(TAG, "onCreateInputConnection");
+//	    outAttrs.actionLabel = null;
+//	    outAttrs.label = "Test text";
+//	    // outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+//	    outAttrs.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+//	    //  outAttrs.imeOptions = EditorInfo.IME_ACTION_DONE;
+//		inputConnection = new HandwriterInputConnection(editText, true);
+//		page.backgroundText.setEditable(inputConnection.getEditable());
+//		return inputConnection;
+//	}
+//	
+//    @Override
+//    public boolean onCheckIsTextEditor() {
+//        Log.d(TAG, "onCheckIsTextEditor "+(tool_type == Tool.TEXT));
+//        return tool_type == Tool.TEXT;
+//    }
+//
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//		int action = event.getAction();
+//		int keyCode = event.getKeyCode();
+//		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
+//		if (action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+//			if (inputConnection != null) {
+//				inputConnection.getEditable().insert(2, "\n");
+//				return true;
+//			}
+//		}	
+//		return super.dispatchKeyEvent(event);
+//    }
+
+	
 	private boolean touchHandlerEraser(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
@@ -689,8 +791,8 @@ public class HandwriterView extends View {
 	
 	private void saveStroke() {
 		if (N==0) return;
-		Stroke s = new Stroke(getPenType(), position_x, position_y, pressure, 0, N);
-		ToolHistory.add(getPenType(), getPenThickness(), pen_color);
+		Stroke s = new Stroke(getToolType(), position_x, position_y, pressure, 0, N);
+		ToolHistory.add(getToolType(), getPenThickness(), pen_color);
 		s.setPen(getPenThickness(), pen_color);
 		s.setTransform(page.getTransform());
 		s.applyInverseTransform();
@@ -703,7 +805,7 @@ public class HandwriterView extends View {
 	
 	
 	private void drawOutline() {
-		if (getPenType()==Tool.FOUNTAINPEN) {
+		if (getToolType()==Tool.FOUNTAINPEN) {
 			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
 			pen.setStrokeWidth(scaled_pen_thickness);
 		}
@@ -713,5 +815,13 @@ public class HandwriterView extends View {
 		int extra = -(int)(pen.getStrokeWidth()/2) - 1;
 		mRect.inset(extra, extra);
 		invalidate(mRect);
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.d(TAG, "onLayout "+editText);
+		if (editText != null) {
+			editText.layout(100, 70, 400, 200);
+		}
 	}
 }

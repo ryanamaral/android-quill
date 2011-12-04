@@ -79,10 +79,17 @@ public class TagListView extends RelativeLayout {
 		list.setOnItemClickListener(listener);
 	}
 	
+	public void setOnItemLongClickListener(AdapterView.OnItemLongClickListener listener) {
+		list.setOnItemLongClickListener(listener);
+	}
+	
 	public void setOnKeyListener(View.OnKeyListener listener) {
         edittext.setOnKeyListener(listener);
 	}
 
+	public ListView getAdapterView() {
+		return list;
+	}
 	
 	public void setTagSet(TagSet tags) {
 		adapter = new TagSetAdapter(context, tags);

@@ -5,7 +5,7 @@
     
     
     
-    <item android:id="@+id/typewriter" android:titleCondensed="Text" android:title="Text input" android:icon="@drawable/ic_menu_text" android:showAsAction="ifRoom"></item><item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="ifRoom|withText" android:title="Previous page"></item>
+    <item android:id="@+id/typewriter" android:titleCondensed="Text" android:title="Text input" android:icon="@drawable/ic_menu_text" android:showAsAction="ifRoom" android:visible="false"></item><item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="ifRoom|withText" android:title="Previous page"></item>
     <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="ifRoom|withText" android:title="Next page"></item>
     <item android:id="@+id/undo" android:icon="@drawable/ic_menu_undo" android:showAsAction="ifRoom" android:title="Undo"></item><item android:id="@+id/redo" android:title="Redo" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_redo"></item><item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:title="Previous pen" android:id="@+id/prev_pen"></item>    
     </group><item android:id="@+id/pen_history" android:title="Pen history" android:visible="false"></item>

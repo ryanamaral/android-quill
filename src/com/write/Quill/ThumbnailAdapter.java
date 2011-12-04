@@ -50,9 +50,9 @@ public class ThumbnailAdapter extends BaseAdapter {
         return 0;
     }
 
-    public void notifyTagsChanged() {
-    	computeItemHeights();
-    	notifyDataSetChanged();
+    @Override
+    public boolean hasStableIds() {
+    	return false;
     }
     
 	protected Paint paint = new Paint();
@@ -73,13 +73,14 @@ public class ThumbnailAdapter extends BaseAdapter {
 		public int heightOfRow() {
 			int row = position / numColumns;
 			int maxHeight = heightOfItem[row*numColumns];
-			for (int i=row*numColumns+1; i<(row+1)*numColumns && i<heightOfItem.length; i++)
+			for (int i=row*numColumns; i<(row+1)*numColumns && i<heightOfItem.length; i++)
 				maxHeight = Math.max(maxHeight, heightOfItem[i]);
 			return maxHeight;
 		}
 		
 		@Override
     	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			// Log.d(TAG, "onMeasure "+position+" "+heightOfRow());
     		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			setMeasuredDimension(thumbnail_width, heightOfRow());
     	}
@@ -90,9 +91,12 @@ public class ThumbnailAdapter extends BaseAdapter {
 				canvas.drawColor(Color.DKGRAY);
 				return;
 			}
+			// Log.d(TAG, "Thumb "+position+" "+getHeight()+" "+bitmap.getHeight());
 			float y = (getHeight()-bitmap.getHeight())/2;
 			canvas.drawBitmap(bitmap, 0, y, paint);
 	        Boolean checked = selectedPages.get(page);
+	        if (tagOverlay != null)
+	        	tagOverlay.draw(canvas);
 	        if (checked != null && checked == true)
 	        	canvas.drawARGB(0x50, 0, 0xff, 0);
 		}
@@ -105,13 +109,14 @@ public class ThumbnailAdapter extends BaseAdapter {
     	numColumns = n;
     }
     
-    private void computeItemHeights() {
+    protected void computeItemHeights() {
+    	Bookshelf.getCurrentBook().filterChanged();
     	LinkedList<Page> pages = Bookshelf.getCurrentBook().filteredPages;
     	heightOfItem = new int[pages.size()];
     	ListIterator<Page> iter = pages.listIterator();
-    	int pos = 0;
+    	int pos = pages.size()-1;
     	while (iter.hasNext()) 
-    		heightOfItem[pos++] = (int)(thumbnail_width / iter.next().getAspectRatio());
+    		heightOfItem[pos--] = (int)(thumbnail_width / iter.next().getAspectRatio());
     }
     	
     
@@ -121,7 +126,9 @@ public class ThumbnailAdapter extends BaseAdapter {
     protected boolean renderThumbnail() {
     	if (unfinishedThumbnails.isEmpty()) return false;
     	Thumbnail thumb = unfinishedThumbnails.pop();
-		thumb.bitmap = thumb.page.renderBitmap(thumbnail_width, 2*thumbnail_width);
+    	Page page = thumb.page;
+		thumb.bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width);
+		thumb.tagOverlay = new TagOverlay(page.getTags());
 		Assert.assertTrue(thumb.bitmap != null);
 		thumb.invalidate();
 		return true;
@@ -140,7 +147,7 @@ public class ThumbnailAdapter extends BaseAdapter {
             	thumb.bitmap.recycle();
         }
         Book book = Bookshelf.getCurrentBook();
-        //  Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
+        //   Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
         Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
         thumb.page = page;
         thumb.position = position;
@@ -163,5 +170,4 @@ public class ThumbnailAdapter extends BaseAdapter {
     	selectedPages.clear();
     }
 
-	
 }

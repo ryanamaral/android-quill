@@ -1,5 +1,6 @@
 package com.write.Quill;
 import name.vbraun.view.tag.TagCloudView;
+import name.vbraun.view.tag.TagEditDialog;
 import name.vbraun.view.tag.TagListView;
 import name.vbraun.view.write.TagManager;
 import name.vbraun.view.write.TagManager.Tag;
@@ -10,6 +11,8 @@ import com.write.Quill.R;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -28,9 +31,11 @@ import android.widget.TextView;
 
 
 public class TagsListActivity extends Activity implements 
-		AdapterView.OnItemClickListener, 
+		AdapterView.OnItemClickListener,
+		AdapterView.OnItemLongClickListener,
 		View.OnKeyListener, 
-		View.OnTouchListener {
+		View.OnTouchListener,
+		DialogInterface.OnDismissListener {
 	
 	private static final String TAG = "TagsListActivity";
 	private Button tagButton;
@@ -42,6 +47,7 @@ public class TagsListActivity extends Activity implements
 	
 	protected TagManager tagManager;
 	protected TagSet tags;
+	protected Tag tag;
 	
 	protected void tagsChanged(boolean onlySelection) {
        	tagList.notifyTagsChanged();
@@ -53,13 +59,56 @@ public class TagsListActivity extends Activity implements
     	Bookshelf.getCurrentBook().currentPage().touch();
 	}
 	
+	private final static int DIALOG_EDIT_TAG = 1;
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case DIALOG_EDIT_TAG:
+			return new TagEditDialog(this);
+		}
+		return super.onCreateDialog(id);
+	}
+	
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id) {
+		case DIALOG_EDIT_TAG:
+			TagEditDialog dlg = (TagEditDialog)dialog;
+			dlg.setTag(tag);
+			dlg.setOnDismissListener(this);
+		default:
+			super.onPrepareDialog(id, dialog);
+		}
+	}
+	
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+       	tagList.notifyTagsChanged();
+       	tagCloud.notifyTagsChanged();
+	}
+
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+      	Book book = Bookshelf.getCurrentBook();
+		tagManager = book.getTagManager();
+		tagManager.sort();
+		tags = Bookshelf.getCurrentBook().currentPage().tags;
+		tagList.setTagSet(tags);
+		tagCloud.setTagSet(tags);
+		updateStatusBar();		       	
+	}
+	
+	
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // If the event is a key-down event on the "enter" button
 		Log.v(TAG, "onKey "+keyCode);
     	EditText text = (EditText)v;
         if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
             (keyCode == KeyEvent.KEYCODE_ENTER)) {
-        	Tag t = tagManager.makeTag(text.getText().toString());
+        	Tag t = tagManager.newTag(text.getText().toString());
         	tags.add(t);
         	tagsChanged(false);
         	return true;
@@ -76,6 +125,17 @@ public class TagsListActivity extends Activity implements
 			tags.add(t);
 		Log.d(TAG, "Click: "+tags.size());
     	tagsChanged(true);
+	}
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		if (parent == tagList.getAdapterView()) {
+			Log.d(TAG, "Long click: "+tags.size());
+			tag = tagManager.get(position);
+			showDialog(DIALOG_EDIT_TAG);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -119,7 +179,7 @@ public class TagsListActivity extends Activity implements
 	        	return true;
 	        case R.id.menu_tag_filter:
 	        	finish();
-	    		i = new Intent(getApplicationContext(), OverviewActivity.class);    
+	    		i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
 	        	startActivity(i);
 	    		return true;
 	        default:
@@ -133,33 +193,24 @@ public class TagsListActivity extends Activity implements
 		
 		Log.d(TAG, "onCreate");
       	Bookshelf.onCreate(getApplicationContext());
-      	Book book = Bookshelf.getCurrentBook();
-		tagManager = book.getTagManager();
-		tagManager.sort();
-		tags = Bookshelf.getCurrentBook().currentPage().tags;
-		
+				
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
 		tagCloud = (TagCloudView) findViewById(R.id.tag_cloud_view);
-		tagList.setOnItemClickListener(this);
-		tagList.setOnKeyListener(this);
-		tagCloud.setOnTouchListener(this);
 		Assert.assertTrue("Tag list not created.", tagList != null);
 		Assert.assertTrue("Tag cloud not created.", tagCloud != null);
-		tagList.setTagSet(tags);
-		tagCloud.setTagSet(tags);
-		
+		tagList.setOnItemClickListener(this);
+		tagList.setOnItemLongClickListener(this);
+		tagList.setOnKeyListener(this);
+		tagCloud.setOnTouchListener(this);
+
 		status = (TextView) findViewById(R.id.status);
-		updateStatusBar();
 		
         ActionBar bar = getActionBar();
         bar.setTitle(R.string.title_tag);
         bar.setDisplayShowTitleEnabled(true);
         bar.setDisplayHomeAsUpEnabled(true);
-}
-
-
-
+	}
 	
 }

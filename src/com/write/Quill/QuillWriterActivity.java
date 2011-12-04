@@ -244,9 +244,7 @@ public class QuillWriterActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
-
-        Display display = getWindowManager().getDefaultDisplay();
-    	int w = display.getWidth();
+    	int w = getWindowManager().getDefaultDisplay().getWidth();
     	if (w>=800) {
     		mMenu.findItem(R.id.undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	}
@@ -256,9 +254,8 @@ public class QuillWriterActivity extends Activity {
     		mMenu.findItem(R.id.prev).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     		mMenu.findItem(R.id.next).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	}
-        
         menu_prepare_page_has_changed();
-    	setActionBarIconActive(mView.getPenType());
+    	setActionBarIconActive(mView.getToolType());
     	updatePenHistoryIcon();
     	updateUndoRedoIcons();
     	return true;
@@ -298,10 +295,12 @@ public class QuillWriterActivity extends Activity {
 		MenuItem item_pencil      = mMenu.findItem(R.id.pencil);
 		MenuItem item_move        = mMenu.findItem(R.id.move);
 		MenuItem item_eraser      = mMenu.findItem(R.id.eraser);
+		MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
 		item_fountainpen.setIcon(R.drawable.ic_menu_quill);
 		item_pencil.setIcon(R.drawable.ic_menu_pencil);
     	item_move.setIcon(R.drawable.ic_menu_resize);
     	item_eraser.setIcon(R.drawable.ic_menu_eraser);
+    	item_typewriter.setIcon(R.drawable.ic_menu_text);
     	switch (penType) {
     	case FOUNTAINPEN:
     		item_fountainpen.setIcon(R.drawable.ic_menu_quill_active);
@@ -315,6 +314,8 @@ public class QuillWriterActivity extends Activity {
     	case ERASER:
     		item_eraser.setIcon(R.drawable.ic_menu_eraser_active);
     		return;
+    	case TEXT:
+    		item_typewriter.setIcon(R.drawable.ic_menu_text_active);
     	}
     }
     
@@ -331,22 +332,26 @@ public class QuillWriterActivity extends Activity {
     		startActivityForResult(i, ACTIVITY_PREFERENCES);
     		return true;
     	case R.id.fountainpen:
-    		mView.setPenType(Stroke.Tool.FOUNTAINPEN);
+    		mView.setToolType(Stroke.Tool.FOUNTAINPEN);
     		setActionBarIconActive(Stroke.Tool.FOUNTAINPEN);
     		return true;
     	case R.id.pencil:
-    		mView.setPenType(Stroke.Tool.PENCIL);
+    		mView.setToolType(Stroke.Tool.PENCIL);
     		setActionBarIconActive(Stroke.Tool.PENCIL);
     		return true;
     	case R.id.eraser:
-    		mView.setPenType(Stroke.Tool.ERASER);
+    		mView.setToolType(Stroke.Tool.ERASER);
     		setActionBarIconActive(Stroke.Tool.ERASER);
     		return true;
     	case R.id.move:
-    		mView.setPenType(Stroke.Tool.MOVE);
+    		mView.setToolType(Stroke.Tool.MOVE);
     		setActionBarIconActive(Stroke.Tool.MOVE);
     		return true;
-    	case R.id.width:
+    	case R.id.typewriter:
+    		mView.setToolType(Stroke.Tool.TEXT);
+    		setActionBarIconActive(Stroke.Tool.TEXT);
+    		return true;
+   	case R.id.width:
     		showDialog(DIALOG_THICKNESS);
     		return true;
     	case R.id.color:        	
@@ -505,7 +510,7 @@ public class QuillWriterActivity extends Activity {
 		// Log.d(TAG, "switchPenHistory "+penHistoryItem+" "+h.size());
 		mView.setPenColor(h.getColor(penHistoryItem));
 		mView.setPenThickness(h.getThickness(penHistoryItem));
-		mView.setPenType(h.getTool(penHistoryItem));
+		mView.setToolType(h.getTool(penHistoryItem));
 		setActionBarIconActive(h.getTool(penHistoryItem));
 	}
   
@@ -522,11 +527,11 @@ public class QuillWriterActivity extends Activity {
     	Canvas canvas = new Canvas(bitmap);
     	int c = mView.getPenColor();
     	canvas.drawARGB(0xa0, Color.red(c), Color.green(c), Color.blue(c));
-    	if (mView.getPenType() == Tool.FOUNTAINPEN) {
+    	if (mView.getToolType() == Tool.FOUNTAINPEN) {
         	final Drawable iconStrokeFountainpen = getResources().getDrawable(R.drawable.ic_pen_fountainpen);
     		iconStrokeFountainpen.setBounds(0, 0, w, h);
     		iconStrokeFountainpen.draw(canvas);
-    	} else if (mView.getPenType() == Tool.PENCIL) {
+    	} else if (mView.getToolType() == Tool.PENCIL) {
         	final Drawable iconStrokePencil = getResources().getDrawable(R.drawable.ic_pen_pencil);
         	iconStrokePencil.setBounds(0, 0, w, h);
     		iconStrokePencil.draw(canvas);
@@ -560,13 +565,13 @@ public class QuillWriterActivity extends Activity {
        
     	int penColor = settings.getInt("pen_color", mView.getPenColor());
     	int penThickness = settings.getInt("pen_thickness", mView.getPenThickness());
-    	int penTypeInt = settings.getInt("pen_type", mView.getPenType().ordinal());
+    	int penTypeInt = settings.getInt("pen_type", mView.getToolType().ordinal());
     	Stroke.Tool penType = Stroke.Tool.values()[penTypeInt];
     	if (penType==Tool.ERASER)  // don't start with sharp whirling blades 
     		penType = Tool.MOVE;
     	mView.setPenColor(penColor);
     	mView.setPenThickness(penThickness);
-    	mView.setPenType(penType);
+    	mView.setToolType(penType);
     	ToolHistory.add(penType, penThickness, penColor);
 		setActionBarIconActive(penType);
 
@@ -613,7 +618,7 @@ public class QuillWriterActivity extends Activity {
         book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("pen_type", mView.getPenType().ordinal());
+        editor.putInt("pen_type", mView.getToolType().ordinal());
         editor.putInt("pen_color", mView.getPenColor());
         editor.putInt("pen_thickness", mView.getPenThickness());
         editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
@@ -631,7 +636,7 @@ public class QuillWriterActivity extends Activity {
     }
     
     private void launchOverviewActivity() {
-		Intent i = new Intent(getApplicationContext(), OverviewActivity.class);    
+		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
     	startActivity(i);
     }
     

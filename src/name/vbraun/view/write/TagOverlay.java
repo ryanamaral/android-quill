@@ -39,7 +39,7 @@ public class TagOverlay {
 			ListIterator<Tag> iter = ts.tagIterator();
 			while (iter.hasNext()) {
 				Tag t = iter.next();
-				s += "\n" + t.name;
+				s += "\n" + t.toString();
 				if (filter.contains(t))
 					s += " (required)";
 			}
@@ -47,7 +47,7 @@ public class TagOverlay {
 			while (iter.hasNext()) {
 				Tag t = iter.next();
 				if (!ts.contains(t)) 
-					s += "\n" + t.name + " (missing)";
+					s += "\n" + t.toString() + " (missing)";
 			}
 		}
 		layout = new StaticLayout(

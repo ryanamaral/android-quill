@@ -3,6 +3,7 @@ package com.write.Quill;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import name.vbraun.view.tag.TagEditDialog;
 import name.vbraun.view.tag.TagListView;
 import name.vbraun.view.write.Page;
 import name.vbraun.view.write.TagManager;
@@ -34,9 +35,10 @@ import android.view.LayoutInflater;
 import android.content.DialogInterface;
 
 
-public class OverviewActivity extends Activity implements 
+public class ThumbnailActivity extends Activity implements 
 	AdapterView.OnItemClickListener, 
-	AdapterView.OnItemLongClickListener {
+	AdapterView.OnItemLongClickListener,
+	DialogInterface.OnDismissListener {
 	
 	private static final String TAG = "Overview";
 	
@@ -71,8 +73,13 @@ public class OverviewActivity extends Activity implements
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		Log.d(TAG, "Long click: "+tags.size());
-		return false;
+		switch (parent.getId()) {
+		case R.id.tag_list:
+			showDialog(DIALOG_EDIT_TAG);
+			return true;
+		default:
+			return false;
+		}
 	}
 	
     @Override
@@ -84,9 +91,28 @@ public class OverviewActivity extends Activity implements
     }
 	
 	protected void dataChanged() {
-       	tagList.notifyTagsChanged();
 		Bookshelf.getCurrentBook().filterChanged();
+       	tagList.notifyTagsChanged();
        	thumbnailGrid.notifyTagsChanged();
+	}
+	
+	private Tag longClickedTag;
+	
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		switch (id) {
+		case DIALOG_EDIT_TAG:
+			TagEditDialog dlg = (TagEditDialog)dialog;
+			dlg.setTag(longClickedTag);
+			dlg.setOnDismissListener(this);
+		default:
+			super.onPrepareDialog(id, dialog);
+		}
+	}
+		
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		dataChanged();
 	}
 	
 	protected static final int RESULT_FILTER_CHANGED = 2;
@@ -116,6 +142,8 @@ public class OverviewActivity extends Activity implements
 	
     private static final int DIALOG_NEW_NOTEBOOK = 0;
     private static final int DIALOG_SEND_TO_EVERNOTE = 1;
+	private static final int DIALOG_EDIT_TAG = 2;
+	
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -124,6 +152,8 @@ public class OverviewActivity extends Activity implements
         	return createNewNotebookDialog();
         case DIALOG_SEND_TO_EVERNOTE:
         	return new EvernoteExportDialog(this);
+		case DIALOG_EDIT_TAG:
+			return new TagEditDialog(this);
         }
 		return null;
     }
@@ -222,8 +252,9 @@ public class OverviewActivity extends Activity implements
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
 		reloadTags();
+		Log.d(TAG, "onResume");
+		super.onResume();
 	}
 
 	private class MultiselectCallback implements ThumbnailView.MultiChoiceModeListener {

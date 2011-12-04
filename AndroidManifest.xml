@@ -24,7 +24,7 @@
         	android:theme="@android:style/Theme.Holo.Light">
         </activity>
         <activity 
-        	android:name="com.write.Quill.OverviewActivity"
+        	android:name=".ThumbnailActivity"
         	android:theme="@android:style/Theme.Holo">
         </activity>
         <activity android:name="org.libharu.TestActivity">

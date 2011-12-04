@@ -3,6 +3,7 @@ package com.write.Quill;
 import com.write.Quill.ThumbnailAdapter.Thumbnail;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -18,9 +19,13 @@ public class ThumbnailView extends GridView {
 	private Handler handler = new Handler();
 
 	public void notifyTagsChanged() {
+    	// Log.d(TAG, "notifyTagsChanged");
 		handler.removeCallbacks(incrementalDraw);
-		adapter.notifyTagsChanged();
-		postIncrementalDraw();
+		int width = adapter.thumbnail_width;
+		adapter = new ThumbnailAdapter(context);
+		adapter.thumbnail_width = width;
+		setAdapter(adapter);
+		adapter.setNumColumns(getNumColumns());
 	}
 	
 	public ThumbnailView(Context c, AttributeSet attrs) {
@@ -39,20 +44,20 @@ public class ThumbnailView extends GridView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
- 
 		int width = getMeasuredWidth();
 		int columns = width / (ThumbnailAdapter.MIN_THUMBNAIL_WIDTH+PADDING);
 		adapter.thumbnail_width = width / columns - PADDING;
+		adapter.computeItemHeights();
 		// Log.d(TAG, "onMeasure "+width+ " " + adapter.thumbnail_width);
 		setColumnWidth(adapter.thumbnail_width + PADDING);
 		setNumColumns(columns);
-		adapter.notifyTagsChanged();
-		
+		adapter.setNumColumns(columns);
 	    setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
 	}
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.d(TAG, "onLayout "+t);
 		super.onLayout(changed, l, t, r, b);
 		adapter.setNumColumns(getNumColumns());
 	}
