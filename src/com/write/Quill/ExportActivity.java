@@ -220,7 +220,7 @@ public class ExportActivity
     
     private void doExportArchive() {
     	try {
-    		book.saveArchive(file);
+    		book.saveBookArchive(file);
     	} catch (IOException e) {
 			Log.e(TAG, "Error writing file "+e.toString());
         	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();   		

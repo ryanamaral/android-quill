@@ -57,7 +57,13 @@ public class HandwriterView extends ViewGroup {
 	private float oldX1, oldY1, newX1, newY1;  // for 1st finger
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
-	private TagOverlay overlay = null;
+	
+	private Overlay overlay = null;
+	public void setOverlay(Overlay overlay) {
+		this.overlay = overlay;
+		invalidate();
+	}
+	
 	private GraphicsModifiedListener graphicsListener = null;
   
 	// text input
@@ -237,7 +243,6 @@ public class HandwriterView extends ViewGroup {
 	public void setPageAndZoomOut(Page new_page) {
 		if (new_page == null) return;
 		page = new_page;
-		updateOverlay();
 		if (canvas == null) return;
 		// if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) 
 		float H = canvas.getHeight();
@@ -256,12 +261,7 @@ public class HandwriterView extends ViewGroup {
 		invalidate();
 	}
 	
-	public void updateOverlay() {
-		overlay = new TagOverlay(page.tags);
-		invalidate();
-	}
-
-	public void centerAndFillScreen(float xCenter, float yCenter) {
+	private void centerAndFillScreen(float xCenter, float yCenter) {
 		float page_offset_x = page.transformation.offset_x;
 		float page_offset_y = page.transformation.offset_y;
 		float page_scale = page.transformation.scale;
@@ -307,8 +307,7 @@ public class HandwriterView extends ViewGroup {
 		page.strokes.addAll(new_strokes);
 	}
 	
-	@Override protected void onSizeChanged(int w, int h, int oldw,
-			int oldh) {
+	@Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		int curW = bitmap != null ? bitmap.getWidth() : 0;
 		int curH = bitmap != null ? bitmap.getHeight() : 0;
 		if (curW >= w && curH >= h) {

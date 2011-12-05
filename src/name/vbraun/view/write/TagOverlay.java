@@ -16,7 +16,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.Log;
 
-public class TagOverlay {
+public class TagOverlay implements Overlay {
 	private static final String TAG = "TagOverlay";
 	protected static final float TEXT_SIZE = 10f;
 	protected static final int MARGIN = 10; 

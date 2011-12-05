@@ -73,8 +73,10 @@ public class ThumbnailActivity extends Activity implements
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		Log.d(TAG, "onItemLongClick "+parent.getId());
 		switch (parent.getId()) {
 		case R.id.tag_list:
+			longClickedTag = tagManager.get(position);
 			showDialog(DIALOG_EDIT_TAG);
 			return true;
 		default:
@@ -104,6 +106,7 @@ public class ThumbnailActivity extends Activity implements
 		case DIALOG_EDIT_TAG:
 			TagEditDialog dlg = (TagEditDialog)dialog;
 			dlg.setTag(longClickedTag);
+			longClickedTag = null;
 			dlg.setOnDismissListener(this);
 		default:
 			super.onPrepareDialog(id, dialog);
@@ -222,6 +225,7 @@ public class ThumbnailActivity extends Activity implements
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
 		tagList.setOnItemClickListener(this);
+		tagList.setOnItemLongClickListener(this);
 		Assert.assertTrue("Tag list not created.", tagList != null);
 		tagList.showNewTextEdit(false);
 		

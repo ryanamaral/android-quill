@@ -10,6 +10,7 @@ import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics;
 import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.Page;
+import name.vbraun.view.write.TagOverlay;
 import name.vbraun.view.write.ToolHistory;
 import name.vbraun.view.write.Stroke;
 import name.vbraun.view.write.Graphics.Tool;
@@ -123,7 +124,7 @@ public class QuillWriterActivity extends Activity {
         if (w>=800) {
         	createTagButton(bar);
         }
-    	mView.setPageAndZoomOut(book.currentPage());
+    	switchToPage(book.currentPage());
     }
     
     private void createTagButton(ActionBar bar) {
@@ -281,7 +282,7 @@ public class QuillWriterActivity extends Activity {
     		}
     		book = Bookshelf.getCurrentBook();
     		UndoManager.getUndoManager().clearHistory();
-        	mView.setPageAndZoomOut(book.currentPage());
+        	switchToPage(book.currentPage());
         	return;
    		// case ACTIVITY_TAG_FILTER:
    		// case ACTIVITY_TAG_PAGE:
@@ -382,11 +383,11 @@ public class QuillWriterActivity extends Activity {
     		flip_page_next_unfiltered();
     		return true;
     	case R.id.page_last:
-    		mView.setPageAndZoomOut(book.lastPage());
+    		switchToPage(book.lastPage());
     		menu_prepare_page_has_changed();
     		return true;	
     	case R.id.page_insert:
-    		mView.setPageAndZoomOut(book.insertPage()); 
+    		switchToPage(book.insertPage()); 
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.page_clear:
@@ -395,7 +396,7 @@ public class QuillWriterActivity extends Activity {
     	case R.id.page_delete:
     		toast("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
     		book.deletePage();
-    		mView.setPageAndZoomOut(book.currentPage());
+    		switchToPage(book.currentPage());
     		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
@@ -426,11 +427,16 @@ public class QuillWriterActivity extends Activity {
     	}
     }
     
+    private void switchToPage(Page page) {
+    	mView.setPageAndZoomOut(page);
+    	mView.setOverlay(new TagOverlay(page.tags));
+    }
+    
     private void flip_page_prev() {
     	if (book.isFirstPage()) 
     		toast("Already on first tagged page"); 
 		else	
-			mView.setPageAndZoomOut(book.previousPage());
+			switchToPage(book.previousPage());
 			if (book.isFirstPage()) 
 				toast("Showing first tagged page"); 
 			else
@@ -440,10 +446,10 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next() {
 		if (book.isLastPage()) {
-			mView.setPageAndZoomOut(book.insertPageAtEnd());
+			switchToPage(book.insertPageAtEnd());
 			toast("Inserted new page at end");
 		} else {
-			mView.setPageAndZoomOut(book.nextPage());
+			switchToPage(book.nextPage());
 			if (book.isLastPage())
 				toast("Showing last tagged page");
 			else 
@@ -456,7 +462,7 @@ public class QuillWriterActivity extends Activity {
     	if (book.isFirstPageUnfiltered()) 
     		toast("Already on first page"); 
 		else	
-			mView.setPageAndZoomOut(book.previousPageUnfiltered());
+			switchToPage(book.previousPageUnfiltered());
 			if (book.isFirstPageUnfiltered()) 
 				toast("Showing first page"); 
 			else
@@ -466,10 +472,10 @@ public class QuillWriterActivity extends Activity {
     
     private void flip_page_next_unfiltered() {
 		if (book.isLastPageUnfiltered()) {
-			mView.setPageAndZoomOut(book.insertPageAtEnd());
+			switchToPage(book.insertPageAtEnd());
 			toast("Inserted new page at end");
 		} else {
-			mView.setPageAndZoomOut(book.nextPageUnfiltered());
+			switchToPage(book.nextPageUnfiltered());
 			if (book.isLastPageUnfiltered())
 				toast("Showing last page");
 			else 
@@ -547,11 +553,12 @@ public class QuillWriterActivity extends Activity {
     	UndoManager.setApplication(this);
     	book = Bookshelf.getCurrentBook();
         if (book != null) {
-        	if (mView.getPage() == book.currentPage()) {
+        	Page p = book.currentPage();
+        	if (mView.getPage() == p) {
         		book.filterChanged();
-        		mView.updateOverlay();
+        		mView.setOverlay(new TagOverlay(p.getTags()));
         	} else {
-        		mView.setPageAndZoomOut(book.currentPage());
+        		switchToPage(p);
         	}
         }
     	updateUndoRedoIcons();
@@ -608,7 +615,6 @@ public class QuillWriterActivity extends Activity {
     	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	Log.d(TAG, "only_pen_input: "+mView.getOnlyPenInput());
-    	mView.requestFocus();
     }
     
     @Override protected void onPause() {
@@ -648,14 +654,14 @@ public class QuillWriterActivity extends Activity {
     
     public void add(Page page, int position) {
     	book.addPage(page, position);
-    	mView.setPageAndZoomOut(book.currentPage());
+    	switchToPage(book.currentPage());
     	updateUndoRedoIcons();
     	menu_prepare_page_has_changed();
     }
 
     public void remove(Page page, int position) {
     	book.removePage(page, position);
-    	mView.setPageAndZoomOut(book.currentPage());
+    	switchToPage(book.currentPage());
     	updateUndoRedoIcons();
     	menu_prepare_page_has_changed();
     }
@@ -664,7 +670,7 @@ public class QuillWriterActivity extends Activity {
     	if (page != mView.getPage()) {
         	Assert.assertTrue("page not in book", book.pages.contains(page));
         	book.setCurrentPage(page);
-    		mView.setPageAndZoomOut(page);
+    		switchToPage(page);
     	}
     	mView.add(graphics);
     	updateUndoRedoIcons();
@@ -674,7 +680,7 @@ public class QuillWriterActivity extends Activity {
     	if (page != mView.getPage()) {
         	Assert.assertTrue("page not in book", book.pages.contains(page));
         	book.setCurrentPage(page);
-    		mView.setPageAndZoomOut(page);
+    		switchToPage(page);
     	}
     	mView.remove(graphics);
     	updateUndoRedoIcons();

@@ -8,6 +8,18 @@ import name.vbraun.view.write.Graphics;
 import name.vbraun.view.write.GraphicsModifiedListener;
 import name.vbraun.view.write.Page;
 
+/**
+ * The command manager. Every change to the notebook has to go through 
+ * the command manager in the form of a Command class that knows how to
+ * undo/redo itself. 
+ * 
+ * The undo manager is a singlet and currently operates only within a 
+ * single notebook. If you change the notebook you must call 
+ * {@link #clearHistory()}.  
+ * 
+ * @author vbraun
+ *
+ */
 public class UndoManager 
 	implements GraphicsModifiedListener, BookModifiedListener {
 	private final static String TAG = "UndoManager";

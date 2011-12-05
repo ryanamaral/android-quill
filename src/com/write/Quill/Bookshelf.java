@@ -103,7 +103,7 @@ public class Bookshelf {
 	
 	private void saveBook(Book b) throws IOException {
 		File file = fileFromUUID(b.uuid);
-		b.saveArchive(file);
+		b.saveBookArchive(file);
 	}
 	
 	public void deleteBook(UUID uuid) {

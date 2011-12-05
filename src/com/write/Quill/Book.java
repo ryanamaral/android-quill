@@ -23,6 +23,12 @@ import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * A book is a collection of Pages and the tag manager.
+ * 
+ * @author vbraun
+ *
+ */
 public class Book {
 	private static final String TAG = "Book";
 	private static final String FILENAME_STEM = "quill";
@@ -501,8 +507,8 @@ public class Book {
 
 	}
 
-	// Save an archive
-	public void saveArchive(File file) throws IOException {
+	
+	public void saveBookArchive(File file) throws IOException {
 		Assert.assertTrue(allowSave);
 		FileOutputStream fos = new FileOutputStream(file);
 		BufferedOutputStream buffer;
