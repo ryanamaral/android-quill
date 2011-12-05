@@ -2,7 +2,8 @@ package com.write.Quill;
 
 import java.util.UUID;
 
-import com.write.Quill.Bookshelf.Notebook;
+import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.Bookshelf.Notebook;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

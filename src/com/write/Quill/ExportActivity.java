@@ -13,6 +13,8 @@ import org.libharu.Document.CompressionMode;
 import org.libharu.Page.PageSize;
 
 import com.write.Quill.R;
+import com.write.Quill.data.Book;
+import com.write.Quill.data.Bookshelf;
 
 import junit.framework.Assert;
 

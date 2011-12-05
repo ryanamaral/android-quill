@@ -8,7 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.write.Quill.Bookshelf.Notebook;
+import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.Bookshelf.Notebook;
 
 public class BookshelfAdapter extends ArrayAdapter<Notebook> {
 

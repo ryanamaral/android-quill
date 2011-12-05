@@ -6,13 +6,15 @@ import java.util.ListIterator;
 import name.vbraun.view.tag.TagEditDialog;
 import name.vbraun.view.tag.TagListView;
 import name.vbraun.view.write.Page;
-import name.vbraun.view.write.TagManager;
-import name.vbraun.view.write.TagManager.Tag;
-import name.vbraun.view.write.TagManager.TagSet;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
 import com.write.Quill.ThumbnailAdapter.Thumbnail;
+import com.write.Quill.data.Book;
+import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.TagManager;
+import com.write.Quill.data.TagManager.Tag;
+import com.write.Quill.data.TagManager.TagSet;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -170,7 +172,7 @@ public class ThumbnailActivity extends Activity implements
     		Book book = Bookshelf.getCurrentBook();
     		LinkedList<Page> pages = book.getFilteredPages();
         	evernote.setPages(book, pages);
-        	evernote.setUUID(book.uuid);
+        	evernote.setUUID(book.getUUID());
         }    	
     }
     

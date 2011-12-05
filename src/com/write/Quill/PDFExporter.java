@@ -18,6 +18,8 @@ import org.libharu.Page.LineJoin;
 import org.libharu.Page.PageDirection;
 import org.libharu.Page.PageSize;
 
+import com.write.Quill.data.Book;
+
 import android.graphics.Color;
 import android.util.Log;
 
@@ -55,7 +57,7 @@ public class PDFExporter
 	}
 	
 	public void add(Book book) {
-		pages.addAll(book.pages);
+		pages.addAll(book.getPages());
 	}
 
 	public void add(LinkedList<Page> page_list) {

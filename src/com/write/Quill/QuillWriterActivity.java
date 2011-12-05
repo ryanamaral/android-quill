@@ -10,7 +10,6 @@ import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics;
 import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.Page;
-import name.vbraun.view.write.TagOverlay;
 import name.vbraun.view.write.ToolHistory;
 import name.vbraun.view.write.Stroke;
 import name.vbraun.view.write.Graphics.Tool;
@@ -19,6 +18,8 @@ import name.vbraun.view.write.ToolHistory.HistoryItem;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
+import com.write.Quill.data.Book;
+import com.write.Quill.data.Bookshelf;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -394,7 +395,8 @@ public class QuillWriterActivity extends Activity {
     		mView.clear();
     		return true;
     	case R.id.page_delete:
-    		toast("Deleted page "+(book.currentPage+1)+" / "+book.pages.size());
+    		toast("Deleted page "+(book.currentPageNumber()+1)+
+    				" / "+book.pagesSize());
     		book.deletePage();
     		switchToPage(book.currentPage());
     		menu_prepare_page_has_changed();
@@ -440,7 +442,8 @@ public class QuillWriterActivity extends Activity {
 			if (book.isFirstPage()) 
 				toast("Showing first tagged page"); 
 			else
-				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPageNumber()+1)+
+						" / "+book.pagesSize());
  		menu_prepare_page_has_changed();
     }
     
@@ -453,7 +456,8 @@ public class QuillWriterActivity extends Activity {
 			if (book.isLastPage())
 				toast("Showing last tagged page");
 			else 
-				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPageNumber()+1)+
+						" / "+book.pagesSize());
 		}
 		menu_prepare_page_has_changed();
     }
@@ -466,7 +470,8 @@ public class QuillWriterActivity extends Activity {
 			if (book.isFirstPageUnfiltered()) 
 				toast("Showing first page"); 
 			else
-				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPageNumber()+1)+
+						" / "+book.pagesSize());
  		menu_prepare_page_has_changed();
     }
     
@@ -479,7 +484,8 @@ public class QuillWriterActivity extends Activity {
 			if (book.isLastPageUnfiltered())
 				toast("Showing last page");
 			else 
-				toast("Showing page "+(book.currentPage+1)+" / "+book.pages.size());
+				toast("Showing page "+(book.currentPageNumber()+1)+
+						" / "+book.pagesSize());
 		}
 		menu_prepare_page_has_changed();
     }
@@ -668,7 +674,7 @@ public class QuillWriterActivity extends Activity {
 
     public void add(Page page, Graphics graphics) {
     	if (page != mView.getPage()) {
-        	Assert.assertTrue("page not in book", book.pages.contains(page));
+        	Assert.assertTrue("page not in book", book.getPages().contains(page));
         	book.setCurrentPage(page);
     		switchToPage(page);
     	}
@@ -678,7 +684,7 @@ public class QuillWriterActivity extends Activity {
     
     public void remove(Page page, Graphics graphics) {
     	if (page != mView.getPage()) {
-        	Assert.assertTrue("page not in book", book.pages.contains(page));
+        	Assert.assertTrue("page not in book", book.getPages().contains(page));
         	book.setCurrentPage(page);
     		switchToPage(page);
     	}

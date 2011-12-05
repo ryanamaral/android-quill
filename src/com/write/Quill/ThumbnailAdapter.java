@@ -6,8 +6,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 
+import com.write.Quill.data.Book;
+import com.write.Quill.data.Bookshelf;
+
 import name.vbraun.view.write.Page;
-import name.vbraun.view.write.TagOverlay;
 
 import junit.framework.Assert;
 
@@ -111,7 +113,7 @@ public class ThumbnailAdapter extends BaseAdapter {
     
     protected void computeItemHeights() {
     	Bookshelf.getCurrentBook().filterChanged();
-    	LinkedList<Page> pages = Bookshelf.getCurrentBook().filteredPages;
+    	LinkedList<Page> pages = Bookshelf.getCurrentBook().getFilteredPages();
     	heightOfItem = new int[pages.size()];
     	ListIterator<Page> iter = pages.listIterator();
     	int pos = pages.size()-1;

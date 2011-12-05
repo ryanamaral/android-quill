@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.data;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -12,9 +12,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.UUID;
 
+import com.write.Quill.BookModifiedListener;
+import com.write.Quill.data.TagManager.TagSet;
+
 import name.vbraun.view.write.Page;
-import name.vbraun.view.write.TagManager;
-import name.vbraun.view.write.TagManager.TagSet;
 
 import junit.framework.Assert;
 
@@ -24,7 +25,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * A book is a collection of Pages and the tag manager.
+ * A book is a collection of Pages and the tag manager together with some 
+ * metadata like its title.
  * 
  * @author vbraun
  *
@@ -168,6 +170,10 @@ public class Book {
 		return title;
 	}
 	
+	public UUID getUUID() {
+		return uuid;
+	}
+	
 	public Page getPage(int n) {
 		return pages.get(n);
 	}
@@ -240,6 +246,10 @@ public class Book {
 		return true;
 	}
 
+	public int currentPageNumber() {
+		return currentPage;
+	}
+	
 	public Page currentPage() {
 		// Log.v(TAG, "current_page() "+currentPage+"/"+pages.size());
 		Assert.assertTrue(currentPage >= 0 && currentPage < pages.size());
@@ -249,6 +259,10 @@ public class Book {
 	public void setCurrentPage(Page page) {
 		currentPage = pages.indexOf(page);
 		Assert.assertTrue(currentPage >= 0);
+	}
+
+	public int pagesSize() {
+		return pages.size();
 	}
 
 	public int filteredPagesSize() {
@@ -459,7 +473,12 @@ public class Book {
 		loadingFinishedHook();
 	}
 
-	protected void recoverFromMissingIndex(Context context) {
+	/**
+	 * If the page index is missing, simply read ahead and fill in missing metadata.
+	 * 
+	 * @param context
+	 */
+	public void recoverFromMissingIndex(Context context) {
 		title = "Recovered notebook";
 		ctime.setToNow();
 		mtime.setToNow();

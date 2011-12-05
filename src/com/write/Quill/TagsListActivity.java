@@ -2,12 +2,14 @@ package com.write.Quill;
 import name.vbraun.view.tag.TagCloudView;
 import name.vbraun.view.tag.TagEditDialog;
 import name.vbraun.view.tag.TagListView;
-import name.vbraun.view.write.TagManager;
-import name.vbraun.view.write.TagManager.Tag;
-import name.vbraun.view.write.TagManager.TagSet;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
+import com.write.Quill.data.Book;
+import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.TagManager;
+import com.write.Quill.data.TagManager.Tag;
+import com.write.Quill.data.TagManager.TagSet;
 
 import android.app.ActionBar;
 import android.app.Activity;

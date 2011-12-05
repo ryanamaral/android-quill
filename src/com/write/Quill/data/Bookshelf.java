@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.data;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.UUID;
+
+import com.write.Quill.UndoManager;
 
 import junit.framework.Assert;
 

@@ -9,6 +9,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.UUID;
 
+import com.write.Quill.data.Book;
+import com.write.Quill.data.TagManager.Tag;
+import com.write.Quill.data.TagManager.TagSet;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -25,8 +29,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import name.vbraun.view.write.Page;
-import name.vbraun.view.write.TagManager.Tag;
-import name.vbraun.view.write.TagManager.TagSet;
 
 public class EvernoteExportDialog 
 	extends ProgressDialog 
