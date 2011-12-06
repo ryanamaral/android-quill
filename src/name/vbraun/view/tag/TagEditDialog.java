@@ -4,9 +4,9 @@ import com.write.Quill.R;
 import com.write.Quill.R.id;
 import com.write.Quill.R.layout;
 import com.write.Quill.R.string;
+import com.write.Quill.data.TagManager;
+import com.write.Quill.data.TagManager.Tag;
 
-import name.vbraun.view.write.TagManager;
-import name.vbraun.view.write.TagManager.Tag;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;

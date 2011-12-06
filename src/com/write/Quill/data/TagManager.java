@@ -28,6 +28,13 @@ public class TagManager {
 	private LinkedList<Tag> allTagsByCount = new LinkedList<Tag>();
 
 	
+	
+	/**
+	 * A single Tag. Use newTag() to construct them.
+	 * 
+	 * @author vbraun
+	 *
+	 */
 	public class Tag {
 		private String name;
 		protected int count = 0;
@@ -66,8 +73,13 @@ public class TagManager {
 		}
 	}
 	
-	// A TagSet is a collection of Tags
-	// Code should never hold on to individual Tags, only to TagSets. 
+	/**
+	 * A TagSet is a collection of Tags
+	 * Code should never hold on to individual Tags, only to TagSets.
+	 *  
+	 * @author vbraun
+	 *
+	 */
 	public class TagSet {
 		protected LinkedList<Tag> tags = new LinkedList<Tag>();
 		
@@ -123,7 +135,7 @@ public class TagManager {
 		public void write_to_stream(DataOutputStream out) throws IOException {
 			out.writeInt(1);  // protocol #1
 			out.writeInt(tags.size());
-			Log.d(TAG, "TagSet wrote n = "+tags.size());
+			// Log.d(TAG, "TagSet wrote n = "+tags.size());
 			ListIterator<Tag> iter = tags.listIterator();
 			while (iter.hasNext()) {
 				Tag t = iter.next();
@@ -138,7 +150,7 @@ public class TagManager {
 			if (version != 1)
 				throw new IOException("Unknown version!");
 			int n = in.readInt();
-			Log.d(TAG, "TagSet read n = "+n);
+			// Log.d(TAG, "TagSet read n = "+n);
 			for (int i=0; i<n; i++) {
 				Tag tag = new Tag(in);
 				Tag existing_tag = findTag(tag.toString());
@@ -156,15 +168,25 @@ public class TagManager {
 	}
 	
 
-	// Construct a new TagSet
+	/**
+	 * This static method is the only way to construct new TagSets.
+	 * 
+	 * @return a new TagSet
+	 */
 	public TagSet newTagSet() {
 		TagSet ts = new TagSet();
 		allTagSets.add(new WeakReference<TagSet>(ts));
-		Log.d("TagSet", "size = "+allTagSets.size());
+		// Log.d(TAG, "size = "+allTagSets.size()+" "+ts);
 		return ts;
 	}
 	
-	// Construct a new Tag
+	/**
+	 * This static method is the only wa to construct a new Tag
+	 * 
+	 * @param name the name of the new tag.
+	 * @return a Tag with the given name. Might be an already 
+	 * 		   existing Tag if it carries the same name.
+	 */
 	public Tag newTag(String name) {
 		Tag t = findTag(name);
 		if (t == null) {
@@ -172,13 +194,14 @@ public class TagManager {
 			allTags.add(t);
 			allTagsByCount.add(t);
 		}
-		Log.d(TAG, "Created new tag "+name+" "+allTags.size());
+		// Log.d(TAG, "Created new tag "+name+" "+allTags.size());
 		return t;
 	}
 	
 	public TagSet loadTagSet(DataInputStream in) throws IOException {
 		TagSet ts = new TagSet(in);
 		allTagSets.add(new WeakReference<TagSet>(ts));
+		// Log.d(TAG, "size = "+allTagSets.size()+" "+ts);
 		return ts;
 	}
 	
@@ -199,6 +222,13 @@ public class TagManager {
 		return null;
 	}
 
+	
+	/**
+	 * Find a tag with given name (case insensitively)
+	 *  
+	 * @param name The name of the tag you are looking for
+	 * @return null if no such tag exists.
+	 */
 	public Tag findTag(String name) {
 		return findTagExcept(name, null);
 	}
@@ -207,7 +237,10 @@ public class TagManager {
 		return allTags.get(position);
 	}
 	
-	public void sort() {
+	/**
+	 * Sort the tags. 
+	 */
+	public void sort() {		
 		Assert.assertTrue(allTags.size() == allTagsByCount.size());
 		expungeTagSets();
 		countTags();
@@ -238,7 +271,9 @@ public class TagManager {
 		}
 	}
 
-	// remove stale TagSets
+	/**
+	 * remove stale TagSets
+	 */
 	private void expungeTagSets() {
 		ListIterator<WeakReference<TagSet>> iter = allTagSets.listIterator();
 		while (iter.hasNext())
@@ -246,7 +281,9 @@ public class TagManager {
 				iter.remove();
  	}
 	
-	// remove unused Tags
+	/**
+	 * remove unused Tags
+	 */
 	public void expungeTags() {
 		countTags();
 		ListIterator<Tag> tag_iter = allTags.listIterator();
@@ -259,7 +296,9 @@ public class TagManager {
 		}
 	}
 	
-	// update tag counts
+	/**
+	 * update tag counts
+	 */
 	private void countTags() {
 		ListIterator<Tag> tag_iter = allTags.listIterator();
 		while (tag_iter.hasNext())
@@ -274,7 +313,12 @@ public class TagManager {
 		}	
 	}
 	
-	// rename the tag, and merge it with like-named tags if necessary
+	/**
+	 * rename the tag, and merge it with like-named tags if necessary
+	 *	
+	 * @param tag the tag you want to rename
+	 * @param name the new name for the tag
+	 */
 	public void renameTag(Tag tag, String name) {
 		if (name.isEmpty()) 
 			deleteTag(tag);
@@ -307,7 +351,11 @@ public class TagManager {
 					
 	}
 	
-	// delete the given tag
+	/**
+	 * delete the given tag
+	 * 
+	 * @param tag
+	 */
 	public void deleteTag(Tag tag) {
 		allTags.remove(tag);
 		allTagsByCount.remove(tag);

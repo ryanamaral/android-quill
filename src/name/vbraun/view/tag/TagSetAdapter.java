@@ -1,11 +1,11 @@
 package name.vbraun.view.tag;
 
 
-import name.vbraun.view.write.TagManager.Tag;
-import name.vbraun.view.write.TagManager.TagSet;
 
 import com.write.Quill.R;
 import com.write.Quill.R.layout;
+import com.write.Quill.data.TagManager.Tag;
+import com.write.Quill.data.TagManager.TagSet;
 
 import android.content.Context;
 import android.graphics.Color;

@@ -8,10 +8,12 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.write.Quill.data.TagManager;
+import com.write.Quill.data.TagManager.TagSet;
+
 import junit.framework.Assert;
 
 import name.vbraun.view.write.Graphics.Tool;
-import name.vbraun.view.write.TagManager.TagSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;

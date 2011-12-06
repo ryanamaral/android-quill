@@ -1,12 +1,12 @@
 package name.vbraun.view.tag;
 
 
-import name.vbraun.view.write.TagManager;
-import name.vbraun.view.write.TagManager.TagSet;
 
 import com.write.Quill.R;
 import com.write.Quill.R.id;
 import com.write.Quill.R.layout;
+import com.write.Quill.data.TagManager;
+import com.write.Quill.data.TagManager.TagSet;
 
 import android.app.ListActivity;
 import android.content.Context;

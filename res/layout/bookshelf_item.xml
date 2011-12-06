@@ -8,7 +8,7 @@
         android:id="@+id/bookshelf_image"
         android:layout_width="150dp"
         android:layout_height="fill_parent"
-        android:src="@drawable/icon" />
+        android:src="@drawable/icon_150" />
     
     <LinearLayout
         android:id="@+id/bookshelf_item_vertical"

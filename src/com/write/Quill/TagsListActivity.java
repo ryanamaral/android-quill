@@ -88,6 +88,7 @@ public class TagsListActivity extends Activity implements
 	public void onDismiss(DialogInterface dialog) {
        	tagList.notifyTagsChanged();
        	tagCloud.notifyTagsChanged();
+   		updateStatusBar();
 	}
 
 

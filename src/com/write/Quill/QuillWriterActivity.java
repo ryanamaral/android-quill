@@ -403,6 +403,7 @@ public class QuillWriterActivity extends Activity {
     		return true;
     	case R.id.export:
     		Intent mExportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
+    		mExportIntent.putExtra("filename", book.getTitle());
     		startActivity(mExportIntent);
     		return true;
     	case R.id.tag_page:

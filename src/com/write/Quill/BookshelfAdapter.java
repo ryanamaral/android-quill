@@ -1,6 +1,8 @@
 package com.write.Quill;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,17 +11,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.write.Quill.data.Bookshelf;
-import com.write.Quill.data.Bookshelf.Notebook;
+import com.write.Quill.data.Bookshelf.BookPreview;
 
-public class BookshelfAdapter extends ArrayAdapter<Notebook> {
+public class BookshelfAdapter extends ArrayAdapter<BookPreview> {
 
 	Context context;
 	
 	public BookshelfAdapter(Context c) {
-		super(c, R.layout.bookshelf_item, Bookshelf.getNotebookList());
+		super(c, R.layout.bookshelf_item, Bookshelf.getBookPreviewList());
 		context = c;
 	}
 	
+	@Override
+	public int getCount() {
+		return super.getCount()+1;
+	}
 	
 	@Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -34,7 +40,15 @@ public class BookshelfAdapter extends ArrayAdapter<Notebook> {
         TextView summary = (TextView) layout.findViewById(R.id.bookshelf_summary);
         ImageView thumb = (ImageView) layout.findViewById(R.id.bookshelf_image);
         
-        Bookshelf.Notebook nb = Bookshelf.getNotebookList().get(position);
+        if (position == Bookshelf.getBookPreviewList().size()) {
+            title.setText("Create new notebook");
+            summary.setText("");
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_150);
+            thumb.setImageBitmap(icon);
+            return layout;
+        }
+        
+        Bookshelf.BookPreview nb = Bookshelf.getBookPreviewList().get(position);
         title.setText(nb.getTitle());
         summary.setText(nb.getSummary());
         thumb.setImageBitmap(nb.getThumbnail(150, 150));

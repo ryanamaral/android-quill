@@ -70,6 +70,13 @@ public class ExportActivity
 	
 	private int size_raster_width, size_raster_height;
 	
+	private String getFilenameFromIntent() {
+		String s = getIntent().getExtras().getString("filename");
+		s = s.split("\\n")[0];
+		s = s.replaceAll("\\P{Alnum}", "_");
+		return s;	
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +101,9 @@ public class ExportActivity
     	sizes.setAdapter(exportSizes);
 
     	name = (TextView)layout.findViewById(R.id.export_name);
+    	String nameString = getFilenameFromIntent();
+    	if (nameString != null)
+    		name.setText(nameString);
     	
     	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
     	format.setOnItemSelectedListener(this);

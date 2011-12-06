@@ -3,8 +3,9 @@ package name.vbraun.view.tag;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import name.vbraun.view.write.TagManager.Tag;
-import name.vbraun.view.write.TagManager.TagSet;
+import com.write.Quill.data.TagManager.Tag;
+import com.write.Quill.data.TagManager.TagSet;
+
 
 
 

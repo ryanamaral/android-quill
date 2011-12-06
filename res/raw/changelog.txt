@@ -20,6 +20,12 @@
     </style>
   </head>
   <body>
+$ 7.3
+  % Version 7.3
+  _ 2011-12-06
+  ! Xmas sales go to charity!
+    * Added dialogs to rename Tags and Notebooks (use long press)
+    * Bug fixes
 $ 7.2
   % Version 7.2
   _ 2011-12-01
