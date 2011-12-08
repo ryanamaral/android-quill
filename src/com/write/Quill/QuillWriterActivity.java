@@ -68,7 +68,9 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 
-public class QuillWriterActivity extends Activity {
+public class QuillWriterActivity 
+	extends	Activity 
+	implements name.vbraun.view.write.Toolbox.OnToolboxListener {
 	private static final String TAG = "Quill";
     private static final String FILENAME_PREFERENCES = "preferences";
 	public static final int DIALOG_COLOR = 1;
@@ -114,6 +116,7 @@ public class QuillWriterActivity extends Activity {
         mView = new HandwriterView(this);
         setContentView(mView);
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
+        mView.setOnToolboxListener(this);
         
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
@@ -153,8 +156,7 @@ public class QuillWriterActivity extends Activity {
         		public void onClick(DialogInterface dialog, int i) {
         			Toast.makeText(getApplicationContext(), 
         				dialogThickness.getItem(i), Toast.LENGTH_SHORT).show();
-        			mView.setPenThickness(dialogThickness.getValue(i));
-        			updatePenHistoryIcon();
+        			setPenThickness(dialogThickness.getValue(i));
         			dialog.dismiss();
         		}};
     		return dialogThickness.create(this, listener);
@@ -233,8 +235,7 @@ public class QuillWriterActivity extends Activity {
         		}
         		@Override
         		public void onOk(AmbilWarnaDialog dialog, int color) {
-        			mView.setPenColor(color);
-        			updatePenHistoryIcon();
+        			setPenColor(color);
         		}
         	});
    //     dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -285,8 +286,6 @@ public class QuillWriterActivity extends Activity {
     		UndoManager.getUndoManager().clearHistory();
         	switchToPage(book.currentPage());
         	return;
-   		// case ACTIVITY_TAG_FILTER:
-   		// case ACTIVITY_TAG_PAGE:
     	}
     }
     
@@ -321,6 +320,74 @@ public class QuillWriterActivity extends Activity {
     	}
     }
     
+	@Override
+	public void onToolboxListener(View view) {
+		Log.d(TAG, "onToolboxListener "+view.getId());
+		switch (view.getId()) {
+		case R.id.toolbox_quill_icon:
+    		launchOverviewActivity();
+			break;
+		case R.id.toolbox_tag:
+			launchTagActivity();
+			break;
+		case R.id.toolbox_undo:
+			undo();
+			break;
+		case R.id.toolbox_redo:
+			redo();
+			break;
+		case R.id.toolbox_fountainpen:
+			setActiveTool(Tool.FOUNTAINPEN);
+			break;
+		case R.id.toolbox_pencil:
+			setActiveTool(Tool.PENCIL);
+			break;
+		case R.id.toolbox_resize:
+			setActiveTool(Tool.MOVE);
+			break;
+		case R.id.toolbox_eraser:
+			setActiveTool(Tool.ERASER);
+			break;
+		case R.id.toolbox_text:
+			setActiveTool(Tool.TEXT);
+			break;
+		case R.id.toolbox_next:
+    		flip_page_next();
+			break;
+		case R.id.toolbox_prev:
+    		flip_page_prev();
+			break;
+		case R.id.toolbox_history_1:
+			break;
+		case R.id.toolbox_history_2:
+			break;
+		case R.id.toolbox_history_3:
+			break;
+		case R.id.toolbox_history_4:
+			break;
+		}
+	}
+	
+	private void setActiveTool(Tool tool) {
+		mView.setToolType(tool);
+		setActionBarIconActive(tool);
+	}
+
+	private void launchTagActivity() {
+    	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
+    	startActivity(i);
+	}
+	
+	@Override
+	public void onToolboxColorListener(int color) {
+		setPenColor(color);		
+	}
+
+	@Override
+	public void onToolboxLineThicknessListener(int thickness) {
+		setPenThickness(thickness);
+	}
+  
     @Override 
     public boolean onOptionsItemSelected(MenuItem item) {
     	mView.interrupt();
@@ -334,26 +401,21 @@ public class QuillWriterActivity extends Activity {
     		startActivityForResult(i, ACTIVITY_PREFERENCES);
     		return true;
     	case R.id.fountainpen:
-    		mView.setToolType(Stroke.Tool.FOUNTAINPEN);
-    		setActionBarIconActive(Stroke.Tool.FOUNTAINPEN);
+    		setActiveTool(Tool.FOUNTAINPEN);
     		return true;
     	case R.id.pencil:
-    		mView.setToolType(Stroke.Tool.PENCIL);
-    		setActionBarIconActive(Stroke.Tool.PENCIL);
+    		setActiveTool(Tool.PENCIL);
     		return true;
     	case R.id.eraser:
-    		mView.setToolType(Stroke.Tool.ERASER);
-    		setActionBarIconActive(Stroke.Tool.ERASER);
+    		setActiveTool(Tool.ERASER);
     		return true;
     	case R.id.move:
-    		mView.setToolType(Stroke.Tool.MOVE);
-    		setActionBarIconActive(Stroke.Tool.MOVE);
+    		setActiveTool(Tool.MOVE);
     		return true;
     	case R.id.typewriter:
-    		mView.setToolType(Stroke.Tool.TEXT);
-    		setActionBarIconActive(Stroke.Tool.TEXT);
+    		setActiveTool(Tool.TEXT);
     		return true;
-   	case R.id.width:
+    	case R.id.width:
     		showDialog(DIALOG_THICKNESS);
     		return true;
     	case R.id.color:        	
@@ -407,8 +469,7 @@ public class QuillWriterActivity extends Activity {
     		startActivity(mExportIntent);
     		return true;
     	case R.id.tag_page:
-    		i = new Intent(getApplicationContext(), TagsListActivity.class);    
-        	startActivity(i);
+    		launchTagActivity();
     		return true;
     	case R.id.tag_filter:
     	case android.R.id.home:
@@ -418,16 +479,38 @@ public class QuillWriterActivity extends Activity {
     	    changeLog.getFullLogDialog().show();
     	    return true;
     	case R.id.undo:
-    		UndoManager.getUndoManager().undo();
-    		updateUndoRedoIcons();
+    		undo();
     		return true;
     	case R.id.redo:
-    		UndoManager.getUndoManager().redo();
-    		updateUndoRedoIcons();
+    		redo();
     		return true;
    	default:
     		return super.onOptionsItemSelected(item);
     	}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Actual implementations of actions
+    ///////////////////////////////////////////////////////////////////////////////
+
+    private void setPenThickness(int thickness) {
+		mView.setPenThickness(thickness);
+		updatePenHistoryIcon();
+    }
+    
+    private void setPenColor(int color) {
+		mView.setPenColor(color);
+		updatePenHistoryIcon();
+    }
+    
+    private void undo() {
+		UndoManager.getUndoManager().undo();
+		updateUndoRedoIcons();
+    }
+    
+    private void redo() {
+		UndoManager.getUndoManager().redo();
+		updateUndoRedoIcons();	
     }
     
     private void switchToPage(Page page) {
@@ -713,6 +796,6 @@ public class QuillWriterActivity extends Activity {
     			redo.setIcon(R.drawable.ic_menu_redo_disabled);
     	}
     }
-  
+
 }
 

@@ -266,6 +266,7 @@ public class ExportActivity
 		} catch (IOException e) {
 			Log.e(TAG, "Error writing file "+e.toString());
         	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();
+        	return;
 		}
         exportThread = new Thread(new Runnable() {
             public void run() {

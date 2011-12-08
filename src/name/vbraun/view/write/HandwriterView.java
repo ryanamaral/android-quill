@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.write.Quill.R;
+
 import name.vbraun.view.write.Graphics.Tool;
 
 import junit.framework.Assert;
@@ -25,6 +27,7 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +38,8 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.InputMethodSubtype;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class HandwriterView extends ViewGroup {
@@ -57,6 +62,10 @@ public class HandwriterView extends ViewGroup {
 	private float oldX1, oldY1, newX1, newY1;  // for 1st finger
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
+	
+	private Toolbox toolbox;
+	private RelativeLayout rl;
+	private ImageButton redButton;
 	
 	private Overlay overlay = null;
 	public void setOverlay(Overlay overlay) {
@@ -139,7 +148,7 @@ public class HandwriterView extends ViewGroup {
             inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
             inputConnection = null;			
 		}
-		
+		toolbox.setActiveTool(t);
 		// now set the new tool 
 		tool_type = t;
 		boolean kbd = (getResources().getConfiguration().keyboardHidden == Configuration.KEYBOARDHIDDEN_YES);
@@ -238,8 +247,29 @@ public class HandwriterView extends ViewGroup {
 		setDrawingCacheEnabled(false);
 		setWillNotDraw(false);
 		setBackgroundDrawable(null);
+		toolbox = new Toolbox(c);
+		addView(toolbox);
 	}
 
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.d(TAG, "onLayout "+editText+" "+l+" "+t+" "+r+" "+b);
+		toolbox.layout(l, t, r, b);
+		if (editText != null) {
+			editText.layout(100, 70, 400, 200);
+		}
+	}
+	
+	public void setOnToolboxListener(Toolbox.OnToolboxListener listener) {
+		toolbox.setOnToolboxListener(listener);
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		toolbox.measure(widthMeasureSpec, heightMeasureSpec);
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+	
 	public void setPageAndZoomOut(Page new_page) {
 		if (new_page == null) return;
 		page = new_page;
@@ -816,11 +846,4 @@ public class HandwriterView extends ViewGroup {
 		invalidate(mRect);
 	}
 
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.d(TAG, "onLayout "+editText);
-		if (editText != null) {
-			editText.layout(100, 70, 400, 200);
-		}
-	}
 }

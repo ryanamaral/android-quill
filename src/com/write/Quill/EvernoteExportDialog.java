@@ -145,7 +145,14 @@ public class EvernoteExportDialog
             	toast("Unable to write file "+file.toString());
             	return;
     		}
-        	Bitmap bitmap = iter.next().renderBitmap(width, height);
+			Page page = iter.next();
+			int w, h;
+			if (page.getAspectRatio() <= 1) {
+				w = width; h = height;
+			} else {
+				w = height; h = width;
+			}
+        	Bitmap bitmap = iter.next().renderBitmap(w, h);
         	bitmap.compress(CompressFormat.PNG, 0, outStream);
         	try {
         		outStream.close();
