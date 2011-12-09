@@ -11,6 +11,7 @@ import name.vbraun.view.write.Graphics.Tool;
 import junit.framework.Assert;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,6 +22,7 @@ import android.graphics.RectF;
 import android.graphics.Path;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.FloatMath;
 import android.util.Log;
@@ -239,9 +241,9 @@ public class HandwriterView extends ViewGroup {
 		this.moveGestureMinDistance = moveGestureMinDistance;
 	}
 
-	public HandwriterView(Context c) {
-		super(c);
-		hw = new name.vbraun.lib.pen.Hardware(c);
+	public HandwriterView(Context context) {
+		super(context);
+		hw = new name.vbraun.lib.pen.Hardware(context);
 		setFocusable(true);
 		pen = new Paint();
 		pen.setAntiAlias(true);
@@ -254,10 +256,23 @@ public class HandwriterView extends ViewGroup {
 		setDrawingCacheEnabled(false);
 		setWillNotDraw(false);
 		setBackgroundDrawable(null);
-		toolbox = new Toolbox(c);
-		addView(toolbox);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+    	boolean left = settings.getBoolean("toolbox_left", false);
+    	setToolbox(left);
 	}
 
+	private boolean toolboxIsOnLeft;
+	
+	public void setToolbox(boolean left) {
+		if (toolbox != null && toolboxIsOnLeft == left) return;
+		if (toolbox != null) 
+			removeView(toolbox);
+		toolbox = new Toolbox(getContext(), left);
+		addView(toolbox);
+		toolboxIsOnLeft = left;
+	}
+	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		Log.d(TAG, "onLayout "+editText+" "+l+" "+t+" "+r+" "+b);

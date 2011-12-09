@@ -714,6 +714,10 @@ public class QuillWriterActivity
     	mView.setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
     	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
+    	
+    	boolean toolbox_left = settings.getBoolean("toolbox_left", false);
+    	mView.setToolbox(toolbox_left);
+    	
     	Log.d(TAG, "only_pen_input: "+mView.getOnlyPenInput());
     }
     

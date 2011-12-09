@@ -27,9 +27,10 @@
   
  
  
- </PreferenceCategory><PreferenceCategory android:title="User data">
+ <CheckBoxPreference android:summary="The red button and toolbox will be on the left" android:title="Left-handed navigation" android:key="toolbox_left" android:defaultValue="false"/></PreferenceCategory><PreferenceCategory android:title="User data">
      <Preference android:summary='Overwrite your notes with a backup (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
      <Preference android:summary='Try to recover pages that are missing from the index' android:key="recovery" android:title="Recover Pages"></Preference>
+     
  </PreferenceCategory>
  
 </PreferenceScreen>

@@ -71,9 +71,12 @@ public class Toolbox
 	protected Button tagButton;
 	
 	
-	protected Toolbox(Context context) {
+	protected Toolbox(Context context, boolean left) {
 		super(context);
-		View.inflate(context, R.layout.toolbox, this);
+		if (left)
+			View.inflate(context, R.layout.toolbox_left, this);
+		else
+			View.inflate(context, R.layout.toolbox, this);
 		redButton    = (ImageButton) findViewById(R.id.toolbox_redbutton);
 		undoButton   = (ImageButton) findViewById(R.id.toolbox_undo);
 		redoButton   = (ImageButton) findViewById(R.id.toolbox_redo);
