@@ -717,7 +717,8 @@ public class QuillWriterActivity
     	
     	boolean toolbox_left = settings.getBoolean("toolbox_left", false);
     	mView.setToolbox(toolbox_left);
-    	
+        mView.setOnToolboxListener(this);
+   	
     	Log.d(TAG, "only_pen_input: "+mView.getOnlyPenInput());
     }
     
