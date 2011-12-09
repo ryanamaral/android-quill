@@ -99,43 +99,6 @@
         android:padding="3dp"
         android:src="@drawable/toolbox_text" />
 
-    <ImageButton
-        android:id="@+id/toolbox_history_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="50dp"
-        android:layout_toRightOf="@+id/toolbox_redbutton"
-        android:background="@drawable/toolbox_background"
-        android:src="@drawable/ic_pen_fountainpen" />
-
-    <ImageButton
-        android:id="@+id/toolbox_history_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/toolbox_history_1"
-        android:layout_alignLeft="@+id/toolbox_history_1"
-        android:background="@drawable/toolbox_background"
-        android:src="@drawable/ic_pen_pencil" />
-
-    <ImageButton
-        android:id="@+id/toolbox_history_3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/toolbox_history_1"
-        android:layout_toRightOf="@+id/toolbox_history_1"
-        android:background="@drawable/toolbox_background"
-        android:src="@drawable/ic_pen_pencil" />
-
-    <ImageButton
-        android:id="@+id/toolbox_history_4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/toolbox_history_3"
-        android:layout_alignTop="@+id/toolbox_history_2"
-        android:background="@drawable/toolbox_background"
-        android:src="@drawable/ic_pen_fountainpen" />
-
     <Spinner
         android:id="@+id/toolbox_thickness_spinner"
         android:layout_width="wrap_content"
@@ -331,11 +294,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:paddingTop="4dp"
+        android:background="@drawable/actionbar_background"
         android:paddingBottom="4dp"
         android:paddingLeft="20dp"
-        android:paddingRight="25dp"        
-        android:background="@drawable/actionbar_background"
+        android:paddingRight="25dp"
+        android:paddingTop="4dp"
         android:src="@drawable/icon" />
 
     <Button
@@ -355,9 +318,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/toolbox_quill_icon"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
         android:layout_marginTop="2dp"
-        android:layout_marginRight="2dp"        
-        android:layout_marginLeft="2dp"        
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
         android:src="@drawable/toolbox_prev" />
@@ -366,10 +329,52 @@
         android:id="@+id/toolbox_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/toolbox_prev"
         android:layout_alignTop="@+id/toolbox_prev"
+        android:layout_toRightOf="@+id/toolbox_prev"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
         android:src="@drawable/toolbox_next" />
+
+    <ImageButton
+        android:id="@+id/toolbox_history_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/toolbox_redbutton"
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/transparent" />
+
+    <ImageButton
+        android:id="@+id/toolbox_history_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toRightOf="@+id/toolbox_history_1"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/transparent" />
+
+    <ImageButton
+        android:id="@+id/toolbox_history_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_toRightOf="@+id/toolbox_history_2"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/transparent" />
+
+    <ImageButton
+        android:id="@+id/toolbox_history_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_toRightOf="@+id/toolbox_history_3"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/transparent" />
 
 </RelativeLayout>

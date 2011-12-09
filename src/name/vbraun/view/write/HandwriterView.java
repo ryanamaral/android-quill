@@ -64,8 +64,11 @@ public class HandwriterView extends ViewGroup {
 	private long oldT, newT;
 	
 	private Toolbox toolbox;
-	private RelativeLayout rl;
-	private ImageButton redButton;
+	public Toolbox getToolBox() {
+		return toolbox;
+	}
+	
+	private ToolHistory toolHistory = ToolHistory.getToolHistory();
 	
 	private Overlay overlay = null;
 	public void setOverlay(Overlay overlay) {
@@ -137,7 +140,7 @@ public class HandwriterView extends ViewGroup {
 		invalidate();
 	}
 	
-	public void setToolType(Tool t) {
+	public void setToolType(Tool tool) {
 		// clean up after previous tool
 		if (tool_type == Tool.TEXT) {
 			if (editText != null) 
@@ -148,11 +151,13 @@ public class HandwriterView extends ViewGroup {
             inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
             inputConnection = null;			
 		}
-		toolbox.setActiveTool(t);
+		toolbox.setActiveTool(tool);
+		if (tool.equals(Tool.FOUNTAINPEN) || tool.equals(Tool.PENCIL))
+			toolHistory.setTool(tool);
 		// now set the new tool 
-		tool_type = t;
+		tool_type = tool;
 		boolean kbd = (getResources().getConfiguration().keyboardHidden == Configuration.KEYBOARDHIDDEN_YES);
-		Log.d(TAG, "setToolType " + t.toString()+" "+kbd);
+		Log.d(TAG, "setToolType " + tool.toString()+" "+kbd);
 	}
 
 	public Tool getToolType() {
@@ -165,6 +170,7 @@ public class HandwriterView extends ViewGroup {
 
 	public void setPenThickness(int thickness) {
 		pen_thickness = thickness;
+		toolHistory.setThickness(thickness);
 	}
 	
 	public int getPenColor() {
@@ -174,6 +180,7 @@ public class HandwriterView extends ViewGroup {
 	public void setPenColor(int c) {
 		pen_color = c;
 		pen.setARGB(Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c));
+		toolHistory.setColor(c);
 	}
 	
 	public Page getPage() {
@@ -821,7 +828,7 @@ public class HandwriterView extends ViewGroup {
 	private void saveStroke() {
 		if (N==0) return;
 		Stroke s = new Stroke(getToolType(), position_x, position_y, pressure, 0, N);
-		ToolHistory.add(getToolType(), getPenThickness(), pen_color);
+		toolHistory.commit();
 		s.setPen(getPenThickness(), pen_color);
 		s.setTransform(page.getTransform());
 		s.applyInverseTransform();

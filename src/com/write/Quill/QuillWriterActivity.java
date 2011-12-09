@@ -58,6 +58,7 @@ import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -69,8 +70,10 @@ import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 
 public class QuillWriterActivity 
-	extends	Activity 
-	implements name.vbraun.view.write.Toolbox.OnToolboxListener {
+	extends	
+		Activity 
+	implements 
+		name.vbraun.view.write.Toolbox.OnToolboxListener {
 	private static final String TAG = "Quill";
     private static final String FILENAME_PREFERENCES = "preferences";
 	public static final int DIALOG_COLOR = 1;
@@ -118,6 +121,9 @@ public class QuillWriterActivity
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         mView.setOnToolboxListener(this);
         
+        ToolHistory history = ToolHistory.getToolHistory();
+        history.onCreate(getApplicationContext());
+
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
@@ -247,7 +253,7 @@ public class QuillWriterActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
-    	int w = getWindowManager().getDefaultDisplay().getWidth();
+		int w = getWindowManager().getDefaultDisplay().getWidth();
     	if (w>=800) {
     		mMenu.findItem(R.id.undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	}
@@ -289,37 +295,6 @@ public class QuillWriterActivity
     	}
     }
     
-    protected void setActionBarIconActive(Stroke.Tool penType) {
-    	if (mMenu == null) return;
-		updatePenHistoryIcon();
-		MenuItem item_fountainpen = mMenu.findItem(R.id.fountainpen);
-		MenuItem item_pencil      = mMenu.findItem(R.id.pencil);
-		MenuItem item_move        = mMenu.findItem(R.id.move);
-		MenuItem item_eraser      = mMenu.findItem(R.id.eraser);
-		MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
-		item_fountainpen.setIcon(R.drawable.ic_menu_quill);
-		item_pencil.setIcon(R.drawable.ic_menu_pencil);
-    	item_move.setIcon(R.drawable.ic_menu_resize);
-    	item_eraser.setIcon(R.drawable.ic_menu_eraser);
-    	item_typewriter.setIcon(R.drawable.ic_menu_text);
-    	switch (penType) {
-    	case FOUNTAINPEN:
-    		item_fountainpen.setIcon(R.drawable.ic_menu_quill_active);
-    		return;
-    	case PENCIL:
-    		item_pencil.setIcon(R.drawable.ic_menu_pencil_active);
-    		return;
-    	case MOVE:
-    		item_move.setIcon(R.drawable.ic_menu_resize_active);
-    		return;
-    	case ERASER:
-    		item_eraser.setIcon(R.drawable.ic_menu_eraser_active);
-    		return;
-    	case TEXT:
-    		item_typewriter.setIcon(R.drawable.ic_menu_text_active);
-    	}
-    }
-    
 	@Override
 	public void onToolboxListener(View view) {
 		Log.d(TAG, "onToolboxListener "+view.getId());
@@ -358,24 +333,18 @@ public class QuillWriterActivity
     		flip_page_prev();
 			break;
 		case R.id.toolbox_history_1:
+			switchPenHistory();
 			break;
 		case R.id.toolbox_history_2:
+			switchPenHistory(0);
 			break;
 		case R.id.toolbox_history_3:
+			switchPenHistory(1);
 			break;
 		case R.id.toolbox_history_4:
+			switchPenHistory(2);
 			break;
 		}
-	}
-	
-	private void setActiveTool(Tool tool) {
-		mView.setToolType(tool);
-		setActionBarIconActive(tool);
-	}
-
-	private void launchTagActivity() {
-    	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
-    	startActivity(i);
 	}
 	
 	@Override
@@ -447,11 +416,9 @@ public class QuillWriterActivity
     		return true;
     	case R.id.page_last:
     		switchToPage(book.lastPage());
-    		menu_prepare_page_has_changed();
     		return true;	
     	case R.id.page_insert:
     		switchToPage(book.insertPage()); 
-    		menu_prepare_page_has_changed();
     		return true;
     	case R.id.page_clear:
     		mView.clear();
@@ -461,7 +428,6 @@ public class QuillWriterActivity
     				" / "+book.pagesSize());
     		book.deletePage();
     		switchToPage(book.currentPage());
-    		menu_prepare_page_has_changed();
     		return true;
     	case R.id.export:
     		Intent mExportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
@@ -493,6 +459,47 @@ public class QuillWriterActivity
     // Actual implementations of actions
     ///////////////////////////////////////////////////////////////////////////////
 
+	private void setActiveTool(Tool tool) {
+		mView.setToolType(tool);
+		setActionBarIconActive(tool);
+	}
+
+    protected void setActionBarIconActive(Tool tool) {
+    	if (mMenu == null) return;
+		updatePenHistoryIcon();
+		MenuItem item_fountainpen = mMenu.findItem(R.id.fountainpen);
+		MenuItem item_pencil      = mMenu.findItem(R.id.pencil);
+		MenuItem item_move        = mMenu.findItem(R.id.move);
+		MenuItem item_eraser      = mMenu.findItem(R.id.eraser);
+		MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
+		item_fountainpen.setIcon(R.drawable.ic_menu_quill);
+		item_pencil.setIcon(R.drawable.ic_menu_pencil);
+    	item_move.setIcon(R.drawable.ic_menu_resize);
+    	item_eraser.setIcon(R.drawable.ic_menu_eraser);
+    	item_typewriter.setIcon(R.drawable.ic_menu_text);
+    	switch (tool) {
+    	case FOUNTAINPEN:
+    		item_fountainpen.setIcon(R.drawable.ic_menu_quill_active);
+    		return;
+    	case PENCIL:
+    		item_pencil.setIcon(R.drawable.ic_menu_pencil_active);
+    		return;
+    	case MOVE:
+    		item_move.setIcon(R.drawable.ic_menu_resize_active);
+    		return;
+    	case ERASER:
+    		item_eraser.setIcon(R.drawable.ic_menu_eraser_active);
+    		return;
+    	case TEXT:
+    		item_typewriter.setIcon(R.drawable.ic_menu_text_active);
+    	}
+    }
+    
+	private void launchTagActivity() {
+    	Intent i = new Intent(getApplicationContext(), TagsListActivity.class);    
+    	startActivity(i);
+	}
+	
     private void setPenThickness(int thickness) {
 		mView.setPenThickness(thickness);
 		updatePenHistoryIcon();
@@ -516,6 +523,7 @@ public class QuillWriterActivity
     private void switchToPage(Page page) {
     	mView.setPageAndZoomOut(page);
     	mView.setOverlay(new TagOverlay(page.tags));
+    	menu_prepare_page_has_changed();
     }
     
     private void flip_page_prev() {
@@ -528,7 +536,6 @@ public class QuillWriterActivity
 			else
 				toast("Showing page "+(book.currentPageNumber()+1)+
 						" / "+book.pagesSize());
- 		menu_prepare_page_has_changed();
     }
     
     private void flip_page_next() {
@@ -543,7 +550,6 @@ public class QuillWriterActivity
 				toast("Showing page "+(book.currentPageNumber()+1)+
 						" / "+book.pagesSize());
 		}
-		menu_prepare_page_has_changed();
     }
     
     private void flip_page_prev_unfiltered() {
@@ -556,7 +562,6 @@ public class QuillWriterActivity
 			else
 				toast("Showing page "+(book.currentPageNumber()+1)+
 						" / "+book.pagesSize());
- 		menu_prepare_page_has_changed();
     }
     
     private void flip_page_next_unfiltered() {
@@ -571,7 +576,6 @@ public class QuillWriterActivity
 				toast("Showing page "+(book.currentPageNumber()+1)+
 						" / "+book.pagesSize());
 		}
-		menu_prepare_page_has_changed();
     }
     
     public void toast(String s) {
@@ -588,52 +592,54 @@ public class QuillWriterActivity
     	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().isReadonly());
 		boolean first = (book.isFirstPage());
 		boolean last  = (book.isLastPage());
-		mMenu.findItem(R.id.page_prev).setEnabled(!first);
-		mMenu.findItem(R.id.page_next).setEnabled(!last); 
+
+		MenuItem prev = mMenu.findItem(R.id.page_prev);  // in the page submenu
+		prev.setEnabled(!first);		
+		prev = mMenu.findItem(R.id.prev);   // in the action bar 
+		prev.setEnabled(!first);
+		mView.getToolBox().setPrevIconEnabled(!first);
+		
+		MenuItem next = mMenu.findItem(R.id.page_next);
+		next.setEnabled(!last);
+		// next from the action bar inserts new page
+		//		next = mMenu.findItem(R.id.next);
+		//		next.setEnabled(!last);
+		//		mView.getToolBox().setNextIconEnabled(!last);
+
 		boolean first_unfiltered = (book.isFirstPageUnfiltered());
 		mMenu.findItem(R.id.page_prev_unfiltered).setEnabled(!first_unfiltered);
     }
     
 
 	private void switchPenHistory() {
-		ToolHistory h = ToolHistory.getPenHistory();
-		if (h.size() <= 1) {
+		ToolHistory h = ToolHistory.getToolHistory();
+		if (h.size() == 0) {
 			Toast.makeText(getApplicationContext(), 
 					"No other pen styles in history.", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		int penHistoryItem = h.nextHistoryItem();
-		// Log.d(TAG, "switchPenHistory "+penHistoryItem+" "+h.size());
-		mView.setPenColor(h.getColor(penHistoryItem));
-		mView.setPenThickness(h.getThickness(penHistoryItem));
-		mView.setToolType(h.getTool(penHistoryItem));
-		setActionBarIconActive(h.getTool(penHistoryItem));
+		h.previous();
+		switchPenHistory(0);
 	}
   
+	private void switchPenHistory(int history) {
+		ToolHistory h = ToolHistory.getToolHistory();
+		if (history >= h.size()) return;
+		mView.setPenColor(h.getColor(history));
+		mView.setPenThickness(h.getThickness(history));
+		mView.setToolType(h.getTool(history));
+		setActionBarIconActive(h.getTool(history));		
+	}
+	
     private void updatePenHistoryIcon() {
     	if (mMenu == null) return;
     	MenuItem item = mMenu.findItem(R.id.prev_pen);
     	if (item == null) return;
     	Drawable icon = item.getIcon();
-    	if (icon == null) return;
-    	
-    	int w = icon.getIntrinsicWidth();
-    	int h = icon.getIntrinsicHeight();
-    	Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-    	Canvas canvas = new Canvas(bitmap);
-    	int c = mView.getPenColor();
-    	canvas.drawARGB(0xa0, Color.red(c), Color.green(c), Color.blue(c));
-    	if (mView.getToolType() == Tool.FOUNTAINPEN) {
-        	final Drawable iconStrokeFountainpen = getResources().getDrawable(R.drawable.ic_pen_fountainpen);
-    		iconStrokeFountainpen.setBounds(0, 0, w, h);
-    		iconStrokeFountainpen.draw(canvas);
-    	} else if (mView.getToolType() == Tool.PENCIL) {
-        	final Drawable iconStrokePencil = getResources().getDrawable(R.drawable.ic_pen_pencil);
-        	iconStrokePencil.setBounds(0, 0, w, h);
-    		iconStrokePencil.draw(canvas);
-    	}
-        item.setIcon(new BitmapDrawable(bitmap));
-    }
+    	if (icon == null) return; 	
+    	ToolHistory history = ToolHistory.getToolHistory();
+    	item.setIcon(history.getIcon());
+   }
 
     
     private String pen_input_mode;
@@ -669,8 +675,12 @@ public class QuillWriterActivity
     	mView.setPenColor(penColor);
     	mView.setPenThickness(penThickness);
     	mView.setToolType(penType);
-    	ToolHistory.add(penType, penThickness, penColor);
-		setActionBarIconActive(penType);
+    	
+    	ToolHistory history = ToolHistory.getToolHistory();
+    	history.setTool(penType);
+    	history.setThickness(penThickness);
+    	history.setColor(penColor);
+    	
 
 		if (settings.contains("only_pen_input")) { 
 			// import obsoleted setting
@@ -746,14 +756,12 @@ public class QuillWriterActivity
     	book.addPage(page, position);
     	switchToPage(book.currentPage());
     	updateUndoRedoIcons();
-    	menu_prepare_page_has_changed();
     }
 
     public void remove(Page page, int position) {
     	book.removePage(page, position);
     	switchToPage(book.currentPage());
     	updateUndoRedoIcons();
-    	menu_prepare_page_has_changed();
     }
 
     public void add(Page page, Graphics graphics) {
@@ -781,6 +789,7 @@ public class QuillWriterActivity
     	UndoManager mgr = UndoManager.getUndoManager();
     	MenuItem undo = mMenu.findItem(R.id.undo);
     	if (mgr.haveUndo() != undo.isEnabled()) {
+        	mView.getToolBox().setUndoIconEnabled(mgr.haveUndo());
     		undo.setEnabled(mgr.haveUndo());
     		if (mgr.haveUndo())
     			undo.setIcon(R.drawable.ic_menu_undo);
@@ -789,6 +798,7 @@ public class QuillWriterActivity
     	}
     	MenuItem redo = mMenu.findItem(R.id.redo);
     	if (mgr.haveRedo() != redo.isEnabled()) {
+        	mView.getToolBox().setRedoIconEnabled(mgr.haveRedo());
     		redo.setEnabled(mgr.haveRedo());
     		if (mgr.haveRedo())
     			redo.setIcon(R.drawable.ic_menu_redo);

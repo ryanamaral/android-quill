@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="toolbox_color">24dp</dimen>
-    <dimen name="toolbox_color_sep">1dp</dimen>
+    <dimen name="toolbox_color_sep">0dp</dimen>
     <string-array name="toolbox_thickness">
         <item >Ultra-fine</item>
         <item >Thin</item>

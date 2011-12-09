@@ -11,13 +11,16 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.AdapterView;
 
 /**
  * The toolbox is a view with a collapsed and expanded view. 
@@ -26,7 +29,13 @@ import android.widget.TextView;
  * @author vbraun
  *
  */
-public class Toolbox extends RelativeLayout implements View.OnClickListener {
+public class Toolbox 
+	extends 
+		RelativeLayout 
+	implements 
+		View.OnClickListener,
+		AdapterView.OnItemSelectedListener,
+		ToolHistory.OnToolHistoryChangedListener {
 	private static final String TAG = "Toolbox";
 	
 	public interface OnToolboxListener {
@@ -40,6 +49,7 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		this.listener = listener;
 	}
 	
+	private boolean lowHeight;
 	private boolean toolboxIsVisible = true;
 	private boolean actionBarReplacementIsVisible = false;
 	
@@ -78,7 +88,6 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		history2     = (ImageButton) findViewById(R.id.toolbox_history_2);
 		history3     = (ImageButton) findViewById(R.id.toolbox_history_3);
 		history4     = (ImageButton) findViewById(R.id.toolbox_history_4);
-		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		colorWhite   = (ImageButton) findViewById(R.id.toolbox_color_white);
 		colorSilver  = (ImageButton) findViewById(R.id.toolbox_color_silver);
 		colorGray    = (ImageButton) findViewById(R.id.toolbox_color_gray);
@@ -99,12 +108,15 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		quillButton  = (ImageButton) findViewById(R.id.toolbox_quill_icon);
 		tagButton    = (Button)      findViewById(R.id.toolbox_tag);
 
+		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
+		thicknessSpinner.setOnItemSelectedListener(this);
+		
 		quillButton.setVisibility(View.INVISIBLE);
 		tagButton.setVisibility(View.INVISIBLE);
-		textButton.setVisibility(View.INVISIBLE);
 
 		redButton.setOnClickListener(this);
 		undoButton.setOnClickListener(this);
+		redoButton.setOnClickListener(this);
 		fountainpenButton.setOnClickListener(this);
 		pencilButton.setOnClickListener(this);
 		resizeButton.setOnClickListener(this);
@@ -134,28 +146,58 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		colorPurple.setOnClickListener(this);
 		quillButton.setOnClickListener(this);
 		tagButton.setOnClickListener(this);
+		
+        Display display = ((WindowManager) 
+        		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int w = display.getHeight();
+        lowHeight = (w<800);
+        
+        if (lowHeight) {
+        	prevButton.setVisibility(View.GONE);
+        	nextButton.setVisibility(View.GONE);
+        }
+        textButton.setVisibility(View.GONE);  // TODO
+        
+        ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
+	}
+	
+	public ImageButton getToolIcon(Tool tool) {
+		switch (tool) {
+		case FOUNTAINPEN:
+			return fountainpenButton;
+		case PENCIL:
+			return pencilButton;
+		case MOVE:
+			return resizeButton;
+		case ERASER:
+			return eraserButton;
+		case TEXT:
+			return textButton;
+		default:
+			Assert.fail();
+			return null;
+		}		
 	}
 	
 	public void setIconActive(Tool tool, boolean active) {
 		if (tool == null) return;
-		final boolean a = active;
-		switch (tool) {
-		case FOUNTAINPEN:
-			fountainpenButton.setSelected(active);
-			break;
-		case PENCIL:
-			pencilButton.setSelected(active);
-			break;
-		case MOVE:
-			resizeButton.setSelected(active);
-			break;
-		case ERASER:
-			eraserButton.setSelected(active);
-			break;
-		case TEXT:
-			textButton.setSelected(active);
-			break;
-		}
+		getToolIcon(tool).setSelected(active);
+	}
+	
+	public void setPrevIconEnabled(boolean active) {
+		prevButton.setEnabled(active);
+	}
+
+	public void setNextIconEnabled(boolean active) {
+		nextButton.setEnabled(active);
+	}
+	
+	public void setUndoIconEnabled(boolean active) {
+		undoButton.setEnabled(active);
+	}
+
+	public void setRedoIconEnabled(boolean active) {
+		redoButton.setEnabled(active);
 	}
 	
 	private Graphics.Tool previousTool;
@@ -183,7 +225,7 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		pencilButton.setVisibility(vis);
 		resizeButton.setVisibility(vis);
 		eraserButton.setVisibility(vis);
-		textButton.setVisibility(vis);
+		// textButton.setVisibility(vis);
 		history1.setVisibility(vis);
 		history2.setVisibility(vis);
 		history3.setVisibility(vis);
@@ -205,8 +247,10 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 		colorFuchsia.setVisibility(vis); 
 		colorPurple.setVisibility(vis);
 		thicknessSpinner.setVisibility(vis);
-		prevButton.setVisibility(vis);
-		nextButton.setVisibility(vis);
+		if (!lowHeight) {
+			prevButton.setVisibility(vis);
+			nextButton.setVisibility(vis);
+		}
 	}
 	
 	@Override
@@ -230,7 +274,6 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		// TODO Auto-generated method stub
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		Log.d(TAG, "onMeasure "+View.MeasureSpec.getSize(widthMeasureSpec)+
 				" "+View.MeasureSpec.getSize(heightMeasureSpec));
@@ -296,5 +339,26 @@ public class Toolbox extends RelativeLayout implements View.OnClickListener {
 			break;
 		}
 	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View item, int position, long id) {
+		int[] choices = {1, 2, 5, 12, 40};
+		int thickness = choices[position];
+		if (listener != null) listener.onToolboxLineThicknessListener(thickness);
+	}
 	
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+	}
+	
+	@Override
+	public void onToolHistoryChanged(boolean onlyCurrent) {
+		ToolHistory h = ToolHistory.getToolHistory();
+		history1.setImageDrawable(h.getIcon());
+		if (onlyCurrent) return;
+		if (h.size() > 0) history2.setImageDrawable(h.getIcon(0));
+		if (h.size() > 1) history3.setImageDrawable(h.getIcon(1));
+		if (h.size() > 2) history4.setImageDrawable(h.getIcon(2));
+	}
+
 }

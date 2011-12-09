@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/actionbar" android:menuCategory="container"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:showAsAction="always" android:icon="@drawable/ic_menu_quill"></item><item android:id="@+id/pencil" android:title="Pencil" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item><item android:id="@+id/move" android:title="Move / Zoom" android:showAsAction="always" android:icon="@drawable/ic_menu_resize"></item><item android:showAsAction="always" android:title="Erase" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
+    <group android:id="@+id/actionbar" android:menuCategory="container"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:showAsAction="always" android:icon="@drawable/toolbox_fountainpen"></item><item android:id="@+id/pencil" android:title="Pencil" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item><item android:id="@+id/move" android:title="Move / Zoom" android:showAsAction="always" android:icon="@drawable/ic_menu_resize"></item><item android:showAsAction="always" android:title="Erase" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
     
     
     
