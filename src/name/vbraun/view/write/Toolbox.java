@@ -55,10 +55,10 @@ public class Toolbox
 	
 	protected ImageButton redButton, redButtonRight, redButtonLeft;
 	protected ImageButton undoButton, redoButton;
-	protected ImageButton fountainpenButton, pencilButton;
+	protected ImageButton fountainpenButton, pencilButton, lineButton;
 	protected ImageButton resizeButton;
 	protected ImageButton eraserButton;	
-	protected ImageButton textButton;
+	protected ImageButton textButton, photoButton;
 	protected ImageButton history1, history2, history3, history4;
 	protected Spinner thicknessSpinner;
 	protected ImageButton colorWhite, colorSilver, colorGray, colorBlack;
@@ -69,7 +69,8 @@ public class Toolbox
 	
 	protected ImageButton quillButton;
 	protected Button tagButton;
-	
+	protected ImageButton menuButton;
+
 	
 	protected Toolbox(Context context, boolean left) {
 		super(context);
@@ -82,9 +83,11 @@ public class Toolbox
 		redoButton   = (ImageButton) findViewById(R.id.toolbox_redo);
 		fountainpenButton = (ImageButton) findViewById(R.id.toolbox_fountainpen);
 		pencilButton = (ImageButton) findViewById(R.id.toolbox_pencil);
+		lineButton   = (ImageButton) findViewById(R.id.toolbox_line);
 		resizeButton = (ImageButton) findViewById(R.id.toolbox_resize);
 		eraserButton = (ImageButton) findViewById(R.id.toolbox_eraser);
 		textButton   = (ImageButton) findViewById(R.id.toolbox_text);
+		photoButton  = (ImageButton) findViewById(R.id.toolbox_photo);
 		nextButton   = (ImageButton) findViewById(R.id.toolbox_next);
 		prevButton   = (ImageButton) findViewById(R.id.toolbox_prev);	
 		history1     = (ImageButton) findViewById(R.id.toolbox_history_1);
@@ -110,21 +113,25 @@ public class Toolbox
 		
 		quillButton  = (ImageButton) findViewById(R.id.toolbox_quill_icon);
 		tagButton    = (Button)      findViewById(R.id.toolbox_tag);
+		menuButton   = (ImageButton) findViewById(R.id.toolbox_menu);
 
 		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		thicknessSpinner.setOnItemSelectedListener(this);
 		
-		quillButton.setVisibility(View.INVISIBLE);
-		tagButton.setVisibility(View.INVISIBLE);
+//		quillButton.setVisibility(View.INVISIBLE);
+//		tagButton.setVisibility(View.INVISIBLE);
+//		menuButton.setVisibility(View.INVISIBLE);
 
 		redButton.setOnClickListener(this);
 		undoButton.setOnClickListener(this);
 		redoButton.setOnClickListener(this);
 		fountainpenButton.setOnClickListener(this);
 		pencilButton.setOnClickListener(this);
+		lineButton.setOnClickListener(this);
 		resizeButton.setOnClickListener(this);
 		eraserButton.setOnClickListener(this);
 		textButton.setOnClickListener(this);
+		photoButton.setOnClickListener(this);
 		nextButton.setOnClickListener(this);
 		prevButton.setOnClickListener(this);
 		history1.setOnClickListener(this);
@@ -149,6 +156,7 @@ public class Toolbox
 		colorPurple.setOnClickListener(this);
 		quillButton.setOnClickListener(this);
 		tagButton.setOnClickListener(this);
+		menuButton.setOnClickListener(this);
 		
         Display display = ((WindowManager) 
         		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -159,8 +167,10 @@ public class Toolbox
         	prevButton.setVisibility(View.GONE);
         	nextButton.setVisibility(View.GONE);
         }
-        textButton.setVisibility(View.GONE);  // TODO
-        
+
+//        textButton.setVisibility(View.GONE);  // TODO
+//        photoButton.setVisibility(View.GONE);  // TODO
+   
         ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
 	}
 	
@@ -216,6 +226,7 @@ public class Toolbox
 		int vis = visible ? View.VISIBLE : View.INVISIBLE;
 		quillButton.setVisibility(vis);
 		tagButton.setVisibility(vis);		
+		menuButton.setVisibility(vis);
 	}
 	
 	public void setToolboxVisible(boolean visible) {
@@ -226,9 +237,11 @@ public class Toolbox
 		redoButton.setVisibility(vis);
 		fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
+		lineButton.setVisibility(vis);
 		resizeButton.setVisibility(vis);
 		eraserButton.setVisibility(vis);
 		// textButton.setVisibility(vis);
+		// photoButton.setVisibility(vis);
 		history1.setVisibility(vis);
 		history2.setVisibility(vis);
 		history3.setVisibility(vis);
@@ -288,6 +301,7 @@ public class Toolbox
 		case R.id.toolbox_redbutton:
 			toolboxIsVisible = !toolboxIsVisible;
 			setToolboxVisible(toolboxIsVisible);
+			if (listener != null) listener.onToolboxListener(v);
 			break;
 		case R.id.toolbox_color_white:
 			if (listener != null) listener.onToolboxColorListener(Color.argb(0xff, 0xff, 0xff, 0xff)); 

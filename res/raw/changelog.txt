@@ -20,6 +20,11 @@
     </style>
   </head>
   <body>
+$ 8.0
+  % Version 8.0
+  _ 2011-12
+    * Toolbox (press red button)
+    * Fixed mime type in export 
 $ 7.3
   % Version 7.3
   _ 2011-12-06

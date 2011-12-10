@@ -19,8 +19,10 @@ import com.write.Quill.data.Bookshelf;
 import junit.framework.Assert;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -58,6 +60,7 @@ public class ExportActivity
 	private Handler handler = new Handler();
 	private ProgressBar progressBar;
 	private String filename;
+	private String mimeType;
 	private Button exportButton;
 	private PDFExporter pdfExporter = null;
 	private Thread exportThread;
@@ -151,6 +154,7 @@ public class ExportActivity
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
         	changeFileExtensionTo(".pdf");
+        	mimeType = "application/pdf";
 			return;
 		case OUTPUT_FORMAT_PNG:  // Raster image format
 			sizes.setEnabled(true);
@@ -159,12 +163,14 @@ public class ExportActivity
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
         	changeFileExtensionTo(".png");
+        	mimeType = "image/png";
 			return;
 		case OUTPUT_FORMAT_BACKUP:  // Quill backup archive
 			sizes.setEnabled(false);
 			exportSizes.clear();
         	exportSizes.notifyDataSetChanged();
         	changeFileExtensionTo(".quill");
+        	mimeType = "application/vnd.name.vbraun.quill";
 			return;
 		}		
 	}
@@ -393,7 +399,7 @@ public class ExportActivity
     private void doShareGeneric() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
-        intent.setType("application/pdf");
+        intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
         try {
             startActivity(Intent.createChooser(intent, 
@@ -448,7 +454,20 @@ public class ExportActivity
         	startActivity(intent);
         	finish();
         } catch (android.content.ActivityNotFoundException ex) {
-        	Toast.makeText(this, getString(R.string.err_evernote_not_found), Toast.LENGTH_LONG).show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Evernote application not found");
+            builder.setMessage("Download from Android Market?");
+            builder.setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent marketIntent = new Intent(Intent.ACTION_VIEW);
+                            marketIntent.setData(Uri.parse("market://details?id=com.evernote"));
+                            startActivity(marketIntent);
+                        }
+                    });
+            builder.setNegativeButton("No", null);
+            builder.create().show();
         } 
     }
             

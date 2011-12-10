@@ -127,6 +127,7 @@ public class QuillWriterActivity
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
+        bar.hide();
         
         Display display = getWindowManager().getDefaultDisplay();
         int w = display.getWidth();
@@ -299,6 +300,13 @@ public class QuillWriterActivity
 	public void onToolboxListener(View view) {
 		Log.d(TAG, "onToolboxListener "+view.getId());
 		switch (view.getId()) {
+		case R.id.toolbox_redbutton:
+			ActionBar bar = getActionBar();
+			if (bar.isShowing())
+				bar.hide();
+			else
+				bar.show();
+			break;
 		case R.id.toolbox_quill_icon:
     		launchOverviewActivity();
 			break;
