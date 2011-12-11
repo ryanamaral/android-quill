@@ -75,9 +75,9 @@ public class Toolbox
 	protected Toolbox(Context context, boolean left) {
 		super(context);
 		if (left)
-			View.inflate(context, R.layout.toolbox_left, this);
-		else
 			View.inflate(context, R.layout.toolbox, this);
+		else
+			View.inflate(context, R.layout.toolbox_right, this);
 		redButton    = (ImageButton) findViewById(R.id.toolbox_redbutton);
 		undoButton   = (ImageButton) findViewById(R.id.toolbox_undo);
 		redoButton   = (ImageButton) findViewById(R.id.toolbox_redo);
@@ -168,10 +168,12 @@ public class Toolbox
         	nextButton.setVisibility(View.GONE);
         }
 
-//        textButton.setVisibility(View.GONE);  // TODO
-//        photoButton.setVisibility(View.GONE);  // TODO
+        textButton.setVisibility(View.GONE);  // TODO
+        photoButton.setVisibility(View.GONE);  // TODO
+        lineButton.setVisibility(View.GONE);
    
         ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
+        onToolHistoryChanged(false);
 	}
 	
 	public ImageButton getToolIcon(Tool tool) {
@@ -237,7 +239,7 @@ public class Toolbox
 		redoButton.setVisibility(vis);
 		fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
-		lineButton.setVisibility(vis);
+//		lineButton.setVisibility(vis);
 		resizeButton.setVisibility(vis);
 		eraserButton.setVisibility(vis);
 		// textButton.setVisibility(vis);

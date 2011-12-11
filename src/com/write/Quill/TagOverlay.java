@@ -29,10 +29,13 @@ public class TagOverlay implements Overlay {
 	private final Rect rect = new Rect();
 	private final StaticLayout layout;
 	
-	public TagOverlay(TagSet ts) {
+	private final boolean right;
+	
+	public TagOverlay(TagSet ts, boolean right) {
+		this.right = right;
 		TagSet filter = Bookshelf.getCurrentBook().getFilter();
 		tagSet = ts;
-		style.setTextAlign(Align.RIGHT);
+		style.setTextAlign(right ? Align.RIGHT : Align.LEFT);
 		style.setAntiAlias(true);
 		style.setColor(Color.DKGRAY);
 		String s = "";
@@ -59,7 +62,10 @@ public class TagOverlay implements Overlay {
 	
 	public void draw(Canvas canvas) {
 		canvas.save();
-		canvas.translate(canvas.getWidth()-MARGIN, canvas.getHeight()-MARGIN-layout.getHeight());
+		if (right)
+			canvas.translate(canvas.getWidth()-MARGIN, canvas.getHeight()-MARGIN-layout.getHeight());
+		else
+			canvas.translate(MARGIN, canvas.getHeight()-MARGIN-layout.getHeight());
 		layout.draw(canvas);
 		canvas.restore();
 	}

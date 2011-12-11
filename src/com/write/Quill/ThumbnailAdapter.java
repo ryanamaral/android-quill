@@ -91,14 +91,14 @@ public class ThumbnailAdapter extends BaseAdapter {
 		protected void onDraw(Canvas canvas) {
 			if (bitmap == null) {
 				canvas.drawColor(Color.DKGRAY);
+	        	tagOverlay.draw(canvas);
 				return;
 			}
 			// Log.d(TAG, "Thumb "+position+" "+getHeight()+" "+bitmap.getHeight());
 			float y = (getHeight()-bitmap.getHeight())/2;
 			canvas.drawBitmap(bitmap, 0, y, paint);
 	        Boolean checked = selectedPages.get(page);
-	        if (tagOverlay != null)
-	        	tagOverlay.draw(canvas);
+	        tagOverlay.draw(canvas);
 	        if (checked != null && checked == true)
 	        	canvas.drawARGB(0x50, 0, 0xff, 0);
 		}
@@ -130,7 +130,6 @@ public class ThumbnailAdapter extends BaseAdapter {
     	Thumbnail thumb = unfinishedThumbnails.pop();
     	Page page = thumb.page;
 		thumb.bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width);
-		thumb.tagOverlay = new TagOverlay(page.getTags());
 		Assert.assertTrue(thumb.bitmap != null);
 		thumb.invalidate();
 		return true;
@@ -154,7 +153,7 @@ public class ThumbnailAdapter extends BaseAdapter {
         thumb.page = page;
         thumb.position = position;
         thumb.bitmap = null;
-        thumb.tagOverlay = new TagOverlay(page.tags);
+        thumb.tagOverlay = new TagOverlay(page.tags, true);
         thumb.requestLayout();     
         unfinishedThumbnails.add(thumb);
         ThumbnailView grid = (ThumbnailView)parent;

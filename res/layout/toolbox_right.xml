@@ -99,6 +99,30 @@
         android:padding="3dp"
         android:src="@drawable/toolbox_text" />
 
+    <ImageButton
+        android:id="@+id/toolbox_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toolbox_text"
+        android:layout_toLeftOf="@+id/toolbox_text"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="2dp"
+        android:padding="3dp"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/toolbox_photo" />
+
+    <ImageButton
+        android:id="@+id/toolbox_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toolbox_pencil"
+        android:layout_toLeftOf="@+id/toolbox_pencil"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="2dp"
+        android:padding="3dp"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/toolbox_line" />
+
     <Spinner
         android:id="@+id/toolbox_thickness_spinner"
         android:layout_width="wrap_content"
@@ -296,8 +320,8 @@
         android:layout_alignParentTop="true"
         android:background="@drawable/actionbar_background"
         android:paddingBottom="4dp"
-        android:paddingRight="20dp"
-        android:paddingLeft="25dp"
+        android:paddingRight="22dp"
+        android:paddingLeft="23dp"
         android:paddingTop="4dp"
         android:src="@drawable/icon" />
 
@@ -310,7 +334,21 @@
         android:layout_toLeftOf="@+id/toolbox_quill_icon"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
-        android:text="Tag" />
+        android:background="@drawable/actionbar_background"
+        android:text="Tags" />
+
+    <ImageButton
+        android:id="@+id/toolbox_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/toolbox_tag"
+        android:background="@drawable/actionbar_background"
+        android:paddingBottom="4dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="4dp"
+        android:src="@drawable/ic_menu_moreoverflow_holo_light" />
 
     <ImageButton
         android:id="@+id/toolbox_prev"

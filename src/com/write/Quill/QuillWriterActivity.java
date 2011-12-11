@@ -65,6 +65,7 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
@@ -90,6 +91,7 @@ public class QuillWriterActivity
     private Button tagButton;
     
     private boolean volumeKeyNavigation;
+    private boolean toolboxIsOnLeft;
 
     private static final String HAVE_BOOK = "have_book";
     
@@ -115,19 +117,18 @@ public class QuillWriterActivity
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
+        ToolHistory history = ToolHistory.getToolHistory();
+        history.onCreate(getApplicationContext());
+
         // Create and attach the view that is responsible for painting.
         mView = new HandwriterView(this);
         setContentView(mView);
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         mView.setOnToolboxListener(this);
         
-        ToolHistory history = ToolHistory.getToolHistory();
-        history.onCreate(getApplicationContext());
-
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
-        bar.hide();
         
         Display display = getWindowManager().getDefaultDisplay();
         int w = display.getWidth();
@@ -141,7 +142,7 @@ public class QuillWriterActivity
     private void createTagButton(ActionBar bar) {
         tagButton = new Button(this);
         tagButton.setText(R.string.tag_button);
-        // tagButton.setBackgroundResource(R.drawable.actionbar_background);
+        tagButton.setBackgroundResource(R.drawable.btn_default_holo_light);
         bar.setCustomView(tagButton);
         bar.setDisplayShowCustomEnabled(true);
 
@@ -301,17 +302,15 @@ public class QuillWriterActivity
 		Log.d(TAG, "onToolboxListener "+view.getId());
 		switch (view.getId()) {
 		case R.id.toolbox_redbutton:
-			ActionBar bar = getActionBar();
-			if (bar.isShowing())
-				bar.hide();
-			else
-				bar.show();
 			break;
 		case R.id.toolbox_quill_icon:
     		launchOverviewActivity();
 			break;
 		case R.id.toolbox_tag:
 			launchTagActivity();
+			break;
+		case R.id.toolbox_menu:
+			openOptionsMenu();
 			break;
 		case R.id.toolbox_undo:
 			undo();
@@ -530,7 +529,7 @@ public class QuillWriterActivity
     
     private void switchToPage(Page page) {
     	mView.setPageAndZoomOut(page);
-    	mView.setOverlay(new TagOverlay(page.tags));
+    	mView.setOverlay(new TagOverlay(page.tags, toolboxIsOnLeft));
     	menu_prepare_page_has_changed();
     }
     
@@ -654,26 +653,26 @@ public class QuillWriterActivity
     
     @Override protected void onResume() {
         super.onResume();
+        // Restore preferences
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+    	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
+       
     	UndoManager.setApplication(this);
     	book = Bookshelf.getCurrentBook();
         if (book != null) {
         	Page p = book.currentPage();
         	if (mView.getPage() == p) {
         		book.filterChanged();
-        		mView.setOverlay(new TagOverlay(p.getTags()));
+        		mView.setOverlay(new TagOverlay(p.getTags(), toolboxIsOnLeft));
         	} else {
         		switchToPage(p);
         	}
         }
-    	updateUndoRedoIcons();
 
         if (hw==null)
     		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
         boolean hwPen = hw.hasPenDigitizer();
         
-        // Restore preferences
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-       
     	int penColor = settings.getInt("pen_color", mView.getPenColor());
     	int penThickness = settings.getInt("pen_thickness", mView.getPenThickness());
     	int penTypeInt = settings.getInt("pen_type", mView.getToolType().ordinal());
@@ -689,7 +688,6 @@ public class QuillWriterActivity
     	history.setThickness(penThickness);
     	history.setColor(penColor);
     	
-
 		if (settings.contains("only_pen_input")) { 
 			// import obsoleted setting
 			if (settings.getBoolean("only_pen_input", false)) 
@@ -723,11 +721,18 @@ public class QuillWriterActivity
     	
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	
-    	boolean toolbox_left = settings.getBoolean("toolbox_left", false);
-    	mView.setToolbox(toolbox_left);
+    	mView.setToolbox(toolboxIsOnLeft);
         mView.setOnToolboxListener(this);
    	
-    	Log.d(TAG, "only_pen_input: "+mView.getOnlyPenInput());
+    	boolean showActionBar = settings.getBoolean("show_action_bar", true);
+		ActionBar bar = getActionBar();
+		if (showActionBar && (bar.isShowing() != showActionBar))
+			bar.show();
+		else if (!showActionBar && (bar.isShowing() != showActionBar))
+			bar.hide();
+		mView.getToolBox().setActionBarReplacementVisible(!showActionBar);
+
+    	updateUndoRedoIcons();
     }
     
     @Override protected void onPause() {

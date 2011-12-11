@@ -258,7 +258,7 @@ public class HandwriterView extends ViewGroup {
 		setBackgroundDrawable(null);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	boolean left = settings.getBoolean("toolbox_left", false);
+    	boolean left = settings.getBoolean("toolbox_left", true);
     	setToolbox(left);
 	}
 
