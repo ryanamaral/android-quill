@@ -542,6 +542,8 @@ public class HandwriterView extends ViewGroup {
 				toastIsReadonly();
 				return true;
 			}
+			if (!useForWriting(event)) 
+				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
 			oldX = newX = event.getX();
 			oldY = newY = event.getY();

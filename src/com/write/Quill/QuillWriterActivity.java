@@ -723,6 +723,7 @@ public class QuillWriterActivity
     	
     	mView.setToolbox(toolboxIsOnLeft);
         mView.setOnToolboxListener(this);
+        mView.getToolBox().setToolboxVisible(settings.getBoolean("toolbox_is_visible", false));
    	
     	boolean showActionBar = settings.getBoolean("show_action_bar", true);
 		ActionBar bar = getActionBar();
@@ -755,6 +756,7 @@ public class QuillWriterActivity
         	editor.putBoolean(Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, mView.getMoveGestureWhileWriting());
         }
     	editor.putInt("move_gesture_min_distance", mView.getMoveGestureMinDistance());
+    	editor.putBoolean("toolbox_is_visible", mView.getToolBox().isToolboxVisible());
         editor.commit();
     	UndoManager.setApplication(null);
     }

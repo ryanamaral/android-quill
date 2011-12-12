@@ -20,6 +20,9 @@
     </style>
   </head>
   <body>
+$ 8.1
+  % Version 8.1
+    * Make eraser only use pen input if in "pen only" mode
 $ 8.0
   % Version 8.0
   _ 2011-12-11

@@ -271,6 +271,10 @@ public class Toolbox
 		}
 	}
 	
+	public boolean isToolboxVisible() {
+		return toolboxIsVisible;
+	}
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
