@@ -40,7 +40,7 @@
         android:src="@drawable/toolbox_pencil" />
 
     <ImageButton
-        android:id="@+id/toolbox_undo"
+        android:id="@+id/toolbox_redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toolbox_fountainpen"
@@ -49,25 +49,25 @@
         android:layout_marginTop="2dp"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_undo" />
+        android:src="@drawable/toolbox_redo" />
 
     <ImageButton
-        android:id="@+id/toolbox_redo"
+        android:id="@+id/toolbox_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/toolbox_undo"
+        android:layout_alignBottom="@+id/toolbox_redo"
         android:layout_marginRight="2dp"
         android:layout_marginTop="2dp"
-        android:layout_toLeftOf="@+id/toolbox_undo"
+        android:layout_toLeftOf="@+id/toolbox_redo"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_redo" />
+        android:src="@drawable/toolbox_undo" />
 
     <ImageButton
         android:id="@+id/toolbox_eraser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/toolbox_undo"
+        android:layout_above="@+id/toolbox_redo"
         android:layout_alignParentRight="true"
         android:layout_marginRight="2dp"
         android:layout_marginTop="2dp"
@@ -323,18 +323,18 @@
         android:paddingRight="22dp"
         android:paddingLeft="23dp"
         android:paddingTop="4dp"
-        android:src="@drawable/icon" />
+        android:src="@drawable/toolbox_quill" />
 
     <Button
         android:id="@+id/toolbox_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/toolbox_prev"
+        android:layout_above="@+id/toolbox_next"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/toolbox_quill_icon"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
-        android:background="@drawable/actionbar_background"
+        android:background="@drawable/toolbox_button"
         android:text="Tags" />
 
     <ImageButton
@@ -351,7 +351,7 @@
         android:src="@drawable/ic_menu_moreoverflow_holo_light" />
 
     <ImageButton
-        android:id="@+id/toolbox_prev"
+        android:id="@+id/toolbox_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -361,17 +361,17 @@
         android:layout_marginTop="2dp"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_prev" />
+        android:src="@drawable/toolbox_next" />
 
     <ImageButton
-        android:id="@+id/toolbox_next"
+        android:id="@+id/toolbox_prev"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/toolbox_prev"
-        android:layout_toLeftOf="@+id/toolbox_prev"
+        android:layout_alignTop="@+id/toolbox_next"
+        android:layout_toLeftOf="@+id/toolbox_next"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_next" />
+        android:src="@drawable/toolbox_prev" />
 
     <ImageButton
         android:id="@+id/toolbox_history_1"

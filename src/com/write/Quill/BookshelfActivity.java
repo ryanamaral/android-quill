@@ -154,8 +154,10 @@ public class BookshelfActivity
 		extends DialogFragment 
 		implements OnClickListener {
 		private static final String TAG = "LongClickDialogFragment";
-		
+	
 		private int position;
+		private boolean is_new_notebook_dialog;
+		
 		private BookPreview notebook;
 		private Button okButton, cancelButton, exportButton, deleteButton;
 		private EditText text;
@@ -190,7 +192,6 @@ public class BookshelfActivity
 	                	EditText editText = (EditText)v;
 	                	String text = editText.getText().toString();
 	                    int editTextRowCount = text.split("\n").length;
-	                    Log.d(TAG, "onKey "+editTextRowCount);
 	                    if (editTextRowCount >= 3) return true;
 	                }
 	                return false;
@@ -207,7 +208,8 @@ public class BookshelfActivity
 		
 			if (notebooks.size()==1)
 				deleteButton.setEnabled(false);
-			if (title == R.string.edit_notebook_title_new) {
+			is_new_notebook_dialog = (title == R.string.edit_notebook_title_new);
+			if (is_new_notebook_dialog) {
 				deleteButton.setVisibility(View.INVISIBLE);
 				exportButton.setVisibility(View.INVISIBLE);
 			}
@@ -230,6 +232,11 @@ public class BookshelfActivity
 	    		dismiss();
 	    		break;
 	    	case R.id.edit_notebook_cancel:
+	    		if (is_new_notebook_dialog) {
+	    			BookshelfActivity activity = ((BookshelfActivity)getActivity());
+	    	    	Bookshelf.getBookshelf().deleteBook(notebook.getUUID());	    			
+	    			activity.adapter.notifyDataSetChanged();
+	    		}
 	    		dismiss();
 	    		break;
 	    	case R.id.edit_notebook_export:

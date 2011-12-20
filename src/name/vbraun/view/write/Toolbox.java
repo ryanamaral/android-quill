@@ -170,7 +170,7 @@ public class Toolbox
 
         textButton.setVisibility(View.GONE);  // TODO
         photoButton.setVisibility(View.GONE);  // TODO
-        lineButton.setVisibility(View.GONE);
+        lineButton.setVisibility(View.GONE); // TODO
    
         ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
         onToolHistoryChanged(false);
@@ -363,13 +363,21 @@ public class Toolbox
 		}
 	}
 
+	private int[] thicknessChoices = {1, 2, 5, 12, 40};
+
+	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View item, int position, long id) {
-		int[] choices = {1, 2, 5, 12, 40};
-		int thickness = choices[position];
+		int thickness = thicknessChoices[position];
 		if (listener != null) listener.onToolboxLineThicknessListener(thickness);
 	}
 	
+	public void setThickness(int thickness) {
+		for (int i=0; i<thicknessChoices.length; i++)
+			if (thickness == thicknessChoices[i])
+				thicknessSpinner.setSelection(i);
+	}
+	 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
@@ -377,6 +385,7 @@ public class Toolbox
 	@Override
 	public void onToolHistoryChanged(boolean onlyCurrent) {
 		ToolHistory h = ToolHistory.getToolHistory();
+		Log.d(TAG, "onToolHistoryChanged "+h.size());
 		history1.setImageDrawable(h.getIcon());
 		if (onlyCurrent) return;
 		if (h.size() > 0) history2.setImageDrawable(h.getIcon(0));

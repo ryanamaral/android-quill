@@ -22,7 +22,12 @@
   <body>
 $ 8.1
   % Version 8.1
+  _ 2011-12-20
     * Make eraser only use pen input if in "pen only" mode
+    * Fix restoring the pen thickness upon launch
+    * Make pen history persistent
+    * Snap back to previous pen after erasing
+    * More bugfixes
 $ 8.0
   % Version 8.0
   _ 2011-12-11

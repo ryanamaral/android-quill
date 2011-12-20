@@ -8,6 +8,7 @@ import com.write.Quill.R;
 import name.vbraun.view.write.Graphics.Tool;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -126,27 +127,6 @@ public class ToolHistory {
 		return history.get(historyIndex).getBitmapDrawable();
 	}
 	
-//	public int getPreviousColor() {
-//		if (history.isEmpty())
-//			return current.color;
-//		else
-//			return history.get(1).color;
-//	}
-//	
-//	public Tool getPreviousTool() {
-//		if (history.isEmpty())
-//			return current.tool;
-//		else
-//			return history.get(1).tool;
-//	}
-//
-//	public int getPreviousThickness() {
-//		if (history.isEmpty())
-//			return current.thickness;
-//		else
-//			return history.get(1).thickness;
-//	}
-//
 	public int getColor() {
 		return current.color;
 	}
@@ -247,6 +227,44 @@ public class ToolHistory {
     	callListener(false);
     }
 	
-	
+    
+    public void saveToSettings(SharedPreferences.Editor editor) {
+//    	saveItemToSettings(current, "current", editor);
+    	editor.putInt("ToolHistory_size", size());
+    	for (int i=0; i<size(); i++)
+    		saveItemToSettings(history.get(i), "item"+i, editor);
+    }
+
+    private void saveItemToSettings(HistoryItem item, String name, SharedPreferences.Editor editor) {
+    	String typeName = "HistoryItem_pen_type_"+name;
+    	String colorName = "HistoryItem_pen_color_"+name;
+    	String thicknessName = "HistoryItem_pen_thickness_"+name;
+        editor.putInt(typeName, item.tool.ordinal());
+        editor.putInt(colorName, item.color);
+        editor.putInt(thicknessName, item.thickness);
+    }
+
+    private HistoryItem restoreItemFromSettings(String name, SharedPreferences settings) {
+    	String typeName = "HistoryItem_pen_type_"+name;
+    	String colorName = "HistoryItem_pen_color_"+name;
+    	String thicknessName = "HistoryItem_pen_thickness_"+name;
+    	int penColor = settings.getInt(colorName, Color.BLACK);
+    	int penThickness = settings.getInt(thicknessName, 1);
+    	int penTypeInt = settings.getInt(typeName, Tool.FOUNTAINPEN.ordinal());
+    	Stroke.Tool penType = Stroke.Tool.values()[penTypeInt];
+    	return new HistoryItem(penType, penThickness, penColor);
+    }
+    
+
+    public void restoreFromSettings(SharedPreferences settings) {
+    	int n = settings.getInt("ToolHistory_size", 0);
+//    	current = restoreItemFromSettings("current", settings);
+    	history.clear();
+    	for (int i=0; i<n; i++) {
+    		HistoryItem item = restoreItemFromSettings("item"+i, settings);
+    		history.add(item);
+    	}	
+    }
+    
 }
 

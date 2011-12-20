@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import javax.net.ssl.HandshakeCompletedListener;
+
 import sheetrock.panda.changelog.ChangeLog;
 
 import name.vbraun.lib.pen.Hardware;
@@ -13,6 +15,7 @@ import name.vbraun.view.write.Page;
 import name.vbraun.view.write.ToolHistory;
 import name.vbraun.view.write.Stroke;
 import name.vbraun.view.write.Graphics.Tool;
+import name.vbraun.view.write.HandwriterView.OnStrokeFinishedListener;
 import name.vbraun.view.write.ToolHistory.HistoryItem;
 
 import junit.framework.Assert;
@@ -74,9 +77,10 @@ public class QuillWriterActivity
 	extends	
 		Activity 
 	implements 
-		name.vbraun.view.write.Toolbox.OnToolboxListener {
+		name.vbraun.view.write.Toolbox.OnToolboxListener,
+		OnStrokeFinishedListener {
 	private static final String TAG = "Quill";
-    private static final String FILENAME_PREFERENCES = "preferences";
+
 	public static final int DIALOG_COLOR = 1;
 	public static final int DIALOG_THICKNESS = 2;
 	public static final int DIALOG_PAPER_ASPECT = 3;
@@ -93,8 +97,6 @@ public class QuillWriterActivity
     private boolean volumeKeyNavigation;
     private boolean toolboxIsOnLeft;
 
-    private static final String HAVE_BOOK = "have_book";
-    
     private static final DialogThickness dialogThickness = new DialogThickness();
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
@@ -125,6 +127,7 @@ public class QuillWriterActivity
         setContentView(mView);
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         mView.setOnToolboxListener(this);
+        mView.setOnStrokeFinishedListener(this);
         
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
@@ -508,11 +511,13 @@ public class QuillWriterActivity
 	}
 	
     private void setPenThickness(int thickness) {
+    	if (thickness == mView.getPenThickness()) return;
 		mView.setPenThickness(thickness);
 		updatePenHistoryIcon();
     }
     
     private void setPenColor(int color) {
+    	if (color == mView.getPenColor()) return;
 		mView.setPenColor(color);
 		updatePenHistoryIcon();
     }
@@ -654,6 +659,8 @@ public class QuillWriterActivity
     @Override protected void onResume() {
         super.onResume();
         // Restore preferences
+        mView.setOnToolboxListener(null);
+
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
     	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
        
@@ -684,9 +691,8 @@ public class QuillWriterActivity
     	mView.setToolType(penType);
     	
     	ToolHistory history = ToolHistory.getToolHistory();
-    	history.setTool(penType);
-    	history.setThickness(penThickness);
-    	history.setColor(penColor);
+    	history.restoreFromSettings(settings);
+    	mView.getToolBox().onToolHistoryChanged(false);
     	
 		if (settings.contains("only_pen_input")) { 
 			// import obsoleted setting
@@ -722,7 +728,6 @@ public class QuillWriterActivity
     	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
     	
     	mView.setToolbox(toolboxIsOnLeft);
-        mView.setOnToolboxListener(this);
         mView.getToolBox().setToolboxVisible(settings.getBoolean("toolbox_is_visible", false));
    	
     	boolean showActionBar = settings.getBoolean("show_action_bar", true);
@@ -733,7 +738,9 @@ public class QuillWriterActivity
 			bar.hide();
 		mView.getToolBox().setActionBarReplacementVisible(!showActionBar);
 
+        mView.setOnToolboxListener(this);
     	updateUndoRedoIcons();
+        mView.setOnStrokeFinishedListener(this);
     }
     
     @Override protected void onPause() {
@@ -746,9 +753,12 @@ public class QuillWriterActivity
         editor.putInt("pen_type", mView.getToolType().ordinal());
         editor.putInt("pen_color", mView.getPenColor());
         editor.putInt("pen_thickness", mView.getPenThickness());
-        editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
         
-        editor.putString(Preferences.KEY_LIST_PEN_INPUT_MODE, pen_input_mode);
+    	ToolHistory history = ToolHistory.getToolHistory();
+    	history.saveToSettings(editor);
+
+        editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
+    	editor.putString(Preferences.KEY_LIST_PEN_INPUT_MODE, pen_input_mode);
         editor.remove("only_pen_input");  // obsoleted
 
         if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
@@ -826,6 +836,14 @@ public class QuillWriterActivity
     			redo.setIcon(R.drawable.ic_menu_redo_disabled);
     	}
     }
+
+	@Override
+	public void onStrokeFinishedListener() {
+		Tool tool = mView.getToolType();
+		if (tool != Tool.ERASER) return;
+		ToolHistory h = ToolHistory.getToolHistory();
+		setActiveTool(h.getTool());
+	}
 
 }
 

@@ -80,6 +80,22 @@ public class HandwriterView extends ViewGroup {
 	
 	private GraphicsModifiedListener graphicsListener = null;
   
+	
+	public interface OnStrokeFinishedListener {
+		void onStrokeFinishedListener();
+	}
+	
+	private OnStrokeFinishedListener strokeFinishedListener = null;
+	
+	public void setOnStrokeFinishedListener(OnStrokeFinishedListener listener) {
+		strokeFinishedListener = listener;
+	}
+	
+	private void callOnStrokeFinishedListener() {
+		if (strokeFinishedListener != null)
+			strokeFinishedListener.onStrokeFinishedListener();
+	}
+	
 	// text input
 	private InputMethodManager inputMethodManager;
 	private HandwriterInputConnection inputConnection;
@@ -173,6 +189,7 @@ public class HandwriterView extends ViewGroup {
 	public void setPenThickness(int thickness) {
 		pen_thickness = thickness;
 		toolHistory.setThickness(thickness);
+		toolbox.setThickness(thickness);
 	}
 	
 	public int getPenColor() {
@@ -548,7 +565,9 @@ public class HandwriterView extends ViewGroup {
 			oldX = newX = event.getX();
 			oldY = newY = event.getY();
 			return true;
-		} else if (action == MotionEvent.ACTION_UP) {  
+		} else if (action == MotionEvent.ACTION_UP) { 
+			if (penID == event.getPointerId(0))
+				callOnStrokeFinishedListener();
 			penID = -1;
 		}
 		return false;
@@ -771,6 +790,7 @@ public class HandwriterView extends ViewGroup {
 				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
 				saveStroke();
 				N = 0;
+				callOnStrokeFinishedListener();
 			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
 						fingerId1 != -1 && fingerId2 != -1) {
