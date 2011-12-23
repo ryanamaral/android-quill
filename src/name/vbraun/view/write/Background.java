@@ -47,8 +47,14 @@ public class Background {
 		case EMPTY:
 			return;
 		case RULED:
-			draw_ruled(canvas, t);
+			draw_ruled(canvas, t, 8.7f, 31.75f);
 			return;
+		case COLLEGERULED:
+			draw_ruled(canvas, t, 7.1f, 31.75f);
+			return;			
+		case NARROWRULED:
+			draw_ruled(canvas, t, 6.35f, 0.0f);
+			return;						
 		case QUAD:
 			draw_quad(canvas, t);
 			return;
@@ -60,9 +66,10 @@ public class Background {
 	
 	private static final float marginMm = 5;
 	
-	private void draw_ruled(Canvas c, Transformation t) {
-		float spacingMm = 8.7f;
-		float vertLineMm = 31.75f;
+	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin){
+		
+		float spacingMm = lineSpacing;
+		float vertLineMm = margin;
 		
 		int shade = 0xaa;
 		float threshold = 1500;
@@ -79,12 +86,15 @@ public class Background {
 			c.drawLine(x0, y, x1, y, paint);
 		}
 
-		paint.setARGB(0xff, 0xff, shade, shade);
-		paint.setStrokeWidth(0);
-		float y0 = t.applyY(marginMm/heightMm);
-		float y1 = t.applyY((heightMm-marginMm)/heightMm);
-		float x = t.applyX(vertLineMm/widthMm);
-		c.drawLine(x, y0, x, y1, paint);
+		// Paint margin
+		if (margin > 0.0f){
+			paint.setARGB(0xff, 0xff, shade, shade);
+			paint.setStrokeWidth(0);
+			float y0 = t.applyY(marginMm/heightMm);
+			float y1 = t.applyY((heightMm-marginMm)/heightMm);
+			float x = t.applyX(vertLineMm/widthMm);
+			c.drawLine(x, y0, x, y1, paint);
+		}
 	}
 	
 	private void draw_quad(Canvas c, Transformation t) {

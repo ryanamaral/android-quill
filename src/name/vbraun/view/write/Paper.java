@@ -4,7 +4,7 @@ public class Paper {
 	private static final String TAG = "PaperType";
 
 	public enum Type {
-		EMPTY, RULED, QUAD, HEX
+		EMPTY, RULED, QUAD, HEX, COLLEGERULED, NARROWRULED
 	}
 		
 	private CharSequence name;
@@ -13,6 +13,8 @@ public class Paper {
 	public static final Paper[] Table = {
 		new Paper("Blank",  Type.EMPTY),
 		new Paper("Legal ruled",  Type.RULED),
+		new Paper("College ruled",  Type.COLLEGERULED),
+		new Paper("Narrow ruled",  Type.NARROWRULED),
 		new Paper("Quad paper",  Type.QUAD)
 	};
 
