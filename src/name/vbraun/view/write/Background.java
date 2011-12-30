@@ -14,10 +14,15 @@ import android.util.Log;
 public class Background {
 	public static final String TAG = "Background"; 
 	private static final float INCH_in_CM = 2.54f;
+	private static final float INCH_in_MM = INCH_in_CM * 10;
+	
+	private static final float LEGALRULED_SPACING = 8.7f;
+	private static final float COLLEGERULED_SPACING = 7.1f;
+	private static final float NARROWRULED_SPACING = 6.35f;
 
 	private Paper.Type paperType= Paper.Type.EMPTY;
 	private AspectRatio aspectRatio = AspectRatio.Table[0];
-	private float heightMm, widthMm;
+	private float heightMm, widthMm;	
 	
 	private final RectF paper = new RectF();
 	private final Paint paint = new Paint();
@@ -47,16 +52,19 @@ public class Background {
 		case EMPTY:
 			return;
 		case RULED:
-			draw_ruled(canvas, t, 8.7f, 31.75f);
+			draw_ruled(canvas, t, LEGALRULED_SPACING, 31.75f);
 			return;
 		case COLLEGERULED:
-			draw_ruled(canvas, t, 7.1f, 31.75f);
+			draw_ruled(canvas, t, COLLEGERULED_SPACING, 31.75f);
 			return;			
 		case NARROWRULED:
-			draw_ruled(canvas, t, 6.35f, 0.0f);
+			draw_ruled(canvas, t, NARROWRULED_SPACING, 0.0f);
 			return;						
 		case QUAD:
 			draw_quad(canvas, t);
+			return;
+		case CORNELLNOTES:
+			draw_cornellnotes(canvas, t);
 			return;
 		case HEX:
 			// TODO
@@ -64,6 +72,48 @@ public class Background {
 		}
 	}
 	
+	private void draw_cornellnotes(Canvas c, Transformation t) {
+		
+		float x0, x1, y0, y1;
+		final float MARGIN = 1.25f;
+				
+		int shade = 0xaa;
+		float threshold = 1500;
+		if (t.scale < threshold)
+			shade += (int)((threshold-t.scale)/threshold*(0xff-shade));
+		paint.setARGB(0xff, shade, shade, shade);
+		paint.setStrokeWidth(0);
+		
+		// Cue Column
+		x0 = t.applyX((MARGIN*INCH_in_MM)/widthMm);
+		x1 = x0;
+		y0 = 0;
+		y1 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
+		
+		c.drawLine(x0, y0, x1, y1, paint);
+		
+		// Summary area at base of page
+		x0 = 0;
+		x1 = t.applyX(widthMm/heightMm);
+		y0 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
+		y1 = y0;
+		
+		c.drawLine(x0, y0, x1, y1, paint);
+		
+		// Details
+		float spacingMm = COLLEGERULED_SPACING;
+		int n = (int)Math.floor((heightMm-(MARGIN*INCH_in_MM) - 2 * marginMm) / spacingMm);
+		
+		x0 = t.applyX((MARGIN*INCH_in_MM)/widthMm + marginMm/heightMm);
+		x1 = t.applyX((widthMm-marginMm)/heightMm);
+		
+		for (int i=1; i<=n; i++) {
+			float y = t.applyY(((heightMm-n*spacingMm - MARGIN*INCH_in_MM)/2 + i*spacingMm)/heightMm);
+			c.drawLine(x0, y, x1, y, paint);
+		}
+		
+	}
+
 	private static final float marginMm = 5;
 	
 	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin){
