@@ -65,7 +65,7 @@ public class Bookshelf {
 			return s;
 		}
 		public Bitmap getThumbnail(int width, int height) {
-    		return preview.currentPage().renderBitmap(width, height);
+    		return preview.currentPage().renderBitmap(width, height, true);
 		}
 		public void reload() {
 			if (preview.uuid.equals(currentBook.uuid)) {

@@ -142,10 +142,15 @@ public class Page {
 	}
 
 	public void draw(Canvas canvas, RectF bounding_box) {
+		draw(canvas, bounding_box, true);
+	}
+	
+	public void draw(Canvas canvas, RectF bounding_box, boolean drawBackgroundLines) {
 	    ListIterator<Stroke> siter = strokes.listIterator();
 		canvas.save();
 		canvas.clipRect(bounding_box);
-		background.draw(canvas, bounding_box, transformation);
+		if (drawBackgroundLines)
+			background.draw(canvas, bounding_box, transformation);
 		backgroundText.draw(canvas, bounding_box);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	
@@ -168,8 +173,12 @@ public class Page {
 	}
 	
 	public void draw(Canvas canvas) {
+		draw(canvas, true);
+	}
+
+	public void draw(Canvas canvas, boolean background) {
 		mRectF.set(0,0,canvas.getWidth(), canvas.getHeight());
-		draw(canvas, mRectF);
+		draw(canvas, mRectF, background);
 	}
 	
 	
@@ -234,7 +243,7 @@ public class Page {
 		background.setPaperType(paper_type);
 	}
 	
-	public Bitmap renderBitmap(int width, int height) {
+	public Bitmap renderBitmap(int width, int height, boolean background) {
 		Transformation backup = getTransform().copy();
 		float scale = Math.min(height, width/aspect_ratio);
 		setTransform(0, 0, scale);
@@ -243,7 +252,7 @@ public class Page {
 		Bitmap bitmap = Bitmap.createBitmap
 			(actual_width, actual_height, Config.ARGB_8888);
 		Canvas c = new Canvas(bitmap);
-		draw(c);
+		draw(c, background);
 		setTransform(backup);
 		return bitmap;
 	}

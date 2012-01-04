@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -24,11 +25,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -67,11 +71,13 @@ public class ExportActivity
 	private String fullFilename;
 	private File file;
 	private FileOutputStream outStream = null;
-	private Spinner sizes;
+	private Spinner format, sizes, via;
 	private ArrayAdapter<CharSequence> exportSizes;
 	private TextView name;
+	private CheckBox backgroundCheckbox;
 	
-	private int size_raster_width, size_raster_height;
+	volatile private int size_raster_width, size_raster_height;
+	volatile private boolean drawBackground;
 	
 	private String getFilenameFromIntent() {
 		String s = getIntent().getExtras().getString("filename");
@@ -102,16 +108,17 @@ public class ExportActivity
     	exportSizes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	sizes = (Spinner)layout.findViewById(R.id.export_size);
     	sizes.setAdapter(exportSizes);
+    	sizes.setOnItemSelectedListener(this);
 
     	name = (TextView)layout.findViewById(R.id.export_name);
-    	String nameString = getFilenameFromIntent();
-    	if (nameString != null)
-    		name.setText(nameString);
     	
-    	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
+    	format = (Spinner)layout.findViewById(R.id.export_file_format);
     	format.setOnItemSelectedListener(this);
 
+    	via = (Spinner)layout.findViewById(R.id.export_via);
+
     	progressBar = (ProgressBar)layout.findViewById(R.id.export_progress);
+    	backgroundCheckbox = (CheckBox) layout.findViewById(R.id.export_background);
     	setContentView(layout);
 	}
 	
@@ -142,30 +149,53 @@ public class ExportActivity
 	@Override
 	public void onItemSelected(AdapterView<?> spinner, View view, int position,
 			long id) {
-      	Log.v(TAG, "Format "+position);
+		if (spinner == format)
+			onItemSelectedFormat(position);
+		else if (spinner == sizes)
+			onItemSelectedSizes(position);
+	}
+		
+		
+	/**
+	 * The callback for changes in the format spinner
+	 * @param position
+	 */
+	public void onItemSelectedFormat(int position) {
+		// Log.v(TAG, "Format "+position);
       	String[] strings;
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        int sizesPos;
       	switch (position) {
 		case OUTPUT_FORMAT_PDF_SINGLE:  // PDF format
 		case OUTPUT_FORMAT_PDF_TAGGED:  
 		case OUTPUT_FORMAT_PDF_ALL:     
+			backgroundCheckbox.setEnabled(true);
 			sizes.setEnabled(true);
 			strings = getResources().getStringArray(R.array.export_size_vector);
 			exportSizes.clear();
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
+            sizesPos = settings.getInt("export_size_pdf", AdapterView.INVALID_POSITION);
+            if (sizesPos !=  AdapterView.INVALID_POSITION)
+            	sizes.setSelection(sizesPos); 
         	changeFileExtensionTo(".pdf");
         	mimeType = "application/pdf";
 			return;
 		case OUTPUT_FORMAT_PNG:  // Raster image format
+			backgroundCheckbox.setEnabled(true);
 			sizes.setEnabled(true);
 			strings = getResources().getStringArray(R.array.export_size_raster);
 			exportSizes.clear();
 			exportSizes.addAll(strings);
         	exportSizes.notifyDataSetChanged();
+            sizesPos = settings.getInt("export_size_png", AdapterView.INVALID_POSITION);
+            if (sizesPos !=  AdapterView.INVALID_POSITION)
+            	sizes.setSelection(sizesPos); 
         	changeFileExtensionTo(".png");
         	mimeType = "image/png";
 			return;
 		case OUTPUT_FORMAT_BACKUP:  // Quill backup archive
+			backgroundCheckbox.setEnabled(false);
 			sizes.setEnabled(false);
 			exportSizes.clear();
         	exportSizes.notifyDataSetChanged();
@@ -174,6 +204,29 @@ public class ExportActivity
 			return;
 		}		
 	}
+	
+	/**
+	 * The callback for changes in the sizes spinner
+	 * @param position
+	 */
+	public void onItemSelectedSizes(int position) {
+        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor;
+      	switch (format.getSelectedItemPosition()) {
+		case OUTPUT_FORMAT_PDF_SINGLE:  // PDF format
+		case OUTPUT_FORMAT_PDF_TAGGED:  
+		case OUTPUT_FORMAT_PDF_ALL:
+			editor = settings.edit();
+			editor.putInt("export_size_pdf", position);
+			editor.commit();
+			return;
+		case OUTPUT_FORMAT_PNG:  // Raster image format
+			editor = settings.edit();
+			editor.putInt("export_size_png", position);
+			editor.commit();
+			return;
+		}		
+    }
 
 	@Override
 	public void onNothingSelected(AdapterView<?> arg0) {
@@ -187,26 +240,26 @@ public class ExportActivity
 	private static final int OUTPUT_FORMAT_BACKUP = 4;
 
 	
-	// somebody changed the Output format
-	private void changeExportFileFormat(Spinner format) {
-      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
-      	Log.v(TAG, "Format "+format.getSelectedItemPosition());
-		switch (format.getSelectedItemPosition()) {
-		case OUTPUT_FORMAT_PDF_SINGLE:
-		case OUTPUT_FORMAT_PDF_TAGGED:
-		case OUTPUT_FORMAT_PDF_ALL:
-			sizes.setEnabled(true);
-			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_vector));
-			return;
-		case OUTPUT_FORMAT_PNG:
-			sizes.setEnabled(true);
-			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_raster));
-			return;
-		case OUTPUT_FORMAT_BACKUP:
-			sizes.setEnabled(false);
-			return;
-		}
-	}
+//	// somebody changed the Output format
+//	private void changeExportFileFormat(Spinner format) {
+//      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
+//      	Log.v(TAG, "Format "+format.getSelectedItemPosition());
+//		switch (format.getSelectedItemPosition()) {
+//		case OUTPUT_FORMAT_PDF_SINGLE:
+//		case OUTPUT_FORMAT_PDF_TAGGED:
+//		case OUTPUT_FORMAT_PDF_ALL:
+//			sizes.setEnabled(true);
+//			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_vector));
+//			return;
+//		case OUTPUT_FORMAT_PNG:
+//			sizes.setEnabled(true);
+//			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_raster));
+//			return;
+//		case OUTPUT_FORMAT_BACKUP:
+//			sizes.setEnabled(false);
+//			return;
+//		}
+//	}
 
 	private enum PageRange {
 		CURRENT_PAGE, TAGGED_PAGES, ALL_PAGES
@@ -253,6 +306,8 @@ public class ExportActivity
 
     private void doExportPng() {
 		threadLockActivity();
+		drawBackground = backgroundCheckbox.isChecked();
+		Log.d(TAG, "drawBackground = "+drawBackground);
 		int pos = sizes.getSelectedItemPosition();
 		int dim_big = 0, dim_small = 0;
 		switch (pos) {
@@ -276,8 +331,7 @@ public class ExportActivity
 		}
         exportThread = new Thread(new Runnable() {
             public void run() {
-            	sizes.getSelectedItemPosition();
-            	Bitmap bitmap = page.renderBitmap(size_raster_width, size_raster_height);
+            	Bitmap bitmap = page.renderBitmap(size_raster_width, size_raster_height, drawBackground);
             	bitmap.compress(CompressFormat.PNG, 0, outStream);
             	try {
             		outStream.close();
@@ -337,8 +391,7 @@ public class ExportActivity
 
     
     private void doShare() {
-      	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
-    	int pos = spinner.getSelectedItemPosition();
+    	int pos = via.getSelectedItemPosition();
     	switch (pos) {
     	case SHARE_GENERIC:
     		doShareGeneric();
@@ -351,6 +404,7 @@ public class ExportActivity
     	case SHARE_USB:
         	Toast.makeText(this, getString(R.string.export_saved_as)+" "+fullFilename, 
     				Toast.LENGTH_LONG).show();
+    		doShareView();
         	finish();
 		return;
     	}
@@ -396,6 +450,9 @@ public class ExportActivity
 		return true;
     }
     
+    /**
+     * Send file to other app
+     */
     private void doShareGeneric() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
@@ -407,8 +464,24 @@ public class ExportActivity
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, getString(R.string.err_no_way_to_share), Toast.LENGTH_LONG).show();
+        }    	
+    }
+    
+    /**
+     * View the resulting file after saving
+     */
+    private void doShareView() {
+    	if (format.getSelectedItemPosition() == OUTPUT_FORMAT_BACKUP) return;
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), mimeType);        
+        try {
+            startActivity(Intent.createChooser(intent, 
+            		getString(R.string.export_view_file_title)));
+            finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+        	// ignore silently
         }
-    	
     }
     
     // Names of Evernote-specific Intent actions and extras
@@ -500,4 +573,46 @@ public class ExportActivity
                handler.postDelayed(mUpdateProgress, 200);
     	   }
     	};
+    
+    	
+    @Override
+    protected void onResume() {
+    	super.onResume();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+    	String nameString = getFilenameFromIntent();
+    	if (nameString == null)
+    		nameString = settings.getString("export_name", null);
+    	if (nameString != null)
+    		name.setText(nameString);
+        int formatPos = settings.getInt("export_file_format", AdapterView.INVALID_POSITION);
+        if (formatPos !=  AdapterView.INVALID_POSITION)
+        	format.setSelection(formatPos);
+        int viaPos = settings.getInt("export_via", AdapterView.INVALID_POSITION);
+        if (viaPos !=  AdapterView.INVALID_POSITION)
+        	via.setSelection(viaPos);        
+        backgroundCheckbox.setChecked(settings.getBoolean("export_background", true));
+    }
+
+    @Override
+    protected void onPause() {
+    	super.onPause();
+        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("export_file_format", format.getSelectedItemPosition());
+      	switch (format.getSelectedItemPosition()) {
+		case OUTPUT_FORMAT_PDF_SINGLE:  // PDF format
+		case OUTPUT_FORMAT_PDF_TAGGED:  
+		case OUTPUT_FORMAT_PDF_ALL:     
+	        editor.putInt("export_size_pdf", sizes.getSelectedItemPosition());
+			break;
+		case OUTPUT_FORMAT_PNG:  // Raster image format
+	        editor.putInt("export_size_png", sizes.getSelectedItemPosition());
+			break;
+      	}		
+        editor.putInt("export_via", via.getSelectedItemPosition());
+        editor.putString("export_name", name.getText().toString());
+        editor.putBoolean("export_background", backgroundCheckbox.isChecked());
+        editor.commit();
+    };
+    
 }
