@@ -96,6 +96,7 @@ public class QuillWriterActivity
     
     private boolean volumeKeyNavigation;
     private boolean toolboxIsOnLeft;
+    private boolean eraserSwitchesBack;
 
     private static final DialogThickness dialogThickness = new DialogThickness();
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
@@ -709,6 +710,7 @@ public class QuillWriterActivity
 			mView.setOnlyPenInput(true);
 			mView.setDoubleTapWhileWriting(false);
 			mView.setMoveGestureWhileWriting(false);
+			mView.setPalmShieldEnabled(false);
 		}
 		else if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
 			mView.setOnlyPenInput(true);
@@ -716,11 +718,13 @@ public class QuillWriterActivity
 					Preferences.KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
     		mView.setMoveGestureWhileWriting(settings.getBoolean(
     				Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
+    		mView.setPalmShieldEnabled(false);
 		}
 		else if (pen_input_mode.equals(Preferences.STYLUS_AND_TOUCH)) {
 			mView.setOnlyPenInput(false);
 			mView.setDoubleTapWhileWriting(false);
 			mView.setMoveGestureWhileWriting(false);
+			mView.setPalmShieldEnabled(settings.getBoolean("palm_shield", true));
 		}
 		else Assert.fail();
     	mView.setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
@@ -741,9 +745,12 @@ public class QuillWriterActivity
         mView.setOnToolboxListener(this);
     	updateUndoRedoIcons();
         mView.setOnStrokeFinishedListener(this);
+
+    	eraserSwitchesBack = settings.getBoolean("eraser_switches_back", true);
     }
     
-    @Override protected void onPause() {
+    @Override 
+    protected void onPause() {
     	Log.d(TAG, "onPause");
     	super.onPause();
     	mView.interrupt();
@@ -774,11 +781,15 @@ public class QuillWriterActivity
     private void launchOverviewActivity() {
 		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
     	startActivity(i);
+    	finish();
     }
     
     @Override
     public void onBackPressed() {
-    	launchOverviewActivity();
+    	if (isTaskRoot())
+    		launchOverviewActivity();
+    	else
+    		super.onBackPressed();
     }
     
     
@@ -839,6 +850,7 @@ public class QuillWriterActivity
 
 	@Override
 	public void onStrokeFinishedListener() {
+		if (!eraserSwitchesBack) return;
 		Tool tool = mView.getToolType();
 		if (tool != Tool.ERASER) return;
 		ToolHistory h = ToolHistory.getToolHistory();

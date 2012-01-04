@@ -15,7 +15,7 @@
   	android:summary="Drag the page around with two finger touch while writing">
   </CheckBoxPreference>
   
-  <CheckBoxPreference 
+  <CheckBoxPreference android:defaultValue="false" android:summary="Make bottom half of screen insensitive to touch" android:key="palm_shield" android:title="Palm shield"/><CheckBoxPreference 
   	android:key="volume_key_navigation" 
   	android:defaultValue="true" 
   	android:summary="Press volume-up for next page, volume-down for previous page" 
@@ -29,6 +29,8 @@
  
  <CheckBoxPreference android:summary="The red button and toolbox will be on the left" android:title="Right-handed navigation" android:key="toolbox_left" android:defaultValue="true"/>
  <CheckBoxPreference android:title="Show the action bar" android:key="show_action_bar" android:summary="Whether to show the horizontal bar on the top of the screen" android:defaultValue="true"/>
+ <CheckBoxPreference android:key="eraser_switches_back" android:summary="Automatically switch back to pen after finishing eraser stroke" android:title="Eraser switches back" android:defaultValue="true"/>
+ 
 </PreferenceCategory><PreferenceCategory android:title="User data">
      <Preference android:summary='Overwrite your notes with a backup (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
      <Preference android:summary='Try to recover pages that are missing from the index' android:key="recovery" android:title="Recover Pages"></Preference>

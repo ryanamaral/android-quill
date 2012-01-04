@@ -140,7 +140,8 @@ public class Stroke extends Graphics {
 			mPen.setStrokeWidth(scaled_pen_thickness);
 		float x0, x1, y0, y1, p0, p1=0;
 		//c.drawRect(left, top, right, bottom, paint)
-		x0 = position_x[0] * scale + offset_x;
+		// note: we offset the first point by 1/10 pixel since android does not draw lines with start=end
+		x0 = position_x[0] * scale + offset_x + 0.1f;
 		y0 = position_y[0] * scale + offset_y;
 		p0 = pressure[0];
 		for (int i=1; i<N; i++) {			

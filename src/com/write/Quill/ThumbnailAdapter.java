@@ -129,7 +129,7 @@ public class ThumbnailAdapter extends BaseAdapter {
     	if (unfinishedThumbnails.isEmpty()) return false;
     	Thumbnail thumb = unfinishedThumbnails.pop();
     	Page page = thumb.page;
-		thumb.bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width);
+		thumb.bitmap = page.renderBitmap(thumbnail_width, 2*thumbnail_width, true);
 		Assert.assertTrue(thumb.bitmap != null);
 		thumb.invalidate();
 		return true;

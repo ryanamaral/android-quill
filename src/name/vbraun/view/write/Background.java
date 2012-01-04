@@ -40,7 +40,7 @@ public class Background {
 	public void setAspectRatio(float aspect) {
 		aspectRatio = new AspectRatio(aspect);
 		heightMm = aspectRatio.guessHeightMm();
-		widthMm = aspectRatio.guessWidthMm(); 
+		widthMm = aspectRatio.guessWidthMm();
 	}
 	
 	public void draw(Canvas canvas, RectF bBox, Transformation t) {
@@ -161,7 +161,7 @@ public class Background {
 		// Cue Column
 		x0 = t.applyX((MARGIN*INCH_in_MM)/widthMm);
 		x1 = x0;
-		y0 = 0;
+		y0 = t.applyY(0);
 		y1 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
 		
 		c.drawLine(x0, y0, x1, y1, paint);
@@ -189,8 +189,7 @@ public class Background {
 	}
 
 	
-	
-	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin){
+	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin) {
 		
 		float spacingMm = lineSpacing;
 		float vertLineMm = margin;

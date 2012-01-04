@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.InputDevice;
@@ -64,6 +65,10 @@ public class HandwriterView extends ViewGroup {
 	private float oldX1, oldY1, newX1, newY1;  // for 1st finger
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
+	
+	private boolean palmShield = false;
+	private RectF palmShieldRect;
+	private Paint palmShieldPaint;
 	
 	private Toolbox toolbox;
 	public Toolbox getToolBox() {
@@ -258,6 +263,39 @@ public class HandwriterView extends ViewGroup {
 		this.moveGestureMinDistance = moveGestureMinDistance;
 	}
 
+	public void setPalmShieldEnabled(boolean enabled) {
+		palmShield = enabled;
+		Log.e(TAG, "PalmShield "+palmShield);
+		initPalmShield();
+		invalidate();
+	}
+	
+	private void initPalmShield() {
+		if (!palmShield) return;
+		palmShieldRect = new RectF(0, getHeight()/2, getWidth(), getHeight());
+		palmShieldPaint = new Paint();
+		palmShieldPaint.setARGB(0x22, 0, 0, 0);		
+	}
+	
+	/**
+	 * Whether the point (x,y) is on the palm shield and hence should be ignored.
+	 * @param event
+	 * @return whether the touch point is to be ignored.
+	 */
+	private boolean isOnPalmShield(MotionEvent event) {
+		if (!palmShield)
+			return false;
+		int action = event.getActionMasked();
+		switch (action) {
+		case MotionEvent.ACTION_DOWN:
+			return palmShieldRect.contains(event.getX(), event.getY());
+		case MotionEvent.ACTION_POINTER_DOWN:
+			int idx = event.getActionIndex();
+			return palmShieldRect.contains(event.getX(idx), event.getY(idx));
+		}
+		return false;
+	}
+	
 	public HandwriterView(Context context) {
 		super(context);
 		hw = new name.vbraun.lib.pen.Hardware(context);
@@ -292,12 +330,13 @@ public class HandwriterView extends ViewGroup {
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.d(TAG, "onLayout "+editText+" "+l+" "+t+" "+r+" "+b);
 		toolbox.layout(l, t, r, b);
 		if (editText != null) {
 			editText.layout(100, 70, 400, 200);
 		}
-	}
+		if (palmShield) 
+			initPalmShield();
+ 	}
 	
 	public void setOnToolboxListener(Toolbox.OnToolboxListener listener) {
 		toolbox.setOnToolboxListener(listener);
@@ -458,6 +497,9 @@ public class HandwriterView extends ViewGroup {
 			canvas.drawBitmap(bitmap, 0, 0, null);
 		if (overlay != null) 
 			overlay.draw(canvas);
+		if (palmShield) {
+			canvas.drawRect(palmShieldRect, palmShieldPaint);
+		}
 	}
 
 	@Override public boolean onTouchEvent(MotionEvent event) {
@@ -471,7 +513,10 @@ public class HandwriterView extends ViewGroup {
 		switch (getToolType()) {
 		case FOUNTAINPEN:
 		case PENCIL:	
-			return touchHandlerPen(event);
+			if (onlyPenInput)
+				return touchHandlerPen(event);
+			else
+				return touchHandlerPenStylusAndTouch(event);
 		case MOVE:
 			return touchHandlerMoveZoom(event);
 		case ERASER:
@@ -559,6 +604,8 @@ public class HandwriterView extends ViewGroup {
 				toastIsReadonly();
 				return true;
 			}
+			if (isOnPalmShield(event)) 
+				return true;
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
@@ -830,6 +877,126 @@ public class HandwriterView extends ViewGroup {
 		return false;
 	}
 
+	/**
+	 * Touch handler in the onlyPenInput == false mode
+	 * No gestures, but allow input from touch points other than the first one
+	 * @param event
+	 * @return Whether the event was used
+	 */
+	private boolean touchHandlerPenStylusAndTouch(MotionEvent event) {
+		int action = event.getActionMasked();
+		if (action == MotionEvent.ACTION_MOVE) {
+			if (penID == -1 || N == 0) return true;
+			int penIdx = event.findPointerIndex(penID);
+			if (penIdx == -1) return true;
+			oldT = newT;
+			newT = System.currentTimeMillis();
+			// Log.v(TAG, "ACTION_MOVE index="+pen+" pointerID="+penID);
+			oldX = newX;
+			oldY = newY;
+			oldPressure = newPressure;
+			newX = event.getX(penIdx);
+			newY = event.getY(penIdx);
+			newPressure = event.getPressure(penIdx);
+			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
+				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
+				oldX = newX; oldY = newY;
+				saveStroke();
+				position_x[0] = newX;
+				position_y[0] = newY;
+				pressure[0] = newPressure;
+				N = 1;
+			}
+			drawOutline();
+			
+			int n = event.getHistorySize();
+			if (N+n+1 >= Nmax) saveStroke();
+			for (int i = 0; i < n; i++) {
+				position_x[N+i] = event.getHistoricalX(penIdx, i);
+				position_y[N+i] = event.getHistoricalY(penIdx, i);
+				pressure[N+i] = event.getHistoricalPressure(penIdx, i);
+			}
+			position_x[N+n] = newX;
+			position_y[N+n] = newY;
+			pressure[N+n] = newPressure;
+			N = N+n+1;
+			return true;
+		}		
+		else if (action == MotionEvent.ACTION_DOWN) {
+			Assert.assertTrue(event.getPointerCount() == 1);
+			newT = System.currentTimeMillis();
+			if (penID != -1) {
+				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
+				penID = -1;
+				return true;
+			}
+			if (isOnPalmShield(event))
+				return true;
+			if (page.is_readonly) {
+				toastIsReadonly();
+				return true;
+			}
+			position_x[0] = newX = event.getX();
+			position_y[0] = newY = event.getY();
+			pressure[0] = newPressure = event.getPressure();
+			N = 1;
+			penID = event.getPointerId(0);
+			pen.setStrokeWidth(getScaledPenThickness());
+			return true;
+		}
+		else if (action == MotionEvent.ACTION_UP) {
+			Assert.assertTrue(event.getPointerCount() == 1);
+			int id = event.getPointerId(0);
+			if (id == penID) {
+				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
+				saveStroke();
+				N = 0;
+				callOnStrokeFinishedListener();
+			}
+			penID = -1;
+			return true;
+		}
+		else if (action == MotionEvent.ACTION_CANCEL) {
+			N = 0;
+			penID = -1;
+			page.draw(canvas);
+			invalidate();
+			return true;
+		}
+		else if (action == MotionEvent.ACTION_POINTER_DOWN) {
+			newT = System.currentTimeMillis();
+			if (isOnPalmShield(event))
+				return true;
+			if (page.is_readonly) {
+				toastIsReadonly();
+				return true;
+			}
+			if (penID != -1)
+				return true;
+			int idx = event.getActionIndex();
+			position_x[0] = newX = event.getX(idx);
+			position_y[0] = newY = event.getY(idx);
+			pressure[0] = newPressure = event.getPressure(idx);
+			N = 1;
+			penID = event.getPointerId(idx);
+			pen.setStrokeWidth(getScaledPenThickness());
+			return true;
+		}
+		else if (action == MotionEvent.ACTION_POINTER_UP) {
+			int idx = event.getActionIndex();
+			int id = event.getPointerId(idx);
+			if (id == penID) {
+				Log.v(TAG, "ACTION_POINTER_UP: Got "+N+" points.");
+				saveStroke();
+				N = 0;
+				callOnStrokeFinishedListener();
+			}
+			penID = -1;
+			return true;
+		}
+		return false;
+	}
+
 	private void toastIsReadonly() {
 		String s = "Page is readonly";
 	   	if (toast == null)
@@ -864,6 +1031,12 @@ public class HandwriterView extends ViewGroup {
 	
 	private void saveStroke() {
 		if (N==0) return;
+		if (N==1) {
+			N = 2;
+			position_x[1] = position_x[0];
+			position_y[1] = position_y[0];
+			pressure[1] = pressure[0];
+		}
 		Stroke s = new Stroke(getToolType(), position_x, position_y, pressure, 0, N);
 		toolHistory.commit();
 		s.setPen(getPenThickness(), pen_color);
@@ -881,7 +1054,7 @@ public class HandwriterView extends ViewGroup {
 		if (getToolType()==Tool.FOUNTAINPEN) {
 			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
 			pen.setStrokeWidth(scaled_pen_thickness);
-		}
+		} 
 		canvas.drawLine(oldX, oldY, newX, newY, pen);
 		mRect.set((int)oldX, (int)oldY, (int)newX, (int)newY);
 		mRect.sort();
