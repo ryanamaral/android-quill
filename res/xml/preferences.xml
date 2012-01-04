@@ -1,0 +1,38 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ <PreferenceCategory android:title="Preferences"><ListPreference android:title="Pen input mode" android:entries="@array/pen_input_mode_entries" android:entryValues="@array/pen_input_mode_values" android:dialogTitle="@string/pen_input_mode_title" android:key="pen_input_mode"/>
+  	
+  <CheckBoxPreference 
+  	android:defaultValue="true" 
+  	android:key="double_tap_while_write" 
+  	android:title="Double tap while writing" 
+  	android:summary="Zoom in/out by double tapping the screen with fingers while writing">
+  </CheckBoxPreference>
+  
+  <CheckBoxPreference 
+  	android:defaultValue="true" 
+  	android:key="move_gesture_while_writing" 
+  	android:title="Move gesture while writing" 
+  	android:summary="Drag the page around with two finger touch while writing">
+  </CheckBoxPreference>
+  
+  <CheckBoxPreference 
+  	android:key="volume_key_navigation" 
+  	android:defaultValue="true" 
+  	android:summary="Press volume-up for next page, volume-down for previous page" 
+  	android:title="Volume key navigation">
+  </CheckBoxPreference>
+  
+  
+  
+  
+ 
+ 
+ <CheckBoxPreference android:summary="The red button and toolbox will be on the left" android:title="Right-handed navigation" android:key="toolbox_left" android:defaultValue="true"/>
+ <CheckBoxPreference android:title="Show the action bar" android:key="show_action_bar" android:summary="Whether to show the horizontal bar on the top of the screen" android:defaultValue="true"/>
+</PreferenceCategory><PreferenceCategory android:title="User data">
+     <Preference android:summary='Overwrite your notes with a backup (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
+     <Preference android:summary='Try to recover pages that are missing from the index' android:key="recovery" android:title="Recover Pages"></Preference>
+     
+ </PreferenceCategory>
+ 
+</PreferenceScreen>

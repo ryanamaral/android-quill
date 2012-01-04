@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="20dp"
+	android:padding="10dp"
+   	android:orientation="horizontal"
+	android:gravity="center">
+
+        <TextView
+            android:id="@+id/edit_noteook_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:paddingTop="10dp"
+            android:text="Description:" />
+
+        <EditText
+            android:id="@+id/edit_notebook_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/edit_noteook_header"
+            android:inputType="textMultiLine"
+            android:lines="3"
+            android:maxLines="3" />
+
+     <Button
+        android:id="@+id/edit_notebook_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_notebook_title"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dip"
+        android:layout_marginLeft="10dip"
+        android:text="@string/edit_notebook_button" />
+    <Button
+        android:id="@+id/edit_notebook_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/edit_notebook_button"
+        android:layout_alignTop="@id/edit_notebook_button"
+        android:text="@string/edit_notebook_cancel"/>
+
+    <Button
+        android:id="@+id/edit_notebook_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/edit_notebook_cancel"
+        android:layout_alignBottom="@+id/edit_notebook_cancel"
+        android:layout_alignLeft="@+id/edit_notebook_title"
+        android:text="@string/edit_notebook_delete" />
+
+    <Button
+        android:id="@+id/edit_notebook_export"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/edit_notebook_delete"
+        android:layout_alignBottom="@+id/edit_notebook_delete"
+        android:layout_toRightOf="@+id/edit_notebook_delete"
+		android:layout_marginLeft="10dip"
+        android:text="@string/edit_notebook_export" />
+        
+</RelativeLayout>
+

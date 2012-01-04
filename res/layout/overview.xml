@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+>
+    <name.vbraun.view.tag.TagListView 
+    	android:id="@+id/tag_list_view" 
+    	android:layout_width="wrap_content" 
+    	android:layout_height="fill_parent"
+    ></name.vbraun.view.tag.TagListView>
+    
+    <com.write.Quill.ThumbnailView 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="fill_parent" 
+    	android:id="@+id/thumbnail_grid" 
+    ></com.write.Quill.ThumbnailView>
+
+</LinearLayout>

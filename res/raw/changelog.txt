@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <style type='text/css'>
+      a            { color:#a0a0e0 }
+      div.title    { 
+          color:#C0F0C0; 
+          font-size:1.2em; 
+          font-weight:bold; 
+          margin-top:1em; 
+          margin-bottom:0.5em; 
+          text-align:center }
+      div.subtitle { 
+          color:#C0F0C0; 
+          font-size:0.8em; 
+          margin-bottom:1em; 
+          text-align:center }
+      div.freetext { color:#F0F0F0 }
+      div.list     { color:#C0C0F0 }
+      body         { background-color:black; }
+    </style>
+  </head>
+  <body>
+$ 8.1
+  % Version 8.1
+  _ 2011-12-20
+    * Make eraser only use pen input if in "pen only" mode
+    * Fix restoring the pen thickness upon launch
+    * Make pen history persistent
+    * Snap back to previous pen after erasing
+    * More bugfixes
+$ 8.0
+  % Version 8.0
+  _ 2011-12-11
+    * Toolbox (press red button)
+    * Fixed mime type in export 
+$ 7.3
+  % Version 7.3
+  _ 2011-12-06
+  ! Xmas sales go to charity!
+    * Added dialogs to rename Tags and Notebooks (use long press)
+    * Bug fixes
+$ 7.2
+  % Version 7.2
+  _ 2011-12-01
+    * Fixed one more force close
+$ 7.1
+  % Version 7.1
+  _ 2011-12-01
+    * New launcher icon!
+    * Send multiple pages to Evernote from the page thumbnail window
+    * Tags are now sorted alphabetically
+    * Bugfixes
+$ 7.0
+  % Version 7.0
+  _ 2011-11-27
+    * Implemented multiple notebooks
+    * Undo/redo
+    * Nicer icons
+$ 6.2
+  % Version 6.2
+  _ 2011-11-25
+    * Palm rejection now works on HTC Flyer, probably other HTC devices (thanks to Andy St Lawrence)
+    * Automatic change log (thanks to Karsten Priegnitz)
+    * Reworked pen input mode preferences
+    * Lots of internal restructuring
+    * Bugfixes
+$ 6.1
+  % Version 6.1
+  _ 2011-11-15
+    * Added preference to switch move gesture on/off
+    * Back button switches to thumbnail overview
+$ 6.0
+  % Version 6.0
+  _ 2011-11-10
+    * Much faster PDF export
+    * Allow 2-finger move gesture while writing
+    * Bugfixes
+$ 5.0
+  % Version 5.0
+  _ 2011-10-31
+    * Thumbnail overview over pages
+    * One-touch history of pen color/thickness
+$ 4.2
+  % Version 4.2
+  _ 2011-10-25
+    * Bugfixes
+$ 4.1
+  % Version 4.0
+  _ 2011-10-24
+    * Bugfix
+    * PNG export
+$ 4.0
+  % Version 4.0
+  _ 2011-10-24
+    * Tagging support added.
+$ 3.2
+  % Version 3.2
+  _ 2011-10-15
+    * Another bugfix
+$ 3.1
+  % Version 3.1
+  _ 2011-10-15
+    * Force close fix
+$ 3.0
+  % Version 3.0
+  _ 2011-10-15
+    * Backup/Restore all your data into a single-file archive
+    * Added ruled/quad background paper
+    * Fixed pdf export aspect ratio
+    * Double-finger tap to zoom
+    * Volume button work as next/previous page
+    * Misc. bugfixes
+$ 2.0
+  % Version 2.0
+  _ 2011-10-13
+    * Added PDF export. Right now works but is slow, will make faster in a later version. 
+    * Pen thickness is now accurate even during the pen stroke.
+    * Added "ultra-fine" pen thickness.
+    * Bug fixed where deleting the last empty page would crash.﻿
+$ 1.0
+  % Version 1.0
+  _ 2011-10-12
+    * Initial version
+$ END_OF_CHANGE_LOG
+  </body>
+</html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bookshelf_item_horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="150dp" >
+
+    <ImageView
+        android:id="@+id/bookshelf_image"
+        android:layout_width="150dp"
+        android:layout_height="fill_parent"
+        android:src="@drawable/icon_150" />
+    
+    <LinearLayout
+        android:id="@+id/bookshelf_item_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/bookshelf_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Large Text"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/bookshelf_summary"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Small Text"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+</LinearLayout>

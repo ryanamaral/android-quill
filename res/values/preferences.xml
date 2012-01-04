@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="pen_input_mode_entries">
+ <item>Filter out finger touch events when writing</item>
+ <item>Filter out finger touch but allow touch gestures</item>
+ <item>Any touch event writes on screen, no gestures</item>
+</string-array>
+<string-array name="pen_input_mode_values">
+ <item>STYLUS_ONLY</item>
+ <item>STYLUS_WITH_GESTURES</item>
+ <item>STYLUS_AND_TOUCH</item>
+</string-array>
+<string name="pen_input_mode_title">How to use the active pen:</string>
+</resources>

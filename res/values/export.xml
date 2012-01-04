@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_file_format_header">Output format:</string>
+    <string name="export_button_text">Export</string>
+    <string name="export_cancel_text">Cancel</string>
+    <string name="export_via_header">Share file via:</string>
+    <string-array name="export_via">
+        <item>Use other Android app</item>
+        <item>Evernote</item>
+        <item>External SD card</item><item>Internal memory</item>
+        
+        <item>USB memory stick</item>
+    </string-array>
+    <string-array name="export_file_format">
+        <item>Current page as raster image (PNG)</item><item>Current page as vector graphics (PDF)</item>
+        <item >Tagged pages as vector graphics (PDF)</item><item >Whole notebook as vector graphics (PDF)</item>
+        <item>Whole notebook as Quill backup archive</item>
+        
+        
+    </string-array>
+    <string name="export_title">Export current page as...</string>
+    <string name="export_name_header">Name:</string>
+    <string name="err_evernote_not_found">You must first install the Evernote app</string>
+    <string name="export_saved_as">Saved as</string>
+    <string name="err_no_way_to_share">No way to share</string>
+    <string name="export_share_title">Export page via</string>
+    <string name="export_size_header">Size:</string>
+    <string-array name="export_size_vector">
+        <item>A4 Paper (210 × 297mm)</item><item>US Letter (8.5 x 11in)</item>
+        
+        <item>US Legal (8.5 x 14in)</item>
+    </string-array>
+    <dimen name="export_spacer">15dp</dimen>
+    <string-array name="export_size_raster">
+        <item>1920 x 1080 pixels (HDTV)</item><item>1280 x 800 pixels</item>
+        <item>1024 x 768 pixels (Projector)</item>
+        <item>800 x 600 pixels</item>
+        
+    </string-array>
+    <string name="err_folder_pick_not_found">You need to install a file manager to pick a directory</string>
+    
+</resources>

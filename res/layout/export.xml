@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="horizontal"
+  android:gravity="center" 
+  android:layout_width="wrap_content" 
+  android:layout_height="wrap_content"
+  android:layout_marginTop="20dp"
+  android:padding="10dp"
+  >
+
+  <TextView
+  		android:id="@+id/export_name_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/export_spacer"
+        android:text="@string/export_name_header"
+  ></TextView>
+  <EditText 
+       android:id="@+id/export_name" 
+       android:layout_toRightOf="@id/export_name_header"
+       android:layout_alignBaseline="@id/export_name_header"
+       android:layout_height="wrap_content" 
+       android:layout_width="fill_parent"
+       android:text="Filename.pdf"
+       android:singleLine="true"
+       android:selectAllOnFocus="true"
+  >
+  </EditText>
+
+  <TextView
+   		android:id="@+id/export_file_format_header"
+        android:layout_below="@id/export_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/export_spacer"
+        android:text="@string/export_file_format_header"
+  ></TextView>
+  <Spinner 
+      android:id="@+id/export_file_format" 
+      android:layout_below="@id/export_file_format_header"
+      android:entries="@array/export_file_format"
+      android:layout_height="wrap_content" 
+      android:layout_width="fill_parent" 
+      android:layout_marginLeft="20dp"
+  ></Spinner>
+ 
+  <TextView
+   		android:id="@+id/export_size_header"
+        android:layout_below="@id/export_file_format"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/export_spacer"
+        android:text="@string/export_size_header"
+  ></TextView>
+  <Spinner 
+      android:id="@+id/export_size" 
+      android:layout_below="@id/export_size_header"
+      android:entries="@array/export_size_vector"
+      android:layout_height="wrap_content" 
+      android:layout_width="fill_parent" 
+      android:layout_marginLeft="20dp"
+  ></Spinner>
+ 
+  <TextView
+  		android:id="@+id/export_via_header"
+        android:layout_below="@id/export_size"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/export_spacer"
+        android:text="@string/export_via_header"
+  ></TextView>
+  <Spinner 
+      android:id="@+id/export_via" 
+      android:layout_below="@id/export_via_header"
+      android:entries="@array/export_via"
+      android:layout_height="wrap_content" 
+      android:layout_width="fill_parent" 
+      android:layout_marginLeft="20dp"
+  ></Spinner>
+  
+ 
+  <ProgressBar 
+      android:id="@+id/export_progress" 
+      android:layout_below="@id/export_via"
+      android:layout_height="wrap_content" 
+      android:layout_width="fill_parent" 
+      style="?android:attr/progressBarStyleHorizontal" 
+      android:layout_marginTop="@dimen/export_spacer"
+      android:layout_marginLeft="10dp"
+      android:layout_marginRight="10dp"    
+      android:layout_marginBottom="10dp"
+    ></ProgressBar>
+    
+    <Button
+        android:id="@+id/export_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/export_progress"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="10dip"
+        android:text="@string/export_button_text" />
+    <Button
+        android:id="@+id/export_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/export_button"
+        android:layout_alignTop="@id/export_button"
+        android:text="@string/export_cancel_text"/>
+    
+</RelativeLayout>

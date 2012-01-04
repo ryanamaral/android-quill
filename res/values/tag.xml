@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tag_button">Tags</string>
+    <string name="title_tag">Tag current page</string>
+    <string name="title_filter">Only show pages that contain the following tags</string>
+    
+</resources>

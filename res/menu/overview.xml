@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/switch_notebook" android:showAsAction="ifRoom|withText" android:title="Switch notebook"></item>
+    <item android:id="@+id/new_notebook" android:showAsAction="ifRoom|withText" android:title="New notebook" android:visible="false"></item>
+    <item android:id="@+id/send_to_evernote" android:titleCondensed="Evernote" android:title="Send to Evernote"></item>
+
+    
+
+</menu>

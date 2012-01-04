@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="edit_tag_button">Ok</string>
+    <string name="edit_tag_cancel">Cancel</string>
+    <string name="edit_tag_help">Clear name to delete tag</string>
+    <string name="edit_tag_header">Tag:</string>
+    <string name="edit_tag_title">Edit tag</string>
+
+    
+</resources>

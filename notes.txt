@@ -1,0 +1,46 @@
+=== Notes ===
+
+
+= AmbilWarna =
+
+Uses the AmbilWarna color selector dialog.
+Apache License 2.0
+
+= Icons =
+
+Tango icon set, public domain.
+
+
+= "Feather" =
+
+GFDL, http://commons.wikimedia.org/wiki/File:Feather.svg
+
+
+= "Move" icon =
+
+This work is licensed under the Creative Commons Attribution 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by/3.0/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+These icons can be used both commercially and for personal use, but you must always add a link to www.androidicons.com inside your software or your website. You must not resell any icons or distribute them in any other way than referring to www.androidicons.com. The Icons as such are the property of the author.
+
+
+= PDF Library =
+
+Android PDF Writer
+http://coderesearchlabs.com/androidpdfwriter
+
+Android PDF Writer (APW) is a simple Java library to generate simple PDF documents in Google's Android devices released under the BSD license.
+
+Javier Santo Domingo
+j-a-s-d@coderesearchlabs.com
+
+
+= Haru PDF Library =
+
+http://libharu.org
+
+ZLIB license
+
+
+= Change Log = 
+
+Copyright (C) 2011, Karsten Priegnitz
+Free with attribution
