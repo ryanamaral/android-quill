@@ -25,6 +25,7 @@
        android:text="Filename.pdf"
        android:singleLine="true"
        android:selectAllOnFocus="true"
+       android:inputType="text"
   >
   </EditText>
 
@@ -45,9 +46,18 @@
       android:layout_marginLeft="20dp"
   ></Spinner>
  
+  <CheckBox
+        android:id="@+id/export_background"      
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/export_file_format"
+        android:layout_marginTop="@dimen/export_spacer"
+        android:checked="true"
+        android:text="@string/export_background" />
+  
   <TextView
    		android:id="@+id/export_size_header"
-        android:layout_below="@id/export_file_format"
+        android:layout_below="@id/export_background"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/export_spacer"
@@ -77,6 +87,7 @@
       android:layout_height="wrap_content" 
       android:layout_width="fill_parent" 
       android:layout_marginLeft="20dp"
+      android:dropDownVerticalOffset="-200dp"
   ></Spinner>
   
  
@@ -107,5 +118,6 @@
         android:layout_toLeftOf="@id/export_button"
         android:layout_alignTop="@id/export_button"
         android:text="@string/export_cancel_text"/>
+
     
 </RelativeLayout>

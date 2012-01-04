@@ -53,6 +53,17 @@ public class ThumbnailActivity extends Activity implements
 	protected TagManager tagManager;
 	protected TagSet tags;
 	
+    private void launchQuillWriterActivity(Page page) {
+		Book book = Bookshelf.getCurrentBook();
+		book.setCurrentPage(page);
+		launchQuillWriterActivity();
+    }
+    
+    private void launchQuillWriterActivity() {
+		Intent i = new Intent(getApplicationContext(), QuillWriterActivity.class);    
+    	startActivity(i);
+    }
+
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		switch (parent.getId()) {
 		case R.id.tag_list:
@@ -64,10 +75,8 @@ public class ThumbnailActivity extends Activity implements
 	    	dataChanged();
 			break;
 		case R.id.thumbnail_grid:
-			Book book = Bookshelf.getCurrentBook();
 			Thumbnail thumb = (Thumbnail)view; 
-			book.setCurrentPage(thumb.page);
-			finish();
+			launchQuillWriterActivity(thumb.page);
 			break;
 		}
 		Log.d(TAG, "Click: "+tags.size());
@@ -127,7 +136,7 @@ public class ThumbnailActivity extends Activity implements
 		Intent i;
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	finish();
+	        	launchQuillWriterActivity();
 	        	return true;
 	        case R.id.switch_notebook:
 	    		i = new Intent(getApplicationContext(), BookshelfActivity.class);    

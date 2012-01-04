@@ -20,6 +20,15 @@
     </style>
   </head>
   <body>
+$ 8.2
+  % Version 8.2
+  _ 2012-01-03
+    * More paper backgrounds (thanks to Jens Ratsey)
+    * Do not draw background lines when exporting to Evernote
+    * Make snap back after erase configurable
+    * Make export dialog settings persistent
+    * Back button in the thumbnail view now exits
+    * Enhancements for capacitive pens
 $ 8.1
   % Version 8.1
   _ 2011-12-20
@@ -36,7 +45,7 @@ $ 8.0
 $ 7.3
   % Version 7.3
   _ 2011-12-06
-  ! Xmas sales go to charity!
+    * Xmas sales go to charity!
     * Added dialogs to rename Tags and Notebooks (use long press)
     * Bug fixes
 $ 7.2

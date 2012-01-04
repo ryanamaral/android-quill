@@ -40,7 +40,8 @@ public class Preferences
 	protected static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
 	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = "move_gesture_while_writing";
-	
+	protected static final String KEY_PALM_SHIELD = "palm_shield";
+
     protected static final String STYLUS_ONLY = "STYLUS_ONLY";
     protected static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
     protected static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
@@ -91,6 +92,8 @@ public class Preferences
     	boolean gestures = penMode.getValue().equals(STYLUS_WITH_GESTURES);
     	findPreference(KEY_DOUBLE_TAP_WHILE_WRITE).setEnabled(gestures);
     	findPreference(KEY_MOVE_GESTURE_WHILE_WRITING).setEnabled(gestures);
+    	boolean touch = penMode.getValue().equals(STYLUS_AND_TOUCH);
+    	findPreference(KEY_PALM_SHIELD).setEnabled(touch);
 	}
 	
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

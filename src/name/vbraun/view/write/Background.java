@@ -87,13 +87,13 @@ public class Background {
 		// Cue Column
 		x0 = t.applyX((MARGIN*INCH_in_MM)/widthMm);
 		x1 = x0;
-		y0 = 0;
+		y0 = t.applyY(0);
 		y1 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
 		
 		c.drawLine(x0, y0, x1, y1, paint);
 		
 		// Summary area at base of page
-		x0 = 0;
+		x0 = t.applyX(0);
 		x1 = t.applyX(widthMm/heightMm);
 		y0 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
 		y1 = y0;
@@ -116,7 +116,7 @@ public class Background {
 
 	private static final float marginMm = 5;
 	
-	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin){
+	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin) {
 		
 		float spacingMm = lineSpacing;
 		float vertLineMm = margin;

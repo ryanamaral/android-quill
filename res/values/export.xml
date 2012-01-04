@@ -38,5 +38,7 @@
         
     </string-array>
     <string name="err_folder_pick_not_found">You need to install a file manager to pick a directory</string>
+    <string name="export_background">Include paper background</string>
+    <string name="export_view_file_title">View exported file with</string>
     
 </resources>

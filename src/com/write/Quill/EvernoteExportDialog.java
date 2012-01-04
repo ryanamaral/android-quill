@@ -152,7 +152,7 @@ public class EvernoteExportDialog
 			} else {
 				w = height; h = width;
 			}
-        	Bitmap bitmap = page.renderBitmap(w, h);
+        	Bitmap bitmap = page.renderBitmap(w, h, false);
         	bitmap.compress(CompressFormat.PNG, 0, outStream);
         	try {
         		outStream.close();
