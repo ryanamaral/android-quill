@@ -5,9 +5,14 @@ public class Transformation {
 	protected float offset_x = 0f;
 	protected float offset_y = 0f;
 	protected float scale = 1.0f;
-	
+		
 	public float applyX(float x) {
 		return x*scale + offset_x;
+	}
+	
+	public float scaleText(float fontSize){
+		// Based on ThinkPad Tablet
+		return scale/1232f * fontSize;			
 	}
 	
 	public float applyY(float y) {

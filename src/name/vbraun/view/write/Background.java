@@ -1,20 +1,24 @@
 package name.vbraun.view.write;
 
 
-import name.vbraun.view.write.Paper.Type;
+import java.util.Calendar;
+import java.util.Locale;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Cap;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
+import android.graphics.Typeface;
 
 
 public class Background {
 	public static final String TAG = "Background"; 
 	private static final float INCH_in_CM = 2.54f;
 	private static final float INCH_in_MM = INCH_in_CM * 10;
+	
+	private static final float marginMm = 5;
 	
 	private static final float LEGALRULED_SPACING = 8.7f;
 	private static final float COLLEGERULED_SPACING = 7.1f;
@@ -36,7 +40,7 @@ public class Background {
 	public void setAspectRatio(float aspect) {
 		aspectRatio = new AspectRatio(aspect);
 		heightMm = aspectRatio.guessHeightMm();
-		widthMm = aspectRatio.guessWidthMm();
+		widthMm = aspectRatio.guessWidthMm(); 
 	}
 	
 	public void draw(Canvas canvas, RectF bBox, Transformation t) {
@@ -66,12 +70,82 @@ public class Background {
 		case CORNELLNOTES:
 			draw_cornellnotes(canvas, t);
 			return;
+		case DAYPLANNER:
+			draw_dayplanner(canvas, t, Calendar.getInstance());
+			return;			
 		case HEX:
 			// TODO
 			return;
 		}
 	}
 	
+	private void draw_dayplanner(Canvas c, Transformation t, Calendar calendar) {
+
+		float x0, x1, y0, y1;
+		int shade = 0xaa;
+		float threshold = 1500;
+		if (t.scale < threshold)
+			shade += (int)((threshold-t.scale)/threshold*(0xff-shade));
+		//paint.setARGB(0xff, shade, shade, shade);
+		paint.setStrokeWidth(0);
+		paint.setColor(Color.DKGRAY);
+		
+		Typeface font = Typeface.create(Typeface.SERIF, Typeface.BOLD);
+		paint.setTypeface(font);
+		paint.setAntiAlias(true);
+
+		paint.setTextSize(t.scaleText(20f));
+		
+		// Header
+		x0 = t.applyX(marginMm/heightMm);
+		x1 = t.applyX((widthMm-marginMm)/heightMm);
+		y0 = t.applyY(2 * marginMm/widthMm);
+		y1 = y0;
+		
+		c.drawLine(x0, y0, x1, y1, paint);
+		
+		
+		c.drawText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()), x0, t.applyY(marginMm/widthMm), paint);
+		
+		c.drawText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)), x0, y0 + t.applyY(marginMm/heightMm), paint);
+		
+		paint.setTextSize(t.scaleText(12f));
+		
+		c.drawText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), x0 + t.applyX(2*marginMm/heightMm), y0 + t.applyY(marginMm/heightMm), paint);
+		
+		paint.setTextSize(t.scaleText(10f));
+		font = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+		paint.setTextAlign(Align.RIGHT);
+		c.drawText("Week " + calendar.get(Calendar.WEEK_OF_YEAR),t.applyX((widthMm-marginMm)/heightMm), t.applyY((float) (marginMm*1.75/widthMm)), paint);
+		
+		// Details
+		paint.setTextAlign(Align.LEFT);
+		paint.setARGB(0xff, shade, shade, shade);
+		float spacingMm = COLLEGERULED_SPACING;
+		int n = (int) ((int)Math.floor((heightMm-t.applyY(marginMm/widthMm)) - marginMm) / spacingMm);
+				
+		x0 = t.applyX(marginMm/heightMm);
+		x1 = t.applyX((widthMm-marginMm)/heightMm);
+		
+		int hourMarker = 7;
+		paint.setTextSize(t.scaleText(10f));
+		
+		for (int i=1; i<=n; i++) {
+			float y = t.applyY(((heightMm-n*spacingMm - marginMm)/2 + i*spacingMm)/heightMm);
+			c.drawLine(x0, y, x1, y, paint);
+			
+			if (i % 2 == 0){
+				float z = t.applyY(((heightMm-n*spacingMm - marginMm/2)/2 + i*spacingMm + marginMm/2)/heightMm);
+				c.drawText(hourMarker + ":", x0, z, paint);
+				
+				hourMarker++;
+				if (hourMarker == 13)
+					hourMarker = 1;
+			}
+		
+		}
+	}
+
 	private void draw_cornellnotes(Canvas c, Transformation t) {
 		
 		float x0, x1, y0, y1;
@@ -93,7 +167,7 @@ public class Background {
 		c.drawLine(x0, y0, x1, y1, paint);
 		
 		// Summary area at base of page
-		x0 = 0;
+		x0 = t.applyX(0);
 		x1 = t.applyX(widthMm/heightMm);
 		y0 = t.applyY((heightMm-(MARGIN*INCH_in_MM))/heightMm);
 		y1 = y0;
@@ -114,7 +188,7 @@ public class Background {
 		
 	}
 
-	private static final float marginMm = 5;
+	
 	
 	private void draw_ruled(Canvas c, Transformation t, float lineSpacing, float margin){
 		
