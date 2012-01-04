@@ -22,7 +22,8 @@
   <body>
 $ 8.2
   % Version 8.2
-  _ 2012-01-03
+  _ 2012-01-04
+  ! We collected $782 for the Red Cross during the Xmas sale!
     * More paper backgrounds (thanks to Jens Ratsey)
     * Do not draw background lines when exporting to Evernote
     * Make snap back after erase configurable
