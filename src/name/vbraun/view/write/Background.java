@@ -80,8 +80,8 @@ public class Background {
 	}
 	
 	private void draw_dayplanner(Canvas c, Transformation t, Calendar calendar) {
-
-		float x0, x1, y0, y1;
+		float x0, x1, y, y0, y1;
+		float textHeight;
 		int shade = 0xaa;
 		float threshold = 1500;
 		if (t.scale < threshold)
@@ -94,49 +94,51 @@ public class Background {
 		paint.setTypeface(font);
 		paint.setAntiAlias(true);
 
-		paint.setTextSize(t.scaleText(20f));
-		
 		// Header
+		float headerHeightMm = 30f;
 		x0 = t.applyX(marginMm/heightMm);
 		x1 = t.applyX((widthMm-marginMm)/heightMm);
-		y0 = t.applyY(2 * marginMm/widthMm);
-		y1 = y0;
+		y = t.applyY(headerHeightMm/heightMm);
+		c.drawLine(x0, y, x1, y, paint);
 		
-		c.drawLine(x0, y0, x1, y1, paint);
-		
-		
-		c.drawText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()), x0, t.applyY(marginMm/widthMm), paint);
-		
-		c.drawText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)), x0, y0 + t.applyY(marginMm/heightMm), paint);
-		
-		paint.setTextSize(t.scaleText(12f));
-		
-		c.drawText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), x0 + t.applyX(2*marginMm/heightMm), y0 + t.applyY(marginMm/heightMm), paint);
-		
-		paint.setTextSize(t.scaleText(10f));
-		font = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
-		paint.setTextAlign(Align.RIGHT);
-		c.drawText("Week " + calendar.get(Calendar.WEEK_OF_YEAR),t.applyX((widthMm-marginMm)/heightMm), t.applyY((float) (marginMm*1.75/widthMm)), paint);
+		textHeight = t.scaleText(24f);
+		paint.setTextSize(textHeight);
+		y = t.applyY(marginMm/heightMm) + textHeight;
+		c.drawText(calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()), x0, y, paint);
+				
+// I'm leaving this out for now; Should there be a gui to pick the day of the year? Or just let the user write the date?
+//		y0 = t.applyY((widthMm-marginMm)/widthMm);
+//		c.drawText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)), x0, y0, paint);
+//		
+//		paint.setTextSize(t.scaleText(12f));
+//		
+//		c.drawText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()), x0 + t.applyX(2*marginMm/heightMm), y0 + t.applyY(marginMm/heightMm), paint);
+//		
+//		paint.setTextSize(t.scaleText(10f));
+//		font = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+//		paint.setTextAlign(Align.RIGHT);
+//		c.drawText("Week " + calendar.get(Calendar.WEEK_OF_YEAR),t.applyX((widthMm-marginMm)/heightMm), t.applyY((float) (marginMm*1.75/widthMm)), paint);
 		
 		// Details
 		paint.setTextAlign(Align.LEFT);
 		paint.setARGB(0xff, shade, shade, shade);
 		float spacingMm = COLLEGERULED_SPACING;
-		int n = (int) ((int)Math.floor((heightMm-t.applyY(marginMm/widthMm)) - marginMm) / spacingMm);
+		int n = (int) Math.floor((heightMm-headerHeightMm-marginMm) / spacingMm);
 				
 		x0 = t.applyX(marginMm/heightMm);
 		x1 = t.applyX((widthMm-marginMm)/heightMm);
 		
 		int hourMarker = 7;
-		paint.setTextSize(t.scaleText(10f));
+		textHeight = t.scaleText(10f);
+		paint.setTextSize(textHeight);
 		
 		for (int i=1; i<=n; i++) {
-			float y = t.applyY(((heightMm-n*spacingMm - marginMm)/2 + i*spacingMm)/heightMm);
+			y = t.applyY((headerHeightMm+i*spacingMm)/heightMm);
 			c.drawLine(x0, y, x1, y, paint);
 			
-			if (i % 2 == 0){
-				float z = t.applyY(((heightMm-n*spacingMm - marginMm/2)/2 + i*spacingMm + marginMm/2)/heightMm);
-				c.drawText(hourMarker + ":", x0, z, paint);
+			if (i % 2 == 1){
+				y = t.applyY((headerHeightMm+(i-0.5f)*spacingMm)/heightMm) + textHeight/2;
+				c.drawText(hourMarker + ":", x0, y, paint);
 				
 				hourMarker++;
 				if (hourMarker == 13)

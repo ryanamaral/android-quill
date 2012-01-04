@@ -265,7 +265,6 @@ public class HandwriterView extends ViewGroup {
 
 	public void setPalmShieldEnabled(boolean enabled) {
 		palmShield = enabled;
-		Log.e(TAG, "PalmShield "+palmShield);
 		initPalmShield();
 		invalidate();
 	}
