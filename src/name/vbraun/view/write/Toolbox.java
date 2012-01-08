@@ -9,7 +9,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
+import android.text.method.MovementMethod;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -49,7 +51,6 @@ public class Toolbox
 		this.listener = listener;
 	}
 	
-	private boolean lowHeight;
 	private boolean toolboxIsVisible = true;
 	private boolean actionBarReplacementIsVisible = false;
 	
@@ -71,13 +72,23 @@ public class Toolbox
 	protected Button tagButton;
 	protected ImageButton menuButton;
 
+	private boolean height_small, height_tiny;
 	
 	protected Toolbox(Context context, boolean left) {
 		super(context);
-		if (left)
-			View.inflate(context, R.layout.toolbox, this);
-		else
-			View.inflate(context, R.layout.toolbox_right, this);
+
+		Display display = ((WindowManager) 
+        		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        float height = display.getHeight() / metrics.density;
+        height_small = (height < 800);
+        height_tiny = (height < 500);
+        
+        if (left) 
+        	View.inflate(context, R.layout.toolbox, this);
+        else      
+        	View.inflate(context, R.layout.toolbox_right, this);
 		redButton    = (ImageButton) findViewById(R.id.toolbox_redbutton);
 		undoButton   = (ImageButton) findViewById(R.id.toolbox_undo);
 		redoButton   = (ImageButton) findViewById(R.id.toolbox_redo);
@@ -158,21 +169,38 @@ public class Toolbox
 		tagButton.setOnClickListener(this);
 		menuButton.setOnClickListener(this);
 		
-        Display display = ((WindowManager) 
-        		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int w = display.getHeight();
-        lowHeight = (w<800);
-        
-        if (lowHeight) {
-        	prevButton.setVisibility(View.GONE);
-        	nextButton.setVisibility(View.GONE);
-        }
-
-        textButton.setVisibility(View.GONE);  // TODO
+    	textButton.setVisibility(View.GONE);  // TODO
         photoButton.setVisibility(View.GONE);  // TODO
         lineButton.setVisibility(View.GONE); // TODO
-   
-        ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
+    	   
+		if (height_small) {
+			undoButton.setVisibility(View.GONE);
+			redoButton.setVisibility(View.GONE);
+		}
+		if (height_tiny) {
+			colorWhite.setVisibility(View.GONE);
+			colorSilver.setVisibility(View.GONE); 
+			colorGray.setVisibility(View.GONE); 
+			colorBlack.setVisibility(View.GONE);
+			colorRed.setVisibility(View.GONE); 
+			colorMaroon.setVisibility(View.GONE); 
+			colorYellow.setVisibility(View.GONE); 
+			colorOlive.setVisibility(View.GONE);
+			colorLime.setVisibility(View.GONE); 
+			colorGreen.setVisibility(View.GONE); 
+			colorAqua.setVisibility(View.GONE); 
+			colorTeal.setVisibility(View.GONE);
+			colorBlue.setVisibility(View.GONE); 
+			colorNavy.setVisibility(View.GONE); 
+			colorFuchsia.setVisibility(View.GONE); 
+			colorPurple.setVisibility(View.GONE);
+			prevButton.setVisibility(View.GONE);
+			nextButton.setVisibility(View.GONE);
+			resizeButton.setVisibility(View.GONE);
+			eraserButton.setVisibility(View.GONE);			
+		}
+
+		ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
         onToolHistoryChanged(false);
 	}
 	
@@ -235,39 +263,41 @@ public class Toolbox
 		Log.d(TAG, "setToolboxVisible "+visible);
 		toolboxIsVisible = visible;
 		int vis = visible ? View.VISIBLE : View.INVISIBLE;
-		undoButton.setVisibility(vis);
-		redoButton.setVisibility(vis);
 		fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
 //		lineButton.setVisibility(vis);
-		resizeButton.setVisibility(vis);
-		eraserButton.setVisibility(vis);
 		// textButton.setVisibility(vis);
 		// photoButton.setVisibility(vis);
 		history1.setVisibility(vis);
 		history2.setVisibility(vis);
 		history3.setVisibility(vis);
 		history4.setVisibility(vis);
-		colorWhite.setVisibility(vis);
-		colorSilver.setVisibility(vis); 
-		colorGray.setVisibility(vis); 
-		colorBlack.setVisibility(vis);
-		colorRed.setVisibility(vis); 
-		colorMaroon.setVisibility(vis); 
-		colorYellow.setVisibility(vis); 
-		colorOlive.setVisibility(vis);
-		colorLime.setVisibility(vis); 
-		colorGreen.setVisibility(vis); 
-		colorAqua.setVisibility(vis); 
-		colorTeal.setVisibility(vis);
-		colorBlue.setVisibility(vis); 
-		colorNavy.setVisibility(vis); 
-		colorFuchsia.setVisibility(vis); 
-		colorPurple.setVisibility(vis);
 		thicknessSpinner.setVisibility(vis);
-		if (!lowHeight) {
+		if (!height_small) {
+			undoButton.setVisibility(vis);
+			redoButton.setVisibility(vis);
+		}
+		if (!height_tiny) {
+			colorWhite.setVisibility(vis);
+			colorSilver.setVisibility(vis); 
+			colorGray.setVisibility(vis); 
+			colorBlack.setVisibility(vis);
+			colorRed.setVisibility(vis); 
+			colorMaroon.setVisibility(vis); 
+			colorYellow.setVisibility(vis); 
+			colorOlive.setVisibility(vis);
+			colorLime.setVisibility(vis); 
+			colorGreen.setVisibility(vis); 
+			colorAqua.setVisibility(vis); 
+			colorTeal.setVisibility(vis);
+			colorBlue.setVisibility(vis); 
+			colorNavy.setVisibility(vis); 
+			colorFuchsia.setVisibility(vis); 
+			colorPurple.setVisibility(vis);
 			prevButton.setVisibility(vis);
 			nextButton.setVisibility(vis);
+			resizeButton.setVisibility(vis);
+			eraserButton.setVisibility(vis);			
 		}
 	}
 	

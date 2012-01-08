@@ -151,6 +151,8 @@ public class Page {
 		canvas.clipRect(bounding_box);
 		if (drawBackgroundLines)
 			background.draw(canvas, bounding_box, transformation);
+		else
+			background.drawEmptyBackground(canvas, bounding_box, transformation);
 		backgroundText.draw(canvas, bounding_box);
 		while(siter.hasNext()) {	
 			Stroke s = siter.next();	    	

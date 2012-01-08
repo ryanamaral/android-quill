@@ -43,15 +43,52 @@ public class Background {
 		widthMm = aspectRatio.guessWidthMm();
 	}
 	
-	public void draw(Canvas canvas, RectF bBox, Transformation t) {
-		//Log.v(TAG, "draw_paper at scale "+scale);
-		// the paper is 1 high and aspect_ratio wide
+	private int paperColour = Color.WHITE;
+	
+	public int getPaperColour() {	
+			return paperColour;
+	}
+	
+	public void setPaperColour(int paperColour) {
+		this.paperColour = paperColour;
+	}
+
+	private void drawGreyFrame(Canvas canvas, RectF bBox, Transformation t) {
 		paper.set(t.offset_x, t.offset_y, 
 				  t.offset_x+aspectRatio.ratio*t.scale, t.offset_y+t.scale);
 		if (!paper.contains(bBox))
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
+			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);		
+	}
+	
+	/**
+	 * This is where we clear the (possibly uninitialized) backing bitmap in the canvas.
+	 * The background is filled with white, which is most suitable for printing.
+	 * @param canvas The canvas to draw on 
+	 * @param bBox   The damage area
+	 * @param t      The linear transformation from paper to screen
+	 */
+	public void drawWhiteBackground(Canvas canvas, RectF bBox, Transformation t) {
+		drawGreyFrame(canvas, bBox, t);
 		paint.setARGB(0xff, 0xff, 0xff, 0xff);
-		canvas.drawRect(paper, paint);
+		canvas.drawRect(paper, paint);		
+	}
+
+	/**
+	 * This is where we clear the (possibly uninitialized) backing bitmap in the canvas.
+	 * @param canvas The canvas to draw on 
+	 * @param bBox   The damage area
+	 * @param t      The linear transformation from paper to screen
+	 */
+	public void drawEmptyBackground(Canvas canvas, RectF bBox, Transformation t) {
+		drawGreyFrame(canvas, bBox, t);
+		paint.setColor(paperColour);
+		canvas.drawRect(paper, paint);		
+	}
+	
+	public void draw(Canvas canvas, RectF bBox, Transformation t) {
+		//Log.v(TAG, "draw_paper at scale "+scale);
+		// the paper is 1 high and aspect_ratio wide
+		drawEmptyBackground(canvas, bBox, t);
 		switch (paperType) {
 		case EMPTY:
 			return;
