@@ -724,7 +724,7 @@ public class QuillWriterActivity
 			mView.setOnlyPenInput(false);
 			mView.setDoubleTapWhileWriting(false);
 			mView.setMoveGestureWhileWriting(false);
-			mView.setPalmShieldEnabled(settings.getBoolean("palm_shield", true));
+			mView.setPalmShieldEnabled(settings.getBoolean(Preferences.KEY_PALM_SHIELD, false));
 		}
 		else Assert.fail();
     	mView.setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
