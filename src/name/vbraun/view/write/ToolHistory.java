@@ -19,7 +19,11 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 
 public class ToolHistory {
@@ -36,6 +40,7 @@ public class ToolHistory {
     Paint paintMask = new Paint();
 	private Bitmap thicknessUltraFine, thicknessThin, thicknessMedium, 
 		thicknessThick, thicknessGiant;
+	private float density;
 	
 	public interface OnToolHistoryChangedListener {
 		public void onToolHistoryChanged(boolean onlyCurrent);
@@ -79,6 +84,12 @@ public class ToolHistory {
 	}
 	
 	public void onCreate(Context context) {
+		Display display = ((WindowManager) 
+        		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        density = metrics.density;
+        
 		Resources res = context.getResources();
         setFountainpenIcon(res.getDrawable(R.drawable.ic_menu_quill));
         setPencilIcon(res.getDrawable(R.drawable.ic_menu_pencil));
@@ -165,12 +176,15 @@ public class ToolHistory {
 		public Drawable getBitmapDrawable() {
 			if (icon == null) {
 				Log.d(TAG, "getBitmapDrawable "+tool+" "+iconFountainpen);
-		    	int w = 48;
-		    	int h = 48;
+		    	int w = (int)( 48f*density+0.5f );
+		    	int h = (int)( 48f*density+0.5f );
 		    	Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		    	bitmap.setDensity(DisplayMetrics.DENSITY_DEFAULT);
 		    	Canvas canvas = new Canvas(bitmap);
 		    	canvas.drawARGB(0xa0, Color.red(color), Color.green(color), Color.blue(color));
 		    	
+		    	canvas.save();
+		    	canvas.scale(density, density);
 		    	if (thickness > 20)
 		    		canvas.drawBitmap(thicknessGiant, 0, 0, paintMask);
 		    	else if (thickness > 10)
@@ -181,6 +195,7 @@ public class ToolHistory {
 		    		canvas.drawBitmap(thicknessThin, 0, 0, paintMask);
 		    	else 
 		    		canvas.drawBitmap(thicknessUltraFine, 0, 0, paintMask);
+		    	canvas.restore();
 	
 		    	canvas.save();
 		    	float scale = 0.7f;

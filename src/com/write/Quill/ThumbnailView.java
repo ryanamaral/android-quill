@@ -42,24 +42,18 @@ public class ThumbnailView extends GridView {
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		int width = getMeasuredWidth();
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		// Log.d(TAG, "onLayout "+t);
+		super.onLayout(changed, l, t, r, b);
+
+		int width = r-l;
 		int columns = width / (ThumbnailAdapter.MIN_THUMBNAIL_WIDTH+PADDING);
+		if (columns == 0) columns = 1;
 		adapter.thumbnail_width = width / columns - PADDING;
 		adapter.computeItemHeights();
-		// Log.d(TAG, "onMeasure "+width+ " " + adapter.thumbnail_width);
 		setColumnWidth(adapter.thumbnail_width + PADDING);
 		setNumColumns(columns);
 		adapter.setNumColumns(columns);
-	    setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
-	}
-	
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.d(TAG, "onLayout "+t);
-		super.onLayout(changed, l, t, r, b);
-		adapter.setNumColumns(getNumColumns());
 	}
 
 	protected void postIncrementalDraw() {

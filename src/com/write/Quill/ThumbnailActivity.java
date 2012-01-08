@@ -232,7 +232,7 @@ public class ThumbnailActivity extends Activity implements
 		Log.d(TAG, "onCreate");
       	Bookshelf.onCreate(getApplicationContext());
 
-		layout = getLayoutInflater().inflate(R.layout.overview, null);
+		layout = getLayoutInflater().inflate(R.layout.thumbnail_activity, null);
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
 		tagList.setOnItemClickListener(this);

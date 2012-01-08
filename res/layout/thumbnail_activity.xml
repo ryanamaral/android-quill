@@ -7,14 +7,16 @@
 >
     <name.vbraun.view.tag.TagListView 
     	android:id="@+id/tag_list_view" 
-    	android:layout_width="wrap_content" 
+    	android:layout_width="0px" 
     	android:layout_height="fill_parent"
+    	android:layout_weight=".30" 
     ></name.vbraun.view.tag.TagListView>
     
     <com.write.Quill.ThumbnailView 
-    	android:layout_width="fill_parent" 
+    	android:layout_width="0px" 
     	android:layout_height="fill_parent" 
     	android:id="@+id/thumbnail_grid" 
+    	android:layout_weight=".70" 
     ></com.write.Quill.ThumbnailView>
 
 </LinearLayout>
