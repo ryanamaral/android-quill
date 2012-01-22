@@ -20,6 +20,15 @@
     </style>
   </head>
   <body>
+$ 8.3
+  % Version 8.3
+  _ 2012-01-21
+    * xhdpi (Galaxy Nexus) layout fixes
+    * Palm shield default to false (capacitive pen only)
+    * Fix occasional image export bug
+    * Alphabetically sort notebooks
+    * Page duplication (thanks to Stefan Langerman)
+    * Display page number
 $ 8.2
   % Version 8.2
   _ 2012-01-04

@@ -380,6 +380,17 @@ public class Book {
 		return new_page;
 	}
 
+	public Page duplicatePage() {
+		Page new_page;
+		new_page = new Page(currentPage());
+		new_page.strokes.addAll(currentPage().strokes);
+		new_page.tags.add(getFilter());
+		requestAddPage(new_page, currentPage + 1); 
+		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
+		Assert.assertTrue("wrong page", new_page == currentPage());
+		return new_page;
+	}
+	
 	public Page insertPage() {
 		return insertPage(currentPage(), currentPage + 1);
 	}
