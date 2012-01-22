@@ -431,6 +431,9 @@ public class QuillWriterActivity
     	case R.id.page_insert:
     		switchToPage(book.insertPage()); 
     		return true;
+    	case R.id.page_duplicate:
+    		switchToPage(book.duplicatePage()); 
+    		return true;	
     	case R.id.page_clear:
     		mView.clear();
     		return true;
@@ -535,7 +538,7 @@ public class QuillWriterActivity
     
     private void switchToPage(Page page) {
     	mView.setPageAndZoomOut(page);
-    	mView.setOverlay(new TagOverlay(page.tags, toolboxIsOnLeft));
+    	mView.setOverlay(new TagOverlay(page.tags, book.currentPageNumber(), toolboxIsOnLeft));
     	menu_prepare_page_has_changed();
     }
     
@@ -671,7 +674,7 @@ public class QuillWriterActivity
         	Page p = book.currentPage();
         	if (mView.getPage() == p) {
         		book.filterChanged();
-        		mView.setOverlay(new TagOverlay(p.getTags(), toolboxIsOnLeft));
+        		mView.setOverlay(new TagOverlay(p.getTags(), book.currentPageNumber(), toolboxIsOnLeft));
         	} else {
         		switchToPage(p);
         	}

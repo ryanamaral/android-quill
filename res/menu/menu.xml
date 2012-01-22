@@ -20,7 +20,9 @@
             <item android:id="@+id/page_delete" android:title="Delete"></item>
             <item android:title="Clear" android:id="@+id/page_clear"></item>
             <item android:id="@+id/page_aspect" android:title="Aspect ratio"></item>
-            <item android:id="@+id/page_type" android:title="Paper"></item><item android:id="@+id/page_insert" android:title="Insert"></item>
+            <item android:id="@+id/page_type" android:title="Paper"></item>
+            <item android:id="@+id/page_insert" android:title="Insert"></item>
+            <item android:id="@+id/page_duplicate" android:title="Duplicate"></item>
             <item android:id="@+id/page_next" android:title="Next"></item>
             <item android:id="@+id/page_prev" android:title="Previous"></item><item android:title="Unfiltered next" android:id="@+id/page_next_unfiltered"></item><item android:title="Unfiltered previous" android:id="@+id/page_prev_unfiltered"></item>
             <item android:id="@+id/page_last" android:title="Last"></item>

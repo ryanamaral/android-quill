@@ -55,6 +55,7 @@ public class BookshelfActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Bookshelf.sortBookPreviewList();
 		adapter.notifyDataSetChanged();
 	}
 	

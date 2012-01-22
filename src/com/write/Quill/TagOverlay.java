@@ -33,15 +33,32 @@ public class TagOverlay implements Overlay {
 	
 	public TagOverlay(TagSet ts, boolean right) {
 		this.right = right;
-		TagSet filter = Bookshelf.getCurrentBook().getFilter();
 		tagSet = ts;
+		String s = constructTagString();
+		layout = new StaticLayout(
+				s, style, 
+				300, Alignment.ALIGN_NORMAL, 1, 0, false);		
+	}
+	
+	public TagOverlay(TagSet ts, int pageNumber, boolean right) {
+		this.right = right;
+		tagSet = ts;
+		String s = constructTagString();
+		s += "\nPage "+pageNumber;
+		layout = new StaticLayout(
+				s, style, 
+				300, Alignment.ALIGN_NORMAL, 1, 0, false);		
+	}
+	
+	private String constructTagString() {
+		TagSet filter = Bookshelf.getCurrentBook().getFilter();
 		style.setTextAlign(right ? Align.RIGHT : Align.LEFT);
 		style.setAntiAlias(true);
 		style.setColor(Color.DKGRAY);
 		String s = "";
-		if (ts.size() > 0 || filter.size() > 0) {
+		if (tagSet.size() > 0 || filter.size() > 0) {
 			s = "Tags:";
-			ListIterator<Tag> iter = ts.tagIterator();
+			ListIterator<Tag> iter = tagSet.tagIterator();
 			while (iter.hasNext()) {
 				Tag t = iter.next();
 				s += "\n" + t.toString();
@@ -51,13 +68,11 @@ public class TagOverlay implements Overlay {
 			iter = filter.tagIterator();
 			while (iter.hasNext()) {
 				Tag t = iter.next();
-				if (!ts.contains(t)) 
+				if (!tagSet.contains(t)) 
 					s += "\n" + t.toString() + " (missing)";
 			}
 		}
-		layout = new StaticLayout(
-				s, style, 
-				300, Alignment.ALIGN_NORMAL, 1, 0, false);
+		return s;
 	}
 	
 	public void draw(Canvas canvas) {
