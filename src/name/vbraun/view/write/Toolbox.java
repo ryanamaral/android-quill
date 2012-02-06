@@ -1,5 +1,6 @@
 package name.vbraun.view.write;
 
+import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
 import junit.framework.Assert;
 
@@ -74,9 +75,12 @@ public class Toolbox
 
 	private boolean height_small, height_tiny;
 	
+	private final Hardware hardware;
+	
 	protected Toolbox(Context context, boolean left) {
 		super(context);
-
+		hardware = new Hardware(context);
+		
 		Display display = ((WindowManager) 
         		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
@@ -129,6 +133,9 @@ public class Toolbox
 		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		thicknessSpinner.setOnItemSelectedListener(this);
 		
+		if (!hardware.hasPressureSensor())
+			fountainpenButton.setVisibility(View.INVISIBLE);
+
 //		quillButton.setVisibility(View.INVISIBLE);
 //		tagButton.setVisibility(View.INVISIBLE);
 //		menuButton.setVisibility(View.INVISIBLE);
@@ -263,7 +270,8 @@ public class Toolbox
 		Log.d(TAG, "setToolboxVisible "+visible);
 		toolboxIsVisible = visible;
 		int vis = visible ? View.VISIBLE : View.INVISIBLE;
-		fountainpenButton.setVisibility(vis);
+		if (hardware.hasPressureSensor())
+			fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
 //		lineButton.setVisibility(vis);
 		// textButton.setVisibility(vis);

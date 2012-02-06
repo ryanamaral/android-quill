@@ -104,7 +104,7 @@ public class QuillWriterActivity
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
 
-	private name.vbraun.lib.pen.Hardware hw; 
+	private name.vbraun.lib.pen.Hardware hardware; 
 	private ChangeLog changeLog;
 		
     @Override 
@@ -121,6 +121,8 @@ public class QuillWriterActivity
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        
+        hardware = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
 
         ToolHistory history = ToolHistory.getToolHistory();
         history.onCreate(getApplicationContext());
@@ -261,6 +263,8 @@ public class QuillWriterActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
+        if (!hardware.hasPressureSensor())
+        	mMenu.findItem(R.id.fountainpen).setVisible(false);
 		int w = getWindowManager().getDefaultDisplay().getWidth();
     	if (w>=800) {
     		mMenu.findItem(R.id.undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -686,10 +690,6 @@ public class QuillWriterActivity
         		switchToPage(p);
         	}
         }
-
-        if (hw==null)
-    		hw = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
-        boolean hwPen = hw.hasPenDigitizer();
         
     	int penColor = settings.getInt("pen_color", mView.getPenColor());
     	int penThickness = settings.getInt("pen_thickness", mView.getPenThickness());
@@ -705,6 +705,7 @@ public class QuillWriterActivity
     	history.restoreFromSettings(settings);
     	mView.getToolBox().onToolHistoryChanged(false);
     	
+    	final boolean hwPen = hardware.hasPenDigitizer();
 		if (settings.contains("only_pen_input")) { 
 			// import obsoleted setting
 			if (settings.getBoolean("only_pen_input", false)) 

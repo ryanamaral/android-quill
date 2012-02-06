@@ -20,6 +20,14 @@
     </style>
   </head>
   <body>
+$ 8.4
+  % Version 8.4
+  _ 2012-02-06
+  ! We are featured on the market, thank you all!
+    * Hide the system bar (optional, requires root)
+    * Left-handedness fix
+    * Hide "fountain pen" if tablet does not have digitizer
+    * More bugfixes
 $ 8.3
   % Version 8.3
   _ 2012-01-21

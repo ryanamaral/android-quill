@@ -1,5 +1,6 @@
 package name.vbraun.lib.pen;
 
+import junit.framework.Assert;
 import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -11,7 +12,15 @@ public class Hardware {
 	private final boolean mHasPenDigitizer;
 	private final PenEvent mPenEvent;
 	
+	private static Hardware cachedInstance = null;
+	
 	public Hardware(Context context) {
+		if (cachedInstance != null) { 
+			model = cachedInstance.model;
+			mHasPenDigitizer = cachedInstance.mHasPenDigitizer;
+			mPenEvent = cachedInstance.mPenEvent;
+			return; 
+		}
 		model = android.os.Build.MODEL;
 		if (model.equalsIgnoreCase("ThinkPad Tablet")) {
 			mHasPenDigitizer = true;
@@ -24,15 +33,23 @@ public class Hardware {
 			else
 				mPenEvent = new PenEvent();
 		}
+		cachedInstance = this;
         Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
 	}
 	
 	// whether the device has an active pen
-	public boolean hasPenDigitizer() {
-		return mHasPenDigitizer;
+	public static boolean hasPenDigitizer() {
+		Assert.assertNotNull(cachedInstance);
+		return cachedInstance.mHasPenDigitizer;
 	}
 	
-	public boolean isPenEvent(MotionEvent event) {
-		return mPenEvent.isPenEvent(event);
+	public static boolean hasPressureSensor() {
+		Assert.assertNotNull(cachedInstance);
+		return cachedInstance.mHasPenDigitizer;
+	}
+
+	public static boolean isPenEvent(MotionEvent event) {
+		Assert.assertNotNull(cachedInstance);
+		return cachedInstance.mPenEvent.isPenEvent(event);
 	}
 }
