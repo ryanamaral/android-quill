@@ -81,39 +81,6 @@ public class BookshelfActivity
 		showLongClickDialog(position);
 		return true;
 	}
-
-//	
-//    private static final int DIALOG_DELETE_NOTEBOOK = 0;
-//
-//    
-//	@Override
-//	protected Dialog onCreateDialog(int id) {
-//		switch (id) {
-//		case DIALOG_DELETE_NOTEBOOK:
-//			return (Dialog)create_dialog_delete();
-//		}
-//		return null;
-//	}
-	
-//	private AlertDialog create_dialog_delete() {
-//		DialogInterface.OnClickListener dialogClickListener = 
-//			new DialogInterface.OnClickListener() {
-//		    @Override
-//		    public void onClick(DialogInterface dialog, int button) {
-//		        switch (button){
-//		        case DialogInterface.BUTTON_NEGATIVE:  break;
-//		        case DialogInterface.BUTTON_POSITIVE:
-//		        	deleteIsConfirmed();
-//		            break;
-//		        }
-//		    }};
-//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//		builder.setMessage("Deleting notebook, are you sure?")
-//			.setPositiveButton("Yes", dialogClickListener)
-//		    .setNegativeButton("No", dialogClickListener);
-//		return builder.create();
-//	}
-	
 	
 	public static class DeleteConfirmationFragment extends DialogFragment {
 		private BookPreview notebook;

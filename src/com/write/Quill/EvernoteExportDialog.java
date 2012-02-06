@@ -128,6 +128,10 @@ public class EvernoteExportDialog
    
     private void renderPages() {
     	File dir = context.getExternalCacheDir();
+    	if (dir == null) {
+        	toast("Unable to open cache directory");
+    		return;
+    	}
     	ListIterator<Page> iter = pages.listIterator();
     	FileOutputStream outStream;
     	Log.d(TAG, dir.getAbsolutePath());

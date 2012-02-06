@@ -32,9 +32,11 @@ public class UndoManager
 	protected LinkedList<Command> redoStack = new LinkedList<Command>();
 	
 	private QuillWriterActivity main;
+	
 	public static void setApplication(QuillWriterActivity app) {
 		getUndoManager().main = app;
 	}
+	
 	protected static QuillWriterActivity getApplication() {
 		QuillWriterActivity result = getUndoManager().main;
 		Assert.assertNotNull(result);

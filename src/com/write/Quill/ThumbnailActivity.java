@@ -88,6 +88,7 @@ public class ThumbnailActivity extends Activity implements
 		switch (parent.getId()) {
 		case R.id.tag_list:
 			longClickedTag = tagManager.get(position);
+			Assert.assertNotNull(longClickedTag);
 			showDialog(DIALOG_EDIT_TAG);
 			return true;
 		default:
@@ -112,13 +113,21 @@ public class ThumbnailActivity extends Activity implements
 	private Tag longClickedTag;
 	
 	@Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
 		switch (id) {
 		case DIALOG_EDIT_TAG:
 			TagEditDialog dlg = (TagEditDialog)dialog;
 			dlg.setTag(longClickedTag);
 			longClickedTag = null;
 			dlg.setOnDismissListener(this);
+			break;
+        case DIALOG_SEND_TO_EVERNOTE:
+        	EvernoteExportDialog evernote = (EvernoteExportDialog)dialog;
+    		Book book = Bookshelf.getCurrentBook();
+    		LinkedList<Page> pages = book.getFilteredPages();
+        	evernote.setPages(book, pages);
+        	evernote.setUUID(book.getUUID());
+        	break;
 		default:
 			super.onPrepareDialog(id, dialog);
 		}
@@ -170,19 +179,6 @@ public class ThumbnailActivity extends Activity implements
 			return new TagEditDialog(this);
         }
 		return null;
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
-    	super.onPrepareDialog(id, dialog, args);
-        switch (id) {
-        case DIALOG_SEND_TO_EVERNOTE:
-        	EvernoteExportDialog evernote = (EvernoteExportDialog)dialog;
-    		Book book = Bookshelf.getCurrentBook();
-    		LinkedList<Page> pages = book.getFilteredPages();
-        	evernote.setPages(book, pages);
-        	evernote.setUUID(book.getUUID());
-        }    	
     }
     
     private Dialog createNewNotebookDialog() {
@@ -263,6 +259,7 @@ public class ThumbnailActivity extends Activity implements
 	protected void onPause() {
 		super.onPause();
 		tool.debug.MemDebug.logHeap(this.getClass());
+		thumbnailGrid.setAdapter(null); // stop updates
 	}
 	
 	@Override

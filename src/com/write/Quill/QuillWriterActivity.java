@@ -661,6 +661,7 @@ public class QuillWriterActivity
     private String pen_input_mode;
     
     @Override protected void onResume() {
+    	UndoManager.setApplication(this);
         super.onResume();
         // Restore preferences
         mView.setOnToolboxListener(null);
@@ -668,7 +669,6 @@ public class QuillWriterActivity
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
     	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
        
-    	UndoManager.setApplication(this);
     	book = Bookshelf.getCurrentBook();
         if (book != null) {
         	Page p = book.currentPage();

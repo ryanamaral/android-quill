@@ -1,5 +1,7 @@
 package name.vbraun.view.tag;
 
+import junit.framework.Assert;
+
 import com.write.Quill.R;
 import com.write.Quill.R.id;
 import com.write.Quill.R.layout;
@@ -59,6 +61,7 @@ public class TagEditDialog
 	public void setTag(Tag tag) {
 		this.tag = tag;
 		Log.d(TAG, "setTag "+tag+" "+editText);
+		Assert.assertNotNull(tag);
 		editText.setText(tag.toString());
 	}
 	
