@@ -9,6 +9,7 @@ import javax.net.ssl.HandshakeCompletedListener;
 import sheetrock.panda.changelog.ChangeLog;
 
 import name.vbraun.lib.pen.Hardware;
+import name.vbraun.lib.pen.HideBar;
 import name.vbraun.view.write.Graphics;
 import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.Page;
@@ -97,6 +98,7 @@ public class QuillWriterActivity
     private boolean volumeKeyNavigation;
     private boolean toolboxIsOnLeft;
     private boolean eraserSwitchesBack;
+    private boolean hideSystembar;
 
     private static final DialogThickness dialogThickness = new DialogThickness();
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
@@ -667,6 +669,11 @@ public class QuillWriterActivity
         mView.setOnToolboxListener(null);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        hideSystembar = settings.getBoolean("hide_system_bar", false);
+        if (hideSystembar)
+        	HideBar.hideSystembar(true);
+
     	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
        
     	book = Bookshelf.getCurrentBook();
@@ -755,10 +762,13 @@ public class QuillWriterActivity
     @Override 
     protected void onPause() {
     	Log.d(TAG, "onPause");
-    	super.onPause();
+        if (hideSystembar)
+        	HideBar.showSystembar(true);
+        super.onPause();
     	mView.interrupt();
         book.save(getApplicationContext());
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
+        
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("pen_type", mView.getToolType().ordinal());
         editor.putInt("pen_color", mView.getPenColor());

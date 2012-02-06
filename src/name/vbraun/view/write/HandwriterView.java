@@ -271,7 +271,10 @@ public class HandwriterView extends ViewGroup {
 	
 	private void initPalmShield() {
 		if (!palmShield) return;
-		palmShieldRect = new RectF(0, getHeight()/2, getWidth(), getHeight());
+		if (toolboxIsOnLeft)  // for right-handed user
+			palmShieldRect = new RectF(0, getHeight()/2, getWidth(), getHeight());
+		else  // for left-handed user
+			palmShieldRect = new RectF(0, 0, getWidth(), getHeight()/2);
 		palmShieldPaint = new Paint();
 		palmShieldPaint.setARGB(0x22, 0, 0, 0);		
 	}
