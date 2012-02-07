@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import name.vbraun.lib.pen.HideBar;
+
 
 import com.write.Quill.R;
 import com.write.Quill.data.Bookshelf;
@@ -41,6 +43,7 @@ public class Preferences
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
 	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = "move_gesture_while_writing";
 	protected static final String KEY_PALM_SHIELD = "palm_shield";
+	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
 
     protected static final String STYLUS_ONLY = "STYLUS_ONLY";
     protected static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
@@ -59,6 +62,7 @@ public class Preferences
 
 		name.vbraun.lib.pen.Hardware hw = new name.vbraun.lib.pen.Hardware(getApplicationContext());
 		hasPenDigitizer = hw.hasPenDigitizer();
+		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
 		
 		Preference restore = findPreference("restore_backup");
 		if (restore == null) {
@@ -82,7 +86,6 @@ public class Preferences
 						showDialog(DIALOG_RECOVERY);
 						return true;
 					}});
-		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
 		updatePreferences();
 	}
 
@@ -94,6 +97,8 @@ public class Preferences
     	findPreference(KEY_MOVE_GESTURE_WHILE_WRITING).setEnabled(gestures);
     	boolean touch = penMode.getValue().equals(STYLUS_AND_TOUCH);
     	findPreference(KEY_PALM_SHIELD).setEnabled(touch);
+    	boolean hideBar = HideBar.isPossible();
+    	findPreference(KEY_HIDE_SYSTEM_BAR).setEnabled(hideBar);
 	}
 	
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

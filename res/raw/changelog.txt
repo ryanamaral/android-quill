@@ -20,6 +20,11 @@
     </style>
   </head>
   <body>
+$ 8.5
+  % Version 8.5
+  _ 2012-02-07
+    * Fix hide the system bar if USB debugging is disabled
+    * Re-enable pressure sensitive pen on some tablets
 $ 8.4
   % Version 8.4
   _ 2012-02-06
