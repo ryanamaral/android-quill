@@ -674,9 +674,9 @@ public class QuillWriterActivity
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
-        hideSystembar = settings.getBoolean("hide_system_bar", false);
+        hideSystembar = settings.getBoolean(Preferences.KEY_HIDE_SYSTEM_BAR, false);
         if (hideSystembar)
-        	HideBar.hideSystembar(true);
+        	HideBar.hideSystembar(getApplicationContext());
 
     	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
        
@@ -764,7 +764,7 @@ public class QuillWriterActivity
     protected void onPause() {
     	Log.d(TAG, "onPause");
         if (hideSystembar)
-        	HideBar.showSystembar(true);
+        	HideBar.showSystembar(getApplicationContext());
         super.onPause();
     	mView.interrupt();
         book.save(getApplicationContext());
