@@ -66,7 +66,7 @@ public class Hardware {
 	
 	public static boolean hasPressureSensor() {
 		Assert.assertNotNull(cachedInstance);
-		return cachedInstance.mHasPenDigitizer;
+		return cachedInstance.mHasPressureSensor;
 	}
 
 	public static boolean isPenEvent(MotionEvent event) {
