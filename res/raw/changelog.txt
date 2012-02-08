@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 8.6
+  % Version 8.6
+  _ 2012-02-08
+    * Really re-enable pressure sensitive pen on some tablets
 $ 8.5
   % Version 8.5
   _ 2012-02-07
