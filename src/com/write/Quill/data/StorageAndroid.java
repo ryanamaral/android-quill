@@ -46,6 +46,7 @@ public class StorageAndroid extends Storage {
 	protected UUID loadCurrentBookUUID() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String s = settings.getString(KEY_CURRENT_BOOK_UUID, null);
+        Log.e(TAG, "KEY = " + s + " bool = "+(s == null));
         if (s == null)
         	return null;
         else
@@ -59,6 +60,9 @@ public class StorageAndroid extends Storage {
         editor.commit();
 	}
 
+	public void LogMessage(String TAG, String message) {
+		Toast.makeText(context, message, Toast.LENGTH_LONG);
+	}
 
 	public void LogError(String TAG, String message) {
 		Log.e(TAG, message);

@@ -19,10 +19,8 @@ import name.vbraun.view.write.Page;
 
 import junit.framework.Assert;
 
-import android.content.Context;
 import android.text.format.Time;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * A book is a collection of Pages and the tag manager together with some 
@@ -438,14 +436,22 @@ public class Book {
 	// ///////////////////////////////////////////////////
 	// Input/Output
 	
-	public static class BookLoadException extends Exception {
+	// Base exception
+	public static class BookIOException extends Exception {
+		public BookIOException(String string) {
+			super(string);
+		}
+		private static final long serialVersionUID = 4923229504804959444L;		
+	}
+	
+	public static class BookLoadException extends BookIOException {
 		public BookLoadException(String string) {
 			super(string);
 		}
 		private static final long serialVersionUID = -4727997764997002754L;		
 	}
 	
-	public static class BookSaveException extends Exception {
+	public static class BookSaveException extends BookIOException {
 		public BookSaveException(String string) {
 			super(string);
 		}
@@ -474,54 +480,61 @@ public class Book {
 	
 	////////////////////////////////////////
 	/// Load and save app private data 
+	/// handle failure gracefully without throwing errors
 
 	// Loads the book. This is the complement to the save() method
-	public Book(Context context, UUID uuid) {
+	public Book(Storage storage, UUID uuid) {
 		allowSave = true;
-		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
+		File dir = getDirectory(storage, uuid);
 		try {
 			doLoadBookFromDirectory(dir, -1);
 		} catch (BookLoadException e ) {
-			Log.e(TAG, e.getMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getMessage());
 		} catch (IOException e ) {
-			Log.e(TAG, e.getLocalizedMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getLocalizedMessage());
 		}
+		this.uuid = uuid;
 		loadingFinishedHook();
 	}
 	
 	// Load a truncated preview of the book
-	public Book(Context context, UUID uuid, int pageLimit) {
+	public Book(Storage storage, UUID uuid, int pageLimit) {
 		allowSave = false;
-		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
+		File dir = getDirectory(storage, uuid);
 		try {
 			doLoadBookFromDirectory(dir, -1);
 		} catch (BookLoadException e ) {
-			Log.e(TAG, e.getMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getMessage());
 		} catch (IOException e ) {
-			Log.e(TAG, e.getLocalizedMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getLocalizedMessage());
 		}
+		this.uuid = uuid;
 		loadingFinishedHook();
 	}
 
-
+	// save data internally. To load, use the constructor.
+	public void save() {
+		Storage storage = Storage.getInstance();
+		save(storage);
+	}
 
 	// save data internally. To load, use the constructor.
-	public void save(Context context) {
+	public void save(Storage storage) {
 		Assert.assertTrue(allowSave);
-		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
+		File dir = getDirectory(storage, getUUID());
 		try {
 			doSaveBookInDirectory(dir);
 		} catch (BookSaveException e ) {
-			Log.e(TAG, e.getMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getMessage());
 		} catch (IOException e ) {
-			Log.e(TAG, e.getLocalizedMessage());
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+			storage.LogError(TAG, e.getLocalizedMessage());
 		}
+	}
+	
+	private File getDirectory(Storage storage, UUID uuid) {
+		String dirname = NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
+		return new File(storage.getFilesDir(), dirname);
+
 	}
 		
 	private void doLoadBookFromDirectory(File dir, int pageLimit) throws BookLoadException, IOException {
@@ -548,8 +561,22 @@ public class Book {
 	}
 
 	
+	public void delete(Storage storage) {
+		File dir = getDirectory(storage, getUUID());
+        String[] children = dir.list();
+        for (String child : children) {
+        	File file = new File(dir, child);
+        	file.delete();
+        }
+        boolean rc = dir.delete();
+        if (!rc) 
+        	storage.LogError(TAG, "Unable to delete directory "+dir.toString());
+	}
+	
+	
 	////////////////////////////////////////
 	/// Load and save archives 
+	/// Throw error if necessary
 	
 	public void saveBookArchive(File file) throws BookSaveException {
 		Assert.assertTrue(allowSave);
@@ -670,7 +697,7 @@ public class Book {
 		int n_pages;
 		LinkedList<UUID> pageUuidList = new LinkedList<UUID>();
 		int version = dataIn.readInt();
-		if (version == 3) {
+		if (version == 4) {
 			n_pages = dataIn.readInt();
 			for (int i=0; i<n_pages; i++)
 				pageUuidList.add(UUID.fromString(dataIn.readUTF()));
@@ -725,6 +752,7 @@ public class Book {
 	}
 
 	private Page loadPage(UUID uuid, File dir) throws IOException {
+		Log.d(TAG, "Loading page "+uuid);
 		File file = new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
 		FileInputStream fis = null;
 		BufferedInputStream buffer = null;
