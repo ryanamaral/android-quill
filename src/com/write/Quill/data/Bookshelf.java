@@ -11,6 +11,7 @@ import java.util.ListIterator;
 import java.util.UUID;
 
 import com.write.Quill.UndoManager;
+import com.write.Quill.data.Book.BookLoadException;
 
 import junit.framework.Assert;
 
@@ -50,10 +51,10 @@ public class Bookshelf {
 	public class BookPreview {
 		private static final String TAG = "BookPreview";
 		private Book preview;
-		private File file;
-		private BookPreview(File f) throws IOException {
-			file = f;
-			preview = new Book(file, 1);
+		private UUID uuid;
+		private BookPreview(UUID uuid) {
+			this.uuid = uuid;
+			preview = new Book(storage, uuid, 1);
 		}
 		public UUID getUUID() { return preview.uuid; }
 		public String getTitle() { return preview.title; }
@@ -61,24 +62,20 @@ public class Bookshelf {
 			int fmt = DateUtils.FORMAT_SHOW_DATE + DateUtils.FORMAT_SHOW_TIME + 
 					DateUtils.FORMAT_SHOW_YEAR + DateUtils.FORMAT_SHOW_WEEKDAY;
 			String s = "Created on ";
-			s += DateUtils.formatDateTime(context, preview.ctime.toMillis(false), fmt) + "\n";
+			s += storage.formatDateTime(preview.ctime.toMillis(false)) + "\n";
 			s += "Last modified on ";
-			s += DateUtils.formatDateTime(context, preview.mtime.toMillis(false), fmt) + "\n";
+			s += storage.formatDateTime(preview.mtime.toMillis(false)) + "\n";
 			return s;
 		}
 		public Bitmap getThumbnail(int width, int height) {
     		return preview.currentPage().renderBitmap(width, height, true);
 		}
 		public void reload() {
-			if (preview.uuid.equals(currentBook.uuid)) {
+			if (uuid.equals(currentBook.uuid)) {
 				preview.title = currentBook.title;
 				return;
 			}
-			try {
-				preview = new Book(file, 1);
-			} catch (IOException e) {
-				Log.e(TAG, e.getLocalizedMessage());
-			}
+			preview = new Book(storage, uuid, 1);
 		}
 	}
 	
@@ -93,26 +90,15 @@ public class Bookshelf {
 	private static Book currentBook;
 	private static Bookshelf instance;
 	private static File homeDirectory;
-	private Context context;
+	private Storage storage;
 	
-	private Bookshelf(Context c) {
-		context = c.getApplicationContext();
-		homeDirectory = context.getFilesDir();
-		ArrayList<String> files = listBookFiles(homeDirectory);
-		ListIterator<String> iter = files.listIterator();
-		while (iter.hasNext()) {
-			String filename = iter.next();
-			Log.d(TAG, filename);
-			try {
-				File file = new File(filename);
-				BookPreview notebook = new BookPreview(file);
-				data.add(notebook);
-			} catch (IOException e) {
-				Log.e(TAG, "Error opening notebook "+filename);
-				Toast.makeText(context, 
-						"Error loading notebook "+filename, 
-						Toast.LENGTH_LONG);
-			}	
+	private Bookshelf(Storage storage) {
+		this.storage = storage;
+		homeDirectory = storage.getFilesDir();
+		LinkedList<UUID> bookUUIDs = listBookUUIDs(homeDirectory);
+		for (UUID uuid : bookUUIDs) {
+			BookPreview notebook = new BookPreview(uuid);
+			data.add(notebook);
 		}
 	}
 
@@ -121,11 +107,11 @@ public class Bookshelf {
 	 *
 	 * @param context
 	 */
-	public static void onCreate(Context context) {
+	protected static void initialize(Storage storage) {
       	if (instance == null) {
         	Log.v(TAG, "Reading notebook list from storage.");
-    		instance = new Bookshelf(context);
-        	currentBook = new Book(context);
+    		instance = new Bookshelf(storage);
+        	currentBook = new Book(storage, storage.loadCurrentBookUUID());
     		instance.addCurrentBookToPreviews();
       	}
 	}
@@ -192,8 +178,7 @@ public class Bookshelf {
 	
 	public void deleteBook(UUID uuid) {
 		if (data.size() <= 1) {
-			Toast.makeText(context, 
-					"Cannot delete last notebook", Toast.LENGTH_LONG);
+			storage.LogError(TAG, "Cannot delete last notebook");
 			return;
 		}
 		if (uuid.equals(currentBook.uuid)) {
@@ -212,9 +197,7 @@ public class Bookshelf {
 			if (nb.getUUID().equals(uuid)) { 
 				boolean rc = nb.file.delete();
 				if (rc == false) {
-					Log.e(TAG, "Delete failed");
-					Toast.makeText(context, 
-							"Delete failed", Toast.LENGTH_LONG);
+					storage.LogError(TAG, "Delete failed");
 					return;		
 				}
 				data.remove(nb);
@@ -249,9 +232,7 @@ public class Bookshelf {
 			saveBook(currentBook);
 			addCurrentBookToPreviews();	
 		} catch (IOException ex) {
-			Log.e(TAG, "Error saving notebook");
-			Toast.makeText(context, "Error saving current notebook", 
-					Toast.LENGTH_LONG);	
+			storage.LogError(TAG, "Error saving new notebook");
 		}
 		Assert.assertTrue(data.contains(getCurrentBookPreview()));
 	}
@@ -264,11 +245,9 @@ public class Bookshelf {
 		if (nb.getUUID().equals(currentBook.getUUID()));
 		try {
 			if (saveCurrent) saveBook(getCurrentBook());
-			currentBook = new Book(nb.file);
+			currentBook = new Book(storage, nb.uuid);
 		} catch (IOException ex) {
-			Log.e(TAG, "Error loading book");
-			Toast.makeText(context, "Error saving notebook", 
-					Toast.LENGTH_LONG);	
+			storage.LogError(TAG, "Error saving current notebook");
 		} 
 		UndoManager.getUndoManager().clearHistory();
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
@@ -289,28 +268,32 @@ public class Bookshelf {
 				Log.e(TAG, "Error saving current book");
 			}
 		try {
-			BookPreview nb = new BookPreview(file);
+			BookPreview nb = new BookPreview(uuid);
 			data.add(nb);
-		} catch (IOException ex) {
-			Log.e(TAG, "Error loading notebook");
-			Toast.makeText(context, "Error loading notebook", 
-					Toast.LENGTH_LONG);	
+		} catch (BookLoadException ex) {
+			storage.LogError(TAG, "Error loading notebook");
 		}
 	}
 	
-	private ArrayList<String> listBookFiles(File dir) {
+	
+	private LinkedList<UUID> listBookUUIDs(File dir) {
 		FilenameFilter filter = new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
-		        return name.endsWith(".quill");
+		        return name.startsWith(Book.NOTEBOOK_DIRECTORY_PREFIX);
 		    }};
 		File[] entries = dir.listFiles(filter);
-		ArrayList<String> files = new ArrayList<String>();
-		if (entries == null) return files;
-		for (int i=0; i<entries.length; i++) {
-			files.add(entries[i].getAbsolutePath());
-			Log.d(TAG, "Found notebook: "+files.get(i));
+		LinkedList<UUID> uuids = new LinkedList<UUID>();
+		if (entries == null) return uuids;
+		for (File bookdir : entries) {
+			String path = bookdir.getAbsolutePath();
+			Log.d(TAG, "Found notebook: "+path);
+			int pos = path.lastIndexOf(Book.NOTEBOOK_DIRECTORY_PREFIX);
+			pos += Book.NOTEBOOK_DIRECTORY_PREFIX.length();
+			UUID uuid = UUID.fromString(path.substring(pos));
+			Log.d(TAG, "Found notebook: "+uuid);
+			uuids.add(uuid);
 		}
-		return files;
+		return uuids;
 	}
 
 		

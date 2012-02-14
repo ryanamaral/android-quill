@@ -66,7 +66,35 @@ public class BookOldFormat extends Book {
 		}
 	}
 	
+	/**
+	 * If the page index is missing, simply read ahead and fill in missing metadata.
+	 * 
+	 * @param context
+	 */
+	public void recoverFromMissingIndex(Context context) {
+		title = "Recovered notebook";
+		ctime.setToNow();
+		mtime.setToNow();
+		uuid = UUID.randomUUID();
+		int pos = 0;
+		pages.clear();
+		while (true) {
+			Page page;
+			Log.d(TAG, "Trying to recover page " + pos);
+			try {
+				page = loadPage(pos++, context);
+			} catch (IOException e) {
+				break;
+			}
+			page.touch();
+			pages.add(page);
+		}
+		// recover from errors
+		loadingFinishedHook();
+	}
 
+	
+	
 	private int loadIndex(Context context) throws IOException {
 		FileInputStream fis = context.openFileInput(FILENAME_STEM + ".index");
 		BufferedInputStream buffer;

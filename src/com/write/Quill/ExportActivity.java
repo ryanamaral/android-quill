@@ -292,9 +292,10 @@ public class ExportActivity
     private void doExportArchive() {
     	try {
     		book.saveBookArchive(file);
-    	} catch (IOException e) {
-			Log.e(TAG, "Error writing file "+e.toString());
-        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();   		
+    	} catch (Book.BookSaveException e) {
+			Log.e(TAG, "Error writing file "+e.getMessage());
+        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();
+        	return;
     	}
     	doShare();
     }

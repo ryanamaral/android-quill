@@ -7,6 +7,7 @@ import junit.framework.Assert;
 
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
+import com.write.Quill.data.StorageAndroid;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,9 +44,8 @@ public class BookshelfActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		Bookshelf.onCreate(getApplicationContext());
-		
+      	StorageAndroid.initialize(getApplicationContext());
+
 		adapter = new BookshelfAdapter(getApplicationContext());
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
