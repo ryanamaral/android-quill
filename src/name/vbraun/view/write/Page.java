@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.TagSet;
@@ -32,6 +33,7 @@ public class Page {
 	private TagManager tagManager;
 	
 	// persistent data
+	protected UUID uuid;  // unique identifyer
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	public final TagManager.TagSet tags;
 	protected float aspect_ratio = AspectRatio.Table[0].ratio;
@@ -49,6 +51,10 @@ public class Page {
 	
 	public TagSet getTags() {
 		return tags;
+	}
+	
+	public UUID getUUID() {
+		return uuid;
 	}
 	
 	public boolean is_empty() {
@@ -185,7 +191,8 @@ public class Page {
 	
 	
 	public void writeToStream(DataOutputStream out) throws IOException {
-		out.writeInt(3);  // protocol #1
+		out.writeInt(4);  // protocol #1
+		out.writeUTF(uuid.toString());
 		tags.write_to_stream(out);
 		out.writeInt(paper_type.ordinal());
 		out.writeInt(0); // reserved1
@@ -199,6 +206,7 @@ public class Page {
 	}
 	
 	public Page(TagManager tagMgr) {
+		uuid=UUID.randomUUID();
 		tagManager = tagMgr;
 		tags = tagManager.newTagSet();
 		setPaperType(paper_type);
@@ -208,6 +216,7 @@ public class Page {
 	}
 
 	public Page(Page template) {
+		uuid=UUID.randomUUID();
 		tagManager = template.tagManager;
 		tags = template.tags.copy();
 		setPaperType(template.paper_type);
@@ -221,14 +230,23 @@ public class Page {
 		tagManager = tagMgr;
 		int version = in.readInt();
 		if (version == 1) {
+			uuid = UUID.randomUUID();
 			tags = tagManager.newTagSet();
 			paper_type = Paper.Type.EMPTY;
 		} else if (version == 2) {
+			uuid = UUID.randomUUID();
 			tags = tagManager.newTagSet();
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
 		} else if (version == 3) {
+			uuid = UUID.randomUUID();
+			tags = tagManager.loadTagSet(in);
+			paper_type = Paper.Type.values()[in.readInt()];
+			in.readInt();
+			in.readInt();
+		} else if (version == 4) {
+			uuid = UUID.fromString(in.readUTF());
 			tags = tagManager.loadTagSet(in);
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();

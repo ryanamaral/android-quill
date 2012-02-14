@@ -34,6 +34,8 @@ import android.widget.Toast;
 public class Book {
 	private static final String TAG = "Book";
 	private static final String FILENAME_STEM = "quill";
+	private static final String INDEX_FILE = "quill.index";
+	private static final String NOTEBOOK_DIRECTORY_PREFIX = "notebook_";
 
 	private TagManager tagManager = new TagManager();
 
@@ -49,6 +51,8 @@ public class Book {
 		filter = newFilter;
 	}
 
+	protected Book() {} // dummy ctor for derived classes only
+	
 	public Book(String description) {
 		pages.add(new Page(tagManager));
 		ctime.setToNow();
@@ -86,6 +90,7 @@ public class Book {
 	// end of persistent data
 	// ///////////////////////
 
+	// unset this to ensure that the book is never saved (truncated previews, for example)
 	private boolean allowSave = true;
 
 	// filteredPages is never empty
@@ -419,6 +424,20 @@ public class Book {
 
 	// ///////////////////////////////////////////////////
 	// Input/Output
+	
+	protected static class BookLoadException extends Exception {
+		public BookLoadException(String string) {
+			super(string);
+		}
+		private static final long serialVersionUID = -4727997764997002754L;		
+	}
+	
+	protected static class BookSaveException extends Exception {
+		public BookSaveException(String string) {
+			super(string);
+		}
+		private static final long serialVersionUID = -7622965955861362254L;
+	}
 
 	// Pick a current page if it is out of bounds
 	private void makeCurrentPageConsistent() {
@@ -435,7 +454,7 @@ public class Book {
 	}
 
 	// this is always called after the book was loaded
-	private void loadingFinishedHook() {
+	protected void loadingFinishedHook() {
 		makeCurrentPageConsistent();
 		filterChanged();
 	}
@@ -515,27 +534,31 @@ public class Book {
 		loadingFinishedHook();
 	}
 
-	// save data internally. Will be used automatically
-	// the next time we start. To load, use the constructor.
+	// save data internally. To load, use the constructor.
 	public void save(Context context) {
 		Assert.assertTrue(allowSave);
+		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
 		try {
-			saveIndex(context);
-		} catch (IOException e) {
-			Log.e(TAG, "Error saving book index page ");
-			Toast.makeText(context, "Error saving book index page",
-					Toast.LENGTH_LONG);
+			saveBookInDirectory(dir);
+		} catch ( BookSaveException e ) {
+			Log.e(TAG, e.getMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
 		}
+	}
+		
+	private void saveBookInDirectory(File dir) throws BookSaveException {
+		if (!dir.isDirectory() && !dir.mkdir())
+			throw new BookSaveException("Error creating directory "+dir.toString());
+		saveIndex(dir);
 		for (int i = 0; i < pages.size(); i++) {
 			if (!pages.get(i).isModified())
 				continue;
 			try {
 				savePage(i, context);
 			} catch (IOException e) {
-				Log.e(TAG,
-						"Error saving book page " + i + " of " + pages.size());
-				Toast.makeText(context, "Error saving book page " + i + " of "
-						+ pages.size(), Toast.LENGTH_LONG);
+				String msg = "Error saving book page " + i + " of " + pages.size(); 
+				Log.e(TAG, msg);
+				Toast.makeText(context, msg, Toast.LENGTH_LONG);
 			}
 		}
 
@@ -630,26 +653,46 @@ public class Book {
 		}
 	}
 
-	private void saveIndex(Context context) throws IOException {
-		FileOutputStream fos;
-		fos = context.openFileOutput(FILENAME_STEM + ".index",
-				Context.MODE_PRIVATE);
-		BufferedOutputStream buffer;
+	private void saveIndex(File dir) throws BookSaveException {
+		File indexfile = new File(dir, INDEX_FILE);
+		FileOutputStream fos = null;
+		BufferedOutputStream buffer = null;
 		DataOutputStream dataOut = null;
 		try {
+			fos = new FileOutputStream(indexfile);
 			buffer = new BufferedOutputStream(fos);
 			dataOut = new DataOutputStream(buffer);
 			saveIndex(dataOut);
+			dataOut.close();
+		} catch (IOException e) {
+			throw new BookSaveException("Error saving book index page.");
 		} finally {
-			if (dataOut != null)
-				dataOut.close();
+			try {
+				if (dataOut != null) dataOut.close();
+				if (buffer != null) buffer.close();
+				if (fos != null) fos.close();
+			} catch (IOException e) {
+				throw new BookSaveException("Error closing book index page file.");
+			}
 		}
+			
 	}
 
-	private int loadIndex(DataInputStream dataIn) throws IOException {
+	private LinkedList<UUID> loadIndex(DataInputStream dataIn) throws BookLoadException {
 		Log.d(TAG, "Loading book index");
 		int n_pages;
+		LinkedList<UUID> pageUuidList = new LinkedList<UUID>();
 		int version = dataIn.readInt();
+		if (version == 3) {
+			n_pages = dataIn.readInt();
+			for (int i=0; i<n_pages; i++)
+				pageUuidList.add(UUID.fromString(dataIn.readUTF()));
+			currentPage = dataIn.readInt();
+			title = dataIn.readUTF();
+			ctime.set(dataIn.readLong());
+			mtime.set(dataIn.readLong());
+			uuid = UUID.fromString(dataIn.readUTF());
+			setFilter(tagManager.loadTagSet(dataIn));
 		if (version == 3) {
 			n_pages = dataIn.readInt();
 			currentPage = dataIn.readInt();
@@ -675,14 +718,16 @@ public class Book {
 			uuid = UUID.randomUUID();
 			setFilter(tagManager.newTagSet());
 		} else
-			throw new IOException("Unknown version in load_index()");
-		return n_pages;
+			throw new BookLoadException("Unknown version in load_index()");
+		return pageUuidList;
 	}
 
 	private void saveIndex(DataOutputStream dataOut) throws IOException {
 		Log.d(TAG, "Saving book index");
-		dataOut.writeInt(3);
+		dataOut.writeInt(4);
 		dataOut.writeInt(pages.size());
+		for (int i=0; i<pages.size(); i++)
+			dataOut.writeUTF(getPage(i).getUUID())
 		dataOut.writeInt(currentPage);
 		dataOut.writeUTF(title);
 		dataOut.writeLong(ctime.toMillis(false));
