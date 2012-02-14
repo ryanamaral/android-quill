@@ -7,6 +7,7 @@ import junit.framework.Assert;
 import com.write.Quill.R;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
@@ -195,7 +196,7 @@ public class TagsListActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		
 		Log.d(TAG, "onCreate");
-      	Bookshelf.onCreate(getApplicationContext());
+      	StorageAndroid.initialize(getApplicationContext());
 				
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);

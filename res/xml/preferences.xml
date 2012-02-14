@@ -33,8 +33,9 @@
  
  
 </PreferenceCategory><PreferenceCategory android:title="User data">
-     <Preference android:summary='Overwrite your notes with a backup (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
-     <Preference android:summary='Try to recover pages that are missing from the index' android:key="recovery" android:title="Recover Pages"></Preference>
+     <Preference android:summary='Import a .quill backup file (Use "Export" to make backups)' android:key="restore_backup" android:title="Restore Backup"></Preference>
+     <CheckBoxPreference android:key="backup_automatic" android:defaultValue="true" android:title="Automatic backups" android:summary="Make backups of your notebooks automatically"/>
+     <Preference android:key="backup_directory" android:title="Automatic backup directory"/>
      
  </PreferenceCategory>
 

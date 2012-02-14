@@ -24,6 +24,7 @@ import junit.framework.Assert;
 import com.write.Quill.R;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.StorageAndroid;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -115,7 +116,7 @@ public class QuillWriterActivity
         if (changeLog.firstRun())
             changeLog.getLogDialog().show();
 
-      	Bookshelf.onCreate(getApplicationContext());
+      	StorageAndroid.initialize(getApplicationContext());
       	bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());

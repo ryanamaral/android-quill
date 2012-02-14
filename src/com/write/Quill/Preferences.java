@@ -127,35 +127,11 @@ public class Preferences
 		switch (id) {
 		case DIALOG_RESTORE_BACKUP:
 			return (Dialog)create_dialog_restore();
-		case DIALOG_RECOVERY:
-			return (Dialog)create_dialog_recovery();
 		}
 		return null;
 	}
 
-	
-	private AlertDialog create_dialog_recovery() {
-		DialogInterface.OnClickListener dialogClickListener = 
-			new DialogInterface.OnClickListener() {
-		    @Override
-		    public void onClick(DialogInterface dialog, int button) {
-		        switch (button){
-		        case DialogInterface.BUTTON_NEGATIVE:  break;
-		        case DialogInterface.BUTTON_POSITIVE:
-		        	Bookshelf.getBookshelf().getCurrentBook().recoverFromMissingIndex(getApplicationContext());
-		        	dialog.dismiss();
-		            break;
-		        }
-		    }};
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Are you sure?")
-			.setPositiveButton("Yes", dialogClickListener)
-		    .setNegativeButton("No", dialogClickListener);
-		return builder.create();
-	}
-	
-	
-	
+		
 	private ArrayList<String> tryMakeFileList() {
 		ArrayList<String> files = new ArrayList<String>();
 		files.addAll(tryMakeFileList(getExternalFilesDir(null).getPath()));

@@ -12,6 +12,7 @@ import com.write.Quill.R;
 import com.write.Quill.ThumbnailAdapter.Thumbnail;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
@@ -226,7 +227,7 @@ public class ThumbnailActivity extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-      	Bookshelf.onCreate(getApplicationContext());
+      	StorageAndroid.initialize(getApplicationContext());
 
 		layout = getLayoutInflater().inflate(R.layout.thumbnail_activity, null);
 		setContentView(layout);

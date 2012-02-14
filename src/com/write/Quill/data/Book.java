@@ -33,9 +33,10 @@ import android.widget.Toast;
  */
 public class Book {
 	private static final String TAG = "Book";
-	private static final String FILENAME_STEM = "quill";
-	private static final String INDEX_FILE = "quill.index";
-	private static final String NOTEBOOK_DIRECTORY_PREFIX = "notebook_";
+	private static final String QUILL_DATA_FILE_SUFFIX = ".quill_data";
+	private static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
+	private static final String PAGE_FILE_PREFIX = "page_";
+	protected static final String NOTEBOOK_DIRECTORY_PREFIX = "notebook_";
 
 	private TagManager tagManager = new TagManager();
 
@@ -51,9 +52,13 @@ public class Book {
 		filter = newFilter;
 	}
 
-	protected Book() {} // dummy ctor for derived classes only
+	// dummy ctor for derived classes only
+	protected Book() {
+		allowSave = true;
+	} 
 	
 	public Book(String description) {
+		allowSave = true;
 		pages.add(new Page(tagManager));
 		ctime.setToNow();
 		mtime.setToNow();
@@ -91,10 +96,18 @@ public class Book {
 	// ///////////////////////
 
 	// unset this to ensure that the book is never saved (truncated previews, for example)
-	private boolean allowSave = true;
+	private boolean allowSave = false;
 
 	// filteredPages is never empty
 	protected final LinkedList<Page> filteredPages = new LinkedList<Page>();
+
+	public LinkedList<Page> getFilteredPages() {
+		return filteredPages;
+	}
+
+	public LinkedList<Page> getPages() {
+		return pages;
+	}
 
 	// mark all subsequent pages as changed so that they are saved again
 	private void touchAllSubsequentPages(int fromPage) {
@@ -425,14 +438,14 @@ public class Book {
 	// ///////////////////////////////////////////////////
 	// Input/Output
 	
-	protected static class BookLoadException extends Exception {
+	public static class BookLoadException extends Exception {
 		public BookLoadException(String string) {
 			super(string);
 		}
 		private static final long serialVersionUID = -4727997764997002754L;		
 	}
 	
-	protected static class BookSaveException extends Exception {
+	public static class BookSaveException extends Exception {
 		public BookSaveException(String string) {
 			super(string);
 		}
@@ -458,227 +471,201 @@ public class Book {
 		makeCurrentPageConsistent();
 		filterChanged();
 	}
-
-	public void writePagesToStream(DataOutputStream out) throws IOException {
-		out.writeInt(1); // protocol #1
-		out.writeInt(currentPage);
-		out.writeInt(pages.size());
-		ListIterator<Page> piter = pages.listIterator();
-		while (piter.hasNext())
-			piter.next().writeToStream(out);
-	}
-
-	public void loadPagesFromStream(DataInputStream in) throws IOException {
-		int version = in.readInt();
-		if (version != 1)
-			throw new IOException("Unknown version!");
-		currentPage = in.readInt();
-		int N = in.readInt();
-		pages.clear();
-		for (int i = 0; i < N; i++) {
-			pages.add(new Page(in, tagManager));
-		}
-		loadingFinishedHook();
-	}
+	
+	////////////////////////////////////////
+	/// Load and save app private data 
 
 	// Loads the book. This is the complement to the save() method
-	public Book(Context context) {
-		int n_pages;
+	public Book(Context context, UUID uuid) {
+		allowSave = true;
+		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
 		try {
-			n_pages = loadIndex(context);
-		} catch (IOException e) {
-			Log.e(TAG, "Error opening book index page ");
-			Toast.makeText(context, "Page index missing, recovering...",
-					Toast.LENGTH_LONG);
-			recoverFromMissingIndex(context);
-			return;
+			doLoadBookFromDirectory(dir, -1);
+		} catch (BookLoadException e ) {
+			Log.e(TAG, e.getMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+		} catch (IOException e ) {
+			Log.e(TAG, e.getLocalizedMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
 		}
-		pages.clear();
-		for (int i = 0; i < n_pages; i++) {
-			try {
-				pages.add(loadPage(i, context));
-			} catch (IOException e) {
-				Log.e(TAG, "Error loading book page " + i + " of " + n_pages);
-				Toast.makeText(context, "Error loading book page " + i + " of "
-						+ n_pages, Toast.LENGTH_LONG);
-			}
+		loadingFinishedHook();
+	}
+	
+	// Load a truncated preview of the book
+	public Book(Context context, UUID uuid, int pageLimit) {
+		allowSave = false;
+		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
+		try {
+			doLoadBookFromDirectory(dir, -1);
+		} catch (BookLoadException e ) {
+			Log.e(TAG, e.getMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+		} catch (IOException e ) {
+			Log.e(TAG, e.getLocalizedMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
 		}
-		// recover from errors
 		loadingFinishedHook();
 	}
 
-	/**
-	 * If the page index is missing, simply read ahead and fill in missing metadata.
-	 * 
-	 * @param context
-	 */
-	public void recoverFromMissingIndex(Context context) {
-		title = "Recovered notebook";
-		ctime.setToNow();
-		mtime.setToNow();
-		uuid = UUID.randomUUID();
-		int pos = 0;
-		pages.clear();
-		while (true) {
-			Page page;
-			Log.d(TAG, "Trying to recover page " + pos);
-			try {
-				page = loadPage(pos++, context);
-			} catch (IOException e) {
-				break;
-			}
-			page.touch();
-			pages.add(page);
-		}
-		// recover from errors
-		loadingFinishedHook();
-	}
+
 
 	// save data internally. To load, use the constructor.
 	public void save(Context context) {
 		Assert.assertTrue(allowSave);
 		File dir = new File(context.getFilesDir(), NOTEBOOK_DIRECTORY_PREFIX+getUUID().toString());
 		try {
-			saveBookInDirectory(dir);
-		} catch ( BookSaveException e ) {
+			doSaveBookInDirectory(dir);
+		} catch (BookSaveException e ) {
 			Log.e(TAG, e.getMessage());
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
+		} catch (IOException e ) {
+			Log.e(TAG, e.getLocalizedMessage());
 			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
 		}
 	}
 		
-	private void saveBookInDirectory(File dir) throws BookSaveException {
+	private void doLoadBookFromDirectory(File dir, int pageLimit) throws BookLoadException, IOException {
+		if (!dir.isDirectory())
+			throw new BookLoadException("No such directory: "+dir.toString());
+		LinkedList<UUID> pageUUIDs = loadIndex(dir);
+		pages.clear();
+		for (UUID uuid : pageUUIDs) {
+			if (pageLimit >=0 && pages.size() >= pageLimit) return;
+			loadPage(uuid, dir);
+		}
+		// TODO: add any pages not in the index
+	}
+	
+	private void doSaveBookInDirectory(File dir) throws BookSaveException, IOException {
 		if (!dir.isDirectory() && !dir.mkdir())
 			throw new BookSaveException("Error creating directory "+dir.toString());
 		saveIndex(dir);
-		for (int i = 0; i < pages.size(); i++) {
-			if (!pages.get(i).isModified())
-				continue;
-			try {
-				savePage(i, context);
-			} catch (IOException e) {
-				String msg = "Error saving book page " + i + " of " + pages.size(); 
-				Log.e(TAG, msg);
-				Toast.makeText(context, msg, Toast.LENGTH_LONG);
-			}
+		for (Page page : getPages()) {
+			if (!page.isModified())	continue;
+			savePage(page, dir);
 		}
-
+		// TODO: delete pages whose UUID is not used
 	}
 
 	
-	public void saveBookArchive(File file) throws IOException {
+	////////////////////////////////////////
+	/// Load and save archives 
+	
+	public void saveBookArchive(File file) throws BookSaveException {
 		Assert.assertTrue(allowSave);
-		FileOutputStream fos = new FileOutputStream(file);
-		BufferedOutputStream buffer;
-		DataOutputStream dataOut = null;
 		try {
-			buffer = new BufferedOutputStream(fos);
-			dataOut = new DataOutputStream(buffer);
-			saveIndex(dataOut);
-			for (int i = 0; i < pages.size(); i++)
-				savePage(i, dataOut);
-		} finally {
-			if (dataOut != null)
-				dataOut.close();
+			doSaveBookArchive(file);
+		} catch (IOException e) {
+			throw new BookSaveException(e.getLocalizedMessage());
 		}
-
 	}
 
 	// Load an archive; the complement to saveArchive
-	public Book(File file) throws IOException {
-		FileInputStream fis;
-		BufferedInputStream buffer;
-		DataInputStream dataIn = null;
+	public Book(File file) throws BookLoadException {
+		allowSave = true;
 		try {
-			fis = new FileInputStream(file);
-			buffer = new BufferedInputStream(fis);
-			dataIn = new DataInputStream(buffer);
-			int n_pages = loadIndex(dataIn);
-			pages.clear();
-			for (int i = 0; i < n_pages; i++)
-				pages.add(loadPage(i, dataIn));
-		} finally {
-			if (dataIn != null)
-				dataIn.close();
+			doLoadBookArchive(file, -1);
+		} catch (IOException e) {
+			throw new BookLoadException(e.getLocalizedMessage());
 		}
-		// recover from errors
-		if (pages.isEmpty())
-			pages.add(new Page(tagManager));
-		if (currentPage < 0)
-			currentPage = 0;
-		if (currentPage >= pages.size())
-			currentPage = pages.size() - 1;
-		ListIterator<Page> piter = pages.listIterator();
-		touchAllSubsequentPages(0);
 		loadingFinishedHook();
 	}
 
-	// Peek an archive: load index data but skip pages except for the first one
-	public Book(File file, int pageLimit) throws IOException {
-		allowSave = false; // just to be sure that we don't save truncated data
-							// back
-		FileInputStream fis;
-		BufferedInputStream buffer;
-		DataInputStream dataIn = null;
+	// Peek an archive: load index data but skip pages except for the first couple of pages
+	public Book(File file, int pageLimit) throws BookLoadException {
+		allowSave = false; // just to be sure that we don't save truncated data back
 		try {
-			fis = new FileInputStream(file);
-			buffer = new BufferedInputStream(fis);
-			dataIn = new DataInputStream(buffer);
-			int n_pages = loadIndex(dataIn);
-			n_pages = Math.min(n_pages, pageLimit);
-			pages.clear();
-			for (int i = 0; i < n_pages; i++)
-				pages.add(loadPage(i, dataIn));
-		} finally {
-			if (dataIn != null)
-				dataIn.close();
+			doLoadBookArchive(file, pageLimit);
+		} catch (IOException e) {
+			throw new BookLoadException(e.getLocalizedMessage());
 		}
-		// recover from errors
-		if (pages.isEmpty())
-			pages.add(new Page(tagManager));
 		currentPage = 0;
 		loadingFinishedHook();
 	}
-
-	private int loadIndex(Context context) throws IOException {
-		FileInputStream fis = context.openFileInput(FILENAME_STEM + ".index");
-		BufferedInputStream buffer;
+	
+	/** Internal helper to load book from archive file
+	 * @param file The achive file to load
+	 * @param pageLimit when to stop loading pages. Negative values mean load all pages.
+	 * @throws IOException, BookLoadException
+	 */
+	private void doLoadBookArchive(File file, int pageLimit) throws IOException, BookLoadException {
+		FileInputStream fis = null;
+		BufferedInputStream buffer = null;
 		DataInputStream dataIn = null;
 		try {
+			fis = new FileInputStream(file);
 			buffer = new BufferedInputStream(fis);
 			dataIn = new DataInputStream(buffer);
-			return loadIndex(dataIn);
+			pages.clear();
+			LinkedList<UUID> pageUUIDs = loadIndex(dataIn);
+			for (UUID uuid : pageUUIDs) {
+				if (pageLimit >=0 && pages.size() >= pageLimit) return;
+				pages.add(loadPage(dataIn));
+			}
 		} finally {
-			if (dataIn != null)
-				dataIn.close();
+			if (dataIn != null) dataIn.close();
+			if (buffer != null) buffer.close();
+			if (fis != null) fis.close();
 		}
 	}
 
-	private void saveIndex(File dir) throws BookSaveException {
-		File indexfile = new File(dir, INDEX_FILE);
+	private void doSaveBookArchive(File file) throws IOException, BookSaveException {
 		FileOutputStream fos = null;
 		BufferedOutputStream buffer = null;
 		DataOutputStream dataOut = null;
 		try {
-			fos = new FileOutputStream(indexfile);
+			fos = new FileOutputStream(file);
+			buffer = new BufferedOutputStream(fos);
+			dataOut = new DataOutputStream(buffer);
+			saveIndex(dataOut);
+			for (Page page : pages)
+				savePage(page, dataOut);
+		} finally {
+			if (dataOut != null) dataOut.close();
+			if (buffer != null) buffer.close();
+			if (fos != null) fos.close();
+		}
+	}
+
+	/////////////////////////////
+	/// implementation of load/save
+	
+	private LinkedList<UUID> loadIndex(File dir) throws IOException, BookLoadException {
+		File indexFile = new File(dir, INDEX_FILE);
+		FileInputStream fis = null;
+		BufferedInputStream buffer = null;
+		DataInputStream dataIn = null;
+		try {
+			fis = new FileInputStream(indexFile);
+			buffer = new BufferedInputStream(fis);
+			dataIn = new DataInputStream(buffer);
+			return loadIndex(dataIn);
+		} finally {
+			if (dataIn != null) dataIn.close();
+			if (buffer != null) buffer.close();
+			if (fis != null) fis.close();
+		}
+	}
+
+	private void saveIndex(File dir) throws IOException, BookSaveException {
+		File indexFile = new File(dir, INDEX_FILE);
+		FileOutputStream fos = null;
+		BufferedOutputStream buffer = null;
+		DataOutputStream dataOut = null;
+		try {
+			fos = new FileOutputStream(indexFile);
 			buffer = new BufferedOutputStream(fos);
 			dataOut = new DataOutputStream(buffer);
 			saveIndex(dataOut);
 			dataOut.close();
-		} catch (IOException e) {
-			throw new BookSaveException("Error saving book index page.");
 		} finally {
-			try {
-				if (dataOut != null) dataOut.close();
-				if (buffer != null) buffer.close();
-				if (fos != null) fos.close();
-			} catch (IOException e) {
-				throw new BookSaveException("Error closing book index page file.");
-			}
-		}
-			
+			if (dataOut != null) dataOut.close();
+			if (buffer != null) buffer.close();
+			if (fos != null) fos.close();
+		}			
 	}
 
-	private LinkedList<UUID> loadIndex(DataInputStream dataIn) throws BookLoadException {
+	private LinkedList<UUID> loadIndex(DataInputStream dataIn) throws IOException, BookLoadException {
 		Log.d(TAG, "Loading book index");
 		int n_pages;
 		LinkedList<UUID> pageUuidList = new LinkedList<UUID>();
@@ -693,7 +680,7 @@ public class Book {
 			mtime.set(dataIn.readLong());
 			uuid = UUID.fromString(dataIn.readUTF());
 			setFilter(tagManager.loadTagSet(dataIn));
-		if (version == 3) {
+		} else if (version == 3) {
 			n_pages = dataIn.readInt();
 			currentPage = dataIn.readInt();
 			title = dataIn.readUTF();
@@ -717,7 +704,7 @@ public class Book {
 			mtime.setToNow();
 			uuid = UUID.randomUUID();
 			setFilter(tagManager.newTagSet());
-		} else
+		} else 
 			throw new BookLoadException("Unknown version in load_index()");
 		return pageUuidList;
 	}
@@ -727,7 +714,7 @@ public class Book {
 		dataOut.writeInt(4);
 		dataOut.writeInt(pages.size());
 		for (int i=0; i<pages.size(); i++)
-			dataOut.writeUTF(getPage(i).getUUID())
+			dataOut.writeUTF(getPage(i).getUUID().toString());
 		dataOut.writeInt(currentPage);
 		dataOut.writeUTF(title);
 		dataOut.writeLong(ctime.toMillis(false));
@@ -737,54 +724,49 @@ public class Book {
 		getFilter().write_to_stream(dataOut);
 	}
 
-	private Page loadPage(int i, Context context) throws IOException {
-		String filename = FILENAME_STEM + ".page." + i;
-		FileInputStream fis;
-		fis = context.openFileInput(filename);
-		BufferedInputStream buffer;
+	private Page loadPage(UUID uuid, File dir) throws IOException {
+		File file = new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
+		FileInputStream fis = null;
+		BufferedInputStream buffer = null;
 		DataInputStream dataIn = null;
 		try {
+			fis = new FileInputStream(file);
 			buffer = new BufferedInputStream(fis);
 			dataIn = new DataInputStream(buffer);
-			return loadPage(i, dataIn);
+			return loadPage(dataIn);
 		} finally {
-			if (dataIn != null)
-				dataIn.close();
+			if (dataIn != null) dataIn.close();
+			if (buffer != null) buffer.close();
+			if (fis != null) fis.close();
 		}
 	}
 
-	private void savePage(int i, Context context) throws IOException {
-		String filename = FILENAME_STEM + ".page." + i;
-		FileOutputStream fos;
-		fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
-		BufferedOutputStream buffer;
+	private void savePage(Page page, File dir) throws IOException {
+		File file = new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
+		FileOutputStream fos = null;
+		BufferedOutputStream buffer = null;
 		DataOutputStream dataOut = null;
 		try {
+			fos = new FileOutputStream(file);
 			buffer = new BufferedOutputStream(fos);
 			dataOut = new DataOutputStream(buffer);
-			savePage(i, dataOut);
+			savePage(page, dataOut);
 		} finally {
-			if (dataOut != null)
-				dataOut.close();
+			if (dataOut != null) dataOut.close();
+			if (buffer != null) buffer.close();
+			if (fos != null) fos.close();
 		}
 	}
 
-	private Page loadPage(int i, DataInputStream dataIn) throws IOException {
-		Log.d(TAG, "Loading book page " + i);
-		return new Page(dataIn, tagManager);
+	private Page loadPage(DataInputStream dataIn) throws IOException {
+		Page page = new Page(dataIn, tagManager);
+		Log.d(TAG, "Loaded book page "+page.getUUID());
+		return page;
 	}
 
-	private void savePage(int i, DataOutputStream dataOut) throws IOException {
-		Log.d(TAG, "Saving book page " + i);
-		pages.get(i).writeToStream(dataOut);
-	}
-
-	public LinkedList<Page> getFilteredPages() {
-		return filteredPages;
-	}
-
-	public LinkedList<Page> getPages() {
-		return pages;
+	private void savePage(Page page, DataOutputStream dataOut) throws IOException {
+		Log.d(TAG, "Saving book page "+page.getUUID());
+		page.writeToStream(dataOut);
 	}
 
 }
