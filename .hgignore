@@ -1,0 +1,14 @@
+syntax: glob
+obj/local/*
+jni/org_libharu_Document.h
+jni/org_libharu_Document_CompressionMode.h
+jni/org_libharu_Font.h
+jni/org_libharu_Font_BuiltinFont.h
+jni/org_libharu_Page.h
+jni/org_libharu_Page_LineCap.h
+jni/org_libharu_Page_LineJoin.h
+jni/org_libharu_Page_PageDirection.h
+jni/org_libharu_Page_PageSize.h
+*~
+gen/*
+bin/*
