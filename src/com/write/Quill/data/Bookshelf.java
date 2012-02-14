@@ -11,7 +11,9 @@ import java.util.ListIterator;
 import java.util.UUID;
 
 import com.write.Quill.UndoManager;
+import com.write.Quill.data.Book.BookIOException;
 import com.write.Quill.data.Book.BookLoadException;
+import com.write.Quill.data.Book.BookSaveException;
 
 import junit.framework.Assert;
 
@@ -59,8 +61,6 @@ public class Bookshelf {
 		public UUID getUUID() { return preview.uuid; }
 		public String getTitle() { return preview.title; }
 		public String getSummary() {
-			int fmt = DateUtils.FORMAT_SHOW_DATE + DateUtils.FORMAT_SHOW_TIME + 
-					DateUtils.FORMAT_SHOW_YEAR + DateUtils.FORMAT_SHOW_WEEKDAY;
 			String s = "Created on ";
 			s += storage.formatDateTime(preview.ctime.toMillis(false)) + "\n";
 			s += "Last modified on ";
@@ -77,6 +77,7 @@ public class Bookshelf {
 			}
 			preview = new Book(storage, uuid, 1);
 		}
+		public void deleteFromStorage() { preview.delete(storage); }
 	}
 	
 	public static class BookPreviewComparator implements Comparator<BookPreview> {
@@ -86,6 +87,28 @@ public class Bookshelf {
 		}
 	}
 	
+	/** Return the preview associated with the given UUID
+	 * @param uuid
+	 * @return The BookPreview with matching UUID or null.
+	 */
+	public BookPreview getPreview(UUID uuid) {
+		for (BookPreview nb : data) {
+			if (nb.getUUID().equals(uuid))
+				return nb;
+		}
+		return null;
+	}
+
+	/**
+	 * Find the stored preview for the given book  
+	 * 
+	 * @param book
+	 * @return The associated BookPreview or null
+	 */
+	public BookPreview getPreview(Book book) {
+		return getPreview(book.getUUID());
+	}
+
 	private static LinkedList<BookPreview> data = new LinkedList<BookPreview>();
 	private static Book currentBook;
 	private static Bookshelf instance;
@@ -100,19 +123,24 @@ public class Bookshelf {
 			BookPreview notebook = new BookPreview(uuid);
 			data.add(notebook);
 		}
+		if (data.isEmpty()) {
+			currentBook = new Book("Example Notebook");
+			saveBook(currentBook);
+		} else {
+			UUID uuid = storage.loadCurrentBookUUID();
+			if (uuid == null)
+				uuid = data.getFirst().getUUID();
+			currentBook = new Book(storage, uuid);
+		}
 	}
 
-	/**
-	 * Call this in the activity's onCreate method before accessing anything!
-	 *
-	 * @param context
+	/** This is called automatically from the Storage initializer
+	 * @param storage
 	 */
 	protected static void initialize(Storage storage) {
       	if (instance == null) {
         	Log.v(TAG, "Reading notebook list from storage.");
     		instance = new Bookshelf(storage);
-        	currentBook = new Book(storage, storage.loadCurrentBookUUID());
-    		instance.addCurrentBookToPreviews();
       	}
 	}
 	
@@ -128,26 +156,11 @@ public class Bookshelf {
 	
 	public static BookPreview getCurrentBookPreview() {
 		Assert.assertNotNull(currentBook);
-		BookPreview nb = getBookPreview(currentBook);
+		BookPreview nb = getBookshelf().getPreview(currentBook);
 		Assert.assertNotNull("Book not in the preview list", nb);
 		return nb;
 	}
 	
-	/**
-	 * Find the stored preview for the given book  
-	 * 
-	 * @param book
-	 * @return The associated BookPreview or null
-	 */
-	public static BookPreview getBookPreview(Book book) {
-		ListIterator<BookPreview> iter = data.listIterator();
-		while (iter.hasNext()) {
-			BookPreview nb = iter.next();
-			if (nb.getUUID().equals(book.getUUID()))
-				return nb;
-		}
-		return null;
-	}
 
 	
 	public static LinkedList<BookPreview> getBookPreviewList() {
@@ -164,76 +177,51 @@ public class Bookshelf {
 		return data.size();
 	}
 	
-	private File fileFromUUID(UUID uuid) {
-		 String filename = "nb_"+uuid.toString()+QUILL_EXTENSION;
-		 return new File(homeDirectory.getPath() + File.separator + filename);
-	}
-	
-	private void saveBook(Book book) throws IOException {
-		File file = fileFromUUID(book.uuid);
-		book.saveBookArchive(file);
-		BookPreview preview = getBookPreview(book);
-		if (preview != null) preview.reload();
+	private void saveBook(Book book) {
+		book.save(storage);
+		BookPreview preview = getPreview(book);
+		if (preview != null) 
+			preview.reload();
+		else {
+			BookPreview nb = new BookPreview(book.getUUID());
+			data.add(nb);		
+		}
 	}
 	
 	public void deleteBook(UUID uuid) {
 		if (data.size() <= 1) {
-			storage.LogError(TAG, "Cannot delete last notebook");
+			storage.LogMessage(TAG, "Cannot delete last notebook");
 			return;
 		}
 		if (uuid.equals(currentBook.uuid)) {
-			ListIterator<BookPreview> iter = data.listIterator();
-			while (iter.hasNext()) {
-				BookPreview nb = iter.next();
-				if (nb.getUUID().equals(uuid)) 
-					continue;
+			// switch away from the current book first
+			for (BookPreview nb : data) {
+				if (nb.getUUID().equals(uuid)) continue;
 				setCurrentBook(nb, false);
 				break;
 			}
 		}
-		ListIterator<BookPreview> iter = data.listIterator();
-		while (iter.hasNext()) {
-			BookPreview nb = iter.next();
-			if (nb.getUUID().equals(uuid)) { 
-				boolean rc = nb.file.delete();
-				if (rc == false) {
-					storage.LogError(TAG, "Delete failed");
-					return;		
-				}
-				data.remove(nb);
-				return;
-			}
-		}
-		Assert.fail("BookPreview to delete does not exist");
+		BookPreview nb = getPreview(uuid);
+		if (nb == null) return;
+		nb.deleteFromStorage();
+		data.remove(nb);
 	}
 	
-//	public void save() {
-//		getCurrentBook().save(context);
-//		try {
-//			saveBook(getCurrentBook());
-//		} catch (IOException ex) {
-//			Log.e(TAG, "Error saving notebook");
-//			Toast.makeText(context, "Error saving notebook", 
-//					Toast.LENGTH_LONG);	
-//		}
-//	}
-	
-	public void importBook(File file) throws IOException {
+	public void importBook(File file) throws BookIOException {
 		saveBook(getCurrentBook());
 		currentBook = new Book(file);
+		BookPreview nb = getPreview(currentBook.getUUID());
+		if (nb != null) { // delete existing book if necessary
+			nb.deleteFromStorage();
+			data.remove(nb);
+		}
 		saveBook(currentBook);
-		addCurrentBookToPreviews();
 	}
 	
 	public void newBook(String title) {
-		try {
-			saveBook(getCurrentBook());
-			currentBook = new Book(title);
-			saveBook(currentBook);
-			addCurrentBookToPreviews();	
-		} catch (IOException ex) {
-			storage.LogError(TAG, "Error saving new notebook");
-		}
+		saveBook(getCurrentBook());
+		currentBook = new Book(title);
+		saveBook(currentBook);
 		Assert.assertTrue(data.contains(getCurrentBookPreview()));
 	}
 	
@@ -242,40 +230,23 @@ public class Bookshelf {
 	}
 
 	public void setCurrentBook(BookPreview nb, boolean saveCurrent) {
-		if (nb.getUUID().equals(currentBook.getUUID()));
-		try {
-			if (saveCurrent) saveBook(getCurrentBook());
-			currentBook = new Book(storage, nb.uuid);
-		} catch (IOException ex) {
-			storage.LogError(TAG, "Error saving current notebook");
-		} 
+		if (nb.getUUID().equals(currentBook.getUUID())) return;
+		if (saveCurrent) saveBook(getCurrentBook());
+		currentBook = new Book(storage, nb.uuid);
 		UndoManager.getUndoManager().clearHistory();
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
 	}
 	
-	
-	private void addCurrentBookToPreviews() {
-		UUID uuid = getCurrentBook().uuid;
-		ListIterator<BookPreview> iter = data.listIterator();
-		while (iter.hasNext())
-			if (iter.next().preview.uuid.equals(uuid))  
-				return;
-		File file = fileFromUUID(uuid);
-		if (!file.exists())
-			try {
-				saveBook(getCurrentBook());
-			} catch (IOException ex) {
-				Log.e(TAG, "Error saving current book");
-			}
-		try {
-			BookPreview nb = new BookPreview(uuid);
-			data.add(nb);
-		} catch (BookLoadException ex) {
-			storage.LogError(TAG, "Error loading notebook");
-		}
-	}
-	
-	
+//	private void addCurrentBookToPreviews() {
+//		UUID uuid = getCurrentBook().uuid;
+//		BookPreview existing = getPreview(uuid);
+//		if (existing != null) return;
+//		saveBook(getCurrentBook());
+//		BookPreview nb = new BookPreview(uuid);
+//		data.add(nb);
+//	}
+//	
+//	
 	private LinkedList<UUID> listBookUUIDs(File dir) {
 		FilenameFilter filter = new FilenameFilter() {
 		    public boolean accept(File dir, String name) {

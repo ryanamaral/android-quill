@@ -10,9 +10,7 @@ import java.util.UUID;
 
 import name.vbraun.view.write.Page;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 
 /**
@@ -23,39 +21,35 @@ public class BookOldFormat extends Book {
 	private static final String FILENAME_STEM = "quill";
 
 	// Loads the book. This is the complement to the save() method
-	public BookOldFormat(Context context) {
+	public BookOldFormat(Storage storage) {
 		int n_pages;
 		try {
-			n_pages = loadIndex(context);
+			n_pages = loadIndex(storage);
 		} catch (IOException e) {
-			Log.e(TAG, "Error opening book index page ");
-			Toast.makeText(context, "Page index missing, recovering...",
-					Toast.LENGTH_LONG);
-			recoverFromMissingIndex(context);
+			storage.LogError(TAG, "Page index missing, recovering...");
+			recoverFromMissingIndex(storage);
 			return;
 		}
 		pages.clear();
 		for (int i = 0; i < n_pages; i++) {
 			try {
-				pages.add(loadPage(i, context));
+				pages.add(loadPage(i, storage));
 			} catch (IOException e) {
-				Log.e(TAG, "Error loading book page " + i + " of " + n_pages);
-				Toast.makeText(context, "Error loading book page " + i + " of "
-						+ n_pages, Toast.LENGTH_LONG);
+				storage.LogError(TAG, "Error loading book page " + i + " of "+ n_pages);
 			}
 		}
 		// recover from errors
 		loadingFinishedHook();
 		
-		updateFileFormat(context);
+		updateFileFormat(storage);
 	}
 
-	private void updateFileFormat(Context context) {
+	private void updateFileFormat(Storage storage) {
 		for (int i = 0; i < pages.size(); i++)
 			getPage(i).touch();  // make sure all pages request being saved
-		save(context);
+		save(storage);
 		// now erase old files
-		File dir = context.getFilesDir();
+		File dir = storage.getFilesDir();
 		File index = new File(dir, FILENAME_STEM + ".index");
 		index.delete();
 		for (int i=0; true; i++) {
@@ -71,7 +65,7 @@ public class BookOldFormat extends Book {
 	 * 
 	 * @param context
 	 */
-	public void recoverFromMissingIndex(Context context) {
+	public void recoverFromMissingIndex(Storage storage) {
 		title = "Recovered notebook";
 		ctime.setToNow();
 		mtime.setToNow();
@@ -82,7 +76,7 @@ public class BookOldFormat extends Book {
 			Page page;
 			Log.d(TAG, "Trying to recover page " + pos);
 			try {
-				page = loadPage(pos++, context);
+				page = loadPage(pos++, storage);
 			} catch (IOException e) {
 				break;
 			}
@@ -95,8 +89,8 @@ public class BookOldFormat extends Book {
 
 	
 	
-	private int loadIndex(Context context) throws IOException {
-		FileInputStream fis = context.openFileInput(FILENAME_STEM + ".index");
+	private int loadIndex(Storage storage) throws IOException {
+		FileInputStream fis = storage.openFileInput(FILENAME_STEM + ".index");
 		BufferedInputStream buffer;
 		DataInputStream dataIn = null;
 		try {
@@ -142,10 +136,10 @@ public class BookOldFormat extends Book {
 		return n_pages;
 	}
 
-	private Page loadPage(int i, Context context) throws IOException {
+	private Page loadPage(int i, Storage storage) throws IOException {
 		String filename = FILENAME_STEM + ".page." + i;
 		FileInputStream fis;
-		fis = context.openFileInput(filename);
+		fis = storage.openFileInput(filename);
 		BufferedInputStream buffer;
 		DataInputStream dataIn = null;
 		try {

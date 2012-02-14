@@ -24,7 +24,9 @@ import junit.framework.Assert;
 import com.write.Quill.R;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.Storage;
 import com.write.Quill.data.StorageAndroid;
+import com.write.Quill.data.Book.BookIOException;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -296,7 +298,7 @@ public class QuillWriterActivity
     			String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
     			try {
     				bookshelf.importBook(new File(filename));
-    			} catch (IOException e) {
+    			} catch (BookIOException e) {
     				Log.e(TAG, "Error loading th)e backup file, sorry");
     				return;
     			}
@@ -768,7 +770,7 @@ public class QuillWriterActivity
         	HideBar.showSystembar(getApplicationContext());
         super.onPause();
     	mView.interrupt();
-        book.save(getApplicationContext());
+        book.save();
         SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         
         SharedPreferences.Editor editor = settings.edit();
