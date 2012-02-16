@@ -81,8 +81,12 @@ public class ExportActivity
 	
 	private String getFilenameFromIntent() {
 		String s = getIntent().getExtras().getString("filename");
-		s = s.split("\\n")[0];
-		s = s.replaceAll("\\P{Alnum}", "_");
+		String[] lines = s.split("\\n");
+		if (lines.length > 0) {
+			s = lines[0];
+			s = s.replaceAll("\\P{Alnum}", "_");
+		} else
+			s = "Filename";
 		return s;	
 	}
 	
