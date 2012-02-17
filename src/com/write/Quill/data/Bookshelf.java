@@ -71,10 +71,10 @@ public class Bookshelf {
     		return preview.currentPage().renderBitmap(width, height, true);
 		}
 		public void reload() {
-			if (uuid.equals(currentBook.uuid)) {
-				preview.title = currentBook.title;
-				return;
-			}
+//			if (uuid.equals(currentBook.uuid)) {
+//				preview.title = currentBook.title;
+//				return;
+//			}
 			preview = new Book(storage, uuid, 1);
 		}
 		public void deleteFromStorage() { preview.delete(storage); }
@@ -170,6 +170,7 @@ public class Bookshelf {
 	
 	public static void sortBookPreviewList() {
 		Assert.assertNotNull(data);
+		instance.saveBook(currentBook);
 		Collections.sort(data, new BookPreviewComparator());
 	}
 	
@@ -237,16 +238,6 @@ public class Bookshelf {
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
 	}
 	
-//	private void addCurrentBookToPreviews() {
-//		UUID uuid = getCurrentBook().uuid;
-//		BookPreview existing = getPreview(uuid);
-//		if (existing != null) return;
-//		saveBook(getCurrentBook());
-//		BookPreview nb = new BookPreview(uuid);
-//		data.add(nb);
-//	}
-//	
-//	
 	private LinkedList<UUID> listBookUUIDs(File dir) {
 		FilenameFilter filter = new FilenameFilter() {
 		    public boolean accept(File dir, String name) {

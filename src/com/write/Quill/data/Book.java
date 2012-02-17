@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -541,23 +542,37 @@ public class Book {
 		if (!dir.isDirectory())
 			throw new BookLoadException("No such directory: "+dir.toString());
 		LinkedList<UUID> pageUUIDs = loadIndex(dir);
+
+		// add  remaining page uuids from files in dir 
+		LinkedList<UUID> pageUUIDsInDir = listPagesInDirectory(dir);
+		pageUUIDsInDir.removeAll(pageUUIDs);
+		if (!pageUUIDsInDir.isEmpty()) {
+			pageUUIDs.addAll(pageUUIDsInDir);
+			Storage.getInstance().LogError(TAG, "I recovered pages missing in notebook index");
+		}
+		
 		pages.clear();
 		for (UUID uuid : pageUUIDs) {
 			if (pageLimit >=0 && pages.size() >= pageLimit) return;
 			loadPage(uuid, dir);
 		}
-		// TODO: add any pages not in the index
 	}
 	
 	private void doSaveBookInDirectory(File dir) throws BookSaveException, IOException {
 		if (!dir.isDirectory() && !dir.mkdir())
 			throw new BookSaveException("Error creating directory "+dir.toString());
 		saveIndex(dir);
+		LinkedList<UUID> pageUUIDsInDir = listPagesInDirectory(dir);
 		for (Page page : getPages()) {
+			pageUUIDsInDir.remove(page.getUUID());
 			if (!page.isModified())	continue;
 			savePage(page, dir);
 		}
-		// TODO: delete pages whose UUID is not used
+
+		for (UUID unused: pageUUIDsInDir) {
+			Storage.getInstance().LogError(TAG, "Deleteing unusued page file: "+unused);
+			getPageFile(dir, unused).delete();
+		}
 	}
 
 	
@@ -573,6 +588,25 @@ public class Book {
         	storage.LogError(TAG, "Unable to delete directory "+dir.toString());
 	}
 	
+	
+	private LinkedList<UUID> listPagesInDirectory(File dir) {
+		FilenameFilter filter = new FilenameFilter() {
+		    public boolean accept(File directory, String name) {
+		        return name.startsWith(Book.PAGE_FILE_PREFIX);
+		    }};
+		File[] entries = dir.listFiles(filter);
+		LinkedList<UUID> uuids = new LinkedList<UUID>();
+		if (entries == null) return uuids;
+		for (File pagefile : entries) {
+			String path = pagefile.getAbsolutePath();
+			int pos = path.lastIndexOf(Book.PAGE_FILE_PREFIX);
+			pos += Book.PAGE_FILE_PREFIX.length();
+			UUID uuid = UUID.fromString(path.substring(pos, pos+36));
+			Log.d(TAG, "Found page: "+uuid);
+			uuids.add(uuid);
+		}
+		return uuids;
+	}
 	
 	////////////////////////////////////////
 	/// Load and save archives 
@@ -627,12 +661,14 @@ public class Book {
 			LinkedList<UUID> pageUUIDs = loadIndex(dataIn);
 			for (UUID uuid : pageUUIDs) {
 				if (pageLimit >=0 && pages.size() >= pageLimit) return;
-				pages.add(loadPage(dataIn));
+				Page page = loadPage(dataIn);
+				page.touch();
+				pages.add(page);
 			}
 		} finally {
 			if (dataIn != null) dataIn.close();
-			if (buffer != null) buffer.close();
-			if (fis != null) fis.close();
+			else if (buffer != null) buffer.close();
+			else if (fis != null) fis.close();
 		}
 	}
 
@@ -649,8 +685,8 @@ public class Book {
 				savePage(page, dataOut);
 		} finally {
 			if (dataOut != null) dataOut.close();
-			if (buffer != null) buffer.close();
-			if (fos != null) fos.close();
+			else if (buffer != null) buffer.close();
+			else if (fos != null) fos.close();
 		}
 	}
 
@@ -669,8 +705,8 @@ public class Book {
 			return loadIndex(dataIn);
 		} finally {
 			if (dataIn != null) dataIn.close();
-			if (buffer != null) buffer.close();
-			if (fis != null) fis.close();
+			else if (buffer != null) buffer.close();
+			else if (fis != null) fis.close();
 		}
 	}
 
@@ -684,11 +720,10 @@ public class Book {
 			buffer = new BufferedOutputStream(fos);
 			dataOut = new DataOutputStream(buffer);
 			saveIndex(dataOut);
-			dataOut.close();
 		} finally {
 			if (dataOut != null) dataOut.close();
-			if (buffer != null) buffer.close();
-			if (fos != null) fos.close();
+			else if (buffer != null) buffer.close();
+			else if (fos != null) fos.close();
 		}			
 	}
 
@@ -751,9 +786,13 @@ public class Book {
 		getFilter().write_to_stream(dataOut);
 	}
 
-	private Page loadPage(UUID uuid, File dir) throws IOException {
+	private File getPageFile(File dir, UUID uuid) {
+		return new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
+	}
+	
+	private void loadPage(UUID uuid, File dir) throws IOException {
 		Log.d(TAG, "Loading page "+uuid);
-		File file = new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
+		File file = getPageFile(dir, uuid);
 		FileInputStream fis = null;
 		BufferedInputStream buffer = null;
 		DataInputStream dataIn = null;
@@ -761,16 +800,19 @@ public class Book {
 			fis = new FileInputStream(file);
 			buffer = new BufferedInputStream(fis);
 			dataIn = new DataInputStream(buffer);
-			return loadPage(dataIn);
+			Page page = loadPage(dataIn);
+			if (!page.getUUID().equals(uuid)) 
+				Storage.getInstance().LogError(TAG, "Page UUID mismatch.");
+			pages.add(page);
 		} finally {
 			if (dataIn != null) dataIn.close();
-			if (buffer != null) buffer.close();
-			if (fis != null) fis.close();
+			else if (buffer != null) buffer.close();
+			else if (fis != null) fis.close();
 		}
 	}
 
 	private void savePage(Page page, File dir) throws IOException {
-		File file = new File(dir, PAGE_FILE_PREFIX + uuid.toString() + QUILL_DATA_FILE_SUFFIX);
+		File file = getPageFile(dir, page.getUUID());
 		FileOutputStream fos = null;
 		BufferedOutputStream buffer = null;
 		DataOutputStream dataOut = null;
@@ -781,14 +823,13 @@ public class Book {
 			savePage(page, dataOut);
 		} finally {
 			if (dataOut != null) dataOut.close();
-			if (buffer != null) buffer.close();
-			if (fos != null) fos.close();
+			else if (buffer != null) buffer.close();
+			else if (fos != null) fos.close();
 		}
 	}
 
 	private Page loadPage(DataInputStream dataIn) throws IOException {
 		Page page = new Page(dataIn, tagManager);
-		Log.d(TAG, "Loaded book page "+page.getUUID());
 		return page;
 	}
 

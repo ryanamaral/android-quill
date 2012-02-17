@@ -78,14 +78,6 @@ public class Preferences
 						return true;
 					}});
 
-		Preference recovery = findPreference("recovery");
-		recovery.setOnPreferenceClickListener(
-				new OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						showDialog(DIALOG_RECOVERY);
-						return true;
-					}});
 		updatePreferences();
 	}
 
@@ -120,7 +112,6 @@ public class Preferences
     }
 
 	public static final int DIALOG_RESTORE_BACKUP = 0;
-	public static final int DIALOG_RECOVERY = 1;
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
