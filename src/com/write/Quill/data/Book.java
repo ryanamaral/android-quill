@@ -730,10 +730,11 @@ public class Book {
 	private LinkedList<UUID> loadIndex(DataInputStream dataIn) throws IOException, BookLoadException {
 		Log.d(TAG, "Loading book index");
 		int n_pages;
-		LinkedList<UUID> pageUuidList = new LinkedList<UUID>();
+		LinkedList<UUID> pageUuidList = null;
 		int version = dataIn.readInt();
 		if (version == 4) {
 			n_pages = dataIn.readInt();
+			pageUuidList = new LinkedList<UUID>();
 			for (int i=0; i<n_pages; i++)
 				pageUuidList.add(UUID.fromString(dataIn.readUTF()));
 			currentPage = dataIn.readInt();
@@ -768,6 +769,12 @@ public class Book {
 			setFilter(tagManager.newTagSet());
 		} else 
 			throw new BookLoadException("Unknown version in load_index()");
+		
+		if (pageUuidList == null) { // update from version <=3
+			pageUuidList = new LinkedList<UUID>();
+			for (int i=0; i<n_pages; i++)
+				pageUuidList.add(UUID.randomUUID());
+		}
 		return pageUuidList;
 	}
 

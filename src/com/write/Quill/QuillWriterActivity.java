@@ -285,31 +285,9 @@ public class QuillWriterActivity
     	return true;
     }
         
-    protected static final int ACTIVITY_PREFERENCES = 0;
     protected static final int ACTIVITY_TAG_PAGE = 1;
     protected static final int ACTIVITY_TAG_FILTER = 2;
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	Log.v(TAG, "onActivityResult "+requestCode+" "+resultCode);
-    	switch (requestCode) {
-    	case ACTIVITY_PREFERENCES:
-    		if (resultCode == Preferences.RESULT_RESTORE_BACKUP) {
-    			String filename = (String)data.getCharSequenceExtra(Preferences.RESULT_FILENAME);
-    			try {
-    				bookshelf.importBook(new File(filename));
-    			} catch (BookIOException e) {
-    				Log.e(TAG, "Error loading th)e backup file, sorry");
-    				return;
-    			}
-    		}
-    		book = Bookshelf.getCurrentBook();
-    		UndoManager.getUndoManager().clearHistory();
-        	switchToPage(book.currentPage());
-        	return;
-    	}
-    }
-    
 	@Override
 	public void onToolboxListener(View view) {
 		Log.d(TAG, "onToolboxListener "+view.getId());
@@ -380,14 +358,13 @@ public class QuillWriterActivity
     @Override 
     public boolean onOptionsItemSelected(MenuItem item) {
     	mView.interrupt();
-    	Intent i;
     	switch (item.getItemId()) {
     	case R.id.prev_pen:
     		switchPenHistory();
     		return true;
     	case R.id.settings:
-    		i = new Intent(QuillWriterActivity.this, Preferences.class);
-    		startActivityForResult(i, ACTIVITY_PREFERENCES);
+    		Intent preferencesIntent = new Intent(QuillWriterActivity.this, Preferences.class);
+    		startActivity(preferencesIntent);
     		return true;
     	case R.id.fountainpen:
     		setActiveTool(Tool.FOUNTAINPEN);
@@ -453,9 +430,9 @@ public class QuillWriterActivity
     		switchToPage(book.currentPage());
     		return true;
     	case R.id.export:
-    		Intent mExportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
-    		mExportIntent.putExtra("filename", book.getTitle());
-    		startActivity(mExportIntent);
+    		Intent exportIntent = new Intent(QuillWriterActivity.this, ExportActivity.class);
+    		exportIntent.putExtra("filename", book.getTitle());
+    		startActivity(exportIntent);
     		return true;
     	case R.id.tag_page:
     		launchTagActivity();
