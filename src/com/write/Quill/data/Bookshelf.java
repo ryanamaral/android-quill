@@ -14,6 +14,7 @@ import com.write.Quill.UndoManager;
 import com.write.Quill.data.Book.BookIOException;
 import com.write.Quill.data.Book.BookLoadException;
 import com.write.Quill.data.Book.BookSaveException;
+import com.write.Quill.data.Storage.StorageIOException;
 
 import junit.framework.Assert;
 
@@ -77,7 +78,7 @@ public class Bookshelf {
 //			}
 			preview = new Book(storage, uuid, 1);
 		}
-		public void deleteFromStorage() { preview.delete(storage); }
+		public void deleteFromStorage() { storage.deleteBookDirectory(uuid); }
 	}
 	
 	public static class BookPreviewComparator implements Comparator<BookPreview> {
@@ -117,8 +118,7 @@ public class Bookshelf {
 	
 	private Bookshelf(Storage storage) {
 		this.storage = storage;
-		homeDirectory = storage.getFilesDir();
-		LinkedList<UUID> bookUUIDs = listBookUUIDs(homeDirectory);
+		LinkedList<UUID> bookUUIDs = storage.listBookUUIDs();
 		for (UUID uuid : bookUUIDs) {
 			BookPreview notebook = new BookPreview(uuid);
 			data.add(notebook);
@@ -209,15 +209,48 @@ public class Bookshelf {
 	}
 	
 	public void importBook(File file) throws BookIOException {
-		saveBook(getCurrentBook());
-		currentBook = new Book(file);
-		BookPreview nb = getPreview(currentBook.getUUID());
-		if (nb != null) { // delete existing book if necessary
-			nb.deleteFromStorage();
-			data.remove(nb);
-		}
 		saveBook(currentBook);
+		currentBook = null;
+		UUID uuid;
+		try {
+			uuid = storage.importArchive(file);
+		} catch (StorageIOException e) {
+			throw new BookLoadException(e.getMessage());
+		}
+		BookPreview nb = getPreview(uuid);
+		if (nb != null)
+			nb.reload();
+		else {
+			nb = new BookPreview(uuid);
+			data.add(nb);
+		}
+		setCurrentBook(nb, false);
+		saveBook(currentBook);
+//		
+//		currentBook = new Book(file);
+//		BookPreview nb = getPreview(currentBook.getUUID());
+//		if (nb != null) { // delete existing book if necessary
+//			nb.deleteFromStorage();
+//			data.remove(nb);
+//		}
+//		saveBook(currentBook);
+		Assert.assertTrue(data.contains(nb));
 	}
+
+	public void exportCurrentBook(File file) throws BookSaveException {
+		exportBook(currentBook.getUUID(), file);
+	}
+	
+	public void exportBook(UUID uuid, File file) throws BookSaveException {
+		if (currentBook.getUUID().equals(uuid))
+			saveBook(currentBook);
+		try {
+			storage.exportArchive(uuid, file);
+		} catch (StorageIOException e) {
+			throw new BookSaveException(e.getMessage());
+		}
+	}
+	
 	
 	public void newBook(String title) {
 		saveBook(getCurrentBook());
@@ -231,32 +264,13 @@ public class Bookshelf {
 	}
 
 	public void setCurrentBook(BookPreview nb, boolean saveCurrent) {
-		if (nb.getUUID().equals(currentBook.getUUID())) return;
-		if (saveCurrent) saveBook(getCurrentBook());
+		if (currentBook != null) {
+			if (nb.getUUID().equals(currentBook.getUUID())) return;
+			if (saveCurrent) saveBook(getCurrentBook());
+		}
 		currentBook = new Book(storage, nb.uuid);
 		UndoManager.getUndoManager().clearHistory();
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
 	}
 	
-	private LinkedList<UUID> listBookUUIDs(File dir) {
-		FilenameFilter filter = new FilenameFilter() {
-		    public boolean accept(File dir, String name) {
-		        return name.startsWith(Book.NOTEBOOK_DIRECTORY_PREFIX);
-		    }};
-		File[] entries = dir.listFiles(filter);
-		LinkedList<UUID> uuids = new LinkedList<UUID>();
-		if (entries == null) return uuids;
-		for (File bookdir : entries) {
-			String path = bookdir.getAbsolutePath();
-			Log.d(TAG, "Found notebook: "+path);
-			int pos = path.lastIndexOf(Book.NOTEBOOK_DIRECTORY_PREFIX);
-			pos += Book.NOTEBOOK_DIRECTORY_PREFIX.length();
-			UUID uuid = UUID.fromString(path.substring(pos));
-			Log.d(TAG, "Found notebook: "+uuid);
-			uuids.add(uuid);
-		}
-		return uuids;
-	}
-
-		
 }
