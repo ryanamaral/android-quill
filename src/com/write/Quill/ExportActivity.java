@@ -295,7 +295,7 @@ public class ExportActivity
     
     private void doExportArchive() {
     	try {
-    		book.saveBookArchive(file);
+    		Bookshelf.getBookshelf().exportCurrentBook(file);
     	} catch (Book.BookSaveException e) {
 			Log.e(TAG, "Error writing file "+e.getMessage());
         	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();

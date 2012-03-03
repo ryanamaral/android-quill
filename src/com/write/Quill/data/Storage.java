@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import junit.framework.Assert;
@@ -15,6 +16,7 @@ import junit.framework.Assert;
  */
 public abstract class Storage {
 	public final static String TAG = "Storage";
+	protected static final String NOTEBOOK_DIRECTORY_PREFIX = "notebook_";
 
 	protected static Storage instance;
 	
@@ -30,9 +32,21 @@ public abstract class Storage {
 	
 	abstract public File getFilesDir();
 	
-	public FileInputStream openFileInput(String filename) throws IOException {
+	public static class StorageIOException extends IOException {
+		public StorageIOException(String string) {
+			super(string);
+		}
+		private static final long serialVersionUID = 435361903521711631L;
+	}
+	
+	
+	public FileInputStream openFileInput(String filename) throws StorageIOException {
 		File file = new File(getFilesDir(), filename);
-		return new FileInputStream(file);
+		try {
+			return new FileInputStream(file);
+		} catch (IOException e) {
+			throw new StorageIOException(e.getMessage());
+		}
 	}
 	
 	abstract protected UUID loadCurrentBookUUID();	
@@ -44,9 +58,118 @@ public abstract class Storage {
 	abstract public void LogError(String TAG, String message);
 
 	
+	////////////////////////////////////////////////////
+	/// Book directory handlings
+
+	
+	public File getBookDirectory(UUID uuid) {
+		String dirname = NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
+		return new File(getFilesDir(), dirname);
+
+	}
+	
+	public void deleteBookDirectory(UUID uuid) {
+		File dir = getBookDirectory(uuid);
+	}
+	
+	private void deleteDirectory(File dir) {
+        String[] children = dir.list();
+        for (String child : children) {
+        	File file = new File(dir, child);
+        	file.delete();
+        }
+        boolean rc = dir.delete();
+        if (!rc) 
+        	LogError(TAG, "Unable to delete directory "+dir.toString());		
+	}
+
+
+	public LinkedList<UUID> listBookUUIDs() {
+		FilenameFilter filter = new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return name.startsWith(NOTEBOOK_DIRECTORY_PREFIX);
+		    }};
+		File[] entries = getFilesDir().listFiles(filter);
+		LinkedList<UUID> uuids = new LinkedList<UUID>();
+		if (entries == null) return uuids;
+		for (File bookdir : entries) {
+			String path = bookdir.getAbsolutePath();
+			LogMessage(TAG, "Found notebook: "+path);
+			int pos = path.lastIndexOf(NOTEBOOK_DIRECTORY_PREFIX);
+			pos += NOTEBOOK_DIRECTORY_PREFIX.length();
+			UUID uuid = UUID.fromString(path.substring(pos));
+			LogMessage(TAG, "Found notebook: "+uuid);
+			uuids.add(uuid);
+		}
+		return uuids;
+	}
+
+		
+	////////////////////////////////////////////////////
+	/// import/export archives
+	
+	public UUID importArchive(File file) throws StorageIOException {
+		Assert.assertNull(Bookshelf.getCurrentBook());
+		
+		String tarFile = "c:/test/test.tar";
+		String destFolder = "c:/test/myfiles";
+
+		// Create a TarInputStream
+		TarInputStream tis = new TarInputStream(new BufferedInputStream(new FileInputStream(tarFile)));
+		TarEntry entry;
+		   while((entry = tis.getNextEntry()) != null) {
+		      int count;
+		      byte data[] = new byte[2048];
+
+		      FileOutputStream fos = new FileOutputStream(destFolder + "/" + entry.getName());
+		      BufferedOutputStream dest = new BufferedOutputStream(fos);
+
+		      while((count = tis.read(data)) != -1) {
+		         dest.write(data, 0, count);
+		      }
+
+		      dest.flush();
+		      dest.close();
+		   }
+		   
+		   tis.close();
+
+		
+	}
+	
+	public void exportArchive(UUID uuid, File file) throws StorageIOException {
+		   // Output file stream
+		   FileOutputStream dest = new FileOutputStream( "c:/test/test.tar" );
+
+		   // Create a TarOutputStream
+		   TarOutputStream out = new TarOutputStream( new BufferedOutputStream( dest ) );
+
+		   // Files to tar
+		   File[] filesToTar=new File[2];
+		   filesToTar[0]=new File("c:/test/myfile1.txt");
+		   filesToTar[1]=new File("c:/test/myfile2.txt");
+
+		   for(File f:filesToTar){
+		      out.putNextEntry(new TarEntry(f, f.getName()));
+		      BufferedInputStream origin = new BufferedInputStream(new FileInputStream( f ));
+
+		      int count;
+		      byte data[] = new byte[2048];
+		      while((count = origin.read(data)) != -1) {
+		         out.write(data, 0, count);
+		      }
+
+		      out.flush();
+		      origin.close();
+		   }
+
+		   out.close();
+
+	}
+	
 	
 	////////////////////////////////////////////////////
-	/// Obsoleted (update from old data file versions)
+	/// update from old data file versions
 	
 	protected void update() {
 		File dir = getFilesDir();
@@ -78,6 +201,8 @@ public abstract class Storage {
 		}
 		return files;
 	}
+
+	
 
 
 	

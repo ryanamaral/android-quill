@@ -1,11 +1,19 @@
 package com.write.Quill.data;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.UUID;
+
+import com.write.Quill.data.Storage.StorageIOException;
+
+import junit.framework.Assert;
 
 
 import name.vbraun.view.write.Page;
@@ -157,5 +165,89 @@ public class BookOldFormat extends Book {
 		Log.d(TAG, "Loading book page " + i);
 		return new Page(dataIn, getTagManager());
 	}
+	
+	////////////////////////////////////////
+	/// Load and save archives 
+	/// Throw error if necessary
+	
+	public void saveBookArchive(File file) throws BookSaveException {
+		Assert.assertTrue(allowSave);
+		try {
+			doSaveBookArchive(file);
+		} catch (IOException e) {
+			throw new BookSaveException(e.getLocalizedMessage());
+		}
+	}
+
+	// Load an archive; the complement to saveArchive
+	public BookOldFormat(File file) throws BookLoadException {
+		allowSave = true;
+		try {
+			doLoadBookArchive(file, -1);
+		} catch (IOException e) {
+			throw new BookLoadException(e.getLocalizedMessage());
+		}
+		loadingFinishedHook();
+	}
+
+	// Peek an archive: load index data but skip pages except for the first couple of pages
+	public BookOldFormat(File file, int pageLimit) throws BookLoadException {
+		allowSave = false; // just to be sure that we don't save truncated data back
+		try {
+			doLoadBookArchive(file, pageLimit);
+		} catch (IOException e) {
+			throw new BookLoadException(e.getLocalizedMessage());
+		}
+		currentPage = 0;
+		loadingFinishedHook();
+	}
+	
+	/** Internal helper to load book from archive file
+	 * @param file The archive file to load
+	 * @param pageLimit when to stop loading pages. Negative values mean load all pages.
+	 * @throws IOException, BookLoadException
+	 */
+	private void doLoadBookArchive(File file, int pageLimit) throws IOException, BookLoadException {
+		FileInputStream fis = null;
+		BufferedInputStream buffer = null;
+		DataInputStream dataIn = null;
+		try {
+			fis = new FileInputStream(file);
+			buffer = new BufferedInputStream(fis);
+			dataIn = new DataInputStream(buffer);
+			pages.clear();
+			int n_pages = loadIndex(dataIn);
+			for (int n=0; n<n_pages; n++) {
+				if (pageLimit >=0 && pages.size() >= pageLimit) return;
+				Page page = loadPage(dataIn);
+				page.touch();
+				pages.add(page);
+			}
+		} finally {
+			if (dataIn != null) dataIn.close();
+			else if (buffer != null) buffer.close();
+			else if (fis != null) fis.close();
+		}
+	}
+
+	private void doSaveBookArchive(File file) throws IOException, BookSaveException {
+		FileOutputStream fos = null;
+		BufferedOutputStream buffer = null;
+		DataOutputStream dataOut = null;
+		try {
+			fos = new FileOutputStream(file);
+			buffer = new BufferedOutputStream(fos);
+			dataOut = new DataOutputStream(buffer);
+			saveIndex(dataOut);
+			for (Page page : pages)
+				savePage(page, dataOut);
+		} finally {
+			if (dataOut != null) dataOut.close();
+			else if (buffer != null) buffer.close();
+			else if (fos != null) fos.close();
+		}
+	}
+
+
 	
 }
