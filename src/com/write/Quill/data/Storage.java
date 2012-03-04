@@ -1,12 +1,20 @@
 package com.write.Quill.data;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.UUID;
+
+import org.xeustechnologies.jtar.TarEntry;
+import org.xeustechnologies.jtar.TarInputStream;
+import org.xeustechnologies.jtar.TarOutputStream;
 
 import junit.framework.Assert;
 
@@ -61,9 +69,20 @@ public abstract class Storage {
 	////////////////////////////////////////////////////
 	/// Book directory handlings
 
+	public String getBookDirectoryName(UUID uuid) {
+		return NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
+	}	
+	
+	protected UUID getBookUUIDfromDirectoryName(String name) {
+		if (!name.startsWith(NOTEBOOK_DIRECTORY_PREFIX)) return null;
+		int n = NOTEBOOK_DIRECTORY_PREFIX.length();
+		String uuid = name.substring(n, n+36);
+		LogError(TAG, "UUID = " + uuid);
+		return UUID.fromString(uuid);
+	}
 	
 	public File getBookDirectory(UUID uuid) {
-		String dirname = NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
+		String dirname = getBookDirectoryName(uuid);
 		return new File(getFilesDir(), dirname);
 
 	}
@@ -110,41 +129,43 @@ public abstract class Storage {
 	
 	public UUID importArchive(File file) throws StorageIOException {
 		Assert.assertNull(Bookshelf.getCurrentBook());
-		
-		String tarFile = "c:/test/test.tar";
-		String destFolder = "c:/test/myfiles";
-
-		// Create a TarInputStream
-		TarInputStream tis = new TarInputStream(new BufferedInputStream(new FileInputStream(tarFile)));
-		TarEntry entry;
-		   while((entry = tis.getNextEntry()) != null) {
-		      int count;
-		      byte data[] = new byte[2048];
-
-		      FileOutputStream fos = new FileOutputStream(destFolder + "/" + entry.getName());
-		      BufferedOutputStream dest = new BufferedOutputStream(fos);
-
-		      while((count = tis.read(data)) != -1) {
-		         dest.write(data, 0, count);
-		      }
-
-		      dest.flush();
-		      dest.close();
-		   }
-		   
-		   tis.close();
-
-		
+		File destFolder = getFilesDir();
+		TarInputStream tis;
+		UUID uuid = null;
+		try {
+			tis = new TarInputStream(new BufferedInputStream(new FileInputStream(file)));
+			TarEntry entry;
+			while((entry = tis.getNextEntry()) != null) {
+				LogError(TAG, "importArchive "+entry);
+				if (uuid == null)
+					uuid = getBookUUIDfromDirectoryName(entry.getName());
+				else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
+					throw new StorageIOException("Incorrect book archive file");
+				int count;
+				byte data[] = new byte[2048];
+				FileOutputStream fos = new FileOutputStream(destFolder + "/" + entry.getName());
+				BufferedOutputStream dest = new BufferedOutputStream(fos);
+				while((count = tis.read(data)) != -1) {
+					dest.write(data, 0, count);
+				}	
+				dest.flush();
+				dest.close();
+			}	
+		   	
+			tis.close();
+		} catch (IOException e) {
+			throw new StorageIOException(e.getMessage());
+		}
+		if (uuid == null)
+			throw new StorageIOException("No ID in book archive file.");
+		return uuid;
 	}
 	
-	public void exportArchive(UUID uuid, File file) throws StorageIOException {
-		   // Output file stream
-		   FileOutputStream dest = new FileOutputStream( "c:/test/test.tar" );
+	public void exportArchive(UUID uuid, File dest) throws StorageIOException {
+		try {
+			TarOutputStream out = new TarOutputStream( new BufferedOutputStream( new FileOutputStream(dest)));
 
-		   // Create a TarOutputStream
-		   TarOutputStream out = new TarOutputStream( new BufferedOutputStream( dest ) );
-
-		   // Files to tar
+			// Files to tar
 		   File[] filesToTar=new File[2];
 		   filesToTar[0]=new File("c:/test/myfile1.txt");
 		   filesToTar[1]=new File("c:/test/myfile2.txt");
@@ -165,6 +186,9 @@ public abstract class Storage {
 
 		   out.close();
 
+		} catch (IOException e) {
+			throw new StorageIOException(e.getMessage());
+		}
 	}
 	
 	
