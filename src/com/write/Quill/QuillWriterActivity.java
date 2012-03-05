@@ -108,17 +108,13 @@ public class QuillWriterActivity
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
 
 	private name.vbraun.lib.pen.Hardware hardware; 
-	private ChangeLog changeLog;
 		
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        changeLog = new ChangeLog(this);
-        if (changeLog.firstRun())
-            changeLog.getLogDialog().show();
-
       	StorageAndroid.initialize(getApplicationContext());
+      	new Update(this).run();
+      	
       	bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
@@ -223,7 +219,7 @@ public class QuillWriterActivity
     
     
 
-    // The HandWriterView is not focussable and therefore does not receive KeyEvents
+    // The HandWriterView is not focusable and therefore does not receive KeyEvents
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 		int action = event.getAction();
@@ -442,7 +438,7 @@ public class QuillWriterActivity
     		launchOverviewActivity();
     		return true;
     	case R.id.about:
-    	    changeLog.getFullLogDialog().show();
+    	    new ChangeLog(this).getFullLogDialog().show();
     	    return true;
     	case R.id.undo:
     		undo();
@@ -775,7 +771,6 @@ public class QuillWriterActivity
     private void launchOverviewActivity() {
 		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
     	startActivity(i);
-    	finish();
     }
     
     @Override

@@ -16,6 +16,8 @@ import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarInputStream;
 import org.xeustechnologies.jtar.TarOutputStream;
 
+import com.write.Quill.data.Book.BookLoadException;
+
 import junit.framework.Assert;
 
 /** Abstract base class for storage
@@ -28,13 +30,12 @@ public abstract class Storage {
 
 	protected static Storage instance;
 	
-	protected static Storage getInstance() {
+	public static Storage getInstance() {
 		Assert.assertNotNull(instance);
 		return Storage.instance;
 	}
 	
 	protected void postInitializaton() {
-		update();
 		Bookshelf.initialize(this);
 	}
 	
@@ -89,6 +90,7 @@ public abstract class Storage {
 	
 	public void deleteBookDirectory(UUID uuid) {
 		File dir = getBookDirectory(uuid);
+		deleteDirectory(dir);
 	}
 	
 	private void deleteDirectory(File dir) {
@@ -128,7 +130,7 @@ public abstract class Storage {
 	/// import/export archives
 	
 	public UUID importArchive(File file) throws StorageIOException {
-		Assert.assertNull(Bookshelf.getCurrentBook());
+		Bookshelf.assertNoCurrentBook();
 		File destFolder = getFilesDir();
 		TarInputStream tis;
 		UUID uuid = null;
@@ -136,7 +138,7 @@ public abstract class Storage {
 			tis = new TarInputStream(new BufferedInputStream(new FileInputStream(file)));
 			TarEntry entry;
 			while((entry = tis.getNextEntry()) != null) {
-				LogError(TAG, "importArchive "+entry);
+				LogMessage(TAG, "importArchive "+entry);
 				if (uuid == null)
 					uuid = getBookUUIDfromDirectoryName(entry.getName());
 				else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
@@ -165,51 +167,60 @@ public abstract class Storage {
 		try {
 			TarOutputStream out = new TarOutputStream( new BufferedOutputStream( new FileOutputStream(dest)));
 
-			// Files to tar
-		   File[] filesToTar=new File[2];
-		   filesToTar[0]=new File("c:/test/myfile1.txt");
-		   filesToTar[1]=new File("c:/test/myfile2.txt");
-
-		   for(File f:filesToTar){
-		      out.putNextEntry(new TarEntry(f, f.getName()));
-		      BufferedInputStream origin = new BufferedInputStream(new FileInputStream( f ));
-
-		      int count;
-		      byte data[] = new byte[2048];
-		      while((count = origin.read(data)) != -1) {
-		         out.write(data, 0, count);
-		      }
-
+			File dir = getBookDirectory(uuid);
+			File[] filesToTar = dir.listFiles();
+			int count;
+			byte data[] = new byte[2048];
+			for(File f:filesToTar){
+				LogMessage(TAG, "exportiArchive "+f);
+				String name = dir.getName() + File.separator + f.getName();
+				out.putNextEntry(new TarEntry(f, name));
+				BufferedInputStream origin = new BufferedInputStream(new FileInputStream(f));
+				while((count = origin.read(data)) != -1)
+					out.write(data, 0, count);
 		      out.flush();
 		      origin.close();
 		   }
-
 		   out.close();
-
 		} catch (IOException e) {
 			throw new StorageIOException(e.getMessage());
 		}
 	}
 	
+	////////////////////////////////////////////////////
+	/// import old version
+	
+	public UUID importOldArchive(File file) throws StorageIOException {
+		Bookshelf.assertNoCurrentBook();
+		try {
+			Book book = new BookOldFormat(file);
+			book.save(this);
+			return book.getUUID();
+		} catch (BookLoadException e) {
+			throw new StorageIOException(e.getMessage());
+		}
+	}
+
+	
 	
 	////////////////////////////////////////////////////
 	/// update from old data file versions
 	
-	protected void update() {
-		File dir = getFilesDir();
-    	// TODO
-
-		File index = new File(dir, "quill.index");
-		
-		
-		ArrayList<String> files = listBookFiles(dir);
+	public boolean needUpdate() {
+		File index = new File(getFilesDir(), "quill.index");
+		return index.exists();
 	}
 	
-//	private File fileFromUUID(UUID uuid) {
-//	 String filename = "nb_"+uuid.toString()+QUILL_EXTENSION;
-//	 return new File(homeDirectory.getPath() + File.separator + filename);
-//}
-
+	public void update() throws BookLoadException  {
+		File dir = getFilesDir();
+		Book book = new BookOldFormat(this);
+		ArrayList<String> files = listBookFiles(dir);
+		for (String name : files) {
+			File file = new File(name);
+			book = new BookOldFormat(file);
+			book.save(this);
+		}
+	}
 	
 	private ArrayList<String> listBookFiles(File dir) {
 		FilenameFilter filter = new FilenameFilter() {
@@ -226,6 +237,10 @@ public abstract class Storage {
 		return files;
 	}
 
+	
+	
+
+	
 	
 
 

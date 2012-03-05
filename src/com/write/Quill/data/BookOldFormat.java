@@ -48,7 +48,6 @@ public class BookOldFormat extends Book {
 		}
 		// recover from errors
 		loadingFinishedHook();
-		
 		updateFileFormat(storage);
 	}
 

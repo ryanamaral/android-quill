@@ -39,7 +39,6 @@ public class StorageAndroid extends Storage {
 		return  DateUtils.formatDateTime(context, millis, fmt);
 	}
 
-	
 
 	private static final String KEY_CURRENT_BOOK_UUID = "current_book_uuid"; 
 	

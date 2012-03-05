@@ -61,8 +61,10 @@ public class ThumbnailActivity extends Activity implements
     }
     
     private void launchQuillWriterActivity() {
-		Intent i = new Intent(getApplicationContext(), QuillWriterActivity.class);    
-    	startActivity(i);
+    	//	Intent i = new Intent(getApplicationContext(), QuillWriterActivity.class);    
+    	//	i.setFlags(Intent.FLAG_);
+    	//	startActivity(i);
+    	finish();
     }
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

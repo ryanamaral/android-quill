@@ -30,6 +30,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -87,6 +88,18 @@ public class Preferences
 		updatePreferences();
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		   switch (item.getItemId()) 
+		   {        
+		      case android.R.id.home:            
+		    	  finish();
+		    	  return true;  
+		      default:            
+		         return super.onOptionsItemSelected(item);    
+		   }
+	}
+	
 	private void updatePreferences() {		
 		penMode.setSummary(penMode.getEntry());
 		penMode.setEnabled(hasPenDigitizer);
@@ -103,6 +116,11 @@ public class Preferences
     	
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String dirName = settings.getString(KEY_BACKUP_DIR, "/mnt/sdcard/Quill");
+		File dir = new File(dirName);
+		if (!dir.isDirectory())
+			dirName += " (Error: not a directory)";
+		else if (!dir.canWrite()) 
+			dirName += " (Error: no write permissions)";
 		backupDirPreference.setSummary(dirName);    	
 	}
 	
@@ -151,7 +169,7 @@ public class Preferences
     		Bookshelf bookshelf = Bookshelf.getBookshelf();
     		try {
     			bookshelf.importBook(new File(fileName));
-    			Log.e(TAG, "Imported notebook: "+bookshelf.getCurrentBook().pagesSize());
+    			finish();
     		} catch (BookIOException e) {
     			Log.e(TAG, "Error loading the backup file.");
     			Toast.makeText(this, "Error loading the backup file.", Toast.LENGTH_LONG).show();
@@ -169,7 +187,7 @@ public class Preferences
     		break;
     	}
     }
-	
+	    
     @Override
     protected void onResume() {
         super.onResume();
