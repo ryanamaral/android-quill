@@ -502,7 +502,7 @@ public class Book {
 		allowSave = false;
 		File dir = storage.getBookDirectory(uuid);
 		try {
-			doLoadBookFromDirectory(dir, -1);
+			doLoadBookFromDirectory(dir, pageLimit);
 		} catch (BookLoadException e ) {
 			storage.LogError(TAG, e.getMessage());
 		} catch (IOException e ) {

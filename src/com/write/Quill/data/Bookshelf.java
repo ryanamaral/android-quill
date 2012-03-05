@@ -154,6 +154,10 @@ public class Bookshelf {
 		return currentBook;
 	}
 	
+	protected static void assertNoCurrentBook() {
+		Assert.assertNull(currentBook);
+	}
+	
 	public static BookPreview getCurrentBookPreview() {
 		Assert.assertNotNull(currentBook);
 		BookPreview nb = getBookshelf().getPreview(currentBook);
@@ -209,15 +213,21 @@ public class Bookshelf {
 	}
 	
 	public void importBook(File file) throws BookIOException {
+		BookPreview nb = getCurrentBookPreview();
 		saveBook(currentBook);
 		currentBook = null;
 		UUID uuid;
 		try {
 			uuid = storage.importArchive(file);
 		} catch (StorageIOException e) {
-			throw new BookLoadException(e.getMessage());
+			try {
+				uuid = storage.importOldArchive(file);
+			} catch (StorageIOException dummy) {
+				setCurrentBook(nb);
+				throw new BookLoadException(e.getMessage());				
+			}
 		}
-		BookPreview nb = getPreview(uuid);
+		nb = getPreview(uuid);
 		if (nb != null)
 			nb.reload();
 		else {
@@ -226,14 +236,6 @@ public class Bookshelf {
 		}
 		setCurrentBook(nb, false);
 		saveBook(currentBook);
-//		
-//		currentBook = new Book(file);
-//		BookPreview nb = getPreview(currentBook.getUUID());
-//		if (nb != null) { // delete existing book if necessary
-//			nb.deleteFromStorage();
-//			data.remove(nb);
-//		}
-//		saveBook(currentBook);
 		Assert.assertTrue(data.contains(nb));
 	}
 
@@ -271,6 +273,7 @@ public class Bookshelf {
 		currentBook = new Book(storage, nb.uuid);
 		UndoManager.getUndoManager().clearHistory();
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
+		storage.saveCurrentBookUUID(currentBook.getUUID());
 	}
 	
 }
