@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/update_path_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:text="Backup directory path:" />
+
+    <TextView
+        android:id="@+id/update_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/update_path_label"
+        android:layout_marginLeft="36dp"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/update_space"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/update_path"
+        android:layout_marginTop="22dp"
+        android:layout_marginLeft="10dp"
+        android:text="Required space:" />
+
+    <TextView
+        android:id="@+id/update_available"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/update_space"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:text="Available space:" />
+
+    <Button
+        android:id="@+id/update_button_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/update_space"
+        android:layout_marginTop="20dp"
+        android:text="OK" />
+
+    <Button
+        android:id="@+id/update_button_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/update_button_ok"
+        android:layout_alignBottom="@+id/update_button_ok"
+        android:layout_marginRight="15dp"
+        android:layout_toLeftOf="@+id/update_button_ok"
+        android:text="Change Directory" />
+
+    <ProgressBar
+        android:id="@+id/update_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
+
+</RelativeLayout>
