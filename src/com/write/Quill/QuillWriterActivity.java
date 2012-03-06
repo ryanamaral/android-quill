@@ -113,7 +113,11 @@ public class QuillWriterActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
       	StorageAndroid.initialize(getApplicationContext());
-      	new Update(this).run();
+      	if (UpdateActivity.needUpdate(this)) return;
+      	
+  		ChangeLog changeLog = new ChangeLog(getApplicationContext());
+  		if (changeLog.firstRun())
+  			changeLog.getLogDialog().show();
       	
       	bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();

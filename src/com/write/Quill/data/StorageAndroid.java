@@ -7,6 +7,7 @@ import junit.framework.Assert;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -16,6 +17,7 @@ public class StorageAndroid extends Storage {
 	public final static String TAG = "StorageAndroid";
 	
 	private final Context context;
+	private final Handler handler;
 	
 	public static void initialize(Context context) {
 		if (instance != null) return;
@@ -25,6 +27,7 @@ public class StorageAndroid extends Storage {
 	protected StorageAndroid(Context context) {
 		Assert.assertNull(Storage.instance); // only construct once
 		this.context = context.getApplicationContext();
+		handler = new Handler();
 		instance = this;
 		postInitializaton();
 	}
@@ -60,11 +63,20 @@ public class StorageAndroid extends Storage {
 	}
 
 	public void LogMessage(String TAG, String message) {
-		Toast.makeText(context, message, Toast.LENGTH_LONG);
+		showToast(message, Toast.LENGTH_LONG);
 	}
 
 	public void LogError(String TAG, String message) {
 		Log.e(TAG, message);
-		Toast.makeText(context, message, Toast.LENGTH_LONG);
+		showToast(message, Toast.LENGTH_LONG);
 	}
+	
+	private void showToast(final String message, final int length) {
+		handler.post(new Runnable() {
+		    public void run() {
+		        Toast.makeText(context, message, length).show();
+		    }
+		});
+	}
+
 }

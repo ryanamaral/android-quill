@@ -28,9 +28,16 @@
         	android:name=".ThumbnailActivity"
         	android:theme="@android:style/Theme.Holo">
         </activity>
-        <activity android:name="org.libharu.TestActivity">
+        <activity 
+            android:name="org.libharu.TestActivity">
         </activity>
-        <activity android:name="BookshelfActivity" android:theme="@android:style/Theme.Holo.Dialog">
+        <activity 
+            android:name="BookshelfActivity" 
+            android:theme="@android:style/Theme.Holo.Dialog">
         </activity>
-    </application>
+        <activity 
+            android:name="UpdateActivity" 
+            android:theme="@android:style/Theme.Holo.Dialog">
+        </activity>
+        </application>
 </manifest>

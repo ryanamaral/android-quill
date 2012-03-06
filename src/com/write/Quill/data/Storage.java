@@ -115,11 +115,9 @@ public abstract class Storage {
 		if (entries == null) return uuids;
 		for (File bookdir : entries) {
 			String path = bookdir.getAbsolutePath();
-			LogMessage(TAG, "Found notebook: "+path);
 			int pos = path.lastIndexOf(NOTEBOOK_DIRECTORY_PREFIX);
 			pos += NOTEBOOK_DIRECTORY_PREFIX.length();
 			UUID uuid = UUID.fromString(path.substring(pos));
-			LogMessage(TAG, "Found notebook: "+uuid);
 			uuids.add(uuid);
 		}
 		return uuids;
