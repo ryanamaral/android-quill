@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import name.vbraun.lib.pen.Hardware;
 import name.vbraun.lib.pen.HideBar;
 
 
@@ -17,6 +18,7 @@ import com.write.Quill.data.StorageAndroid;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,6 +49,7 @@ public class Preferences
 	protected static final String RESULT_FILENAME = "Preferences.filename";
 
 	ListPreference penMode;
+	ListPreference overridePen;
 	
 	protected static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
@@ -54,13 +57,12 @@ public class Preferences
 	protected static final String KEY_PALM_SHIELD = "palm_shield";
 	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
 	protected static final String KEY_BACKUP_DIR = "backup_directory";
+	protected static final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
 
     protected static final String STYLUS_ONLY = "STYLUS_ONLY";
     protected static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
     protected static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
-	
-    private boolean hasPenDigitizer;
-    
+        
     private Preference restorePreference;
     private Preference backupDirPreference;
     
@@ -75,9 +77,8 @@ public class Preferences
 			Log.e(TAG, e.toString());
 		}
 		
-		name.vbraun.lib.pen.Hardware hw = new name.vbraun.lib.pen.Hardware(getApplicationContext());
-		hasPenDigitizer = hw.hasPenDigitizer();
 		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
+		overridePen = (ListPreference)findPreference(KEY_OVERRIDE_PEN_TYPE);
 		
 		restorePreference = findPreference(PREFERENCE_RESTORE);
 		restorePreference.setOnPreferenceClickListener(this);
@@ -101,8 +102,15 @@ public class Preferences
 	}
 	
 	private void updatePreferences() {		
+		Context context = getApplicationContext();
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getInstance(context);
+		boolean hasPenDigitizer = hw.hasPenDigitizer();
+				
 		penMode.setSummary(penMode.getEntry());
 		penMode.setEnabled(hasPenDigitizer);
+		
+		overridePen.setSummary(overridePen.getEntry());
     	
 		boolean gestures = penMode.getValue().equals(STYLUS_WITH_GESTURES);
     	findPreference(KEY_DOUBLE_TAP_WHILE_WRITE).setEnabled(gestures);
@@ -114,7 +122,6 @@ public class Preferences
     	boolean hideBar = HideBar.isPossible();
     	findPreference(KEY_HIDE_SYSTEM_BAR).setEnabled(hideBar);
     	
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String dirName = settings.getString(KEY_BACKUP_DIR, "/mnt/sdcard/Quill");
 		File dir = new File(dirName);
 		if (!dir.isDirectory())
@@ -125,8 +132,17 @@ public class Preferences
 	}
 	
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    	Log.e(TAG, "onSharedPreferenceChanged");
-        if (key.equals(KEY_LIST_PEN_INPUT_MODE) || key.equals(KEY_BACKUP_DIR)) 
+    	if (key.equals(KEY_OVERRIDE_PEN_TYPE)) { 
+    		Context context = getApplicationContext();
+    		name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getInstance(context);
+    		hw.forceFromPreferences(context);
+    		if (!Hardware.hasPenDigitizer())
+    			penMode.setValue(STYLUS_AND_TOUCH);
+    		updatePreferences();
+    	}
+
+    	if (key.equals(KEY_LIST_PEN_INPUT_MODE) || 
+        	key.equals(KEY_BACKUP_DIR)) 
         	updatePreferences();
     }
     
@@ -200,70 +216,70 @@ public class Preferences
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);    
     }
 
-	public static final int DIALOG_RESTORE_BACKUP = 0;
+//	public static final int DIALOG_RESTORE_BACKUP = 0;
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case DIALOG_RESTORE_BACKUP:
-			return (Dialog)create_dialog_restore();
-		}
-		return null;
-	}
-
+//	@Override
+//	protected Dialog onCreateDialog(int id) {
+//		switch (id) {
+//		case DIALOG_RESTORE_BACKUP:
+//			return (Dialog)create_dialog_restore();
+//		}
+//		return null;
+//	}
+//
 		
-	private ArrayList<String> tryMakeFileList() {
-		ArrayList<String> files = new ArrayList<String>();
-		files.addAll(tryMakeFileList(getExternalFilesDir(null).getPath()));
-		files.addAll(tryMakeFileList("/mnt/sdcard"));
-		files.addAll(tryMakeFileList("/mnt/external_sd"));
-		files.addAll(tryMakeFileList("/mnt/usbdrive"));
-		return files;
-	}
+//	private ArrayList<String> tryMakeFileList() {
+//		ArrayList<String> files = new ArrayList<String>();
+//		files.addAll(tryMakeFileList(getExternalFilesDir(null).getPath()));
+//		files.addAll(tryMakeFileList("/mnt/sdcard"));
+//		files.addAll(tryMakeFileList("/mnt/external_sd"));
+//		files.addAll(tryMakeFileList("/mnt/usbdrive"));
+//		return files;
+//	}
+//
+//	private ArrayList<String> tryMakeFileList(String directory) {
+//		File dir = new File(directory);
+//		FilenameFilter filter = new FilenameFilter() {
+//		    public boolean accept(File dir, String name) {
+//		        return name.endsWith(".quill");
+//		    }};
+////		String[] entries = dir.listFiles(filter);
+//		File[] entries = dir.listFiles();
+//		ArrayList<String> files = new ArrayList<String>();
+//		if (entries == null) return files;
+//		for (int i=0; i<entries.length; i++) {
+//			files.add(entries[i].getAbsolutePath());
+//		}
+//		return files;
+//	}
 
-	private ArrayList<String> tryMakeFileList(String directory) {
-		File dir = new File(directory);
-		FilenameFilter filter = new FilenameFilter() {
-		    public boolean accept(File dir, String name) {
-		        return name.endsWith(".quill");
-		    }};
-//		String[] entries = dir.listFiles(filter);
-		File[] entries = dir.listFiles();
-		ArrayList<String> files = new ArrayList<String>();
-		if (entries == null) return files;
-		for (int i=0; i<entries.length; i++) {
-			files.add(entries[i].getAbsolutePath());
-		}
-		return files;
-	}
-
-	private Dialog create_dialog_restore() {
-		final ArrayList<String> files = new ArrayList<String>(); 
-		files.clear();
-		files.addAll(tryMakeFileList());
-		CharSequence[] items = new CharSequence[files.size()];
-		files.toArray(items);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		if (files.size() == 0) 
-			builder.setTitle("No backups found!");
-		else
-			builder.setTitle("Backup to restore:");
-		builder.setItems(items, 
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int item) {
-						if (item<0) {
-							dialog.dismiss();
-							return;
-						}
-						dialog.dismiss();						
-						setResult(RESULT_RESTORE_BACKUP);
-						Intent resultIntent = new Intent();
-						resultIntent.putExtra(RESULT_FILENAME, files.get(item));
-						setResult(RESULT_RESTORE_BACKUP, resultIntent);
-						finish();
-			}});
-		return builder.create();
-	}
+//	private Dialog create_dialog_restore() {
+//		final ArrayList<String> files = new ArrayList<String>(); 
+//		files.clear();
+//		files.addAll(tryMakeFileList());
+//		CharSequence[] items = new CharSequence[files.size()];
+//		files.toArray(items);
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//		if (files.size() == 0) 
+//			builder.setTitle("No backups found!");
+//		else
+//		builder.setTitle("Backup to restore:");
+//		builder.setItems(items, 
+//				new DialogInterface.OnClickListener() {
+//					public void onClick(DialogInterface dialog, int item) {
+//						if (item<0) {
+//							dialog.dismiss();
+//							return;
+//						}
+//						dialog.dismiss();						
+//						setResult(RESULT_RESTORE_BACKUP);
+//						Intent resultIntent = new Intent();
+//						resultIntent.putExtra(RESULT_FILENAME, files.get(item));
+//						setResult(RESULT_RESTORE_BACKUP, resultIntent);
+//						finish();
+//			}});
+//		return builder.create();
+//	}
 
 
 }

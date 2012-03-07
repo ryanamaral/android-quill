@@ -44,12 +44,10 @@ public class UpdateActivity
 	private TextView path, space, available;
 	private Button okButton, changeButton;
 
-	private Storage storage;
 	private final File defaultPath = new File(Environment.getExternalStorageDirectory(), "Quill"); 
 	private String dirName;
 	private static boolean done = false;
 	
-    private static final String KEY_VERSION = "quill_version_key";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -216,7 +214,6 @@ public class UpdateActivity
 		File dir = new File(dirName);
 		if (!dir.exists()) dir.mkdir();
 		final Storage storage = Storage.getInstance();
-		final Context context = getApplicationContext();
 		new Thread(new Runnable(){
 			public void run(){
 				try {

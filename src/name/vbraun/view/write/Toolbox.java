@@ -79,7 +79,7 @@ public class Toolbox
 	
 	protected Toolbox(Context context, boolean left) {
 		super(context);
-		hardware = new Hardware(context);
+		hardware = Hardware.getInstance(context);
 		
 		Display display = ((WindowManager) 
         		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();

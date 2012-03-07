@@ -111,7 +111,7 @@ public class BookOldFormat extends Book {
 	}
 
 	private int loadIndex(DataInputStream dataIn) throws IOException {
-		Log.d(TAG, "Loading book index");
+		// Log.d(TAG, "Loading book index");
 		int n_pages;
 		int version = dataIn.readInt();
 		if (version == 3) {
@@ -161,7 +161,7 @@ public class BookOldFormat extends Book {
 
 
 	private Page loadPage(int i, DataInputStream dataIn) throws IOException {
-		Log.d(TAG, "Loading book page " + i);
+		// Log.d(TAG, "Loading book page " + i);
 		return new Page(dataIn, getTagManager());
 	}
 	

@@ -4,18 +4,34 @@ import java.util.ArrayList;
 
 import junit.framework.Assert;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 
 public class Hardware {
 	private final static String TAG = "PenHardware";
 	
-	private final String model;
-	private final boolean mHasPenDigitizer;
-	private final boolean mHasPressureSensor;
-	private final PenEvent mPenEvent;
+	public static final String KEY_OVERRIDE_PEN_TYPE = "override_pen_type";
+
+	public static final String PEN_TYPE_AUTO = "PEN_TYPE_AUTO";
+    public static final String PEN_TYPE_CAPACITIVE = "PEN_TYPE_CAPACITIVE";
+    public static final String PEN_TYPE_THINKPAD_TABLET = "PEN_TYPE_THINKPAD_TABLET";
+    public static final String PEN_TYPE_ICS = "PEN_TYPE_ICS";
+
 	
-	private static Hardware cachedInstance = null;
+	private String model;
+	private boolean mHasPenDigitizer;
+	private boolean mHasPressureSensor;
+	private PenEvent mPenEvent;
+	
+	private static Hardware instance = null;
+	
+	public static Hardware getInstance(Context context) {
+		if (instance == null)
+			instance = new Hardware(context);
+		return instance;
+	}
 	
 	private static ArrayList<String> tabletMODELwithoutPressure = new ArrayList<String>() {
 		private static final long serialVersionUID = 1868225200818950866L; 	{
@@ -32,19 +48,15 @@ public class Hardware {
 	    add("Galaxy Nexus");  // Google Galaxy Nexus
 	}};
 	
-	public Hardware(Context context) {
-		if (cachedInstance != null) { 
-			model = cachedInstance.model;
-			mHasPenDigitizer = cachedInstance.mHasPenDigitizer;
-			mPenEvent = cachedInstance.mPenEvent;
-			mHasPressureSensor = cachedInstance.mHasPressureSensor;
-			return; 
-		}
+	private Hardware(Context context) {
+		forceFromPreferences(context);
+		Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
+	}
+	
+	public void autodetect(Context context) {
 		model = android.os.Build.MODEL;
 		if (model.equalsIgnoreCase("ThinkPad Tablet")) {  // Lenovo ThinkPad Tablet
-			mHasPenDigitizer = true;
-			mHasPressureSensor = true;
-			mPenEvent = new PenEventThinkPadTablet();
+			forceThinkpadTablet();
 		} else {
 			// defaults; this works on HTC devices but might be more general
 			mHasPenDigitizer = context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.pen");
@@ -54,23 +66,66 @@ public class Hardware {
 			else
 				mPenEvent = new PenEvent();
 		}
-		cachedInstance = this;
-        Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
 	}
 	
-	// whether the device has an active pen
+	public void forceThinkpadTablet() {
+		mHasPenDigitizer = true;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEventThinkPadTablet();
+	}
+	
+	public void forceCapacitivePen() {
+		mHasPenDigitizer = false;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEvent();
+	}
+	
+	public void forceICS() {
+		mHasPenDigitizer = true;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEventICS();
+	}
+	
+	public void forceFromPreferences(Context context) {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		String penType = settings.getString(KEY_OVERRIDE_PEN_TYPE, PEN_TYPE_AUTO);
+		if (penType.equals(PEN_TYPE_AUTO))
+			autodetect(context);
+		else if (penType.equals(PEN_TYPE_CAPACITIVE))
+			forceCapacitivePen();
+		else if (penType.equals(PEN_TYPE_THINKPAD_TABLET))
+			forceThinkpadTablet();
+		else if (penType.equals(PEN_TYPE_ICS))
+			forceICS();
+		else
+			Assert.fail("The preference "+KEY_OVERRIDE_PEN_TYPE+" has invalid value: "+penType);
+	}
+	
+	/**
+	 * Test whether the device has an active pen
+	 * @return boolean
+	 */
 	public static boolean hasPenDigitizer() {
-		Assert.assertNotNull(cachedInstance);
-		return cachedInstance.mHasPenDigitizer;
+		Assert.assertNotNull(instance);
+		return instance.mHasPenDigitizer;
 	}
 	
+	/**
+	 * Test whether the device has a working pressure sensor
+	 * @return
+	 */
 	public static boolean hasPressureSensor() {
-		Assert.assertNotNull(cachedInstance);
-		return cachedInstance.mHasPressureSensor;
+		Assert.assertNotNull(instance);
+		return instance.mHasPressureSensor;
 	}
 
+	/**
+	 * Test whether the event may have been caused by the stylus
+	 * @param event A MotionEvent
+	 * @return
+	 */
 	public static boolean isPenEvent(MotionEvent event) {
-		Assert.assertNotNull(cachedInstance);
-		return cachedInstance.mPenEvent.isPenEvent(event);
+		Assert.assertNotNull(instance);
+		return instance.mPenEvent.isPenEvent(event);
 	}
 }

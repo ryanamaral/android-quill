@@ -300,7 +300,7 @@ public class HandwriterView extends ViewGroup {
 	
 	public HandwriterView(Context context) {
 		super(context);
-		hw = new name.vbraun.lib.pen.Hardware(context);
+		hw = name.vbraun.lib.pen.Hardware.getInstance(context);
 		setFocusable(true);
 		pen = new Paint();
 		pen.setAntiAlias(true);
