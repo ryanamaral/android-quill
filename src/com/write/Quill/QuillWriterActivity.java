@@ -125,7 +125,7 @@ public class QuillWriterActivity
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         
-        hardware = new name.vbraun.lib.pen.Hardware(getApplicationContext()); 
+        hardware = name.vbraun.lib.pen.Hardware.getInstance(getApplicationContext()); 
 
         ToolHistory history = ToolHistory.getToolHistory();
         history.onCreate(getApplicationContext());

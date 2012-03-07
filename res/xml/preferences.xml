@@ -1,4 +1,6 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"><PreferenceCategory android:title="User handedness"><CheckBoxPreference android:summary="The red button and toolbox will be on the left" android:title="Right-handed (most common)" android:key="toolbox_left" android:defaultValue="true" /></PreferenceCategory><PreferenceCategory android:title="Input preferences"><ListPreference android:title="Pen input mode" android:entries="@array/pen_input_mode_entries" android:entryValues="@array/pen_input_mode_values" android:dialogTitle="@string/pen_input_mode_title" android:key="pen_input_mode"/>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"><PreferenceCategory android:title="User handedness"><CheckBoxPreference android:summary="The red button and toolbox will be on the left" android:title="Right-handed (most common)" android:key="toolbox_left" android:defaultValue="true" />
+
+</PreferenceCategory><PreferenceCategory android:title="Input preferences"><ListPreference android:title="@string/pen_input_mode_title" android:entries="@array/pen_input_mode_entries" android:entryValues="@array/pen_input_mode_values" android:key="pen_input_mode"/>
   	
   <CheckBoxPreference 
   	android:defaultValue="true" 
@@ -36,7 +38,7 @@
      <CheckBoxPreference android:key="backup_automatic" android:defaultValue="true" android:title="Automatic backups" android:summary="Make backups of your notebooks automatically"/>
      <Preference android:key="backup_directory" android:title="Automatic backup directory"/>
      
- </PreferenceCategory>
+ </PreferenceCategory><PreferenceCategory android:title="Debug options"><ListPreference android:key="override_pen_type" android:entries="@array/override_pen_type_entries" android:entryValues="@array/override_pen_type_values" android:title="@string/override_pen_title"/></PreferenceCategory>
 
  
 

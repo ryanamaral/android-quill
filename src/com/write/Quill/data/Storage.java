@@ -151,7 +151,7 @@ public abstract class Storage {
 			tis = new TarInputStream(new BufferedInputStream(new FileInputStream(file)));
 			TarEntry entry;
 			while((entry = tis.getNextEntry()) != null) {
-				LogMessage(TAG, "importArchive "+entry);
+				// LogMessage(TAG, "importArchive "+entry);
 				if (uuid == null)
 					uuid = getBookUUIDfromDirectoryName(entry.getName());
 				else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
@@ -185,7 +185,7 @@ public abstract class Storage {
 			int count;
 			byte data[] = new byte[2048];
 			for(File f:filesToTar){
-				LogMessage(TAG, "exportiArchive "+f);
+				// LogMessage(TAG, "exportiArchive "+f);
 				String name = dir.getName() + File.separator + f.getName();
 				out.putNextEntry(new TarEntry(f, name));
 				BufferedInputStream origin = new BufferedInputStream(new FileInputStream(f));
