@@ -115,7 +115,7 @@ public class QuillWriterActivity
       	StorageAndroid.initialize(getApplicationContext());
       	if (UpdateActivity.needUpdate(this)) return;
       	
-  		ChangeLog changeLog = new ChangeLog(getApplicationContext());
+  		ChangeLog changeLog = new ChangeLog(this);
   		if (changeLog.firstRun())
   			changeLog.getLogDialog().show();
       	

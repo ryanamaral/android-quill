@@ -35,8 +35,23 @@ public abstract class Storage {
 		return Storage.instance;
 	}
 	
+	/**
+	 * Hook that runs after the instance singleton is initialized
+	 */
 	protected void postInitializaton() {
 		Bookshelf.initialize(this);
+	}
+	
+	/**
+	 * Hook that runs right before the instance singleton is cleared
+	 */
+	protected void preFinalization() {
+		Bookshelf.finalize(this);
+	}
+
+	public void finalize() {
+		preFinalization();
+		instance = null;
 	}
 	
 	abstract public File getFilesDir();
@@ -212,11 +227,13 @@ public abstract class Storage {
 	public void update() throws BookLoadException  {
 		File dir = getFilesDir();
 		Book book = new BookOldFormat(this);
+		UUID currentUuid = book.getUUID();
 		ArrayList<String> files = listBookFiles(dir);
 		for (String name : files) {
 			File file = new File(name);
 			book = new BookOldFormat(file);
-			book.save(this);
+			if (!book.getUUID().equals(currentUuid))
+				book.save(this);
 		}
 	}
 	
@@ -230,7 +247,6 @@ public abstract class Storage {
 		if (entries == null) return files;
 		for (int i=0; i<entries.length; i++) {
 			files.add(entries[i].getAbsolutePath());
-			LogError(TAG, "Found notebook: "+files.get(i));
 		}
 		return files;
 	}
