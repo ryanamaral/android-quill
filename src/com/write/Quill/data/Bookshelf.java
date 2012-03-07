@@ -20,6 +20,7 @@ import junit.framework.Assert;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Parcelable.Creator;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -123,17 +124,21 @@ public class Bookshelf {
 			BookPreview notebook = new BookPreview(uuid);
 			data.add(notebook);
 		}
-		if (data.isEmpty()) {
-			currentBook = new Book("Example Notebook");
-			saveBook(currentBook);
-		} else {
+		if (!data.isEmpty()) {
 			UUID uuid = storage.loadCurrentBookUUID();
 			if (uuid == null)
 				uuid = data.getFirst().getUUID();
 			currentBook = new Book(storage, uuid);
-		}
+		} else 
+			currentBook = null;
 	}
 
+	private void createFirstNotebook() {
+		Assert.assertNull(currentBook);
+		currentBook = new Book("Example Notebook");
+		saveBook(currentBook);		
+	}
+	
 	/** This is called automatically from the Storage initializer
 	 * @param storage
 	 */
@@ -144,12 +149,23 @@ public class Bookshelf {
       	}
 	}
 	
+	/**
+	 * The counterpart to initialize: forget any saved data. 
+	 * Note: We might get re-initialized later.
+	 * @param storage
+	 */
+	protected static void finalize(Storage storage) {
+		instance = null;
+	}
+	
 	public static Bookshelf getBookshelf() { 
 		Assert.assertNotNull(instance);
 		return instance;
 	}
 	
 	public static Book getCurrentBook() {
+		if (currentBook == null)
+			Bookshelf.getBookshelf().createFirstNotebook();
 		Assert.assertNotNull(currentBook);
 		return currentBook;
 	}

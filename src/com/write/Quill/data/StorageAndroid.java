@@ -21,14 +21,13 @@ public class StorageAndroid extends Storage {
 	
 	public static void initialize(Context context) {
 		if (instance != null) return;
-		new StorageAndroid(context);
+		instance = new StorageAndroid(context);
 	}
 	
-	protected StorageAndroid(Context context) {
+	private StorageAndroid(Context context) {
 		Assert.assertNull(Storage.instance); // only construct once
 		this.context = context.getApplicationContext();
 		handler = new Handler();
-		instance = this;
 		postInitializaton();
 	}
 	

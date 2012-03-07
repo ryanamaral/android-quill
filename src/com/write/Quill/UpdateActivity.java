@@ -17,6 +17,7 @@ import com.write.Quill.data.Storage;
 import com.write.Quill.data.StorageAndroid;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -214,7 +215,6 @@ public class UpdateActivity
 	private void run() {
 		File dir = new File(dirName);
 		if (!dir.exists()) dir.mkdir();
-		final Intent intent = new Intent(getApplicationContext(), QuillWriterActivity.class);
 		final Storage storage = Storage.getInstance();
 		final Context context = getApplicationContext();
 		new Thread(new Runnable(){
@@ -224,6 +224,8 @@ public class UpdateActivity
 					storage.update();
 					showToast("Finished converting notebooks!");
 					done = true;
+					storage.finalize();
+					Intent intent = new Intent(getApplicationContext(), QuillWriterActivity.class);
 					startActivity(intent);
 					finish();
 				} catch (IOException e) {
