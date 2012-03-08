@@ -147,7 +147,10 @@ public class QuillWriterActivity
         	createTagButton(bar);
         }
     	switchToPage(book.currentPage());
+    	
+    	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
+
     
     private void createTagButton(ActionBar bar) {
         tagButton = new Button(this);
