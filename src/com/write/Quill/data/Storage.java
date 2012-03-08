@@ -43,19 +43,39 @@ public abstract class Storage {
 	}
 	
 	/**
-	 * Hook that runs right before the instance singleton is cleared
+	 * Hook that runs right before the instance singleton is destroyed
 	 */
-	protected void preFinalization() {
+	protected void preDestroy() {
 		Bookshelf.finalize(this);
 	}
 
-	public void finalize() {
-		preFinalization();
+	/**
+	 * Clear the singleton. You need to initialize storage before you can use it again.
+	 */
+	public void destroy() {
+		preDestroy();
 		instance = null;
 	}
 	
+	/**
+	 * Get the directory containing the data files. Usually /data/data/com.write.Quill/files
+	 * @return a directory
+	 */
 	abstract public File getFilesDir();
 	
+	/**
+	 * Usually this is /mnt/sdcard
+	 * @return
+	 */
+	abstract public File getExternalStorageDirectory();
+	
+	public File getDefaultBackupDir() {
+		return new File(getExternalStorageDirectory(), "Quill");
+	}
+	
+	abstract public File getBackupDir();
+
+
 	public static class StorageIOException extends IOException {
 		public StorageIOException(String string) {
 			super(string);
@@ -80,7 +100,6 @@ public abstract class Storage {
 	
 	abstract public void LogMessage(String TAG, String message);
 	abstract public void LogError(String TAG, String message);
-
 	
 	////////////////////////////////////////////////////
 	/// Book directory handlings

@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.UUID;
 
+import javax.security.auth.login.LoginException;
+
 import com.write.Quill.UndoManager;
 import com.write.Quill.data.Book.BookIOException;
 import com.write.Quill.data.Book.BookLoadException;
@@ -290,6 +292,33 @@ public class Bookshelf {
 		UndoManager.getUndoManager().clearHistory();
 		currentBook.setOnBookModifiedListener(UndoManager.getUndoManager());
 		storage.saveCurrentBookUUID(currentBook.getUUID());
+	}
+	
+	
+	/**
+	 * Backup all notebooks
+	 * @param dir
+	 */
+	public void backup() {
+		File dir = storage.getBackupDir();
+		if (dir == null) return;  // backups are disabled by user request
+		backup(dir);
+	}
+		
+	/**
+	 * Backup all notebooks
+	 * @param dir The directory to save the backups in
+	 */
+	public void backup(File dir) {
+		for (BookPreview nb : getBookPreviewList()) {
+			UUID uuid = nb.getUUID();
+			File file = new File(dir, uuid.toString() + QUILL_EXTENSION);
+			try {
+				exportBook(uuid, file);
+			} catch (BookSaveException e) {
+				storage.LogError(TAG, e.getLocalizedMessage());
+			}
+		}
 	}
 	
 }
