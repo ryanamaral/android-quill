@@ -38,10 +38,13 @@ import android.view.LayoutInflater;
 import android.content.DialogInterface;
 
 
-public class ThumbnailActivity extends Activity implements 
-	AdapterView.OnItemClickListener, 
-	AdapterView.OnItemLongClickListener,
-	DialogInterface.OnDismissListener {
+public class ThumbnailActivity 
+	extends 
+		ActivityBase
+	implements 
+		AdapterView.OnItemClickListener, 
+		AdapterView.OnItemLongClickListener,
+		DialogInterface.OnDismissListener {
 	
 	private static final String TAG = "Overview";
 	
@@ -228,8 +231,6 @@ public class ThumbnailActivity extends Activity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
-      	StorageAndroid.initialize(getApplicationContext());
 
 		layout = getLayoutInflater().inflate(R.layout.thumbnail_activity, null);
 		setContentView(layout);

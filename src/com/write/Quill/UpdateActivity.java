@@ -221,7 +221,7 @@ public class UpdateActivity
 					storage.update();
 					showToast("Finished converting notebooks!");
 					done = true;
-					storage.finalize();
+					storage.destroy();
 					Intent intent = new Intent(getApplicationContext(), QuillWriterActivity.class);
 					startActivity(intent);
 					finish();

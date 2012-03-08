@@ -33,7 +33,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-public class TagsListActivity extends Activity implements 
+public class TagsListActivity 
+	extends 
+		ActivityBase 
+	implements 
 		AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener,
 		View.OnKeyListener, 
@@ -194,10 +197,7 @@ public class TagsListActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		Log.d(TAG, "onCreate");
-      	StorageAndroid.initialize(getApplicationContext());
-				
+						
 		layout = getLayoutInflater().inflate(R.layout.tag_activity, null);
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);

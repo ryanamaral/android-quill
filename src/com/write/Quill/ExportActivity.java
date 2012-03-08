@@ -50,7 +50,7 @@ import android.widget.ArrayAdapter;
 
 
 public class ExportActivity 
-	extends Activity 
+	extends ActivityBase
 	implements OnClickListener, OnItemSelectedListener {
 
 	private static final String TAG = "ExportActivity";

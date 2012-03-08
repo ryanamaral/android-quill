@@ -79,7 +79,7 @@ import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 public class QuillWriterActivity 
 	extends	
-		Activity 
+		ActivityBase
 	implements 
 		name.vbraun.view.write.Toolbox.OnToolboxListener,
 		OnStrokeFinishedListener {
@@ -112,7 +112,6 @@ public class QuillWriterActivity
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      	StorageAndroid.initialize(getApplicationContext());
       	if (UpdateActivity.needUpdate(this)) return;
       	
   		ChangeLog changeLog = new ChangeLog(this);
@@ -770,6 +769,12 @@ public class QuillWriterActivity
     	editor.putBoolean("toolbox_is_visible", mView.getToolBox().isToolboxVisible());
         editor.commit();
     	UndoManager.setApplication(null);
+    }
+    
+    @Override
+    protected void onStop() {
+		// bookshelf.backup();
+    	super.onStop();
     }
     
     private void launchOverviewActivity() {
