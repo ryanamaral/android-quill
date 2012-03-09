@@ -63,13 +63,10 @@ public class ExportActivity
 	private Page page;
 	private Handler handler = new Handler();
 	private ProgressBar progressBar;
-	private String filename;
 	private String mimeType;
 	private Button exportButton;
 	private PDFExporter pdfExporter = null;
 	private Thread exportThread;
-	private String fullFilename;
-	private File file;
 	private FileOutputStream outStream = null;
 	private Spinner format, sizes, via;
 	private ArrayAdapter<CharSequence> exportSizes;
@@ -124,6 +121,22 @@ public class ExportActivity
     	progressBar = (ProgressBar)layout.findViewById(R.id.export_progress);
     	backgroundCheckbox = (CheckBox) layout.findViewById(R.id.export_background);
     	setContentView(layout);
+    	
+    	checkConstants();
+	}
+	
+	private final static String DIRECTORY_SDCARD     = "/mnt/sdcard";
+	private final static String DIRECTORY_EXTERNALSD = "/mnt/external_sd";
+	private final static String DIRECTORY_USBDRIVE   = "/mnt/usbdrive";
+	
+	private void checkConstants() {
+		String[] export_via_values = getResources().getStringArray(R.array.export_via_values);
+		Assert.assertEquals(export_via_values[SHARE_GENERIC],  "EXPORT_VIA_APP");
+		Assert.assertEquals(export_via_values[SHARE_EVERNOTE], "EXPORT_VIA_EVERNOTE");
+		Assert.assertEquals(export_via_values[SHARE_PICK_DIR], "EXPORT_VIA_PICK");
+		Assert.assertEquals(export_via_values[SHARE_EXTERNAL], "EXPORT_VIA_EXTERNALSD");
+		Assert.assertEquals(export_via_values[SHARE_INTERNAL], "EXPORT_VIA_SDCARD");
+		Assert.assertEquals(export_via_values[SHARE_USB],      "EXPORT_VIA_USB");
 	}
 	
     
@@ -272,36 +285,120 @@ public class ExportActivity
     protected void doExport() {
     	Log.v(TAG, "doExport()");
     	if (pdfExporter != null) return;
-    	if (!openShareFile()) return;
+    	File file = openShareFile();
+    	doExport(file);
+    }
+    	
+    private static final int REQUEST_CODE_PICK_DIRECTORY = 1;
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+    	switch (requestCode) {
+    	case REQUEST_CODE_PICK_DIRECTORY:
+    		if (resultCode != RESULT_OK || data == null) return; 
+    		Uri dirUri = data.getData();
+    		if (dirUri == null) return;
+    		File file = new File(dirUri.getPath(), name.getText().toString());
+    		file = checkShareFile(file);
+    		doExport(file);
+    		break;
+    	}
+    }
+
+    private File openShareFile() {
+      	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
+    	int pos = spinner.getSelectedItemPosition();
+    	File file = null;
+		String filename = name.getText().toString();
+		if (filename.startsWith("/"))
+    		file = new File(filename);
+		else
+			switch (pos) {
+			case SHARE_GENERIC:
+			case SHARE_EVERNOTE:
+				file = new File(getExternalFilesDir(null), filename);
+				file.deleteOnExit();
+				break;
+			case SHARE_PICK_DIR:
+	    		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
+	    		intent.putExtra("org.openintents.extra.TITLE", "Select destination folder");
+	    		startActivityForResult(intent, REQUEST_CODE_PICK_DIRECTORY);
+	    		break;
+			case SHARE_INTERNAL:
+				file = new File(DIRECTORY_SDCARD, filename);
+				break;
+			case SHARE_EXTERNAL:
+				file = new File(DIRECTORY_EXTERNALSD, filename);
+				break;
+			case SHARE_USB:
+				file = new File(DIRECTORY_USBDRIVE, filename);
+				break;
+			default:
+				Assert.fail("unreachable");
+			}
+		return checkShareFile(file);
+    }
+    
+	/**
+	 * Creates a new file and catches any errors.
+	 * @param file 
+	 * @return A new File or null in case of error.
+	 */
+	private File checkShareFile(File file) {
+		if (file == null) return null;
+		File parent = file.getParentFile();
+		if (parent!=null && !parent.exists()) {
+			Log.e(TAG, "Path does not exist: "+parent.toString());
+        	Toast.makeText(this, "Path does not exist", Toast.LENGTH_LONG).show();
+			return null;
+		}
+		try {
+			file.createNewFile();
+		} catch(IOException e) {
+			Log.e(TAG, "Error creating file "+e.toString());
+        	Toast.makeText(this, "Unable to create file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        	return null;
+        }
+		return file;
+    }
+
+    
+    private void doExport(File file) {
+    	if (file == null || !file.exists()) return;
     	Spinner format = (Spinner)layout.findViewById(R.id.export_file_format);
     	switch (format.getSelectedItemPosition()) {
 		case OUTPUT_FORMAT_PDF_SINGLE:
-			doExportPdf(PageRange.CURRENT_PAGE);
+			doExportPdf(file, PageRange.CURRENT_PAGE);
+			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PDF_TAGGED:
-			doExportPdf(PageRange.TAGGED_PAGES);
+			doExportPdf(file, PageRange.TAGGED_PAGES);
+			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PDF_ALL:
-			doExportPdf(PageRange.ALL_PAGES);
+			doExportPdf(file, PageRange.ALL_PAGES);
+			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PNG:
-			doExportPng();
+			doExportPng(file);
+			doShare(file);
 			return;
 		case OUTPUT_FORMAT_BACKUP:
-			doExportArchive();
+			doExportArchive(file);
 			return;
     	}
     }
     
-    private void doExportArchive() {
+    private void doExportArchive(File file) {
     	try {
     		Bookshelf.getBookshelf().exportCurrentBook(file);
     	} catch (Book.BookSaveException e) {
 			Log.e(TAG, "Error writing file "+e.getMessage());
-        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, "Unable to write file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         	return;
     	}
-    	doShare();
+    	doShare(file);
     }
 
 	private static final int SIZE_RASTER_1920 = 0;
@@ -309,7 +406,7 @@ public class ExportActivity
 	private static final int SIZE_RASTER_1024 = 2;
 	private static final int SIZE_RASTER_800= 3;
 
-    private void doExportPng() {
+    private void doExportPng(final File file) {
 		threadLockActivity();
 		drawBackground = backgroundCheckbox.isChecked();
 		Log.d(TAG, "drawBackground = "+drawBackground);
@@ -331,7 +428,7 @@ public class ExportActivity
 			outStream = new FileOutputStream(file);
 		} catch (IOException e) {
 			Log.e(TAG, "Error writing file "+e.toString());
-        	Toast.makeText(this, "Unable to write file "+fullFilename, Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, "Unable to write file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         	return;
 		}
         exportThread = new Thread(new Runnable() {
@@ -344,6 +441,7 @@ public class ExportActivity
         			Log.e(TAG, "Error closing file "+e.toString());
             	}
             	outStream = null;
+            	doShareInMainThread(file);
             }});
         exportThread.start();
     }
@@ -352,7 +450,7 @@ public class ExportActivity
     private static final int SIZE_PDF_LETTER = 1;
     private static final int SIZE_PDF_LEGAL = 2;
     
-    private void doExportPdf(PageRange range) {
+    private void doExportPdf(final File file, PageRange range) {
 		threadLockActivity();
         Assert.assertTrue("Trying to run two export threads??",  pdfExporter == null);
     	pdfExporter = new PDFExporter();
@@ -375,6 +473,7 @@ public class ExportActivity
             	pdfExporter.export(file);
             	pdfExporter.destructAll();
             	pdfExporter = null;
+            	doShareInMainThread(file);
             }});
         // exportThread.setPriority(Thread.MIN_PRIORITY);
         exportThread.start();
@@ -390,79 +489,58 @@ public class ExportActivity
     
     private static final int SHARE_GENERIC = 0;
     private static final int SHARE_EVERNOTE = 1;
-    private static final int SHARE_EXTERNAL = 2;
-    private static final int SHARE_INTERNAL = 3;
-    private static final int SHARE_USB = 4;
+    private static final int SHARE_PICK_DIR = 2;
+    private static final int SHARE_EXTERNAL = 3;
+    private static final int SHARE_INTERNAL = 4;
+    private static final int SHARE_USB = 5;
 
     
-    private void doShare() {
+    private void doShareInMainThread(final File file) {
+    	runOnUiThread(new Runnable() {
+    		@Override
+    		public void run() {
+    			doShare(file);
+    		}
+    	});
+    }
+    
+    /**
+     * To be called after the exported file has been written to storage
+     * @param file
+     */
+    private void doShare(File file) {
     	int pos = via.getSelectedItemPosition();
     	switch (pos) {
     	case SHARE_GENERIC:
-    		doShareGeneric();
+    		doShareGeneric(file);
     		return;
     	case SHARE_EVERNOTE:
-    		doShareEvernote();
+    		doShareEvernote(file);
     		return;
+    	case SHARE_PICK_DIR:
     	case SHARE_EXTERNAL:
     	case SHARE_INTERNAL:
     	case SHARE_USB:
-        	Toast.makeText(this, getString(R.string.export_saved_as)+" "+fullFilename, 
+        	Toast.makeText(this, getString(R.string.export_saved_as)+" "+file.getAbsolutePath(), 
     				Toast.LENGTH_LONG).show();
-    		doShareView();
+    		doShareView(file);
         	finish();
 		return;
     	}
     }
     
-    private boolean openShareFile() {
-      	Spinner spinner = (Spinner)layout.findViewById(R.id.export_via);
-    	int pos = spinner.getSelectedItemPosition();
-		filename = name.getText().toString();
-		if (filename.startsWith("/"))
-    		file = new File(filename);
-		else
-			switch (pos) {
-			case SHARE_GENERIC:
-			case SHARE_EVERNOTE:
-				file = new File(getExternalFilesDir(null), filename);
-				break;
-			case SHARE_INTERNAL:
-				// file = new File(getExternalFilesDir(null), filename);
-				file = new File("/mnt/sdcard", filename);
-				break;
-			case SHARE_EXTERNAL:
-				file = new File("/mnt/external_sd", filename);
-				break;
-			case SHARE_USB:
-				file = new File("/mnt/usbdrive", filename);
-				break;
-			}
-		try {
-			fullFilename = file.getCanonicalPath();
-		} catch (IOException e) {
-			Log.e(TAG, "Path does not exist: "+e.toString());
-        	Toast.makeText(this, "Path does not exist", Toast.LENGTH_LONG).show();
-			return false;
-		}
-		try {
-			file.createNewFile();
-		} catch(IOException e) {
-			Log.e(TAG, "Error creating file "+e.toString());
-        	Toast.makeText(this, "Unable to create file "+fullFilename, Toast.LENGTH_LONG).show();
-        	return false;
-        }
-		return true;
-    }
     
     /**
      * Send file to other app
      */
-    private void doShareGeneric() {
+    private void doShareGeneric(File file) {
+    	Uri uri = Uri.fromFile(file);
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType(mimeType);
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setData(uri);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         try {
             startActivity(Intent.createChooser(intent, 
             		getString(R.string.export_share_title)));
@@ -475,11 +553,12 @@ public class ExportActivity
     /**
      * View the resulting file after saving
      */
-    private void doShareView() {
+    private void doShareView(File file) {
     	if (format.getSelectedItemPosition() == OUTPUT_FORMAT_BACKUP) return;
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(file), mimeType);        
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         try {
             startActivity(Intent.createChooser(intent, 
             		getString(R.string.export_view_file_title)));
@@ -497,10 +576,11 @@ public class ExportActivity
     public static final String EXTRA_QUICK_SEND            = "QUICK_SEND";
     public static final String EXTRA_TAGS                  = "TAG_NAME_LIST";
 
-    private void doShareEvernote() {
+    private void doShareEvernote(File file) {
         Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.setAction(ACTION_NEW_NOTE);
-        intent.putExtra(Intent.EXTRA_TITLE, filename);
+        intent.putExtra(Intent.EXTRA_TITLE, file.getAbsolutePath());
         // intent.putExtra(Intent.EXTRA_TEXT, text);
 
         // Add tags, which will be created if they don't exist
@@ -525,8 +605,9 @@ public class ExportActivity
         //	intent.putExtra(EXTRA_QUICK_SEND, true);
         
         // Add file(s) to be attached to the note
+        Uri uri = Uri.fromFile(file);
         ArrayList<Uri> uriList = new ArrayList<Uri>();
-        uriList.add(Uri.fromFile(file));
+        uriList.add(uri);
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM , uriList);
         try {
         	startActivity(intent);
@@ -568,8 +649,7 @@ public class ExportActivity
     		   isFinished &= (outStream == null);
     		   if (isFinished) {
     			   threadUnlockActivity();
-    			   doShare();
-       		   return;
+       		       return;
     		   }
     		   exportButton.setPressed(true);
     		   if (pdfExporter != null)

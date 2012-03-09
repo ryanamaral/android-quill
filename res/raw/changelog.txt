@@ -24,8 +24,9 @@ $ 9.0
   % Version 9.0
   _ 2012-03-08
     * New internal file format, switching notebooks is much faster now
-    * Real file picker dialog
+    * New file chooser dialog
     * New icon!
+    * Keep screen on in the main window
 $ 8.6
   % Version 8.6
   _ 2012-02-08
