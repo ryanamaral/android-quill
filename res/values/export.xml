@@ -4,12 +4,20 @@
     <string name="export_button_text">Export</string>
     <string name="export_cancel_text">Cancel</string>
     <string name="export_via_header">Share file via:</string>
-    <string-array name="export_via">
+    <string-array name="export_via_entries">
         <item>Use other Android app</item>
         <item>Evernote</item>
-        <item>External SD card</item><item>Internal memory</item>
+        <item >Pick directory to save to</item><item>External SD card</item><item>Internal memory</item>
         
         <item>USB memory stick</item>
+        
+    </string-array><string-array name="export_via_values">
+        <item>EXPORT_VIA_APP</item>
+        <item>EXPORT_VIA_EVERNOTE</item>
+        <item>EXPORT_VIA_PICK</item>
+        <item>EXPORT_VIA_EXTERNALSD</item>
+        <item>EXPORT_VIA_SDCARD</item>
+        <item>EXPORT_VIA_USB</item>
     </string-array>
     <string-array name="export_file_format">
         <item>Current page as raster image (PNG)</item><item>Current page as vector graphics (PDF)</item>
@@ -40,5 +48,6 @@
     <string name="err_folder_pick_not_found">You need to install a file manager to pick a directory</string>
     <string name="export_background">Include paper background</string>
     <string name="export_view_file_title">View exported file with</string>
+    
     
 </resources>

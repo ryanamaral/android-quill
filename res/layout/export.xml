@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView>
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="horizontal"
@@ -84,7 +83,7 @@
   <Spinner 
       android:id="@+id/export_via" 
       android:layout_below="@id/export_via_header"
-      android:entries="@array/export_via"
+      android:entries="@array/export_via_entries"
       android:layout_height="wrap_content" 
       android:layout_width="fill_parent" 
       android:layout_marginLeft="20dp"
@@ -122,4 +121,3 @@
 
     
 </RelativeLayout>
-</ScrollView>
