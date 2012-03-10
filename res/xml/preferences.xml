@@ -38,7 +38,9 @@
      <CheckBoxPreference android:key="backup_automatic" android:defaultValue="true" android:title="Automatic backups" android:summary="Make backups of your notebooks automatically"/>
      <Preference android:key="backup_directory" android:title="Automatic backup directory"/>
      
- </PreferenceCategory><PreferenceCategory android:title="Debug options"><ListPreference android:key="override_pen_type" android:entries="@array/override_pen_type_entries" android:entryValues="@array/override_pen_type_values" android:title="@string/override_pen_title"/></PreferenceCategory>
+ </PreferenceCategory><PreferenceCategory android:title="Debug options"><CheckBoxPreference android:key="debug_options_enable" android:defaultValue="false" android:summary="Enable features that are not finished yet." android:title="Incomplete features"/><ListPreference android:key="override_pen_type" android:entries="@array/override_pen_type_entries" android:entryValues="@array/override_pen_type_values" android:title="@string/override_pen_title"/>
+ 
+</PreferenceCategory>
 
  
 

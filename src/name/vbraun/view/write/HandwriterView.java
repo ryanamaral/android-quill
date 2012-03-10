@@ -3,6 +3,8 @@ package name.vbraun.view.write;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.write.Quill.Preferences;
+
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
 
@@ -26,6 +28,22 @@ import android.widget.Toast;
 public class HandwriterView extends ViewGroup {
 	private static final String TAG = "Handwrite";
 	
+	public static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
+	public static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
+	public static final String KEY_MOVE_GESTURE_WHILE_WRITING = "move_gesture_while_writing";
+	public static final String KEY_PALM_SHIELD = "palm_shield";
+	public static final String KEY_TOOLBOX_IS_ON_LEFT = "toolbox_left";
+	private static final String KEY_TOOLBOX_IS_VISIBLE = "toolbox_is_visible";
+	private static final String KEY_PEN_TYPE = "pen_type";
+	private static final String KEY_PEN_COLOR = "pen_color";
+	private static final String KEY_PEN_THICKNESS = "pen_thickness";
+	private static final String KEY_ONLY_PEN_INPUT_OBSOLETE = "only_pen_input";
+	
+	// values for the preferences key KEY_LIST_PEN_INPUT_MODE
+    public static final String STYLUS_ONLY = "STYLUS_ONLY";
+    public static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
+    public static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
+
 	private TouchHandlerABC touchHandler;
 
 	private Bitmap bitmap;
@@ -36,7 +54,6 @@ public class HandwriterView extends ViewGroup {
 	private boolean automaticRedraw = true;
 	private final RectF clip = new RectF();  
 	private final Paint pen;
-	private final name.vbraun.lib.pen.Hardware hw; 
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;
@@ -279,7 +296,6 @@ public class HandwriterView extends ViewGroup {
 	
 	public HandwriterView(Context context) {
 		super(context);
-		hw = name.vbraun.lib.pen.Hardware.getInstance(context);
 		setFocusable(true);
 		pen = new Paint();
 		pen.setAntiAlias(true);
@@ -295,7 +311,90 @@ public class HandwriterView extends ViewGroup {
     	setToolbox(left);
 	}
 
+	/**
+	 * To be called from the onResume method of the activity. Update appearance according to preferences etc.
+	 */
+	public void loadSettings(SharedPreferences settings) {
+    	boolean toolbox_left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
+    	setToolbox(toolbox_left);
+    	boolean toolbox_is_visible = settings.getBoolean(KEY_TOOLBOX_IS_VISIBLE, false);
+        getToolBox().setToolboxVisible(toolbox_is_visible);
+    	setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
+       	
+    	int penColor = settings.getInt(KEY_PEN_COLOR, getPenColor());
+    	int penThickness = settings.getInt(KEY_PEN_THICKNESS, getPenThickness());
+    	int penTypeInt = settings.getInt(KEY_PEN_TYPE, getToolType().ordinal());
+    	Stroke.Tool penType = Stroke.Tool.values()[penTypeInt];
+    	if (penType == Tool.ERASER)  // don't start with sharp whirling blades 
+    		penType = Tool.MOVE;
+    	setPenColor(penColor);
+    	setPenThickness(penThickness);
+    	setToolType(penType);
+    	
+    	ToolHistory history = ToolHistory.getToolHistory();
+    	history.restoreFromSettings(settings);
+    	getToolBox().onToolHistoryChanged(false);
+    	
+    	final boolean hwPen = Hardware.hasPenDigitizer();
+        String pen_input_mode;
+		if (settings.contains(KEY_ONLY_PEN_INPUT_OBSOLETE)) { 
+			// import obsoleted setting
+			if (settings.getBoolean(KEY_ONLY_PEN_INPUT_OBSOLETE, false)) 
+				pen_input_mode = STYLUS_WITH_GESTURES;
+			else 
+				pen_input_mode = STYLUS_AND_TOUCH;
+		} else if (hwPen)
+			pen_input_mode = settings.getString(KEY_LIST_PEN_INPUT_MODE, STYLUS_WITH_GESTURES);
+		else
+			pen_input_mode = STYLUS_AND_TOUCH;
+		Log.d(TAG, "pen input mode "+pen_input_mode);
+		if (pen_input_mode.equals(STYLUS_ONLY)) {
+			setOnlyPenInput(true);
+			setDoubleTapWhileWriting(false);
+			setMoveGestureWhileWriting(false);
+			setPalmShieldEnabled(false);
+		}
+		else if (pen_input_mode.equals(STYLUS_WITH_GESTURES)) {
+			setOnlyPenInput(true);
+			setDoubleTapWhileWriting(settings.getBoolean(
+					KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
+    		setMoveGestureWhileWriting(settings.getBoolean(
+    				KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
+    		setPalmShieldEnabled(false);
+		}
+		else if (pen_input_mode.equals(STYLUS_AND_TOUCH)) {
+			setOnlyPenInput(false);
+			setDoubleTapWhileWriting(false);
+			setMoveGestureWhileWriting(false);
+			setPalmShieldEnabled(settings.getBoolean(KEY_PALM_SHIELD, false));
+		}
+		else Assert.fail();
+	}
+	
+	
+	/**
+	 * To be called from the onPause method of the activity. Save preferences etc.
+	 * Note: Settings that can only be changed in preferences need not be saved, they
+	 * are saved by the preferences.
+	 */
+	public void saveSettings(SharedPreferences.Editor editor) {    
+    	editor.putBoolean(KEY_TOOLBOX_IS_VISIBLE, getToolBox().isToolboxVisible());
+        editor.putInt(KEY_PEN_TYPE, getToolType().ordinal());
+        editor.putInt(KEY_PEN_COLOR, getPenColor());
+        editor.putInt(KEY_PEN_THICKNESS, getPenThickness());
+
+		ToolHistory history = ToolHistory.getToolHistory();
+    	history.saveToSettings(editor);
+    	
+        editor.remove(KEY_ONLY_PEN_INPUT_OBSOLETE);  // obsoleted
+	}
+	
+	
 	private boolean toolboxIsOnLeft;
+	
+	public boolean isToolboxOnLeft() {
+		return toolboxIsOnLeft;
+	}
 	
 	public void setToolbox(boolean left) {
 		if (toolbox != null && toolboxIsOnLeft == left) return;

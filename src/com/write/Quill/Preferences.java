@@ -9,6 +9,7 @@ import java.util.List;
 
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.lib.pen.HideBar;
+import name.vbraun.view.write.HandwriterView;
 
 
 import com.write.Quill.R;
@@ -52,17 +53,20 @@ public class Preferences
 	ListPreference penMode;
 	ListPreference overridePen;
 	
-	protected static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
-	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
-	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = "move_gesture_while_writing";
-	protected static final String KEY_PALM_SHIELD = "palm_shield";
-	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
+	protected static final String KEY_LIST_PEN_INPUT_MODE = HandwriterView.KEY_LIST_PEN_INPUT_MODE;
+	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = HandwriterView.KEY_DOUBLE_TAP_WHILE_WRITE;
+	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = HandwriterView.KEY_MOVE_GESTURE_WHILE_WRITING;
+	protected static final String KEY_PALM_SHIELD = HandwriterView.KEY_PALM_SHIELD;
 	protected static final String KEY_BACKUP_DIR = com.write.Quill.data.StorageAndroid.KEY_BACKUP_DIR;
 	protected static final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
+	protected static final String KEY_VOLUME_KEY_NAVIGATION = "volume_key_navigation";
+	protected static final String KEY_SHOW_ACTION_BAR = "show_action_bar";
+	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
+	protected static final String KEY_ERASER_SWITCHES_BACK = "eraser_switches_back";
 
-    protected static final String STYLUS_ONLY = "STYLUS_ONLY";
-    protected static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
-    protected static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
+    protected static final String STYLUS_ONLY = HandwriterView.STYLUS_ONLY;
+    protected static final String STYLUS_WITH_GESTURES = HandwriterView.STYLUS_WITH_GESTURES;
+    protected static final String STYLUS_AND_TOUCH = HandwriterView.STYLUS_AND_TOUCH;
         
     private Preference restorePreference;
     private Preference backupDirPreference;
