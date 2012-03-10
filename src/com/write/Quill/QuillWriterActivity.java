@@ -99,7 +99,6 @@ public class QuillWriterActivity
     private Button tagButton;
     
     private boolean volumeKeyNavigation;
-    private boolean toolboxIsOnLeft;
     private boolean eraserSwitchesBack;
     private boolean hideSystembar;
 
@@ -526,7 +525,7 @@ public class QuillWriterActivity
     
     private void switchToPage(Page page) {
     	mView.setPageAndZoomOut(page);
-    	mView.setOverlay(new TagOverlay(page.tags, book.currentPageNumber(), toolboxIsOnLeft));
+    	mView.setOverlay(new TagOverlay(page.tags, book.currentPageNumber(), mView.isToolboxOnLeft()));
     	menu_prepare_page_has_changed();
     }
     
@@ -645,89 +644,33 @@ public class QuillWriterActivity
     	item.setIcon(history.getIcon());
    }
 
-    
-    private String pen_input_mode;
-    
+        
     @Override protected void onResume() {
     	UndoManager.setApplication(this);
-        super.onResume();
-        // Restore preferences
         mView.setOnToolboxListener(null);
+        super.onResume();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-
+        mView.loadSettings(settings);
+    	eraserSwitchesBack = settings.getBoolean(Preferences.KEY_ERASER_SWITCHES_BACK, true);
+    	volumeKeyNavigation = settings.getBoolean(Preferences.KEY_VOLUME_KEY_NAVIGATION, true);
+        
         hideSystembar = settings.getBoolean(Preferences.KEY_HIDE_SYSTEM_BAR, false);
         if (hideSystembar)
         	HideBar.hideSystembar(getApplicationContext());
 
-    	toolboxIsOnLeft = settings.getBoolean("toolbox_left", true);
-       
     	book = Bookshelf.getCurrentBook();
         if (book != null) {
         	Page p = book.currentPage();
         	if (mView.getPage() == p) {
         		book.filterChanged();
-        		mView.setOverlay(new TagOverlay(p.getTags(), book.currentPageNumber(), toolboxIsOnLeft));
+        		mView.setOverlay(new TagOverlay(p.getTags(), book.currentPageNumber(), mView.isToolboxOnLeft()));
         	} else {
         		switchToPage(p);
         	}
         }
-        
-    	int penColor = settings.getInt("pen_color", mView.getPenColor());
-    	int penThickness = settings.getInt("pen_thickness", mView.getPenThickness());
-    	int penTypeInt = settings.getInt("pen_type", mView.getToolType().ordinal());
-    	Stroke.Tool penType = Stroke.Tool.values()[penTypeInt];
-    	if (penType==Tool.ERASER)  // don't start with sharp whirling blades 
-    		penType = Tool.MOVE;
-    	mView.setPenColor(penColor);
-    	mView.setPenThickness(penThickness);
-    	mView.setToolType(penType);
-    	
-    	ToolHistory history = ToolHistory.getToolHistory();
-    	history.restoreFromSettings(settings);
-    	mView.getToolBox().onToolHistoryChanged(false);
-    	
-    	final boolean hwPen = hardware.hasPenDigitizer();
-		if (settings.contains("only_pen_input")) { 
-			// import obsoleted setting
-			if (settings.getBoolean("only_pen_input", false)) 
-				pen_input_mode = Preferences.STYLUS_WITH_GESTURES;
-			else 
-				pen_input_mode = Preferences.STYLUS_AND_TOUCH;
-		} else if (hwPen)
-			pen_input_mode = settings.getString(Preferences.KEY_LIST_PEN_INPUT_MODE, Preferences.STYLUS_WITH_GESTURES);
-		else
-			pen_input_mode = Preferences.STYLUS_AND_TOUCH;
-		Log.d(TAG, "pen input mode "+pen_input_mode);
-		if (pen_input_mode.equals(Preferences.STYLUS_ONLY)) {
-			mView.setOnlyPenInput(true);
-			mView.setDoubleTapWhileWriting(false);
-			mView.setMoveGestureWhileWriting(false);
-			mView.setPalmShieldEnabled(false);
-		}
-		else if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
-			mView.setOnlyPenInput(true);
-			mView.setDoubleTapWhileWriting(settings.getBoolean(
-					Preferences.KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
-    		mView.setMoveGestureWhileWriting(settings.getBoolean(
-    				Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
-    		mView.setPalmShieldEnabled(false);
-		}
-		else if (pen_input_mode.equals(Preferences.STYLUS_AND_TOUCH)) {
-			mView.setOnlyPenInput(false);
-			mView.setDoubleTapWhileWriting(false);
-			mView.setMoveGestureWhileWriting(false);
-			mView.setPalmShieldEnabled(settings.getBoolean(Preferences.KEY_PALM_SHIELD, false));
-		}
-		else Assert.fail();
-    	mView.setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
-    	
-    	volumeKeyNavigation = settings.getBoolean("volume_key_navigation", true);
-    	
-    	mView.setToolbox(toolboxIsOnLeft);
-        mView.getToolBox().setToolboxVisible(settings.getBoolean("toolbox_is_visible", false));
-   	
-    	boolean showActionBar = settings.getBoolean("show_action_bar", true);
+            	
+    	boolean showActionBar = settings.getBoolean(Preferences.KEY_SHOW_ACTION_BAR, true);
 		ActionBar bar = getActionBar();
 		if (showActionBar && (bar.isShowing() != showActionBar))
 			bar.show();
@@ -736,10 +679,8 @@ public class QuillWriterActivity
 		mView.getToolBox().setActionBarReplacementVisible(!showActionBar);
 
         mView.setOnToolboxListener(this);
-    	updateUndoRedoIcons();
         mView.setOnStrokeFinishedListener(this);
-
-    	eraserSwitchesBack = settings.getBoolean("eraser_switches_back", true);
+    	updateUndoRedoIcons();
     }
     
     @Override 
@@ -750,26 +691,10 @@ public class QuillWriterActivity
         super.onPause();
     	mView.interrupt();
         book.save();
-        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);
         
+        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(this);     
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("pen_type", mView.getToolType().ordinal());
-        editor.putInt("pen_color", mView.getPenColor());
-        editor.putInt("pen_thickness", mView.getPenThickness());
-        
-    	ToolHistory history = ToolHistory.getToolHistory();
-    	history.saveToSettings(editor);
-
-        editor.putBoolean("volume_key_navigation", volumeKeyNavigation);
-    	editor.putString(Preferences.KEY_LIST_PEN_INPUT_MODE, pen_input_mode);
-        editor.remove("only_pen_input");  // obsoleted
-
-        if (pen_input_mode.equals(Preferences.STYLUS_WITH_GESTURES)) {
-        	editor.putBoolean(Preferences.KEY_DOUBLE_TAP_WHILE_WRITE, mView.getDoubleTapWhileWriting());
-        	editor.putBoolean(Preferences.KEY_MOVE_GESTURE_WHILE_WRITING, mView.getMoveGestureWhileWriting());
-        }
-    	editor.putInt("move_gesture_min_distance", mView.getMoveGestureMinDistance());
-    	editor.putBoolean("toolbox_is_visible", mView.getToolBox().isToolboxVisible());
+        mView.saveSettings(editor);
         editor.commit();
     	UndoManager.setApplication(null);
     }
