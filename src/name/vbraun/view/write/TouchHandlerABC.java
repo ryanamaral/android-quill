@@ -1,5 +1,6 @@
 package name.vbraun.view.write;
 
+import name.vbraun.lib.pen.Hardware;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,6 +22,28 @@ public abstract class TouchHandlerABC {
 	
 	protected Context getContext() {
 		return view.getContext();
+	}
+	
+	protected Page getPage() {
+		return view.getPage();
+	}
+	
+	/**	
+	 * Whether to use the MotionEvent for writing
+	 * @param event The MotionEvent
+	 * @return Boolean. True if the event should be considered as coming from the pen
+	 */
+	protected boolean useForWriting(MotionEvent event) {
+		return !view.onlyPenInput || Hardware.isPenEvent(event);
+	}
+
+	/** 
+	 * Whether to use the MotionEvent as finger touch
+	 * @param event The MotionEvent
+	 * @return Boolean. True if the event should be considered as coming from the user's hand, e.g. for move/zoom
+	 */
+	protected boolean useForTouch(MotionEvent event) {
+		return !view.onlyPenInput || (view.onlyPenInput && !Hardware.isPenEvent(event));
 	}
 	
 	/**
