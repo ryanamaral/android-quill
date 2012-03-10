@@ -53,7 +53,6 @@ public class HandwriterView extends ViewGroup {
 	private final RectF mRectF = new RectF();
 	private boolean automaticRedraw = true;
 	private final RectF clip = new RectF();  
-	private final Paint pen;
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;
@@ -98,7 +97,7 @@ public class HandwriterView extends ViewGroup {
 			strokeFinishedListener.onStrokeFinishedListener();
 	}
 	
-    private int N = 0;
+	private int N = 0;
 	private static final int Nmax = 1024;
 	private float[] position_x = new float[Nmax];
 	private float[] position_y = new float[Nmax];
@@ -150,8 +149,8 @@ public class HandwriterView extends ViewGroup {
 		if (page==null || canvas==null)
 			return;
 		Log.d(TAG, "Interrupting current interaction");
-		N = 0;
-		penID = fingerId1 = fingerId2 = -1;
+		if (touchHandler != null) 
+			touchHandler.interrupt();
 		page.draw(canvas);
 		invalidate();
 	}
@@ -164,6 +163,10 @@ public class HandwriterView extends ViewGroup {
 		switch (tool) {
 		case FOUNTAINPEN:
 		case PENCIL:
+			if (onlyPenInput)
+				touchHandler = new TouchHandlerActivePen(this);
+			else
+				touchHandler = new TouchHandlerPassivePen(this);
 			toolHistory.setTool(tool);
 			break;
 		case ARROW:
@@ -206,7 +209,6 @@ public class HandwriterView extends ViewGroup {
 	
 	public void setPenColor(int c) {
 		pen_color = c;
-		pen.setARGB(Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c));
 		toolHistory.setColor(c);
 	}
 	
@@ -304,10 +306,6 @@ public class HandwriterView extends ViewGroup {
 	public HandwriterView(Context context) {
 		super(context);
 		setFocusable(true);
-		pen = new Paint();
-		pen.setAntiAlias(true);
-		pen.setARGB(0xff, 0, 0, 0);	
-		pen.setStrokeCap(Paint.Cap.ROUND);
 		setAlwaysDrawnWithCacheEnabled(false);
 		setDrawingCacheEnabled(false);
 		setWillNotDraw(false);
@@ -520,10 +518,6 @@ public class HandwriterView extends ViewGroup {
 		setPageAndZoomOut(page);
 	}
 
-	public float getScaledPenThickness() {
-		return Stroke.getScaledPenThickness(page.transformation, getPenThickness());
-	}
-	
 	@Override 
 	protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
@@ -555,10 +549,6 @@ public class HandwriterView extends ViewGroup {
 		switch (getToolType()) {
 		case FOUNTAINPEN:
 		case PENCIL:	
-			if (onlyPenInput)
-				return touchHandlerPen(event);
-			else
-				return touchHandlerPenStylusAndTouch(event);
 		case MOVE:
 		case ERASER:
 		case TEXT:
@@ -578,268 +568,6 @@ public class HandwriterView extends ViewGroup {
 	// whether to use the MotionEvent for move/zoom
 	private boolean useForTouch(MotionEvent event) {
 		return !onlyPenInput || (onlyPenInput && !Hardware.isPenEvent(event));
-	}
-
-	private boolean touchHandlerPen(MotionEvent event) {
-		int action = event.getActionMasked();
-		if (action == MotionEvent.ACTION_MOVE) {
-			if (getMoveGestureWhileWriting() && fingerId1 != -1 && fingerId2 == -1) {
-				int idx1 = event.findPointerIndex(fingerId1);
-				if (idx1 != -1) {
-					oldX1 = newX1 = event.getX(idx1);
-					oldY1 = newY1 = event.getY(idx1);
-				}
-			}
-			if (getMoveGestureWhileWriting() && fingerId2 != -1) {
-				Assert.assertTrue(fingerId1 != -1);
-				int idx1 = event.findPointerIndex(fingerId1);
-				int idx2 = event.findPointerIndex(fingerId2);
-				if (idx1 == -1 || idx2 == -1) return true;
-				newX1 = event.getX(idx1);
-				newY1 = event.getY(idx1);
-				newX2 = event.getX(idx2);
-				newY2 = event.getY(idx2);		
-				invalidate();
-				return true;
-			}
-			if (penID == -1 || N == 0) return true;
-			int penIdx = event.findPointerIndex(penID);
-			if (penIdx == -1) return true;
-			
-			oldT = newT;
-			newT = System.currentTimeMillis();
-			// Log.v(TAG, "ACTION_MOVE index="+pen+" pointerID="+penID);
-			oldX = newX;
-			oldY = newY;
-			oldPressure = newPressure;
-			newX = event.getX(penIdx);
-			newY = event.getY(penIdx);
-			newPressure = event.getPressure(penIdx);
-			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
-				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
-				oldX = newX; oldY = newY;
-				saveStroke();
-				position_x[0] = newX;
-				position_y[0] = newY;
-				pressure[0] = newPressure;
-				N = 1;
-			}
-			drawOutline();
-			
-			int n = event.getHistorySize();
-			if (N+n+1 >= Nmax) saveStroke();
-			for (int i = 0; i < n; i++) {
-				position_x[N+i] = event.getHistoricalX(penIdx, i);
-				position_y[N+i] = event.getHistoricalY(penIdx, i);
-				pressure[N+i] = event.getHistoricalPressure(penIdx, i);
-			}
-			position_x[N+n] = newX;
-			position_y[N+n] = newY;
-			pressure[N+n] = newPressure;
-			N = N+n+1;
-			return true;
-		}		
-		else if (action == MotionEvent.ACTION_DOWN) {
-			Assert.assertTrue(event.getPointerCount() == 1);
-			newT = System.currentTimeMillis();
-			if (useForTouch(event) && getDoubleTapWhileWriting() && Math.abs(newT-oldT) < 250) {
-				// double-tap
-				centerAndFillScreen(event.getX(), event.getY());
-				penID = fingerId1 = fingerId2 = -1;
-				return true;
-			}
-			oldT = newT;
-			if (useForTouch(event) && getMoveGestureWhileWriting() && event.getPointerCount()==1) {
-				fingerId1 = event.getPointerId(0); 
-				fingerId2 = -1;
-				newX1 = oldX1 = event.getX(); 
-				newY1 = oldY1 = event.getY();
-			}
-			if (penID != -1) {
-				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
-				penID = -1;
-				return true;
-			}
-			// Log.v(TAG, "ACTION_DOWN");
-			if (!useForWriting(event)) 
-				return true;   // eat non-pen events
-			if (page.is_readonly) {
-				toastIsReadonly();
-				return true;
-			}
-			position_x[0] = newX = event.getX();
-			position_y[0] = newY = event.getY();
-			pressure[0] = newPressure = event.getPressure();
-			N = 1;
-			penID = event.getPointerId(0);
-			pen.setStrokeWidth(getScaledPenThickness());
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_UP) {
-			Assert.assertTrue(event.getPointerCount() == 1);
-			int id = event.getPointerId(0);
-			if (id == penID) {
-				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
-				saveStroke();
-				N = 0;
-				callOnStrokeFinishedListener();
-			} else if (getMoveGestureWhileWriting() && 
-						(id == fingerId1 || id == fingerId2) &&
-						fingerId1 != -1 && fingerId2 != -1) {
-				float dx = page.transformation.offset_x + (newX1-oldX1+newX2-oldX2)/2;
-				float dy = page.transformation.offset_y + (newY1-oldY1+newY2-oldY2)/2; 
-				page.setTransform(dx, dy, page.transformation.scale, canvas);
-				page.draw(canvas);
-				invalidate();				
-			}
-			penID = fingerId1 = fingerId2 = -1;
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_CANCEL) {
-			// e.g. you start with finger and use pen
-			// if (event.getPointerId(0) != penID) return true;
-			Log.v(TAG, "ACTION_CANCEL");
-			N = 0;
-			penID = fingerId1 = fingerId2 = -1;
-			page.draw(canvas);
-			invalidate();
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_POINTER_DOWN) {  // start move gesture
-			if (fingerId1 == -1) return true; // ignore after move finished
-			if (fingerId2 != -1) return true; // ignore more than 2 fingers
-			int idx2 = event.getActionIndex();
-			oldX2 = newX2 = event.getX(idx2);
-			oldY2 = newY2 = event.getY(idx2);
-			float dx = newX2-newX1;
-			float dy = newY2-newY1;
-			float distance = FloatMath.sqrt(dx*dx+dy*dy);
-			if (distance >= getMoveGestureMinDistance()) {
-				fingerId2 = event.getPointerId(idx2);
-			}
-			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
-		}
-		return false;
-	}
-
-	/**
-	 * Touch handler in the onlyPenInput == false mode
-	 * No gestures, but allow input from touch points other than the first one
-	 * @param event
-	 * @return Whether the event was used
-	 */
-	private boolean touchHandlerPenStylusAndTouch(MotionEvent event) {
-		int action = event.getActionMasked();
-		if (action == MotionEvent.ACTION_MOVE) {
-			if (penID == -1 || N == 0) return true;
-			int penIdx = event.findPointerIndex(penID);
-			if (penIdx == -1) return true;
-			oldT = newT;
-			newT = System.currentTimeMillis();
-			// Log.v(TAG, "ACTION_MOVE index="+pen+" pointerID="+penID);
-			oldX = newX;
-			oldY = newY;
-			oldPressure = newPressure;
-			newX = event.getX(penIdx);
-			newY = event.getY(penIdx);
-			newPressure = event.getPressure(penIdx);
-			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
-				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
-				oldX = newX; oldY = newY;
-				saveStroke();
-				position_x[0] = newX;
-				position_y[0] = newY;
-				pressure[0] = newPressure;
-				N = 1;
-			}
-			drawOutline();
-			
-			int n = event.getHistorySize();
-			if (N+n+1 >= Nmax) saveStroke();
-			for (int i = 0; i < n; i++) {
-				position_x[N+i] = event.getHistoricalX(penIdx, i);
-				position_y[N+i] = event.getHistoricalY(penIdx, i);
-				pressure[N+i] = event.getHistoricalPressure(penIdx, i);
-			}
-			position_x[N+n] = newX;
-			position_y[N+n] = newY;
-			pressure[N+n] = newPressure;
-			N = N+n+1;
-			return true;
-		}		
-		else if (action == MotionEvent.ACTION_DOWN) {
-			Assert.assertTrue(event.getPointerCount() == 1);
-			newT = System.currentTimeMillis();
-			if (penID != -1) {
-				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
-				penID = -1;
-				return true;
-			}
-			if (isOnPalmShield(event))
-				return true;
-			if (page.is_readonly) {
-				toastIsReadonly();
-				return true;
-			}
-			position_x[0] = newX = event.getX();
-			position_y[0] = newY = event.getY();
-			pressure[0] = newPressure = event.getPressure();
-			N = 1;
-			penID = event.getPointerId(0);
-			pen.setStrokeWidth(getScaledPenThickness());
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_UP) {
-			Assert.assertTrue(event.getPointerCount() == 1);
-			int id = event.getPointerId(0);
-			if (id == penID) {
-				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
-				saveStroke();
-				N = 0;
-				callOnStrokeFinishedListener();
-			}
-			penID = -1;
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_CANCEL) {
-			N = 0;
-			penID = -1;
-			page.draw(canvas);
-			invalidate();
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_POINTER_DOWN) {
-			newT = System.currentTimeMillis();
-			if (isOnPalmShield(event))
-				return true;
-			if (page.is_readonly) {
-				toastIsReadonly();
-				return true;
-			}
-			if (penID != -1)
-				return true;
-			int idx = event.getActionIndex();
-			position_x[0] = newX = event.getX(idx);
-			position_y[0] = newY = event.getY(idx);
-			pressure[0] = newPressure = event.getPressure(idx);
-			N = 1;
-			penID = event.getPointerId(idx);
-			pen.setStrokeWidth(getScaledPenThickness());
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_POINTER_UP) {
-			int idx = event.getActionIndex();
-			int id = event.getPointerId(idx);
-			if (id == penID) {
-				Log.v(TAG, "ACTION_POINTER_UP: Got "+N+" points.");
-				saveStroke();
-				N = 0;
-				callOnStrokeFinishedListener();
-			}
-			penID = -1;
-			return true;
-		}
-		return false;
 	}
 
 	protected void toastIsReadonly() {
@@ -873,9 +601,13 @@ public class HandwriterView extends ViewGroup {
 		}
 	}
 	
-	private void saveStroke() {
+	protected void saveStroke(float[] position_x, float[] position_y, float[] pressure, int N) {
+		if (page.is_readonly) {
+			toastIsReadonly();
+			return;
+		}
 		if (N==0) return;
-		if (N==1) {
+		if (N==1) { // need two points to draw a connecting line
 			N = 2;
 			position_x[1] = position_x[0];
 			position_y[1] = position_y[0];
@@ -890,21 +622,7 @@ public class HandwriterView extends ViewGroup {
 		if (page != null && graphicsListener != null) {
 			graphicsListener.onGraphicsCreateListener(page, s);
 		}
-		N = 0;
 	}
 	
-	
-	private void drawOutline() {
-		if (getToolType()==Tool.FOUNTAINPEN) {
-			float scaled_pen_thickness = getScaledPenThickness() * (oldPressure+newPressure)/2f;
-			pen.setStrokeWidth(scaled_pen_thickness);
-		} 
-		canvas.drawLine(oldX, oldY, newX, newY, pen);
-		mRect.set((int)oldX, (int)oldY, (int)newX, (int)newY);
-		mRect.sort();
-		int extra = -(int)(pen.getStrokeWidth()/2) - 1;
-		mRect.inset(extra, extra);
-		invalidate(mRect);
-	}
 
 }

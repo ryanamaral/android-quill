@@ -20,6 +20,8 @@ public abstract class TouchHandlerABC {
 		this.view = view;
 	}
 	
+	// Convenience functions to access the view's settings
+	
 	protected Context getContext() {
 		return view.getContext();
 	}
@@ -27,6 +29,36 @@ public abstract class TouchHandlerABC {
 	protected Page getPage() {
 		return view.getPage();
 	}
+	
+	public boolean getOnlyPenInput() {
+		return view.getOnlyPenInput();
+	}
+
+	public boolean getDoubleTapWhileWriting() {
+		return view.getDoubleTapWhileWriting();
+	}
+
+	public boolean getMoveGestureWhileWriting() {
+		return view.getMoveGestureWhileWriting();
+	}
+
+	public int getMoveGestureMinDistance() {
+		return view.getMoveGestureMinDistance();
+	}
+
+	public float getScaledPenThickness() {
+		return Stroke.getScaledPenThickness(view.getPage().transformation, view.getPenThickness());
+	}
+	
+	
+	/**
+	 * Redraw the page
+	 */
+	protected void redraw() {
+		getPage().draw(view.canvas);
+		view.invalidate();
+	}
+
 	
 	/**	
 	 * Whether to use the MotionEvent for writing
@@ -65,4 +97,8 @@ public abstract class TouchHandlerABC {
 	 */
 	protected abstract void onDraw(Canvas canvas, Bitmap bitmap);
 	
+	/**
+	 * Interrupt the current action, e.g. while drawing a line the user pressed the back key.
+	 */
+	protected void interrupt() {};
 }
