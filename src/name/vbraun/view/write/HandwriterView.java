@@ -1,52 +1,32 @@
 package name.vbraun.view.write;
 
-import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.write.Quill.R;
-
+import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
 
 import junit.framework.Assert;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Path;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.text.InputType;
-import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
-import android.view.InputDevice;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.BaseInputConnection;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
-import android.view.inputmethod.InputMethodManager;
-import android.view.inputmethod.InputMethodSubtype;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class HandwriterView extends ViewGroup {
 	private static final String TAG = "Handwrite";
+	
+	private TouchHandlerABC touchHandler;
 
 	private Bitmap bitmap;
 	private Canvas canvas;
@@ -100,10 +80,6 @@ public class HandwriterView extends ViewGroup {
 		if (strokeFinishedListener != null)
 			strokeFinishedListener.onStrokeFinishedListener();
 	}
-	
-	// text input
-	private InputMethodManager inputMethodManager;
-	private HandwriterInputConnection inputConnection;
 	
     private int N = 0;
 	private static final int Nmax = 1024;
@@ -164,23 +140,26 @@ public class HandwriterView extends ViewGroup {
 	}
 	
 	public void setToolType(Tool tool) {
-		// clean up after previous tool
-		if (tool_type == Tool.TEXT) {
-			if (editText != null) 
-				removeView(editText);
-			editText = null;
-			setFocusable(false);
-    		setFocusableInTouchMode(false);  
-            inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
-            inputConnection = null;			
+		if (touchHandler != null) touchHandler.destroy();
+		switch (tool) {
+		case FOUNTAINPEN:
+		case PENCIL:
+			toolHistory.setTool(tool);
+			break;
+		case ARROW:
+			break;
+		case LINE:
+			break;
+		case MOVE:
+			break;
+		case TEXT:
+			touchHandler = new TouchHandlerText(this);
+			break;
+		default:
+			touchHandler = null;
 		}
 		toolbox.setActiveTool(tool);
-		if (tool.equals(Tool.FOUNTAINPEN) || tool.equals(Tool.PENCIL))
-			toolHistory.setTool(tool);
-		// now set the new tool 
 		tool_type = tool;
-		boolean kbd = (getResources().getConfiguration().keyboardHidden == Configuration.KEYBOARDHIDDEN_YES);
-		Log.d(TAG, "setToolType " + tool.toString()+" "+kbd);
 	}
 
 	public Tool getToolType() {
@@ -306,9 +285,6 @@ public class HandwriterView extends ViewGroup {
 		pen.setAntiAlias(true);
 		pen.setARGB(0xff, 0, 0, 0);	
 		pen.setStrokeCap(Paint.Cap.ROUND);
-		inputMethodManager = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.hideSoftInputFromInputMethod(getWindowToken(), 0);
-		inputMethodManager.hideSoftInputFromInputMethod(getApplicationWindowToken(), 0);
 		setAlwaysDrawnWithCacheEnabled(false);
 		setDrawingCacheEnabled(false);
 		setWillNotDraw(false);
@@ -333,9 +309,9 @@ public class HandwriterView extends ViewGroup {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		toolbox.layout(l, t, r, b);
-		if (editText != null) {
-			editText.layout(100, 70, 400, 200);
-		}
+//		if (editText != null) {
+//			editText.layout(100, 70, 400, 200);
+//		}
 		if (palmShield) 
 			initPalmShield();
  	}
@@ -465,6 +441,8 @@ public class HandwriterView extends ViewGroup {
 	@Override 
 	protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
+		if (touchHandler != null) 
+			touchHandler.onDraw(canvas, bitmap);
 		if (getToolType() == Stroke.Tool.MOVE && fingerId2 != -1) {
 			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
@@ -491,10 +469,6 @@ public class HandwriterView extends ViewGroup {
 			float x = (newX1-oldX1+newX2-oldX2)/2;
 			float y = (newY1-oldY1+newY2-oldY2)/2; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else if (getToolType() == Tool.TEXT && editText != null) {
-			Log.d(TAG, "painting text");
-			canvas.drawBitmap(bitmap, 0, 0, null);
-			editText.draw(canvas); 
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
 		if (overlay != null) 
@@ -524,66 +498,11 @@ public class HandwriterView extends ViewGroup {
 		case ERASER:
 			return touchHandlerEraser(event);
 		case TEXT:
-			return touchHandlerText(event);
+			return touchHandler.onTouchEvent(event);
 		}
 		return false;
 	}
 		
-	private EditText editText;
-	
-	private boolean touchHandlerText(MotionEvent event) {
-		invalidate();
-        Log.e(TAG, "onTOUCH");
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-        	if (editText == null) {
-        		editText = new EditText(getContext());
-        		editText.setImeOptions(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        		editText.setTextSize(25f);
-        		editText.setText("Hello Computer");
-        		addView(editText);
-        		editText.setFocusable(true);
-        		editText.setFocusableInTouchMode(true);  
-        		editText.requestFocus();
-        		inputMethodManager.showSoftInput(this, 0);
-        	}
-        }
-        return true;
-	}
-	
-	
-//	
-//	@Override
-//	public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-//		Log.d(TAG, "onCreateInputConnection");
-//	    outAttrs.actionLabel = null;
-//	    outAttrs.label = "Test text";
-//	    // outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-//	    outAttrs.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-//	    //  outAttrs.imeOptions = EditorInfo.IME_ACTION_DONE;
-//		inputConnection = new HandwriterInputConnection(editText, true);
-//		page.backgroundText.setEditable(inputConnection.getEditable());
-//		return inputConnection;
-//	}
-//	
-//    @Override
-//    public boolean onCheckIsTextEditor() {
-//        Log.d(TAG, "onCheckIsTextEditor "+(tool_type == Tool.TEXT));
-//        return tool_type == Tool.TEXT;
-//    }
-//
-//    @Override
-//    public boolean dispatchKeyEvent(KeyEvent event) {
-//		int action = event.getAction();
-//		int keyCode = event.getKeyCode();
-//		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
-//		if (action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-//			if (inputConnection != null) {
-//				inputConnection.getEditable().insert(2, "\n");
-//				return true;
-//			}
-//		}	
-//		return super.dispatchKeyEvent(event);
-//    }
 
 	
 	private boolean touchHandlerEraser(MotionEvent event) {
@@ -729,12 +648,12 @@ public class HandwriterView extends ViewGroup {
 	
 	// whether to use the MotionEvent for writing
 	private boolean useForWriting(MotionEvent event) {
-		return !onlyPenInput || hw.isPenEvent(event);
+		return !onlyPenInput || Hardware.isPenEvent(event);
 	}
 
 	// whether to use the MotionEvent for move/zoom
 	private boolean useForTouch(MotionEvent event) {
-		return !onlyPenInput || (onlyPenInput && !hw.isPenEvent(event));
+		return !onlyPenInput || (onlyPenInput && !Hardware.isPenEvent(event));
 	}
 
 	private boolean touchHandlerPen(MotionEvent event) {
