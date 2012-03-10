@@ -232,11 +232,13 @@ public class QuillWriterActivity
 		Log.v(TAG, "KeyEvent "+action+" "+keyCode);
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_VOLUME_UP:
+			if (!volumeKeyNavigation) return false;
 			if (action == KeyEvent.ACTION_UP) {
 				flip_page_prev();
 			}
 			return true;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			if (!volumeKeyNavigation) return false;
 			if (action == KeyEvent.ACTION_DOWN) {
 				flip_page_next();
 			}
