@@ -47,7 +47,7 @@ public class HandwriterView extends ViewGroup {
 	private TouchHandlerABC touchHandler;
 
 	private Bitmap bitmap;
-	private Canvas canvas;
+	protected Canvas canvas;
 	private Toast toast;
 	private final Rect mRect = new Rect();
 	private final RectF mRectF = new RectF();
@@ -93,7 +93,7 @@ public class HandwriterView extends ViewGroup {
 		strokeFinishedListener = listener;
 	}
 	
-	private void callOnStrokeFinishedListener() {
+	protected void callOnStrokeFinishedListener() {
 		if (strokeFinishedListener != null)
 			strokeFinishedListener.onStrokeFinishedListener();
 	}
@@ -104,17 +104,17 @@ public class HandwriterView extends ViewGroup {
 	private float[] position_y = new float[Nmax];
 	private float[] pressure = new float[Nmax];
 
-	// persistent data
-	Page page;
+	// actual data
+	private Page page;
 	
 	// preferences
 	private int pen_thickness = 2;
 	private Tool tool_type = Tool.FOUNTAINPEN;
-	protected int pen_color = Color.BLACK;
-	private boolean onlyPenInput = true;
-	private boolean moveGestureWhileWriting = true;
-	private int moveGestureMinDistance = 400; // pixels
-	private boolean doubleTapWhileWriting = true;
+	private int pen_color = Color.BLACK;
+	protected boolean onlyPenInput = true;
+	protected boolean moveGestureWhileWriting = true;
+	protected int moveGestureMinDistance = 400; // pixels
+	protected boolean doubleTapWhileWriting = true;
 	
 	public void setOnGraphicsModifiedListener(GraphicsModifiedListener newListener) {
 		graphicsListener = newListener;
@@ -157,7 +157,10 @@ public class HandwriterView extends ViewGroup {
 	}
 	
 	public void setToolType(Tool tool) {
-		if (touchHandler != null) touchHandler.destroy();
+		if (touchHandler != null) {
+			touchHandler.destroy();
+			touchHandler = null;
+		}
 		switch (tool) {
 		case FOUNTAINPEN:
 		case PENCIL:
@@ -168,6 +171,10 @@ public class HandwriterView extends ViewGroup {
 		case LINE:
 			break;
 		case MOVE:
+			touchHandler = new TouchHandlerMoveZoom(this);
+			break;
+		case ERASER:
+			touchHandler = new TouchHandlerEraser(this);
 			break;
 		case TEXT:
 			touchHandler = new TouchHandlerText(this);
@@ -280,7 +287,7 @@ public class HandwriterView extends ViewGroup {
 	 * @param event
 	 * @return whether the touch point is to be ignored.
 	 */
-	private boolean isOnPalmShield(MotionEvent event) {
+	protected boolean isOnPalmShield(MotionEvent event) {
 		if (!palmShield)
 			return false;
 		int action = event.getActionMasked();
@@ -307,7 +314,7 @@ public class HandwriterView extends ViewGroup {
 		setBackgroundDrawable(null);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	boolean left = settings.getBoolean("toolbox_left", true);
+    	boolean left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
     	setToolbox(left);
 	}
 
@@ -446,7 +453,7 @@ public class HandwriterView extends ViewGroup {
 		invalidate();
 	}
 	
-	private void centerAndFillScreen(float xCenter, float yCenter) {
+	protected void centerAndFillScreen(float xCenter, float yCenter) {
 		float page_offset_x = page.transformation.offset_x;
 		float page_offset_y = page.transformation.offset_y;
 		float page_scale = page.transformation.scale;
@@ -513,26 +520,6 @@ public class HandwriterView extends ViewGroup {
 		setPageAndZoomOut(page);
 	}
 
-	private float pinchZoomScaleFactor() {
-		float dx, dy;
-		dx = oldX1-oldX2;
-		dy = oldY1-oldY2;
-		float old_distance = FloatMath.sqrt(dx*dx + dy*dy);
-		if (old_distance < 10) {
-			// Log.d("TAG", "old_distance too small "+old_distance);
-			return 1;
-		}
-		dx = newX1-newX2;
-		dy = newY1-newY2;
-		float new_distance = FloatMath.sqrt(dx*dx + dy*dy);
-		float scale = new_distance / old_distance;
-		if (scale < 0.1f || scale > 10f) {
-			// Log.d("TAG", "ratio out of bounds "+new_distance);
-			return 1;
-		}
-		return scale;
-	}
-	
 	public float getScaledPenThickness() {
 		return Stroke.getScaledPenThickness(page.transformation, getPenThickness());
 	}
@@ -542,34 +529,14 @@ public class HandwriterView extends ViewGroup {
 		if (bitmap == null) return;
 		if (touchHandler != null) 
 			touchHandler.onDraw(canvas, bitmap);
-		if (getToolType() == Stroke.Tool.MOVE && fingerId2 != -1) {
-			// pinch-to-zoom preview by scaling bitmap
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-			float W = canvas.getWidth();
-			float H = canvas.getHeight();
-			float scale = pinchZoomScaleFactor();
-			float x0 = (oldX1 + oldX2)/2;
-			float y0 = (oldY1 + oldY2)/2;
-			float x1 = (newX1 + newX2)/2;
-			float y1 = (newY1 + newY2)/2;
-			mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
-			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
-			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
-		} else if (getToolType() == Stroke.Tool.MOVE && fingerId1 != -1) {
-			// move preview by translating bitmap
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-			float x = newX1-oldX1;
-			float y = newY1-oldY1; 
-			canvas.drawBitmap(bitmap, x, y, null);
-		} else if ((getToolType() == Stroke.Tool.FOUNTAINPEN || getToolType() == Stroke.Tool.PENCIL)
+		if ((getToolType() == Stroke.Tool.FOUNTAINPEN || getToolType() == Stroke.Tool.PENCIL)
 					&& fingerId2 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float x = (newX1-oldX1+newX2-oldX2)/2;
 			float y = (newY1-oldY1+newY2-oldY2)/2; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else
-			canvas.drawBitmap(bitmap, 0, 0, null);
+		} 
 		if (overlay != null) 
 			overlay.draw(canvas);
 		if (palmShield) {
@@ -593,9 +560,7 @@ public class HandwriterView extends ViewGroup {
 			else
 				return touchHandlerPenStylusAndTouch(event);
 		case MOVE:
-			return touchHandlerMoveZoom(event);
 		case ERASER:
-			return touchHandlerEraser(event);
 		case TEXT:
 			return touchHandler.onTouchEvent(event);
 		}
@@ -604,146 +569,6 @@ public class HandwriterView extends ViewGroup {
 		
 
 	
-	private boolean touchHandlerEraser(MotionEvent event) {
-		int action = event.getActionMasked();
-		if (action == MotionEvent.ACTION_MOVE) {
-			if (penID == -1) return true;
-			int idx = event.findPointerIndex(penID);
-			if (idx == -1) return true;
-			newX = event.getX(idx);
-			newY = event.getY(idx);
-			mRectF.set(oldX, oldY, newX, newY);
-			mRectF.sort();
-			mRectF.inset(-15, -15);
-			eraseStrokesIn(mRectF);
-			oldX = newX;
-			oldY = newY;
-			return true;
-		} else if (action == MotionEvent.ACTION_DOWN) {  // start move
-			if (page.is_readonly) {
-				toastIsReadonly();
-				return true;
-			}
-			if (isOnPalmShield(event)) 
-				return true;
-			if (!useForWriting(event)) 
-				return true;   // eat non-pen events
-			penID = event.getPointerId(0);
-			oldX = newX = event.getX();
-			oldY = newY = event.getY();
-			return true;
-		} else if (action == MotionEvent.ACTION_UP) { 
-			if (penID == event.getPointerId(0))
-				callOnStrokeFinishedListener();
-			penID = -1;
-		}
-		return false;
-	}
-	
-	
-	private boolean touchHandlerMoveZoom(MotionEvent event) {
-		int action = event.getActionMasked();
-		if (action == MotionEvent.ACTION_MOVE) {
-			if (fingerId1 == -1) return true;
-			if (fingerId2 == -1) {  // move
-				int idx = event.findPointerIndex(fingerId1);
-				if (idx == -1) return true;
-				newX1 = event.getX(idx);
-				newY1 = event.getY(idx);
-			} else { // pinch-to-zoom
-				int idx1 = event.findPointerIndex(fingerId1);
-				int idx2 = event.findPointerIndex(fingerId2);
-				if (idx1 == -1 || idx2 == -1)
-					return true;
-				newX1 = event.getX(idx1);
-				newY1 = event.getY(idx1);
-				newX2 = event.getX(idx2);
-				newY2 = event.getY(idx2);					
-			}
-			invalidate();
-			return true;
-		}		
-		else if (action == MotionEvent.ACTION_DOWN) {  // start move
-			oldX1 = newX1 = event.getX();
-			oldY1 = newY1 = event.getY();
-			newT = System.currentTimeMillis();
-			if (Math.abs(newT-oldT) < 250) { // double-tap
-				centerAndFillScreen(newX1, newY1);
-				return true;
-			}
-			oldT = newT;
-			fingerId1 = event.getPointerId(0); 
-			fingerId2 = -1;
-			// Log.v(TAG, "ACTION_DOWN "+fingerId1);
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_UP) {  // stop move
-			if (fingerId1 == -1) return true;  // ignore after pinch-to-zoom
-			if (fingerId2 != -1) { // undelivered ACTION_POINTER_UP
-				fingerId1 = fingerId2 = -1;
-				invalidate();
-				return true;		
-			}
-			newX1 = event.getX();
-			newY1 = event.getY();
-			float dx = newX1-oldX1;
-			float dy = newY1-oldY1; 
-			// Log.v(TAG, "ACTION_UP "+fingerId1+" dx="+dx+", dy="+dy);
-			page.setTransform(page.transformation.offset(dx,dy), canvas);
-			page.draw(canvas);
-			invalidate();
-			fingerId1 = fingerId2 = -1;
-			return true;
-		}
-		else if (action == MotionEvent.ACTION_POINTER_DOWN) {  // start pinch
-			if (fingerId1 == -1) return true; // ignore after pinch-to-zoom finished
-			if (fingerId2 != -1) return true; // ignore more than 2 fingers
-			int idx2 = event.getActionIndex();
-			oldX2 = newX2 = event.getX(idx2);
-			oldY2 = newY2 = event.getY(idx2);
-			fingerId2 = event.getPointerId(idx2);
-			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1);
-		}
-		else if (action == MotionEvent.ACTION_POINTER_UP) {  // stop pinch
-			if (fingerId1 == -1) return true; // ignore after pinch-to-zoom finished
-			int idx = event.getActionIndex();
-			int Id = event.getPointerId(idx);
-			if (fingerId1 != Id && fingerId2 != Id) // third finger up?
-				return true;
-			// Log.v(TAG, "ACTION_POINTER_UP "+fingerId2+" + "+fingerId1);
-			// compute scale factor
-			float page_offset_x = page.transformation.offset_x;
-			float page_offset_y = page.transformation.offset_y;
-			float page_scale = page.transformation.scale;
-			float scale = pinchZoomScaleFactor();
-			float new_page_scale = page_scale * scale;
-			// clamp scale factor
-			float W = canvas.getWidth();
-			float H = canvas.getHeight();
-			float max_WH = Math.max(W, H);
-			float min_WH = Math.min(W, H);
-			new_page_scale = Math.min(new_page_scale, 5*max_WH);
-			new_page_scale = Math.max(new_page_scale, 0.4f*min_WH);
-			scale = new_page_scale / page_scale;
-			// compute offset
-			float x0 = (oldX1 + oldX2)/2;
-			float y0 = (oldY1 + oldY2)/2;
-			float x1 = (newX1 + newX2)/2;
-			float y1 = (newY1 + newY2)/2;
-			float new_offset_x = page_offset_x*scale-x0*scale+x1;
-			float new_offset_y = page_offset_y*scale-y0*scale+y1;
-			// perform pinch-to-zoom here
-			page.setTransform(new_offset_x, new_offset_y, new_page_scale, canvas);
-			page.draw(canvas);
-			invalidate();
-			fingerId1 = fingerId2 = -1;
-		}
-		else if (action == MotionEvent.ACTION_CANCEL) {
-			fingerId1 = fingerId2 = -1;
-			return true;
-		}
-		return false;
-	}
 	
 	// whether to use the MotionEvent for writing
 	private boolean useForWriting(MotionEvent event) {
@@ -1017,7 +842,7 @@ public class HandwriterView extends ViewGroup {
 		return false;
 	}
 
-	private void toastIsReadonly() {
+	protected void toastIsReadonly() {
 		String s = "Page is readonly";
 	   	if (toast == null)
         	toast = Toast.makeText(getContext(), s, Toast.LENGTH_SHORT);
@@ -1028,7 +853,6 @@ public class HandwriterView extends ViewGroup {
 	}
 
 	public boolean eraseStrokesIn(RectF r) {
-		Assert.assertTrue(clip != mRectF && mRectF == r);
 		LinkedList<Stroke> toRemove = new LinkedList<Stroke>();
 	    ListIterator<Stroke> siter = page.strokes.listIterator();
 	    while(siter.hasNext()) {	
