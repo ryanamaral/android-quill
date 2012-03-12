@@ -62,7 +62,7 @@ public class Preferences
 	protected static final String KEY_VOLUME_KEY_NAVIGATION = "volume_key_navigation";
 	protected static final String KEY_SHOW_ACTION_BAR = "show_action_bar";
 	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
-	protected static final String KEY_ERASER_SWITCHES_BACK = "eraser_switches_back";
+	protected static final String KEY_TOOLS_SWITCH_BACK = "some_tools_switch_back";
 
     protected static final String STYLUS_ONLY = HandwriterView.STYLUS_ONLY;
     protected static final String STYLUS_WITH_GESTURES = HandwriterView.STYLUS_WITH_GESTURES;

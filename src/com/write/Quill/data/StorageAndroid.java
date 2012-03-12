@@ -54,7 +54,6 @@ public class StorageAndroid extends Storage {
 	protected UUID loadCurrentBookUUID() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String s = settings.getString(KEY_CURRENT_BOOK_UUID, null);
-        Log.e(TAG, "KEY = " + s + " bool = "+(s == null));
         if (s == null)
         	return null;
         else

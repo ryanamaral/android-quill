@@ -32,7 +32,6 @@ public class TouchHandlerPassivePen
 	@Override
 	protected void interrupt() {
 		super.interrupt();
-		N = 0;
 		penID = -1;
 	}
 	
@@ -151,7 +150,7 @@ public class TouchHandlerPassivePen
 
 	@Override
 	protected void onDraw(Canvas canvas, Bitmap bitmap) {
-		
+		canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 	
 	

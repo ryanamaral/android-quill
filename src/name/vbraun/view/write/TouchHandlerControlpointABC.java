@@ -8,14 +8,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 /**
- * Touch handler for an active pen (stylus with digitizer) that can distinguish stylus from finger touches
+ * Base class for touch handles than manipulate control points
  * @author vbraun
  *
  */
-public class TouchHandlerActivePen 
+public class TouchHandlerControlpointABC 
 	extends TouchHandlerPenABC {
-	private final static String TAG = "TouchHandlerActivePen";
+	private final static String TAG = "TouchHandlerControlpointABC";
 
+	private final boolean activePen;
+	
 	private int penID = -1;
 	private int fingerId1 = -1;
 	private int fingerId2 = -1;
@@ -25,8 +27,9 @@ public class TouchHandlerActivePen
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
 	
-	protected TouchHandlerActivePen(HandwriterView view) {
+	protected TouchHandlerControlpointABC(HandwriterView view, boolean activePen) {
 		super(view);
+		this.activePen = activePen;
 	}
 
 	@Override
@@ -41,6 +44,18 @@ public class TouchHandlerActivePen
 
 	@Override
 	protected boolean onTouchEvent(MotionEvent event) {
+		if (activePen) 
+			return onTouchEventActivePen(event);
+		else 
+			return onTouchEventPassivePen(event);
+	}
+
+	protected boolean onTouchEventPassivePen(MotionEvent event) {
+		return false;
+	}
+	
+	
+	protected boolean onTouchEventActivePen(MotionEvent event) {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (getMoveGestureWhileWriting() && fingerId1 != -1 && fingerId2 == -1) {

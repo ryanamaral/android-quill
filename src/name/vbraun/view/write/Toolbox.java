@@ -86,7 +86,7 @@ public class Toolbox
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
         float height = display.getHeight() / metrics.density;
-        height_small = (height < 800);
+        height_small = (height < 750);
         height_tiny = (height < 500);
         
         if (left) 
@@ -133,9 +133,10 @@ public class Toolbox
 		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		thicknessSpinner.setOnItemSelectedListener(this);
 		
-		if (!hardware.hasPressureSensor())
+		if (!hardware.hasPressureSensor()) {
 			fountainpenButton.setVisibility(View.INVISIBLE);
-
+		}
+		
 //		quillButton.setVisibility(View.INVISIBLE);
 //		tagButton.setVisibility(View.INVISIBLE);
 //		menuButton.setVisibility(View.INVISIBLE);
@@ -181,8 +182,8 @@ public class Toolbox
         lineButton.setVisibility(View.GONE); // TODO
     	   
 		if (height_small) {
-			undoButton.setVisibility(View.GONE);
-			redoButton.setVisibility(View.GONE);
+			prevButton.setVisibility(View.GONE);
+			nextButton.setVisibility(View.GONE);
 		}
 		if (height_tiny) {
 			colorWhite.setVisibility(View.GONE);
@@ -201,8 +202,6 @@ public class Toolbox
 			colorNavy.setVisibility(View.GONE); 
 			colorFuchsia.setVisibility(View.GONE); 
 			colorPurple.setVisibility(View.GONE);
-			prevButton.setVisibility(View.GONE);
-			nextButton.setVisibility(View.GONE);
 			resizeButton.setVisibility(View.GONE);
 			eraserButton.setVisibility(View.GONE);			
 		}
@@ -223,6 +222,8 @@ public class Toolbox
 			return eraserButton;
 		case TEXT:
 			return textButton;
+		case IMAGE:
+			return photoButton; 
 		default:
 			Assert.fail();
 			return null;
@@ -274,16 +275,18 @@ public class Toolbox
 			fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
 //		lineButton.setVisibility(vis);
-		// textButton.setVisibility(vis);
-		// photoButton.setVisibility(vis);
+// textButton.setVisibility(vis);
+// photoButton.setVisibility(vis);
 		history1.setVisibility(vis);
 		history2.setVisibility(vis);
 		history3.setVisibility(vis);
 		history4.setVisibility(vis);
 		thicknessSpinner.setVisibility(vis);
+		undoButton.setVisibility(vis);
+		redoButton.setVisibility(vis);			
 		if (!height_small) {
-			undoButton.setVisibility(vis);
-			redoButton.setVisibility(vis);
+			prevButton.setVisibility(vis);
+			nextButton.setVisibility(vis);			
 		}
 		if (!height_tiny) {
 			colorWhite.setVisibility(vis);
@@ -302,8 +305,6 @@ public class Toolbox
 			colorNavy.setVisibility(vis); 
 			colorFuchsia.setVisibility(vis); 
 			colorPurple.setVisibility(vis);
-			prevButton.setVisibility(vis);
-			nextButton.setVisibility(vis);
 			resizeButton.setVisibility(vis);
 			eraserButton.setVisibility(vis);			
 		}

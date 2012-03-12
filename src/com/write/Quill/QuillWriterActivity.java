@@ -99,7 +99,7 @@ public class QuillWriterActivity
     private Button tagButton;
     
     private boolean volumeKeyNavigation;
-    private boolean eraserSwitchesBack;
+    private boolean someToolsSwitchBack;
     private boolean hideSystembar;
 
     private static final DialogThickness dialogThickness = new DialogThickness();
@@ -269,22 +269,24 @@ public class QuillWriterActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mMenu = menu;
-        if (!hardware.hasPressureSensor())
-        	mMenu.findItem(R.id.fountainpen).setVisible(false);
+        if (!Hardware.hasPressureSensor()) {
+        	MenuItem fountainPen = mMenu.findItem(R.id.fountainpen);
+        	fountainPen.setVisible(false);
+        	fountainPen.setEnabled(false);
+        }
 		int w = getWindowManager().getDefaultDisplay().getWidth();
-    	if (w>=800) {
+		if (w>=800) {
     		mMenu.findItem(R.id.undo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	}
     	if (w>=1280) {
     		mMenu.findItem(R.id.redo).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-    		mMenu.findItem(R.id.typewriter).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     		mMenu.findItem(R.id.prev).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     		mMenu.findItem(R.id.next).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     	}
         menu_prepare_page_has_changed();
-    	setActionBarIconActive(mView.getToolType());
     	updatePenHistoryIcon();
     	updateUndoRedoIcons();
+    	setActionBarIconActive(mView.getToolType());
     	return true;
     }
         
@@ -370,19 +372,26 @@ public class QuillWriterActivity
     		startActivity(preferencesIntent);
     		return true;
     	case R.id.fountainpen:
+    	case R.id.tools_fountainpen:
     		setActiveTool(Tool.FOUNTAINPEN);
     		return true;
     	case R.id.pencil:
+    	case R.id.tools_pencil:
     		setActiveTool(Tool.PENCIL);
     		return true;
     	case R.id.eraser:
+    	case R.id.tools_eraser:
     		setActiveTool(Tool.ERASER);
     		return true;
     	case R.id.move:
+    	case R.id.tools_move:
     		setActiveTool(Tool.MOVE);
     		return true;
-    	case R.id.typewriter:
+    	case R.id.tools_typewriter:
     		setActiveTool(Tool.TEXT);
+    		return true;
+    	case R.id.tools_image:
+    		setActiveTool(Tool.IMAGE);
     		return true;
     	case R.id.width:
     		showDialog(DIALOG_THICKNESS);
@@ -468,33 +477,48 @@ public class QuillWriterActivity
 	}
 
     protected void setActionBarIconActive(Tool tool) {
-    	if (mMenu == null) return;
+    	if (mMenu == null || tool == null) return;
 		updatePenHistoryIcon();
 		MenuItem item_fountainpen = mMenu.findItem(R.id.fountainpen);
 		MenuItem item_pencil      = mMenu.findItem(R.id.pencil);
 		MenuItem item_move        = mMenu.findItem(R.id.move);
 		MenuItem item_eraser      = mMenu.findItem(R.id.eraser);
-		MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
+		// MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
+		MenuItem tools_fountainpen = mMenu.findItem(R.id.tools_fountainpen);
+		MenuItem tools_pencil      = mMenu.findItem(R.id.tools_pencil);
+		MenuItem tools_move        = mMenu.findItem(R.id.tools_move);
+		MenuItem tools_eraser      = mMenu.findItem(R.id.tools_eraser);
+		MenuItem tools_image       = mMenu.findItem(R.id.tools_image);
+		MenuItem tools_typewriter  = mMenu.findItem(R.id.tools_typewriter);
 		item_fountainpen.setIcon(R.drawable.ic_menu_quill);
 		item_pencil.setIcon(R.drawable.ic_menu_pencil);
     	item_move.setIcon(R.drawable.ic_menu_resize);
     	item_eraser.setIcon(R.drawable.ic_menu_eraser);
-    	item_typewriter.setIcon(R.drawable.ic_menu_text);
+    	// item_typewriter.setIcon(R.drawable.ic_menu_text);
     	switch (tool) {
     	case FOUNTAINPEN:
     		item_fountainpen.setIcon(R.drawable.ic_menu_quill_active);
+    		tools_fountainpen.setChecked(true);
     		return;
     	case PENCIL:
     		item_pencil.setIcon(R.drawable.ic_menu_pencil_active);
+    		tools_pencil.setChecked(true);
     		return;
     	case MOVE:
     		item_move.setIcon(R.drawable.ic_menu_resize_active);
+    		tools_move.setChecked(true);
     		return;
     	case ERASER:
     		item_eraser.setIcon(R.drawable.ic_menu_eraser_active);
+    		tools_eraser.setChecked(true);
+    		return;
+    	case IMAGE:
+    		tools_image.setChecked(true);
     		return;
     	case TEXT:
-    		item_typewriter.setIcon(R.drawable.ic_menu_text_active);
+    		// item_typewriter.setIcon(R.drawable.ic_menu_text_active);
+    		tools_typewriter.setChecked(true);
+    		return;
     	}
     }
     
@@ -632,8 +656,7 @@ public class QuillWriterActivity
 		if (history >= h.size()) return;
 		mView.setPenColor(h.getColor(history));
 		mView.setPenThickness(h.getThickness(history));
-		mView.setToolType(h.getTool(history));
-		setActionBarIconActive(h.getTool(history));		
+		setActiveTool(h.getTool(history));
 	}
 	
     private void updatePenHistoryIcon() {
@@ -654,7 +677,8 @@ public class QuillWriterActivity
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         mView.loadSettings(settings);
-    	eraserSwitchesBack = settings.getBoolean(Preferences.KEY_ERASER_SWITCHES_BACK, true);
+        setActiveTool(mView.getToolType());
+    	someToolsSwitchBack = settings.getBoolean(Preferences.KEY_TOOLS_SWITCH_BACK, true);
     	volumeKeyNavigation = settings.getBoolean(Preferences.KEY_VOLUME_KEY_NAVIGATION, true);
         
         hideSystembar = settings.getBoolean(Preferences.KEY_HIDE_SYSTEM_BAR, false);
@@ -778,9 +802,9 @@ public class QuillWriterActivity
 
 	@Override
 	public void onStrokeFinishedListener() {
-		if (!eraserSwitchesBack) return;
+		if (!someToolsSwitchBack) return;
 		Tool tool = mView.getToolType();
-		if (tool != Tool.ERASER) return;
+		if (tool != tool.MOVE && tool != tool.ERASER) return;
 		ToolHistory h = ToolHistory.getToolHistory();
 		setActiveTool(h.getTool());
 	}

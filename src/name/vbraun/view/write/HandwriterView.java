@@ -107,9 +107,9 @@ public class HandwriterView extends ViewGroup {
 	private Page page;
 	
 	// preferences
-	private int pen_thickness = 2;
-	private Tool tool_type = Tool.FOUNTAINPEN;
-	private int pen_color = Color.BLACK;
+	private int pen_thickness = -1;
+	private int pen_color = -1;
+	private Tool tool_type = null;
 	protected boolean onlyPenInput = true;
 	protected boolean moveGestureWhileWriting = true;
 	protected int moveGestureMinDistance = 400; // pixels
@@ -156,6 +156,7 @@ public class HandwriterView extends ViewGroup {
 	}
 	
 	public void setToolType(Tool tool) {
+		if (tool.equals(tool_type)) return;
 		if (touchHandler != null) {
 			touchHandler.destroy();
 			touchHandler = null;
@@ -322,19 +323,21 @@ public class HandwriterView extends ViewGroup {
 	public void loadSettings(SharedPreferences settings) {
     	boolean toolbox_left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
     	setToolbox(toolbox_left);
+
+    	int toolTypeInt = settings.getInt(KEY_PEN_TYPE, Tool.FOUNTAINPEN.ordinal());
+    	Stroke.Tool toolType = Stroke.Tool.values()[toolTypeInt];
+    	if (toolType == Tool.ERASER)  // don't start with sharp whirling blades 
+    		toolType = Tool.MOVE;
+    	setToolType(toolType);
+
     	boolean toolbox_is_visible = settings.getBoolean(KEY_TOOLBOX_IS_VISIBLE, false);
         getToolBox().setToolboxVisible(toolbox_is_visible);
     	setMoveGestureMinDistance(settings.getInt("move_gesture_min_distance", 400));
        	
-    	int penColor = settings.getInt(KEY_PEN_COLOR, getPenColor());
-    	int penThickness = settings.getInt(KEY_PEN_THICKNESS, getPenThickness());
-    	int penTypeInt = settings.getInt(KEY_PEN_TYPE, getToolType().ordinal());
-    	Stroke.Tool penType = Stroke.Tool.values()[penTypeInt];
-    	if (penType == Tool.ERASER)  // don't start with sharp whirling blades 
-    		penType = Tool.MOVE;
+    	int penColor = settings.getInt(KEY_PEN_COLOR, Color.BLACK);
+    	int penThickness = settings.getInt(KEY_PEN_THICKNESS, 2);
     	setPenColor(penColor);
     	setPenThickness(penThickness);
-    	setToolType(penType);
     	
     	ToolHistory history = ToolHistory.getToolHistory();
     	history.restoreFromSettings(settings);
@@ -523,14 +526,6 @@ public class HandwriterView extends ViewGroup {
 		if (bitmap == null) return;
 		if (touchHandler != null) 
 			touchHandler.onDraw(canvas, bitmap);
-		if ((getToolType() == Stroke.Tool.FOUNTAINPEN || getToolType() == Stroke.Tool.PENCIL)
-					&& fingerId2 != -1) {
-			// move preview by translating bitmap
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-			float x = (newX1-oldX1+newX2-oldX2)/2;
-			float y = (newY1-oldY1+newY2-oldY2)/2; 
-			canvas.drawBitmap(bitmap, x, y, null);
-		} 
 		if (overlay != null) 
 			overlay.draw(canvas);
 		if (palmShield) {
@@ -560,16 +555,6 @@ public class HandwriterView extends ViewGroup {
 
 	
 	
-	// whether to use the MotionEvent for writing
-	private boolean useForWriting(MotionEvent event) {
-		return !onlyPenInput || Hardware.isPenEvent(event);
-	}
-
-	// whether to use the MotionEvent for move/zoom
-	private boolean useForTouch(MotionEvent event) {
-		return !onlyPenInput || (onlyPenInput && !Hardware.isPenEvent(event));
-	}
-
 	protected void toastIsReadonly() {
 		String s = "Page is readonly";
 	   	if (toast == null)
