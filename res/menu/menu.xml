@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/actionbar" android:menuCategory="container"><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:showAsAction="always" android:icon="@drawable/toolbox_fountainpen"></item><item android:id="@+id/pencil" android:title="Pencil" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item><item android:id="@+id/move" android:title="Move / Zoom" android:showAsAction="always" android:icon="@drawable/ic_menu_resize"></item><item android:showAsAction="always" android:title="Erase" android:id="@+id/eraser" android:icon="@drawable/ic_menu_eraser"></item>
+    <item android:id="@+id/pencil" android:title="Pencil" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item><item android:id="@+id/fountainpen" android:title="Fountain Pen" android:showAsAction="always" android:icon="@drawable/toolbox_fountainpen"></item>
     
+    <item android:id="@+id/move" android:title="Move / Zoom" android:showAsAction="always" android:icon="@drawable/ic_menu_resize"></item>
+   	<item android:title="Erase" android:id="@+id/eraser" android:showAsAction="always" android:icon="@drawable/ic_menu_eraser"></item>
+    <item android:id="@+id/undo" android:icon="@drawable/ic_menu_undo" android:showAsAction="ifRoom" android:title="Undo"></item>
+    <item android:id="@+id/redo" android:title="Redo" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_redo"></item>
+    <item android:id="@+id/prev" android:titleCondensed="Prev" android:title="Previous page" android:showAsAction="ifRoom|withText"></item>
+    <item android:id="@+id/next" android:titleCondensed="Next" android:title="Next page" android:showAsAction="ifRoom|withText"></item>
+    <item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:title="Previous pen" android:id="@+id/prev_pen"></item>
+    <item android:id="@+id/pen_history" android:title="Pen history" android:visible="false"></item>
+    <item android:id="@+id/tools" android:title="Tools">
+        <menu>
+    		<group android:id="@+id/tools_group" android:checkableBehavior="single">
+        	    <item android:id="@+id/tools_pencil" android:title="Pencil"></item><item android:id="@+id/tools_fountainpen" android:title="Fountain Pen"></item>
+    			
+    			<item android:id="@+id/tools_line" android:titleCondensed="Line" android:title="Straight line"/><item android:id="@+id/tools_move" android:title="Move / Zoom"></item>
+   				<item android:id="@+id/tools_eraser" android:title="Erase"></item>
+    			<item android:id="@+id/tools_image" android:title="Image"/><item android:id="@+id/tools_typewriter" android:titleCondensed="Text" android:title="Text input" android:visible="false" android:enabled="false"></item>
+    			
+    			
+			</group>			
+        </menu>
+    </item>
     
-    
-    <item android:id="@+id/typewriter" android:titleCondensed="Text" android:title="Text input" android:icon="@drawable/ic_menu_text" android:showAsAction="ifRoom" android:visible="false"></item><item android:id="@+id/prev" android:titleCondensed="Prev" android:showAsAction="ifRoom|withText" android:title="Previous page"></item>
-    <item android:id="@+id/next" android:titleCondensed="Next" android:showAsAction="ifRoom|withText" android:title="Next page"></item>
-    <item android:id="@+id/undo" android:icon="@drawable/ic_menu_undo" android:showAsAction="ifRoom" android:title="Undo"></item><item android:id="@+id/redo" android:title="Redo" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_redo"></item><item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:title="Previous pen" android:id="@+id/prev_pen"></item>    
-    </group><item android:id="@+id/pen_history" android:title="Pen history" android:visible="false"></item>
     
     <item android:enabled="true" android:visible="true" android:id="@+id/color" android:title="Color" android:checkable="false"></item>
     <item android:id="@+id/width" android:title="Thickness"></item>    
-    <item android:checked="false" android:enabled="true" android:title="Read only" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
     
     <group android:enabled="true" android:visible="true" android:id="@+id/page_group">
     <item android:id="@+id/page" android:title="Page">
         <menu>
+    		<item android:checked="false" android:enabled="true" android:title="Read only" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
             <item android:id="@+id/page_delete" android:title="Delete"></item>
             <item android:title="Clear" android:id="@+id/page_clear"></item>
             <item android:id="@+id/page_aspect" android:title="Aspect ratio"></item>
@@ -26,31 +42,19 @@
             <item android:id="@+id/page_next" android:title="Next"></item>
             <item android:id="@+id/page_prev" android:title="Previous"></item><item android:title="Unfiltered next" android:id="@+id/page_next_unfiltered"></item><item android:title="Unfiltered previous" android:id="@+id/page_prev_unfiltered"></item>
             <item android:id="@+id/page_last" android:title="Last"></item>
-            <item android:title="Tags" android:id="@+id/tag_page"></item>
-            
-                        
+            <item android:title="Tags" android:id="@+id/tag_page"></item>            
         </menu>
     </item>
     </group>
     
     <item android:id="@+id/export" android:title="Export"></item>
     <item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="Settings"></item>
-    <group android:id="@+id/tag_group">
-        <item android:id="@+id/tag" android:title="Tags">
-            <menu>
-                <item android:id="@+id/tag_page" android:title="Tag current page"></item>
-                <item android:id="@+id/tag_filter" android:title="Filter"></item>
-            </menu>
-        </item>
-    </group>
+	<item android:id="@+id/tag_filter" android:title="Filter"></item>
     <item android:id="@+id/about" android:title="About Quill" android:orderInCategory="-100"></item>
     
     
     
     
-
-
-
     
     
 </menu>

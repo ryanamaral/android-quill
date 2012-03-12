@@ -15,7 +15,7 @@
         android:src="@drawable/toolbox_redbutton" />
 
     <ImageButton
-        android:id="@+id/toolbox_fountainpen"
+        android:id="@+id/toolbox_pencil"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toolbox_redbutton"
@@ -25,25 +25,24 @@
         android:layout_marginTop="2dp"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_fountainpen" />
+        android:src="@drawable/toolbox_pencil" />
 
     <ImageButton
-        android:id="@+id/toolbox_pencil"
+        android:id="@+id/toolbox_fountainpen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/toolbox_fountainpen"
+        android:layout_toRightOf="@+id/toolbox_pencil"
+        android:layout_alignBottom="@+id/toolbox_pencil"
         android:layout_marginLeft="2dp"
-        android:layout_marginTop="2dp"
-        android:layout_toRightOf="@+id/toolbox_fountainpen"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
-        android:src="@drawable/toolbox_pencil" />
+        android:src="@drawable/toolbox_fountainpen" />
 
     <ImageButton
         android:id="@+id/toolbox_undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/toolbox_fountainpen"
+        android:layout_above="@+id/toolbox_pencil"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="2dp"
         android:layout_marginTop="2dp"

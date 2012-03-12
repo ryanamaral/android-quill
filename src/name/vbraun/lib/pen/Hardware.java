@@ -38,8 +38,7 @@ public class Hardware {
 	    add("K1");   // Lenovo K1
 	    add("A500");  // Acer Iconia A500
 	    add("A501");  // Acer Iconia A501
-	    add("AT1S0");
-	    add("Toshiba Thrive");
+	    add("AT100");   add("AT1S0");   // Toshiba thrive 10" and 7"
 	    add("GT-P1000"); add("GT-P1000L"); add("GT-P1000N"); add("SGH-T849"); // Galaxy tab 10.1"
 	    add("GT-P7510");  // Galaxy tab 10.1"
 	    add("GT-P7501");  // Galaxy tab 10.1N"

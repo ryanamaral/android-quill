@@ -26,6 +26,12 @@ public abstract class TouchHandlerPenABC extends TouchHandlerABC {
 		pen.setStrokeCap(Paint.Cap.ROUND);
 	}
 	
+	@Override
+	protected void interrupt() {
+		super.interrupt();
+		N = 0;
+	}
+	
 	private final Rect mRect = new Rect();
 	
 	/**

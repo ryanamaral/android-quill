@@ -8,7 +8,7 @@ public abstract class Graphics {
 
 	public enum Tool {
 		FOUNTAINPEN, PENCIL, MOVE, ERASER,
-		TEXT, LINE, ARROW
+		TEXT, LINE, ARROW, IMAGE
 	}
 	
 	protected Tool tool;
