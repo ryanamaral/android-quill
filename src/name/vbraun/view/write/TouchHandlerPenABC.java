@@ -60,7 +60,19 @@ public abstract class TouchHandlerPenABC extends TouchHandlerABC {
 	}
 
 	protected void saveStroke() {
-		view.saveStroke(position_x, position_y, pressure, N);
+		if (N==0) return;
+		if (N==1) { // need two points to draw a connecting line
+			N = 2;
+			position_x[1] = position_x[0];
+			position_y[1] = position_y[0];
+			pressure[1] = pressure[0];
+		}
+		Stroke s = new Stroke(view.getToolType(), position_x, position_y, pressure, 0, N);
+		s.setPen(view.getPenThickness(), view.getPenColor());
+		s.setTransform(getPage().getTransform());
+		s.applyInverseTransform();
+		s.simplify();
+		view.saveStroke(s);
 		N = 0;
 	}
 

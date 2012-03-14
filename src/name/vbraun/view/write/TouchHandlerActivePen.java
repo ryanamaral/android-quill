@@ -136,7 +136,7 @@ public class TouchHandlerActivePen
 			int id = event.getPointerId(0);
 			if (id == penID) {
 				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
-				view.saveStroke(position_x, position_y, pressure, N);
+				saveStroke();
 				N = 0;
 				view.callOnStrokeFinishedListener();
 			} else if (getMoveGestureWhileWriting() && 
