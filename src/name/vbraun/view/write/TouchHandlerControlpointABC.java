@@ -1,5 +1,9 @@
 package name.vbraun.view.write;
 
+import java.util.LinkedList;
+
+import name.vbraun.view.write.GraphicsControlpoint.Controlpoint;
+
 import junit.framework.Assert;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -12,8 +16,8 @@ import android.view.MotionEvent;
  * @author vbraun
  *
  */
-public class TouchHandlerControlpointABC 
-	extends TouchHandlerPenABC {
+public abstract class TouchHandlerControlpointABC 
+	extends TouchHandlerABC {
 	private final static String TAG = "TouchHandlerControlpointABC";
 
 	private final boolean activePen;
@@ -33,10 +37,6 @@ public class TouchHandlerControlpointABC
 	}
 
 	@Override
-	protected void destroy() {
-	}
-	
-	@Override
 	protected void interrupt() {
 		super.interrupt();
 		penID = fingerId1 = fingerId2 = -1;
@@ -51,9 +51,9 @@ public class TouchHandlerControlpointABC
 	}
 
 	protected boolean onTouchEventPassivePen(MotionEvent event) {
-		return false;
+		// TODO
+		return onTouchEventActivePen(event);
 	}
-	
 	
 	protected boolean onTouchEventActivePen(MotionEvent event) {
 		int action = event.getActionMasked();
@@ -77,7 +77,7 @@ public class TouchHandlerControlpointABC
 				view.invalidate();
 				return true;
 			}
-			if (penID == -1 || N == 0) return true;
+			if (penID == -1) return true;
 			int penIdx = event.findPointerIndex(penID);
 			if (penIdx == -1) return true;
 			
@@ -93,25 +93,9 @@ public class TouchHandlerControlpointABC
 			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
 				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
 				oldX = newX; oldY = newY;
-				saveStroke();
-				position_x[0] = newX;
-				position_y[0] = newY;
-				pressure[0] = newPressure;
-				N = 1;
+				saveGraphics();
 			}
 			drawOutline(oldX, oldY, newX, newY, oldPressure, newPressure);
-			
-			int n = event.getHistorySize();
-			if (N+n+1 >= Nmax) view.saveStroke(position_x, position_y, pressure, N);
-			for (int i = 0; i < n; i++) {
-				position_x[N+i] = event.getHistoricalX(penIdx, i);
-				position_y[N+i] = event.getHistoricalY(penIdx, i);
-				pressure[N+i] = event.getHistoricalPressure(penIdx, i);
-			}
-			position_x[N+n] = newX;
-			position_y[N+n] = newY;
-			pressure[N+n] = newPressure;
-			N = N+n+1;
 			return true;
 		}		
 		else if (action == MotionEvent.ACTION_DOWN) {
@@ -138,12 +122,7 @@ public class TouchHandlerControlpointABC
 			// Log.v(TAG, "ACTION_DOWN");
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
-			position_x[0] = newX = event.getX();
-			position_y[0] = newY = event.getY();
-			pressure[0] = newPressure = event.getPressure();
-			N = 1;
 			penID = event.getPointerId(0);
-			initPenStyle();
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_UP) {
@@ -171,7 +150,6 @@ public class TouchHandlerControlpointABC
 			// e.g. you start with finger and use pen
 			// if (event.getPointerId(0) != penID) return true;
 			Log.v(TAG, "ACTION_CANCEL");
-			N = 0;
 			penID = fingerId1 = fingerId2 = -1;
 			getPage().draw(view.canvas);
 			view.invalidate();
@@ -206,4 +184,20 @@ public class TouchHandlerControlpointABC
 			canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 
+	/**
+	 * @return all graphics objects of the given type (e.g. all images)
+	 */
+	abstract LinkedList<GraphicsControlpoint> getGraphicsObjects();
+	
+	/**
+	 * Create a new graphics object
+	 * @param x initial x position
+	 * @param y initial y position
+	 * @param pressure initial pressure
+	 * @return a new object derived from GraphicsControlpoint
+	 */
+	abstract GraphicsControlpoint newGraphicsObject(float x, float y, float pressure);
+	abstract LinkedList<Controlpoint> getControlpoints();
+	
+	
 }

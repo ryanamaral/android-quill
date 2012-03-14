@@ -159,12 +159,14 @@ public class Preferences
 	public boolean onPreferenceClick(Preference preference) {
     	Log.v(TAG, "oPreferenceClick");
     	if (preference == restorePreference) {
-    		Intent intent = new Intent("org.openintents.action.PICK_FILE");
+    		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
+    		intent.setAction("org.openintents.action.PICK_FILE");
     		intent.putExtra("org.openintents.extra.TITLE", "Pick a backup to restore");
     		startActivityForResult(intent, REQUEST_CODE_PICK_BACKUP);
     		return true;
     	} else if (preference == backupDirPreference) {
-    		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
+    		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
+    		intent.setAction("org.openintents.action.PICK_DIRECTORY");
     		intent.putExtra("org.openintents.extra.TITLE", "Please select a backup folder");
     		startActivityForResult(intent, REQUEST_CODE_PICK_BACKUP_DIRECTORY);
     		return true;

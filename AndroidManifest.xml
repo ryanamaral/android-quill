@@ -39,5 +39,9 @@
             android:name="UpdateActivity" 
             android:theme="@android:style/Theme.Holo.Dialog">
         </activity>
+        <activity 
+            android:name="name.vbraun.filepicker.FilePickerActivity"
+            android:theme="@android:style/Theme.Holo.Light">
+        </activity>
         </application>
 </manifest>

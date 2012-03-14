@@ -87,7 +87,7 @@ public class TouchHandlerActivePen
 			drawOutline(oldX, oldY, newX, newY, oldPressure, newPressure);
 			
 			int n = event.getHistorySize();
-			if (N+n+1 >= Nmax) view.saveStroke(position_x, position_y, pressure, N);
+			if (N+n+1 >= Nmax) saveStroke();
 			for (int i = 0; i < n; i++) {
 				position_x[N+i] = event.getHistoricalX(penIdx, i);
 				position_y[N+i] = event.getHistoricalY(penIdx, i);

@@ -4,7 +4,9 @@ import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.StorageAndroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,15 +21,20 @@ public class ActivityBase extends Activity {
 	private final static String TAG = "ActivityBase";
 	
 	private static int quillActivitiesRunning = 0;
+	private static Context context;
+	private static final Handler backupHandler = new Handler();
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-      	StorageAndroid.initialize(getApplicationContext());
+		context = getApplicationContext();
+      	StorageAndroid.initialize(context);
 	}
 	
 	@Override
 	protected void onResume() {
+		backupHandler.removeCallbacks(backupAtExit);
 		quillActivitiesRunning += 1;
 		super.onResume();
 	}
@@ -38,17 +45,21 @@ public class ActivityBase extends Activity {
 		quillActivitiesRunning -= 1;		
 	}
 	
+	private final static int backupDelay = 5 * 1000;
+	
     @Override
     protected void onStop() {
     	super.onStop();
 		Log.d(TAG, "quillActivitiesRunning = "+quillActivitiesRunning);
 		if (quillActivitiesRunning == 0)
-			backupAtExit();
+			backupHandler.postDelayed(backupAtExit, backupDelay);
     }
 
-    private void backupAtExit() {
-		Bookshelf.getBookshelf().backup();
-		Toast.makeText(getApplicationContext(), "Quill notebooks backed up.", Toast.LENGTH_SHORT).show();
-    }
+    private static Runnable backupAtExit = new Runnable() {
+    	public void run() {
+    		Bookshelf.getBookshelf().backup();
+    		Toast.makeText(context, "Quill notebooks backed up.", Toast.LENGTH_SHORT).show();
+    	}
+    };
     
 }

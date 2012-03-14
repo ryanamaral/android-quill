@@ -238,6 +238,7 @@ public class Bookshelf {
 		try {
 			uuid = storage.importArchive(file);
 		} catch (StorageIOException e) {
+			Log.e(TAG, "importArchive failed ("+e.getMessage()+"), trying old format.");
 			try {
 				uuid = storage.importOldArchive(file);
 			} catch (StorageIOException dummy) {
@@ -306,13 +307,15 @@ public class Bookshelf {
 	}
 		
 	/**
-	 * Backup all notebooks
+	 * Backup all notebooks. Does not overwrite backup files that have the same or newer modification time.
 	 * @param dir The directory to save the backups in
 	 */
 	public void backup(File dir) {
 		for (BookPreview nb : getBookPreviewList()) {
 			UUID uuid = nb.getUUID();
 			File file = new File(dir, uuid.toString() + QUILL_EXTENSION);
+			File index = new File(storage.getBookDirectory(uuid), Book.INDEX_FILE);
+			if (file.exists() && file.lastModified() >= index.lastModified()) continue;
 			try {
 				exportBook(uuid, file);
 			} catch (BookSaveException e) {
