@@ -123,26 +123,26 @@ public class HandwriterView extends ViewGroup {
 		if (graphics instanceof Stroke) {
 			Stroke s = (Stroke)graphics;
 			page.addStroke(s);
-			if (automaticRedraw) {
-				page.draw(canvas, s.getBoundingBox());
-				s.getBoundingBox().round(mRect);
-				invalidate(mRect);
-			}
+		} else if (graphics instanceof GraphicsLine ) {
+			GraphicsLine l = (GraphicsLine)graphics;
+			page.addLine(l);
 		} else
 			Assert.fail("Unknown graphics object");
+		page.draw(canvas, graphics.getBoundingBox());
+		invalidate(graphics.getBoundingBoxRoundOut());
 	}
 	
 	public void remove(Graphics graphics) {
 		if (graphics instanceof Stroke) { 
 			Stroke s = (Stroke)graphics;
 			page.removeStroke(s);
-			if (automaticRedraw) {
-				page.draw(canvas, s.getBoundingBox());
-				s.getBoundingBox().round(mRect);
-				invalidate(mRect);
-			}
+		} else if (graphics instanceof GraphicsLine ) {
+			GraphicsLine l = (GraphicsLine)graphics;
+			page.removeLine(l);
 		} else
 			Assert.fail("Unknown graphics object");
+		page.draw(canvas, graphics.getBoundingBox());
+		invalidate(graphics.getBoundingBoxRoundOut());
 	}
 	
 	public void interrupt() {
@@ -173,6 +173,7 @@ public class HandwriterView extends ViewGroup {
 		case ARROW:
 			break;
 		case LINE:
+			touchHandler = new TouchHandlerLine(this);
 			break;
 		case MOVE:
 			touchHandler = new TouchHandlerMoveZoom(this);
@@ -533,7 +534,8 @@ public class HandwriterView extends ViewGroup {
 		}
 	}
 
-	@Override public boolean onTouchEvent(MotionEvent event) {
+	@Override 
+	public boolean onTouchEvent(MotionEvent event) {
 //		InputDevice dev = event.getDevice();
 //		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
 //		Log.v(TAG, "Touch: "+event.getDevice().getName()
@@ -541,19 +543,10 @@ public class HandwriterView extends ViewGroup {
 //				+" pressure="+event.getPressure()
 //				+" fat="+event.getTouchMajor()
 //				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
-		switch (getToolType()) {
-		case FOUNTAINPEN:
-		case PENCIL:	
-		case MOVE:
-		case ERASER:
-		case TEXT:
-			return touchHandler.onTouchEvent(event);
-		}
-		return false;
+		if (touchHandler == null)
+			return false;
+		return touchHandler.onTouchEvent(event);
 	}
-		
-
-	
 	
 	protected void toastIsReadonly() {
 		String s = "Page is readonly";
@@ -586,28 +579,25 @@ public class HandwriterView extends ViewGroup {
 		}
 	}
 	
-	protected void saveStroke(float[] position_x, float[] position_y, float[] pressure, int N) {
+	protected void saveStroke(Stroke s) {
 		if (page.is_readonly) {
 			toastIsReadonly();
 			return;
 		}
-		if (N==0) return;
-		if (N==1) { // need two points to draw a connecting line
-			N = 2;
-			position_x[1] = position_x[0];
-			position_y[1] = position_y[0];
-			pressure[1] = pressure[0];
-		}
-		Stroke s = new Stroke(getToolType(), position_x, position_y, pressure, 0, N);
 		toolHistory.commit();
-		s.setPen(getPenThickness(), pen_color);
-		s.setTransform(page.getTransform());
-		s.applyInverseTransform();
-		s.simplify();
 		if (page != null && graphicsListener != null) {
 			graphicsListener.onGraphicsCreateListener(page, s);
 		}
 	}
 	
+	protected void saveGraphics(GraphicsControlpoint graphics) {
+		if (page.is_readonly) {
+			toastIsReadonly();
+			return;
+		}
+		if (page != null && graphicsListener != null) {
+			graphicsListener.onGraphicsCreateListener(page, graphics);
+		}
+	}
 
 }

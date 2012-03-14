@@ -33,8 +33,10 @@ public class Page {
 	private TagManager tagManager;
 	
 	// persistent data
-	protected UUID uuid;  // unique identifyer
+	protected UUID uuid;  // unique identifier
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
+	// lineArt contains straight lines, arrows, etc.
+	public final LinkedList<GraphicsControlpoint> lineArt = new LinkedList<GraphicsControlpoint>();
 	public final TagManager.TagSet tags;
 	protected float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
@@ -47,7 +49,6 @@ public class Page {
 	protected boolean is_modified = false;
 
 	private final RectF mRectF = new RectF();
-	private final Paint paint = new Paint();
 	
 	public TagSet getTags() {
 		return tags;
@@ -58,7 +59,7 @@ public class Page {
 	}
 	
 	public boolean is_empty() {
-		return strokes.isEmpty();
+		return strokes.isEmpty() && lineArt.isEmpty();
 	}
 	
 	public void touch() {
@@ -102,9 +103,10 @@ public class Page {
 		transformation.offset_x = dx;
 		transformation.offset_y = dy;
 		transformation.scale = s;
-		ListIterator<Stroke> siter = strokes.listIterator();
-	    while (siter.hasNext())
-	    	siter.next().setTransform(transformation);
+	    for (Stroke stroke : strokes)
+	    	stroke.setTransform(transformation);
+	    for (GraphicsControlpoint line : lineArt)
+	    	line.setTransform(transformation);
 	}
 	
 	protected void setTransform(Transformation newTrans) {
@@ -147,12 +149,22 @@ public class Page {
 		is_modified = true;
 	}
 
+	public void addLine(GraphicsLine line) {
+		lineArt.add(line);
+		line.setTransform(getTransform());
+		is_modified = true;
+	}
+	
+	public void removeLine(GraphicsLine line) {
+		lineArt.remove(line);
+		is_modified = true;
+	}
+
 	public void draw(Canvas canvas, RectF bounding_box) {
 		draw(canvas, bounding_box, true);
 	}
 	
 	public void draw(Canvas canvas, RectF bounding_box, boolean drawBackgroundLines) {
-	    ListIterator<Stroke> siter = strokes.listIterator();
 		canvas.save();
 		canvas.clipRect(bounding_box);
 		if (drawBackgroundLines)
@@ -160,11 +172,13 @@ public class Page {
 		else
 			background.drawEmptyBackground(canvas, bounding_box, transformation);
 		backgroundText.draw(canvas, bounding_box);
-		while(siter.hasNext()) {	
-			Stroke s = siter.next();	    	
-		   	if (!canvas.quickReject(s.getBoundingBox(), 
-		   				 			Canvas.EdgeType.AA))
+		for (Stroke s: strokes) {
+		   	if (!canvas.quickReject(s.getBoundingBox(), Canvas.EdgeType.AA))
 		   		s.draw(canvas, bounding_box);
+	    }
+		for (GraphicsControlpoint graphics: lineArt) {
+		   	if (!canvas.quickReject(graphics.getBoundingBox(), Canvas.EdgeType.AA))
+		   		graphics.draw(canvas, bounding_box);
 	    }
 		canvas.restore();
 	}

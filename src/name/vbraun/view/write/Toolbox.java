@@ -140,7 +140,7 @@ public class Toolbox
 		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		thicknessSpinner.setOnItemSelectedListener(this);
 		
-		if (!hardware.hasPressureSensor()) {
+		if (!Hardware.hasPressureSensor()) {
 			fountainpenButton.setVisibility(View.INVISIBLE);
 		}
 		
@@ -282,7 +282,7 @@ public class Toolbox
 		Log.d(TAG, "setToolboxVisible "+visible);
 		toolboxIsVisible = visible;
 		int vis = visible ? View.VISIBLE : View.INVISIBLE;
-		if (hardware.hasPressureSensor())
+		if (Hardware.hasPressureSensor())
 			fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
 		history1.setVisibility(vis);

@@ -93,9 +93,10 @@ public class Stroke extends Graphics {
 			y0 = Math.min(y0, y);
 			y1 = Math.max(y1, y);
 		}
-		bBox.set(x0, y0, x1, y1);
+		bBoxFloat.set(x0, y0, x1, y1);
 		float extra = -getScaledPenThickness()/2-1;
-		bBox.inset(extra, extra);		
+		bBoxFloat.inset(extra, extra);		
+		bBoxFloat.roundOut(bBoxInt);
 		recompute_bounding_box = false;
 	}
 	

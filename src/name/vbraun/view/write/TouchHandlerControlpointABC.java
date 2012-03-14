@@ -1,5 +1,6 @@
 package name.vbraun.view.write;
 
+import java.util.Currency;
 import java.util.LinkedList;
 
 import name.vbraun.view.write.GraphicsControlpoint.Controlpoint;
@@ -7,9 +8,13 @@ import name.vbraun.view.write.GraphicsControlpoint.Controlpoint;
 import junit.framework.Assert;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.animation.BounceInterpolator;
 
 /**
  * Base class for touch handles than manipulate control points
@@ -31,11 +36,22 @@ public abstract class TouchHandlerControlpointABC
 	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
 	private long oldT, newT;
 	
+	private Controlpoint activeControlpoint = null;
+	
 	protected TouchHandlerControlpointABC(HandwriterView view, boolean activePen) {
 		super(view);
 		this.activePen = activePen;
+		paint.setARGB(0x20, 0xff, 0x0, 0x0);
+		drawControlPoints();
 	}
-
+	
+	@Override
+	protected void destroy() {
+		// get rid of control points
+		getPage().draw(view.canvas);
+		view.invalidate();
+	}
+	
 	@Override
 	protected void interrupt() {
 		super.interrupt();
@@ -93,7 +109,7 @@ public abstract class TouchHandlerControlpointABC
 			if (newT-oldT > 300) { // sometimes ACTION_UP is lost, why?
 				Log.v(TAG, "Timeout in ACTION_MOVE, "+(newT-oldT));
 				oldX = newX; oldY = newY;
-				saveGraphics();
+				saveGraphics(activeControlpoint.getGraphics());
 			}
 			drawOutline(oldX, oldY, newX, newY, oldPressure, newPressure);
 			return true;
@@ -117,21 +133,25 @@ public abstract class TouchHandlerControlpointABC
 			if (penID != -1) {
 				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
 				penID = -1;
+				activeControlpoint = null;
 				return true;
 			}
-			// Log.v(TAG, "ACTION_DOWN");
+			Log.v(TAG, "ACTION_DOWN");
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
+			bBox.setEmpty();
+			GraphicsControlpoint g = newGraphics(event.getX(), event.getY(), event.getPressure());
+			activeControlpoint = g.initialControlpoint();
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_UP) {
 			Assert.assertTrue(event.getPointerCount() == 1);
 			int id = event.getPointerId(0);
 			if (id == penID) {
-				// Log.v(TAG, "ACTION_UP: Got "+N+" points.");
-				view.saveStroke(position_x, position_y, pressure, N);
-				N = 0;
+				Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
+				if (activeControlpoint != null)
+					saveGraphics(activeControlpoint.getGraphics());
 				view.callOnStrokeFinishedListener();
 			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
@@ -151,6 +171,7 @@ public abstract class TouchHandlerControlpointABC
 			// if (event.getPointerId(0) != penID) return true;
 			Log.v(TAG, "ACTION_CANCEL");
 			penID = fingerId1 = fingerId2 = -1;
+			activeControlpoint = null;
 			getPage().draw(view.canvas);
 			view.invalidate();
 			return true;
@@ -167,7 +188,7 @@ public abstract class TouchHandlerControlpointABC
 			if (distance >= getMoveGestureMinDistance()) {
 				fingerId2 = event.getPointerId(idx2);
 			}
-			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
+			Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
 		}
 		return false;
 	}
@@ -182,12 +203,21 @@ public abstract class TouchHandlerControlpointABC
 			canvas.drawBitmap(bitmap, x, y, null);
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
+		
+	}
+	
+	protected void drawControlPoints() {
+		Canvas canvas = view.canvas;
+		for (GraphicsControlpoint line : getPage().lineArt) {
+			line.drawControlpoints(canvas);
+		}
+		view.invalidate();
 	}
 
 	/**
 	 * @return all graphics objects of the given type (e.g. all images)
 	 */
-	abstract LinkedList<GraphicsControlpoint> getGraphicsObjects();
+	protected abstract LinkedList<GraphicsControlpoint> getGraphicsObjects();
 	
 	/**
 	 * Create a new graphics object
@@ -196,8 +226,33 @@ public abstract class TouchHandlerControlpointABC
 	 * @param pressure initial pressure
 	 * @return a new object derived from GraphicsControlpoint
 	 */
-	abstract GraphicsControlpoint newGraphicsObject(float x, float y, float pressure);
-	abstract LinkedList<Controlpoint> getControlpoints();
+	protected abstract GraphicsControlpoint newGraphics(float x, float y, float pressure);
 	
+	/**
+	 * Save the graphics object to the current page
+	 * @param graphics
+	 */
+	protected void saveGraphics(GraphicsControlpoint graphics) {
+		view.saveGraphics(graphics);
+	}
 	
+	private final Paint paint = new Paint();
+	private final RectF bBox = new RectF();
+	private final Rect  rect = new Rect();
+
+	protected void drawOutline(float oldX, float oldY, float newX, float newY, float oldPressure, float newPressure) {
+		Assert.assertNotNull(activeControlpoint);
+		activeControlpoint.move(newX, newY);
+		GraphicsControlpoint graphics = activeControlpoint.getGraphics();
+		Log.v(TAG, "drawOutline "+graphics.getBoundingBoxRoundOut());
+		RectF newBoundingBox = graphics.getBoundingBox();
+		bBox.union(newBoundingBox);
+		getPage().draw(view.canvas, bBox);
+		graphics.draw(view.canvas, graphics.getBoundingBox());
+		// view.canvas.drawRect(bBox, paint);
+		bBox.roundOut(rect);
+		view.invalidate(rect);
+		bBox.set(newBoundingBox);
+	}
+
 }

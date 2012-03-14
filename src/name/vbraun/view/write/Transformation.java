@@ -42,4 +42,10 @@ public class Transformation {
 		t.scale = scale;
 		return t;
 	}
+	
+	protected void set(Transformation t) {
+		offset_x = t.offset_x;
+		offset_y = t.offset_y;
+		scale = t.scale;
+	}
 }
