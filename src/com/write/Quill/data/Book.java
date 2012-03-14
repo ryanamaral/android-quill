@@ -33,7 +33,7 @@ import android.util.Log;
 public class Book {
 	private static final String TAG = "Book";
 	private static final String QUILL_DATA_FILE_SUFFIX = ".quill_data";
-	private static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
+	protected static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
 	private static final String PAGE_FILE_PREFIX = "page_";
 
 	private TagManager tagManager = new TagManager();

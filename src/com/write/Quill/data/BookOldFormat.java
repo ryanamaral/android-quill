@@ -29,14 +29,13 @@ public class BookOldFormat extends Book {
 	private static final String FILENAME_STEM = "quill";
 
 	// Loads the book. This is the complement to the save() method
-	public BookOldFormat(Storage storage) {
+	public BookOldFormat(Storage storage) throws BookLoadException {
 		int n_pages;
 		try {
 			n_pages = loadIndex(storage);
 		} catch (IOException e) {
-			storage.LogError(TAG, "Page index missing, recovering...");
-			recoverFromMissingIndex(storage);
-			return;
+			storage.LogError(TAG, "Page index missing, aborting.");
+			throw new BookLoadException(e.getMessage());
 		}
 		pages.clear();
 		for (int i = 0; i < n_pages; i++) {
@@ -44,6 +43,7 @@ public class BookOldFormat extends Book {
 				pages.add(loadPage(i, storage));
 			} catch (IOException e) {
 				storage.LogError(TAG, "Error loading book page " + i + " of "+ n_pages);
+				throw new BookLoadException(e.getMessage());
 			}
 		}
 		// recover from errors
@@ -169,14 +169,14 @@ public class BookOldFormat extends Book {
 	/// Load and save archives 
 	/// Throw error if necessary
 	
-	public void saveBookArchive(File file) throws BookSaveException {
-		Assert.assertTrue(allowSave);
-		try {
-			doSaveBookArchive(file);
-		} catch (IOException e) {
-			throw new BookSaveException(e.getLocalizedMessage());
-		}
-	}
+//	public void saveBookArchive(File file) throws BookSaveException {
+//		Assert.assertTrue(allowSave);
+//		try {
+//			doSaveBookArchive(file);
+//		} catch (IOException e) {
+//			throw new BookSaveException(e.getLocalizedMessage());
+//		}
+//	}
 
 	// Load an archive; the complement to saveArchive
 	public BookOldFormat(File file) throws BookLoadException {
@@ -229,24 +229,24 @@ public class BookOldFormat extends Book {
 		}
 	}
 
-	private void doSaveBookArchive(File file) throws IOException, BookSaveException {
-		FileOutputStream fos = null;
-		BufferedOutputStream buffer = null;
-		DataOutputStream dataOut = null;
-		try {
-			fos = new FileOutputStream(file);
-			buffer = new BufferedOutputStream(fos);
-			dataOut = new DataOutputStream(buffer);
-			saveIndex(dataOut);
-			for (Page page : pages)
-				savePage(page, dataOut);
-		} finally {
-			if (dataOut != null) dataOut.close();
-			else if (buffer != null) buffer.close();
-			else if (fos != null) fos.close();
-		}
-	}
-
+//	private void doSaveBookArchive(File file) throws IOException, BookSaveException {
+//		FileOutputStream fos = null;
+//		BufferedOutputStream buffer = null;
+//		DataOutputStream dataOut = null;
+//		try {
+//			fos = new FileOutputStream(file);
+//			buffer = new BufferedOutputStream(fos);
+//			dataOut = new DataOutputStream(buffer);
+//			saveIndex(dataOut);
+//			for (Page page : pages)
+//				savePage(page, dataOut);
+//		} finally {
+//			if (dataOut != null) dataOut.close();
+//			else if (buffer != null) buffer.close();
+//			else if (fos != null) fos.close();
+//		}
+//	}
+//
 
 	
 }

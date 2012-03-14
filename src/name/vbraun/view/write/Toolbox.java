@@ -7,9 +7,12 @@ import junit.framework.Assert;
 import com.write.Quill.R;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -54,6 +57,7 @@ public class Toolbox
 	
 	private boolean toolboxIsVisible = true;
 	private boolean actionBarReplacementIsVisible = false;
+	private boolean debugOptions;
 	
 	protected ImageButton redButton, redButtonRight, redButtonLeft;
 	protected ImageButton undoButton, redoButton;
@@ -79,6 +83,9 @@ public class Toolbox
 	
 	protected Toolbox(Context context, boolean left) {
 		super(context);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        debugOptions = settings.getBoolean("debug_options_enable", false);
+
 		hardware = Hardware.getInstance(context);
 		
 		Display display = ((WindowManager) 
@@ -177,9 +184,11 @@ public class Toolbox
 		tagButton.setOnClickListener(this);
 		menuButton.setOnClickListener(this);
 		
-    	textButton.setVisibility(View.GONE);  // TODO
-        photoButton.setVisibility(View.GONE);  // TODO
-        lineButton.setVisibility(View.GONE); // TODO
+        if (debugOptions) {
+        	textButton.setVisibility(View.GONE);  // TODO
+        	photoButton.setVisibility(View.GONE);  // TODO
+        	lineButton.setVisibility(View.GONE); // TODO
+        }
     	   
 		if (height_small) {
 			prevButton.setVisibility(View.GONE);
@@ -220,6 +229,8 @@ public class Toolbox
 			return resizeButton;
 		case ERASER:
 			return eraserButton;
+		case LINE:
+			return lineButton;
 		case TEXT:
 			return textButton;
 		case IMAGE:
@@ -274,16 +285,20 @@ public class Toolbox
 		if (hardware.hasPressureSensor())
 			fountainpenButton.setVisibility(vis);
 		pencilButton.setVisibility(vis);
-//		lineButton.setVisibility(vis);
-// textButton.setVisibility(vis);
-// photoButton.setVisibility(vis);
 		history1.setVisibility(vis);
 		history2.setVisibility(vis);
 		history3.setVisibility(vis);
 		history4.setVisibility(vis);
 		thicknessSpinner.setVisibility(vis);
 		undoButton.setVisibility(vis);
-		redoButton.setVisibility(vis);			
+		redoButton.setVisibility(vis);		
+		
+		if (debugOptions) {
+        	textButton.setVisibility(vis);  // TODO
+        	photoButton.setVisibility(vis);  // TODO
+        	lineButton.setVisibility(vis); // TODO
+        }
+
 		if (!height_small) {
 			prevButton.setVisibility(vis);
 			nextButton.setVisibility(vis);			

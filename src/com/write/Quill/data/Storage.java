@@ -171,9 +171,13 @@ public abstract class Storage {
 			TarEntry entry;
 			while((entry = tis.getNextEntry()) != null) {
 				// LogMessage(TAG, "importArchive "+entry);
-				if (uuid == null)
+				if (entry.getName() == null)
+					throw new StorageIOException("Incorrect book archive file");
+				if (uuid == null) {
 					uuid = getBookUUIDfromDirectoryName(entry.getName());
-				else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
+					if (uuid == null)
+						throw new StorageIOException("Incorrect book archive file");
+				} else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
 					throw new StorageIOException("Incorrect book archive file");
 				int count;
 				byte data[] = new byte[2048];

@@ -320,14 +320,20 @@ public class QuillWriterActivity
 		case R.id.toolbox_pencil:
 			setActiveTool(Tool.PENCIL);
 			break;
+		case R.id.toolbox_line:
+			setActiveTool(Tool.LINE);
+			break;
+		case R.id.toolbox_photo:
+			setActiveTool(Tool.IMAGE);
+			break;
+		case R.id.toolbox_text:
+			setActiveTool(Tool.TEXT);
+			break;			
 		case R.id.toolbox_resize:
 			setActiveTool(Tool.MOVE);
 			break;
 		case R.id.toolbox_eraser:
 			setActiveTool(Tool.ERASER);
-			break;
-		case R.id.toolbox_text:
-			setActiveTool(Tool.TEXT);
 			break;
 		case R.id.toolbox_next:
     		flip_page_next();
@@ -486,6 +492,7 @@ public class QuillWriterActivity
 		// MenuItem item_typewriter  = mMenu.findItem(R.id.typewriter);
 		MenuItem tools_fountainpen = mMenu.findItem(R.id.tools_fountainpen);
 		MenuItem tools_pencil      = mMenu.findItem(R.id.tools_pencil);
+		MenuItem tools_line        = mMenu.findItem(R.id.tools_line);
 		MenuItem tools_move        = mMenu.findItem(R.id.tools_move);
 		MenuItem tools_eraser      = mMenu.findItem(R.id.tools_eraser);
 		MenuItem tools_image       = mMenu.findItem(R.id.tools_image);
@@ -503,6 +510,9 @@ public class QuillWriterActivity
     	case PENCIL:
     		item_pencil.setIcon(R.drawable.ic_menu_pencil_active);
     		tools_pencil.setChecked(true);
+    		return;
+    	case LINE:
+    		tools_line.setChecked(true);
     		return;
     	case MOVE:
     		item_move.setIcon(R.drawable.ic_menu_resize_active);
