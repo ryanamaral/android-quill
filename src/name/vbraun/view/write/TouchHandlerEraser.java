@@ -32,6 +32,7 @@ public class TouchHandlerEraser extends TouchHandlerABC {
 			mRectF.sort();
 			mRectF.inset(-15, -15);
 			view.eraseStrokesIn(mRectF);
+			view.eraseLineArtIn(mRectF);
 			oldX = newX;
 			oldY = newY;
 			return true;

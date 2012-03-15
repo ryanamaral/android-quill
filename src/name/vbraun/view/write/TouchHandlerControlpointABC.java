@@ -42,14 +42,7 @@ public abstract class TouchHandlerControlpointABC
 		super(view);
 		this.activePen = activePen;
 		paint.setARGB(0x20, 0xff, 0x0, 0x0);
-		drawControlPoints();
-	}
-	
-	@Override
-	protected void destroy() {
-		// get rid of control points
-		getPage().draw(view.canvas);
-		view.invalidate();
+		view.invalidate(); // make control points appear
 	}
 	
 	@Override
@@ -70,6 +63,8 @@ public abstract class TouchHandlerControlpointABC
 		// TODO
 		return onTouchEventActivePen(event);
 	}
+	
+	protected GraphicsControlpoint newGraphicsObject = null;
 	
 	protected boolean onTouchEventActivePen(MotionEvent event) {
 		int action = event.getActionMasked();
@@ -141,8 +136,12 @@ public abstract class TouchHandlerControlpointABC
 				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
 			bBox.setEmpty();
-			GraphicsControlpoint g = newGraphics(event.getX(), event.getY(), event.getPressure());
-			activeControlpoint = g.initialControlpoint();
+			activeControlpoint = findControlpoint(event.getX(), event.getY());
+			if (activeControlpoint == null) { 
+				// none within range, create new graphics
+				newGraphicsObject = newGraphics(event.getX(), event.getY(), event.getPressure());
+				activeControlpoint = newGraphicsObject.initialControlpoint();
+			}
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_UP) {
@@ -150,8 +149,10 @@ public abstract class TouchHandlerControlpointABC
 			int id = event.getPointerId(0);
 			if (id == penID) {
 				Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
-				if (activeControlpoint != null)
-					saveGraphics(activeControlpoint.getGraphics());
+				if (newGraphicsObject != null) {
+					saveGraphics(newGraphicsObject);
+					newGraphicsObject = null;
+				}
 				view.callOnStrokeFinishedListener();
 			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
@@ -171,6 +172,7 @@ public abstract class TouchHandlerControlpointABC
 			// if (event.getPointerId(0) != penID) return true;
 			Log.v(TAG, "ACTION_CANCEL");
 			penID = fingerId1 = fingerId2 = -1;
+			newGraphicsObject = null;
 			activeControlpoint = null;
 			getPage().draw(view.canvas);
 			view.invalidate();
@@ -203,11 +205,10 @@ public abstract class TouchHandlerControlpointABC
 			canvas.drawBitmap(bitmap, x, y, null);
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
-		
+		drawControlpoints(canvas);
 	}
 	
-	protected void drawControlPoints() {
-		Canvas canvas = view.canvas;
+	protected void drawControlpoints(Canvas canvas) {
 		for (GraphicsControlpoint line : getPage().lineArt) {
 			line.drawControlpoints(canvas);
 		}
@@ -246,6 +247,8 @@ public abstract class TouchHandlerControlpointABC
 		GraphicsControlpoint graphics = activeControlpoint.getGraphics();
 		Log.v(TAG, "drawOutline "+graphics.getBoundingBoxRoundOut());
 		RectF newBoundingBox = graphics.getBoundingBox();
+		final float dr = graphics.controlpointRadius();
+		newBoundingBox.inset(-dr, -dr);
 		bBox.union(newBoundingBox);
 		getPage().draw(view.canvas, bBox);
 		graphics.draw(view.canvas, graphics.getBoundingBox());
@@ -255,4 +258,37 @@ public abstract class TouchHandlerControlpointABC
 		bBox.set(newBoundingBox);
 	}
 
+	
+	/**
+	 * Maximal distance to select control point (measured in dp)
+	 */
+	private static final float MAX_DISTANCE = 15; 
+	
+	/**
+	 * Find the closest control point to a given screen position
+	 * @param xScreen X screen coordinate
+	 * @param yScreen Y screen coordinate
+	 * @return The closest Controlpoint or null if there is none within MAX_DISTANCE
+	 */
+	protected Controlpoint findControlpoint(float xScreen, float yScreen) {
+		final Transformation transform = getPage().getTransform();
+		final float x = transform.inverseX(xScreen);
+		final float y = transform.inverseY(yScreen);
+		final float rMax = MAX_DISTANCE * view.screenDensity / transform.scale;
+		
+		float rMin2 = rMax * rMax;
+		Controlpoint closest = null;
+		for (GraphicsControlpoint graphics : getGraphicsObjects())
+			for (Controlpoint p : graphics.controlpoints) {
+				final float dx = x-p.x;
+				final float dy = y-p.y;
+				final float r2 = dx*dx+dy*dy;
+				if (r2 < rMin2) {
+					rMin2 = r2;
+					closest = p;
+				}
+			}
+		return closest;
+	}
+	
 }
