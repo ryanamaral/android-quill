@@ -87,6 +87,18 @@
         android:src="@drawable/toolbox_resize" />
 
     <ImageButton
+        android:id="@+id/toolbox_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toolbox_resize"
+        android:layout_toLeftOf="@+id/toolbox_resize"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="2dp"
+        android:padding="3dp"
+        android:background="@drawable/toolbox_background"
+        android:src="@drawable/toolbox_line" />
+
+    <ImageButton
         android:id="@+id/toolbox_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -109,18 +121,6 @@
         android:padding="3dp"
         android:background="@drawable/toolbox_background"
         android:src="@drawable/toolbox_photo" />
-
-    <ImageButton
-        android:id="@+id/toolbox_line"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/toolbox_pencil"
-        android:layout_toLeftOf="@+id/toolbox_pencil"
-        android:layout_marginRight="2dp"
-        android:layout_marginTop="2dp"
-        android:padding="3dp"
-        android:background="@drawable/toolbox_background"
-        android:src="@drawable/toolbox_line" />
 
     <Spinner
         android:id="@+id/toolbox_thickness_spinner"

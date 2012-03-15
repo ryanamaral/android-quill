@@ -205,7 +205,7 @@ public class Page {
 	
 	
 	public void writeToStream(DataOutputStream out) throws IOException {
-		out.writeInt(4);  // protocol #1
+		out.writeInt(5);  // protocol version number
 		out.writeUTF(uuid.toString());
 		tags.write_to_stream(out);
 		out.writeInt(paper_type.ordinal());
@@ -213,10 +213,17 @@ public class Page {
 		out.writeInt(0); // reserved2
 		out.writeBoolean(is_readonly);
 		out.writeFloat(aspect_ratio);
+		
 		out.writeInt(strokes.size());
-		ListIterator<Stroke> siter = strokes.listIterator(); 
-		while (siter.hasNext())
-			siter.next().writeToStream(out);
+		for (Stroke stroke : strokes)
+			stroke.writeToStream(out);
+		
+		out.writeInt(lineArt.size());
+		for (GraphicsControlpoint line : lineArt)
+			line.writeToStream(out);
+		
+		out.writeInt(0); // number of images
+		out.writeInt(0); // number of text boxes
 	}
 	
 	public Page(TagManager tagMgr) {
@@ -259,7 +266,7 @@ public class Page {
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
-		} else if (version == 4) {
+		} else if (version == 4 || version == 5) {
 			uuid = UUID.fromString(in.readUTF());
 			tags = tagManager.loadTagSet(in);
 			paper_type = Paper.Type.values()[in.readInt()];
@@ -269,10 +276,21 @@ public class Page {
 			throw new IOException("Unknown version!");
 		is_readonly = in.readBoolean();
 		aspect_ratio = in.readFloat();
-		int N = in.readInt();
-		for (int i=0; i<N; i++) {
+		
+		int nStrokes = in.readInt();
+		for (int i=0; i<nStrokes; i++) {
 			strokes.add(new Stroke(in));
 		}
+		
+		if (version >= 5) {
+			int nLines = in.readInt();
+			for (int i=0; i<nLines; i++) {
+				lineArt.add(new GraphicsLine(in));
+			}
+			int nImages= in.readInt(); // TODO
+			int nText = in.readInt();  // TODO
+		}
+		
 		background.setAspectRatio(aspect_ratio);
 		background.setPaperType(paper_type);
 	}

@@ -1,5 +1,8 @@
 package name.vbraun.view.write;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -67,4 +70,6 @@ public abstract class Graphics {
 	abstract public float distance(float x_screen, float y_screen);
 	abstract public boolean intersects(RectF r_screen);
 	abstract public void draw(Canvas c, RectF bounding_box);
+	
+	abstract public void writeToStream(DataOutputStream out) throws IOException;
 }

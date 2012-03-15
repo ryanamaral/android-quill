@@ -27,6 +27,7 @@ $ 9.0
     * New file chooser dialog
     * New icon!
     * Keep screen on in the main window
+    * Straight lines tool
 $ 8.6
   % Version 8.6
   _ 2012-02-08
