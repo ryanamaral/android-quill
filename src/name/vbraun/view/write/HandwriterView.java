@@ -19,11 +19,14 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.view.WindowManager;
 
 public class HandwriterView extends ViewGroup {
 	private static final String TAG = "Handwrite";
@@ -44,6 +47,7 @@ public class HandwriterView extends ViewGroup {
     public static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
     public static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
 
+    protected final float screenDensity;
 	private TouchHandlerABC touchHandler;
 
 	private Bitmap bitmap;
@@ -312,6 +316,12 @@ public class HandwriterView extends ViewGroup {
 		setDrawingCacheEnabled(false);
 		setWillNotDraw(false);
 		setBackgroundDrawable(null);
+		
+		Display display = ((WindowManager) 
+        		context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        screenDensity = metrics.density;
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
     	boolean left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
@@ -560,17 +570,14 @@ public class HandwriterView extends ViewGroup {
 
 	public boolean eraseStrokesIn(RectF r) {
 		LinkedList<Stroke> toRemove = new LinkedList<Stroke>();
-	    ListIterator<Stroke> siter = page.strokes.listIterator();
-	    while(siter.hasNext()) {	
-			Stroke s = siter.next();	    	
+	    for (Stroke s: page.strokes) {	
 			if (!RectF.intersects(r, s.getBoundingBox())) continue;
 			if (s.intersects(r)) {
 				toRemove.add(s);
 			}
 		}
-	    siter = toRemove.listIterator();
-	    while (siter.hasNext())
-	    	graphicsListener.onGraphicsEraseListener(page, siter.next());
+	    for (Stroke s : toRemove)
+	    	graphicsListener.onGraphicsEraseListener(page, s);
 		if (toRemove.isEmpty())
 			return false;
 		else {
@@ -579,6 +586,25 @@ public class HandwriterView extends ViewGroup {
 		}
 	}
 	
+	public boolean eraseLineArtIn(RectF r) {
+		LinkedList<GraphicsControlpoint> toRemove = new LinkedList<GraphicsControlpoint>();
+	    for (GraphicsControlpoint graphics: page.lineArt) {	
+			if (!RectF.intersects(r, graphics.getBoundingBox())) continue;
+			if (graphics.intersects(r)) {
+				toRemove.add(graphics);
+			}
+		}
+	    for (GraphicsControlpoint graphics : toRemove)
+	    	graphicsListener.onGraphicsEraseListener(page, graphics);
+		if (toRemove.isEmpty())
+			return false;
+		else {
+			invalidate();
+			return true;
+		}
+	}
+	
+
 	protected void saveStroke(Stroke s) {
 		if (page.is_readonly) {
 			toastIsReadonly();

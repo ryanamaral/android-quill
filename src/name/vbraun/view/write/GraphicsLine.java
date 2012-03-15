@@ -59,9 +59,38 @@ public class GraphicsLine extends GraphicsControlpoint {
 		return -getScaledPenThickness()/2 - 1;
 	}
 	
+	
 	@Override
-	public boolean intersects(RectF r_screen) {
-		return false;
+	public boolean intersects(RectF screenRect) {
+		float x0 = p0.screenX() + 0.1f;
+		float x1 = p1.screenX();
+		float y0 = p0.screenY();
+		float y1 = p1.screenY();
+		return lineIntersectsRectF(x0, y0, x1, y1, screenRect);
+	}
+	
+	public static boolean lineIntersectsRectF(float x0, float y0, float x1, float y1, RectF rect) { 
+		// F(x,y) = (y1-y0)x + (x0-x1)y + (x1*y0-x0*y1)
+		float dx = x1-x0;
+		float dy = y1-y0;
+		float F0 = x1*y0-x0*y1;
+		float F1 = dy * rect.left  + dx * rect.bottom + F0;
+		float F2 = dy * rect.left  + dx * rect.top    + F0;
+		float F3 = dy * rect.right + dx * rect.bottom + F0;
+		float F4 = dy * rect.right + dx * rect.top    + F0;
+		boolean allNegative = (F1<0) && (F2<0) && (F3<0) && (F4<0);
+		boolean allPositive = (F1>0) && (F2>0) && (F3>0) && (F4>0);
+		if (allNegative || allPositive) return false;
+		// rect intersects the infinite line, check segment endpoints
+		float xMin = Math.min(x0, x1);
+		if (xMin > rect.right) return false;
+		float xMax = Math.max(x0, x1);
+		if (xMax < rect.left) return false;
+		float yMin = Math.min(y0, y1);
+		if (yMin > rect.top) return false;
+		float yMax = Math.max(y0, y1);
+		if (yMax < rect.bottom) return false;
+		return true;
 	}
 
 	@Override
