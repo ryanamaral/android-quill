@@ -184,10 +184,9 @@ public class Toolbox
 		tagButton.setOnClickListener(this);
 		menuButton.setOnClickListener(this);
 		
-        if (debugOptions) {
+        if (!debugOptions) {
         	textButton.setVisibility(View.GONE);  // TODO
         	photoButton.setVisibility(View.GONE);  // TODO
-        	lineButton.setVisibility(View.GONE); // TODO
         }
     	   
 		if (height_small) {
@@ -296,7 +295,6 @@ public class Toolbox
 		if (debugOptions) {
         	textButton.setVisibility(vis);  // TODO
         	photoButton.setVisibility(vis);  // TODO
-        	lineButton.setVisibility(vis); // TODO
         }
 
 		if (!height_small) {
@@ -321,6 +319,7 @@ public class Toolbox
 			colorFuchsia.setVisibility(vis); 
 			colorPurple.setVisibility(vis);
 			resizeButton.setVisibility(vis);
+	    	lineButton.setVisibility(vis);
 			eraserButton.setVisibility(vis);			
 		}
 	}

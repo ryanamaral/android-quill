@@ -23,6 +23,10 @@ public abstract class GraphicsControlpoint extends Graphics {
 	public class Controlpoint {
 		protected float x,y;   // page coordinates
 		public Controlpoint(float x, float y) {
+			this.x = x;
+			this.y = y;
+		}
+		public Controlpoint(Transformation transform, float x, float y) {
 			this.x = transform.inverseX(x);
 			this.y = transform.inverseY(y);
 		}

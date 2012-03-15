@@ -41,7 +41,6 @@ public abstract class TouchHandlerControlpointABC
 	protected TouchHandlerControlpointABC(HandwriterView view, boolean activePen) {
 		super(view);
 		this.activePen = activePen;
-		paint.setARGB(0x20, 0xff, 0x0, 0x0);
 		view.invalidate(); // make control points appear
 	}
 	
@@ -131,7 +130,7 @@ public abstract class TouchHandlerControlpointABC
 				activeControlpoint = null;
 				return true;
 			}
-			Log.v(TAG, "ACTION_DOWN");
+			// Log.v(TAG, "ACTION_DOWN");
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
@@ -148,7 +147,7 @@ public abstract class TouchHandlerControlpointABC
 			Assert.assertTrue(event.getPointerCount() == 1);
 			int id = event.getPointerId(0);
 			if (id == penID) {
-				Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
+				// Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
 				if (newGraphicsObject != null) {
 					saveGraphics(newGraphicsObject);
 					newGraphicsObject = null;
@@ -190,7 +189,7 @@ public abstract class TouchHandlerControlpointABC
 			if (distance >= getMoveGestureMinDistance()) {
 				fingerId2 = event.getPointerId(idx2);
 			}
-			Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
+			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
 		}
 		return false;
 	}
@@ -237,7 +236,6 @@ public abstract class TouchHandlerControlpointABC
 		view.saveGraphics(graphics);
 	}
 	
-	private final Paint paint = new Paint();
 	private final RectF bBox = new RectF();
 	private final Rect  rect = new Rect();
 
@@ -245,14 +243,13 @@ public abstract class TouchHandlerControlpointABC
 		Assert.assertNotNull(activeControlpoint);
 		activeControlpoint.move(newX, newY);
 		GraphicsControlpoint graphics = activeControlpoint.getGraphics();
-		Log.v(TAG, "drawOutline "+graphics.getBoundingBoxRoundOut());
+		// Log.v(TAG, "drawOutline "+graphics.getBoundingBoxRoundOut());
 		RectF newBoundingBox = graphics.getBoundingBox();
 		final float dr = graphics.controlpointRadius();
 		newBoundingBox.inset(-dr, -dr);
 		bBox.union(newBoundingBox);
 		getPage().draw(view.canvas, bBox);
 		graphics.draw(view.canvas, graphics.getBoundingBox());
-		// view.canvas.drawRect(bBox, paint);
 		bBox.roundOut(rect);
 		view.invalidate(rect);
 		bBox.set(newBoundingBox);

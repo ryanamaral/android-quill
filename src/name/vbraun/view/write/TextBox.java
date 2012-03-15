@@ -1,5 +1,8 @@
 package name.vbraun.view.write;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.DynamicLayout;
@@ -47,6 +50,12 @@ public class TextBox extends Graphics {
 		c.translate(10, 60);
 		textLayout.draw(c);
 		c.restore();
+	}
+
+	@Override
+	public void writeToStream(DataOutputStream out) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

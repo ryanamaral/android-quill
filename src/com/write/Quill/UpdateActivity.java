@@ -171,7 +171,8 @@ public class UpdateActivity
 			changeButton.setEnabled(false);
 			run();
 		} else if (view == changeButton) {
-    		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
+    		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
+    		intent.setAction("org.openintents.action.PICK_DIRECTORY");
     		intent.putExtra("org.openintents.extra.TITLE", "Please select a backup folder");
     		startActivityForResult(intent, Preferences.REQUEST_CODE_PICK_BACKUP_DIRECTORY);
 		}
