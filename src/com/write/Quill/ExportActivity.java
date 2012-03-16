@@ -539,7 +539,6 @@ public class ExportActivity
         intent.setAction(Intent.ACTION_SEND);
         intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.setData(uri);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         try {
             startActivity(Intent.createChooser(intent, 
