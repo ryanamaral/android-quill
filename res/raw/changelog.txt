@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 9.2
+  % Version 9.2
+  _ 2012-03-18
+    * Fix: close app when pressing back twice
 $ 9.1
   % Version 9.1
   _ 2012-03-16

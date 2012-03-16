@@ -742,17 +742,26 @@ public class QuillWriterActivity
     	super.onStop();
     }
     
+    private final static int REQUEST_REPORT_BACK_KEY = 1;
+    
     private void launchOverviewActivity() {
 		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
     	startActivity(i);
     }
     
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (requestCode == REQUEST_REPORT_BACK_KEY && resultCode == RESULT_OK) {
+    		boolean backPressed = data.getBooleanExtra(ThumbnailActivity.RESULT_BACK_KEY_PRESSED, false);
+    		if (backPressed) 
+    			finish();
+    	}
+    }
+    
+    @Override
     public void onBackPressed() {
-    	if (isTaskRoot())
-    		launchOverviewActivity();
-    	else
-    		super.onBackPressed();
+		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
+    	startActivityForResult(i, REQUEST_REPORT_BACK_KEY);
     }
     
     

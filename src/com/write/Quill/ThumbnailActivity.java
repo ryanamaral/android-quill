@@ -48,6 +48,9 @@ public class ThumbnailActivity
 	
 	private static final String TAG = "Overview";
 	
+	private boolean backPressedImmediately = true;
+	public static final String RESULT_BACK_KEY_PRESSED = "result_back_key_pressed";
+	
 	private View layout;
 	private Menu menu;
 	
@@ -64,13 +67,23 @@ public class ThumbnailActivity
     }
     
     private void launchQuillWriterActivity() {
-    	//	Intent i = new Intent(getApplicationContext(), QuillWriterActivity.class);    
-    	//	i.setFlags(Intent.FLAG_);
-    	//	startActivity(i);
+    	Intent i = new Intent();
+    	i.putExtra(RESULT_BACK_KEY_PRESSED, false);
+    	setResult(RESULT_OK, i);
     	finish();
     }
 
+    @Override
+    public void onBackPressed() {
+    	Intent i = new Intent();
+    	i.putExtra(RESULT_BACK_KEY_PRESSED, backPressedImmediately);
+    	setResult(RESULT_OK, i);
+    	finish();
+    	super.onBackPressed();
+    }
+    	
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		backPressedImmediately = false;
 		switch (parent.getId()) {
 		case R.id.tag_list:
 			Tag t = tagManager.get(position);
@@ -90,6 +103,7 @@ public class ThumbnailActivity
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		backPressedImmediately = false;
 		Log.d(TAG, "onItemLongClick "+parent.getId());
 		switch (parent.getId()) {
 		case R.id.tag_list:
@@ -148,6 +162,7 @@ public class ThumbnailActivity
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		backPressedImmediately = false;
 		Intent i;
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
@@ -231,7 +246,6 @@ public class ThumbnailActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		layout = getLayoutInflater().inflate(R.layout.thumbnail_activity, null);
 		setContentView(layout);
 		tagList = (TagListView) findViewById(R.id.tag_list_view);
