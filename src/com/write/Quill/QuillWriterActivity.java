@@ -148,6 +148,7 @@ public class QuillWriterActivity
     	switchToPage(book.currentPage());
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	UndoManager.setApplication(this);
     }
 
     
