@@ -227,10 +227,10 @@ public class UpdateActivity
 					startActivity(intent);
 					finish();
 				} catch (IOException e) {
-					Log.e(TAG, e.getMessage());
+					Log.e(TAG, "Error backing up notebooks " + e.getMessage());
 					showToast("Error backing up notebooks!");				
 				} catch (BookLoadException e) {
-					Log.e(TAG, e.getMessage());
+					Log.e(TAG, "Error converting notebooks " + e.getMessage());
 					showToast("Error converting notebooks!");				
 				}
 			}

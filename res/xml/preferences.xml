@@ -30,7 +30,7 @@
  
  
  <CheckBoxPreference android:title="Show the action bar" android:key="show_action_bar" android:summary="Whether to show the horizontal bar on the top of the screen" android:defaultValue="true"/>
- <CheckBoxPreference android:key="hide_system_bar" android:title="Hide system bar (requires root)" android:summary="Remove the horizontal bar at the bottom (home button, clock) of the screen" android:defaultValue="false"/><CheckBoxPreference android:key="some_tools_switch_back" android:summary="Automatically switch back to pen after finishing move/zoom/erase/..." android:title="Tools switch back" android:defaultValue="true"/>
+ <CheckBoxPreference android:key="hide_system_bar" android:title="Hide system bar (requires root)" android:summary="Remove the horizontal bar at the bottom (home button, clock) of the screen" android:defaultValue="false"/><CheckBoxPreference android:key="some_tools_switch_back" android:summary="Automatically switch back to pen after finishing move/zoom/erase" android:title="Tools switch back" android:defaultValue="true"/>
  
  
 </PreferenceCategory><PreferenceCategory android:title="User data">

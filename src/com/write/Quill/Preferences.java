@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.lib.pen.HideBar;
 import name.vbraun.view.write.HandwriterView;
@@ -51,9 +53,9 @@ public class Preferences
 	protected static final int RESULT_RESTORE_BACKUP = 0x1234;
 	protected static final String RESULT_FILENAME = "Preferences.filename";
 
-	ListPreference penMode;
-	ListPreference overridePen;
-	
+	protected ListPreference penMode;
+	protected ListPreference overridePen;
+
 	protected static final String KEY_LIST_PEN_INPUT_MODE = HandwriterView.KEY_LIST_PEN_INPUT_MODE;
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = HandwriterView.KEY_DOUBLE_TAP_WHILE_WRITE;
 	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = HandwriterView.KEY_MOVE_GESTURE_WHILE_WRITING;
@@ -85,10 +87,11 @@ public class Preferences
 		}
 		
 		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
-		if (Hardware.hasPenDigitizer()) 
-			penMode.setDefaultValue(STYLUS_WITH_GESTURES);
-		else
-			penMode.setDefaultValue(STYLUS_AND_TOUCH);
+		if (penMode.getValue() == null)
+			if (Hardware.hasPenDigitizer()) 
+				penMode.setValue(STYLUS_WITH_GESTURES);
+			else
+				penMode.setValue(STYLUS_AND_TOUCH);
 		
 		overridePen = (ListPreference)findPreference(KEY_OVERRIDE_PEN_TYPE);
 		String overridePenAutomatic = res.getStringArray(R.array.override_pen_type_values)[0];

@@ -202,9 +202,10 @@ public abstract class TouchHandlerControlpointABC
 			float x = (newX1-oldX1+newX2-oldX2)/2;
 			float y = (newY1-oldY1+newY2-oldY2)/2; 
 			canvas.drawBitmap(bitmap, x, y, null);
-		} else
+		} else {
 			canvas.drawBitmap(bitmap, 0, 0, null);
-		drawControlpoints(canvas);
+			drawControlpoints(canvas);
+		}
 	}
 	
 	protected void drawControlpoints(Canvas canvas) {
