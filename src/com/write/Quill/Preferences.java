@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -74,6 +75,7 @@ public class Preferences
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
       	StorageAndroid.initialize(getApplicationContext());
+		Resources res = getResources();
 
 		super.onCreate(savedInstanceState);  
 		try {
@@ -83,7 +85,14 @@ public class Preferences
 		}
 		
 		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
+		if (Hardware.hasPenDigitizer()) 
+			penMode.setDefaultValue(STYLUS_WITH_GESTURES);
+		else
+			penMode.setDefaultValue(STYLUS_AND_TOUCH);
+		
 		overridePen = (ListPreference)findPreference(KEY_OVERRIDE_PEN_TYPE);
+		String overridePenAutomatic = res.getStringArray(R.array.override_pen_type_values)[0];
+		overridePen.setDefaultValue(overridePenAutomatic);
 		
 		restorePreference = findPreference(PREFERENCE_RESTORE);
 		restorePreference.setOnPreferenceClickListener(this);
@@ -111,7 +120,7 @@ public class Preferences
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getInstance(context);
 		boolean hasPenDigitizer = hw.hasPenDigitizer();
-				
+		
 		penMode.setSummary(penMode.getEntry());
 		penMode.setEnabled(hasPenDigitizer);
 		
