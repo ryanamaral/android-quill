@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.write.Quill" android:versionName="9.1" android:versionCode="25">
+      package="com.write.Quill" android:versionName="9.2" android:versionCode="26">
     <uses-sdk android:minSdkVersion="12" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <application 
