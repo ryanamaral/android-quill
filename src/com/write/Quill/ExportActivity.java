@@ -321,7 +321,8 @@ public class ExportActivity
 				file.deleteOnExit();
 				break;
 			case SHARE_PICK_DIR:
-	    		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
+	    		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
+	    		intent.setAction("org.openintents.action.PICK_DIRECTORY");
 	    		intent.putExtra("org.openintents.extra.TITLE", "Select destination folder");
 	    		startActivityForResult(intent, REQUEST_CODE_PICK_DIRECTORY);
 	    		break;

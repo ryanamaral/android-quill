@@ -22,8 +22,10 @@
   <body>
 $ 9.2
   % Version 9.2
-  _ 2012-03-18
-    * Fix: close app when pressing back twice
+  _ 2012-03-16
+    * close app when pressing back twice
+    * fix export to specific directory
+    * fix force close in settings
 $ 9.1
   % Version 9.1
   _ 2012-03-16
