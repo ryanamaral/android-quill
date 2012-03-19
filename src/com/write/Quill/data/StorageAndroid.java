@@ -96,7 +96,10 @@ public class StorageAndroid extends Storage {
 		boolean backup_automatic = settings.getBoolean(KEY_AUTO_BACKUP, true);
 		if (!backup_automatic) return null;
 		String backup_directory = settings.getString(KEY_BACKUP_DIR, getDefaultBackupDir().getAbsolutePath());
-		return new File(backup_directory);
+		File dir = new File(backup_directory);
+		if (!dir.exists())
+			dir.mkdir();
+		return dir; 
 	}
 	
 	

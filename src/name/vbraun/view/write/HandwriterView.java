@@ -34,6 +34,7 @@ public class HandwriterView extends ViewGroup {
 	public static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
 	public static final String KEY_DOUBLE_TAP_WHILE_WRITE = "double_tap_while_write";
 	public static final String KEY_MOVE_GESTURE_WHILE_WRITING = "move_gesture_while_writing";
+	public static final String KEY_MOVE_GESTURE_FIX_ZOOM = "move_gesture_fix_zoom";
 	public static final String KEY_PALM_SHIELD = "palm_shield";
 	public static final String KEY_TOOLBOX_IS_ON_LEFT = "toolbox_left";
 	private static final String KEY_TOOLBOX_IS_VISIBLE = "toolbox_is_visible";
@@ -116,8 +117,27 @@ public class HandwriterView extends ViewGroup {
 	private Tool tool_type = null;
 	protected boolean onlyPenInput = true;
 	protected boolean moveGestureWhileWriting = true;
+	protected boolean moveGestureFixZoom = true;
 	protected int moveGestureMinDistance = 400; // pixels
 	protected boolean doubleTapWhileWriting = true;
+	
+	private boolean acceptInput = false;
+	
+	/**
+	 * Stop input event processing (to be called from onPause/onResume if you want to make sure 
+	 * that no events are processed
+	 */
+	public void stopInput() {
+		acceptInput = false;
+	}
+	
+	/**
+	 * Start input event processing. Needs to be called from onResume() when the 
+	 * activity is ready to receive input.
+	 */
+	public void startInput() {
+		acceptInput = true;
+	}
 	
 	public void setOnGraphicsModifiedListener(GraphicsModifiedListener newListener) {
 		graphicsListener = newListener;
@@ -266,6 +286,14 @@ public class HandwriterView extends ViewGroup {
 		this.moveGestureWhileWriting = moveGestureWhileWriting;
 	}
 
+	public boolean getMoveGestureFixZoom() {
+		return moveGestureFixZoom;
+	}
+	
+	public void setMoveGestureFixZoom(boolean moveGestureFixZoom) {
+		this.moveGestureFixZoom = moveGestureFixZoom;
+	}
+	
 	public int getMoveGestureMinDistance() {
 		return moveGestureMinDistance;
 	}
@@ -371,6 +399,7 @@ public class HandwriterView extends ViewGroup {
 			setOnlyPenInput(true);
 			setDoubleTapWhileWriting(false);
 			setMoveGestureWhileWriting(false);
+			setMoveGestureFixZoom(false);
 			setPalmShieldEnabled(false);
 		}
 		else if (pen_input_mode.equals(STYLUS_WITH_GESTURES)) {
@@ -379,12 +408,14 @@ public class HandwriterView extends ViewGroup {
 					KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
     		setMoveGestureWhileWriting(settings.getBoolean(
     				KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
+			setMoveGestureFixZoom(settings.getBoolean(KEY_MOVE_GESTURE_FIX_ZOOM, true));
     		setPalmShieldEnabled(false);
 		}
 		else if (pen_input_mode.equals(STYLUS_AND_TOUCH)) {
 			setOnlyPenInput(false);
 			setDoubleTapWhileWriting(false);
 			setMoveGestureWhileWriting(false);
+			setMoveGestureFixZoom(false);
 			setPalmShieldEnabled(settings.getBoolean(KEY_PALM_SHIELD, false));
 		}
 		else Assert.fail();
@@ -546,6 +577,7 @@ public class HandwriterView extends ViewGroup {
 
 	@Override 
 	public boolean onTouchEvent(MotionEvent event) {
+		if (!acceptInput) return false;
 //		InputDevice dev = event.getDevice();
 //		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
 //		Log.v(TAG, "Touch: "+event.getDevice().getName()

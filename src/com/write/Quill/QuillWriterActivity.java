@@ -146,9 +146,18 @@ public class QuillWriterActivity
         	createTagButton(bar);
         }
     	switchToPage(book.currentPage());
-    	
-    	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	setKeepScreenOn();
     	UndoManager.setApplication(this);
+    }
+
+
+    private void setKeepScreenOn() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean screenOn = settings.getBoolean(Preferences.KEY_KEEP_SCREEN_ON, true);
+        if (screenOn) 
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     
@@ -682,6 +691,7 @@ public class QuillWriterActivity
 
         
     @Override protected void onResume() {
+    	mView.stopInput();
     	UndoManager.setApplication(this);
         mView.setOnToolboxListener(null);
         super.onResume();
@@ -718,11 +728,14 @@ public class QuillWriterActivity
         mView.setOnToolboxListener(this);
         mView.setOnStrokeFinishedListener(this);
     	updateUndoRedoIcons();
+    	setKeepScreenOn();
+    	mView.startInput();
     }
     
     @Override 
     protected void onPause() {
     	Log.d(TAG, "onPause");
+    	mView.stopInput();
         if (hideSystembar)
         	HideBar.showSystembar(getApplicationContext());
         super.onPause();

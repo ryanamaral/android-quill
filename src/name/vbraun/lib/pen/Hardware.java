@@ -54,7 +54,9 @@ public class Hardware {
 	
 	public void autodetect(Context context) {
 		model = android.os.Build.MODEL;
-		if (model.equalsIgnoreCase("ThinkPad Tablet")) {  // Lenovo ThinkPad Tablet
+		// Log.v(TAG, model);
+		if (model.equalsIgnoreCase("ThinkPad Tablet") || // Lenovo ThinkPad Tablet
+			model.equalsIgnoreCase("GT-I9220")) {  // Galaxy note
 			forceThinkpadTablet();
 		} else {
 			// defaults; this works on HTC devices but might be more general
