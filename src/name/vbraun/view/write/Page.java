@@ -113,9 +113,10 @@ public class Page {
 		transformation.offset_x = newTrans.offset_x;
 		transformation.offset_y = newTrans.offset_y;
 		transformation.scale = newTrans.scale;
-	    ListIterator<Stroke> siter = strokes.listIterator();
-	    while (siter.hasNext())
-	    	siter.next().setTransform(transformation);
+	    for (Stroke stroke : strokes)
+	    	stroke.setTransform(transformation);
+	    for (GraphicsControlpoint line : lineArt)
+	    	line.setTransform(transformation);
 	}
 
 	// set transform but clamp the offset such that the page stays visible
