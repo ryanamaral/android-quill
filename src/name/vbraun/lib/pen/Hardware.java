@@ -17,6 +17,7 @@ public class Hardware {
 	public static final String PEN_TYPE_AUTO = "PEN_TYPE_AUTO";
     public static final String PEN_TYPE_CAPACITIVE = "PEN_TYPE_CAPACITIVE";
     public static final String PEN_TYPE_THINKPAD_TABLET = "PEN_TYPE_THINKPAD_TABLET";
+    public static final String PEN_TYPE_SAMSUNG_NOTE = "PEN_TYPE_SAMSUNG_NOTE";
     public static final String PEN_TYPE_ICS = "PEN_TYPE_ICS";
 
 	
@@ -55,9 +56,10 @@ public class Hardware {
 	public void autodetect(Context context) {
 		model = android.os.Build.MODEL;
 		// Log.v(TAG, model);
-		if (model.equalsIgnoreCase("ThinkPad Tablet") || // Lenovo ThinkPad Tablet
-			model.equalsIgnoreCase("GT-I9220")) {  // Galaxy note
+		if (model.equalsIgnoreCase("ThinkPad Tablet")) { // Lenovo ThinkPad Tablet
 			forceThinkpadTablet();
+		} else if (model.equalsIgnoreCase("GT-I9220")) {  // Galaxy note
+			forceSamsungNote();
 		} else {
 			// defaults; this works on HTC devices but might be more general
 			mHasPenDigitizer = context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.pen");
@@ -75,6 +77,11 @@ public class Hardware {
 		mPenEvent = new PenEventThinkPadTablet();
 	}
 	
+	public void forceSamsungNote() {
+		mHasPenDigitizer = true;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEventSamsungNote();
+	}
 	public void forceCapacitivePen() {
 		mHasPenDigitizer = false;
 		mHasPressureSensor = true;
