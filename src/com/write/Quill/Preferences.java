@@ -59,6 +59,7 @@ public class Preferences
 	protected static final String KEY_LIST_PEN_INPUT_MODE = HandwriterView.KEY_LIST_PEN_INPUT_MODE;
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = HandwriterView.KEY_DOUBLE_TAP_WHILE_WRITE;
 	protected static final String KEY_MOVE_GESTURE_WHILE_WRITING = HandwriterView.KEY_MOVE_GESTURE_WHILE_WRITING;
+	protected static final String KEY_MOVE_GESTURE_FIX_ZOOM = HandwriterView.KEY_MOVE_GESTURE_FIX_ZOOM;
 	protected static final String KEY_PALM_SHIELD = HandwriterView.KEY_PALM_SHIELD;
 	protected static final String KEY_BACKUP_DIR = com.write.Quill.data.StorageAndroid.KEY_BACKUP_DIR;
 	protected static final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
@@ -66,7 +67,8 @@ public class Preferences
 	protected static final String KEY_SHOW_ACTION_BAR = "show_action_bar";
 	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
 	protected static final String KEY_TOOLS_SWITCH_BACK = "some_tools_switch_back";
-
+	protected static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	
     protected static final String STYLUS_ONLY = HandwriterView.STYLUS_ONLY;
     protected static final String STYLUS_WITH_GESTURES = HandwriterView.STYLUS_WITH_GESTURES;
     protected static final String STYLUS_AND_TOUCH = HandwriterView.STYLUS_AND_TOUCH;
@@ -132,6 +134,7 @@ public class Preferences
 		boolean gestures = penMode.getValue().equals(STYLUS_WITH_GESTURES);
     	findPreference(KEY_DOUBLE_TAP_WHILE_WRITE).setEnabled(gestures);
     	findPreference(KEY_MOVE_GESTURE_WHILE_WRITING).setEnabled(gestures);
+    	findPreference(KEY_MOVE_GESTURE_FIX_ZOOM).setEnabled(gestures);
     	
     	boolean touch = penMode.getValue().equals(STYLUS_AND_TOUCH);
     	findPreference(KEY_PALM_SHIELD).setEnabled(touch);

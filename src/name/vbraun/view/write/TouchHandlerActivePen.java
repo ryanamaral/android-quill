@@ -3,6 +3,9 @@ package name.vbraun.view.write;
 import junit.framework.Assert;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -143,11 +146,30 @@ public class TouchHandlerActivePen
 						(id == fingerId1 || id == fingerId2) &&
 						fingerId1 != -1 && fingerId2 != -1) {
 				Page page = getPage();
-				float dx = page.transformation.offset_x + (newX1-oldX1+newX2-oldX2)/2;
-				float dy = page.transformation.offset_y + (newY1-oldY1+newY2-oldY2)/2; 
-				page.setTransform(dx, dy, page.transformation.scale, view.canvas);
+				float page_offset_x = page.transformation.offset_x;
+				float page_offset_y = page.transformation.offset_y;
+				float page_scale = page.transformation.scale;
+				float scale = pinchZoomScaleFactor();
+				float new_page_scale = page_scale * scale;
+				// clamp scale factor
+				float W = view.canvas.getWidth();
+				float H = view.canvas.getHeight();
+				float max_WH = Math.max(W, H);
+				float min_WH = Math.min(W, H);
+				new_page_scale = Math.min(new_page_scale, 5*max_WH);
+				new_page_scale = Math.max(new_page_scale, 0.4f*min_WH);
+				scale = new_page_scale / page_scale;
+				// compute offset
+				float x0 = (oldX1 + oldX2)/2;
+				float y0 = (oldY1 + oldY2)/2;
+				float x1 = (newX1 + newX2)/2;
+				float y1 = (newY1 + newY2)/2;
+				float new_offset_x = page_offset_x*scale-x0*scale+x1;
+				float new_offset_y = page_offset_y*scale-y0*scale+y1;
+				// perform pinch-to-zoom here
+				page.setTransform(new_offset_x, new_offset_y, new_page_scale, view.canvas);
 				page.draw(view.canvas);
-				view.invalidate();				
+				view.invalidate();
 			}
 			penID = fingerId1 = fingerId2 = -1;
 			return true;
@@ -179,16 +201,49 @@ public class TouchHandlerActivePen
 		return false;
 	}
 
+	private RectF mRectF = new RectF();
+	private Rect  mRect  = new Rect();
+	
 	@Override
 	protected void onDraw(Canvas canvas, Bitmap bitmap) {
 		if (fingerId2 != -1) {
-			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-			float x = (newX1-oldX1+newX2-oldX2)/2;
-			float y = (newY1-oldY1+newY2-oldY2)/2; 
-			canvas.drawBitmap(bitmap, x, y, null);
+			float W = canvas.getWidth();
+			float H = canvas.getHeight();
+			float scale = pinchZoomScaleFactor();
+			float x0 = (oldX1 + oldX2)/2;
+			float y0 = (oldY1 + oldY2)/2;
+			float x1 = (newX1 + newX2)/2;
+			float y1 = (newY1 + newY2)/2;
+			mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
+			mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
+			canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
 		} else
 			canvas.drawBitmap(bitmap, 0, 0, null);
 	}
+	
+	private float pinchZoomScaleFactor() {
+		if (view.getMoveGestureFixZoom())
+			return 1f;
+		float dx, dy;
+		dx = oldX1-oldX2;
+		dy = oldY1-oldY2;
+		float old_distance = FloatMath.sqrt(dx*dx + dy*dy);
+		if (old_distance < 10) {
+			// Log.d("TAG", "old_distance too small "+old_distance);
+			return 1;
+		}
+		dx = newX1-newX2;
+		dy = newY1-newY2;
+		float new_distance = FloatMath.sqrt(dx*dx + dy*dy);
+		float scale = new_distance / old_distance;
+		if (scale < 0.1f || scale > 10f) {
+			// Log.d("TAG", "ratio out of bounds "+new_distance);
+			return 1f;
+		}
+		return scale;
+	}
+	
+
 
 }

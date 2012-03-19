@@ -16,7 +16,7 @@
   	android:summary="Drag the page around with two finger touch while writing">
   </CheckBoxPreference>
   
-  <CheckBoxPreference android:defaultValue="false" android:summary="Make bottom half of screen insensitive to touch (top half if left-handed)" android:key="palm_shield" android:title="Palm shield"/><CheckBoxPreference 
+  <CheckBoxPreference android:title="Lock zoom during move gesture" android:key="move_gesture_fix_zoom" android:summary="Whether or not zoom stays constant or changes with pinch" android:defaultValue="true"/><CheckBoxPreference android:defaultValue="false" android:summary="Make bottom half of screen insensitive to touch (top half if left-handed)" android:key="palm_shield" android:title="Palm shield"/><CheckBoxPreference 
   	android:key="volume_key_navigation" 
   	android:defaultValue="true" 
   	android:summary="Press volume-up for next page, volume-down for previous page" 
@@ -31,6 +31,8 @@
  
  <CheckBoxPreference android:title="Show the action bar" android:key="show_action_bar" android:summary="Whether to show the horizontal bar on the top of the screen" android:defaultValue="true"/>
  <CheckBoxPreference android:key="hide_system_bar" android:title="Hide system bar (requires root)" android:summary="Remove the horizontal bar at the bottom (home button, clock) of the screen" android:defaultValue="false"/><CheckBoxPreference android:key="some_tools_switch_back" android:summary="Automatically switch back to pen after finishing move/zoom/erase" android:title="Tools switch back" android:defaultValue="true"/>
+ 
+ <CheckBoxPreference android:title="Keep screen on" android:defaultValue="true" android:key="keep_screen_on" android:summary="Screen stays on in the main window"/>
  
  
 </PreferenceCategory><PreferenceCategory android:title="User data">
