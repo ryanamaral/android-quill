@@ -158,6 +158,7 @@ public class QuillWriterActivity
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     
@@ -395,6 +396,9 @@ public class QuillWriterActivity
     	case R.id.tools_pencil:
     		setActiveTool(Tool.PENCIL);
     		return true;
+		case R.id.tools_line:
+			setActiveTool(Tool.LINE);
+			return true;
     	case R.id.eraser:
     	case R.id.tools_eraser:
     		setActiveTool(Tool.ERASER);
