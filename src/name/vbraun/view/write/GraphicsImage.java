@@ -3,7 +3,9 @@ package name.vbraun.view.write;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import junit.framework.Assert;
 
@@ -22,6 +24,18 @@ public class GraphicsImage extends GraphicsControlpoint {
 	private final Paint paint = new Paint();
 	private final Rect  rect  = new Rect();
 	private final RectF rectF = new RectF();
+	
+	
+	enum FileType { 
+		FILETYPE_NONE, FILETYPE_PNG, FILETYPE_JPG  
+	}
+
+	// persistent data
+	protected URI sourceUri = null;
+	protected UUID uuid = null;
+	protected boolean constrainAspect = false;
+	protected FileType fileType = FileType.FILETYPE_NONE;
+	protected Rect cropRect = new Rect();
 	
 	/**
 	 * @param transform The current transformation
@@ -49,6 +63,8 @@ public class GraphicsImage extends GraphicsControlpoint {
 	private void init() {
 		paint.setARGB(0x60, 0x0, 0xff, 0x0);
 		paint.setStyle(Style.FILL);
+		if (uuid == null)
+			uuid = UUID.randomUUID();
 	}
 	
 	@Override

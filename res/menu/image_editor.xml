@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/image_editor_pick" android:title="Pick image" android:showAsAction="ifRoom" android:titleCondensed="Pick"></item>
+    <item android:id="@+id/image_editor_photo" android:title="Take photo" android:showAsAction="ifRoom" android:titleCondensed="Photo"></item>
+    
+
+</menu>
