@@ -163,7 +163,8 @@ public abstract class Storage {
 	
 	public UUID importArchive(File file) throws StorageIOException {
 		Bookshelf.assertNoCurrentBook();
-		File destFolder = getFilesDir();
+		File filesFolder = getFilesDir();
+		File notebookFile = null; 
 		TarInputStream tis;
 		UUID uuid = null;
 		try {
@@ -177,11 +178,14 @@ public abstract class Storage {
 					uuid = getBookUUIDfromDirectoryName(entry.getName());
 					if (uuid == null)
 						throw new StorageIOException("Incorrect book archive file");
+					File notebookDir = getBookDirectory(uuid);
+					if (!notebookDir.exists()) notebookDir.mkdir();
 				} else if (!uuid.equals(getBookUUIDfromDirectoryName(entry.getName())))
 					throw new StorageIOException("Incorrect book archive file");
+				notebookFile = new File(filesFolder, entry.getName());
 				int count;
 				byte data[] = new byte[2048];
-				FileOutputStream fos = new FileOutputStream(destFolder + "/" + entry.getName());
+				FileOutputStream fos = new FileOutputStream(notebookFile);
 				BufferedOutputStream dest = new BufferedOutputStream(fos);
 				while((count = tis.read(data)) != -1) {
 					dest.write(data, 0, count);

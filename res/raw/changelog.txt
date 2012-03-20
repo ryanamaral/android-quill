@@ -26,6 +26,7 @@ $ 9.3
     * Make screen on configurable
     * Make pinch-to-zoom in move gesture configurable
     * Support Galaxy Note stylus
+    * Fix for notebook restore
 $ 9.2
   % Version 9.2
   _ 2012-03-16
