@@ -34,7 +34,7 @@ public class Page {
 	
 	// persistent data
 	protected UUID uuid;  // unique identifier
-	public final LinkedList<GraphicsImage> images = new LinkedList<GraphicsImage>();
+	public final LinkedList<GraphicsControlpoint> images = new LinkedList<GraphicsControlpoint>();
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	// lineArt contains straight lines, arrows, etc.
 	public final LinkedList<GraphicsControlpoint> lineArt = new LinkedList<GraphicsControlpoint>();
@@ -104,20 +104,26 @@ public class Page {
 		transformation.offset_x = dx;
 		transformation.offset_y = dy;
 		transformation.scale = s;
-	    for (Stroke stroke : strokes)
-	    	stroke.setTransform(transformation);
-	    for (GraphicsControlpoint line : lineArt)
-	    	line.setTransform(transformation);
+		setTransformApply();
 	}
 	
 	protected void setTransform(Transformation newTrans) {
 		transformation.offset_x = newTrans.offset_x;
 		transformation.offset_y = newTrans.offset_y;
 		transformation.scale = newTrans.scale;
+		setTransformApply();
+	}
+		
+	/**
+	 * the common code of the setTransform(...) methods
+	 */
+	private void setTransformApply() { 
 	    for (Stroke stroke : strokes)
 	    	stroke.setTransform(transformation);
 	    for (GraphicsControlpoint line : lineArt)
 	    	line.setTransform(transformation);
+	    for (GraphicsControlpoint image : images)
+	    	image.setTransform(transformation);
 	}
 
 	// set transform but clamp the offset such that the page stays visible
@@ -185,9 +191,9 @@ public class Page {
 		else
 			background.drawEmptyBackground(canvas, bounding_box, transformation);
 		backgroundText.draw(canvas, bounding_box);
-		for (GraphicsImage img: images) {
-		   	if (!canvas.quickReject(img.getBoundingBox(), Canvas.EdgeType.AA))
-		   		img.draw(canvas, bounding_box);
+		for (GraphicsControlpoint graphics: images) {
+		   	if (!canvas.quickReject(graphics.getBoundingBox(), Canvas.EdgeType.AA))
+		   		graphics.draw(canvas, bounding_box);
 	    }
 		for (Stroke s: strokes) {
 		   	if (!canvas.quickReject(s.getBoundingBox(), Canvas.EdgeType.AA))

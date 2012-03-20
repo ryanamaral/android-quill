@@ -10,6 +10,7 @@ import junit.framework.Assert;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
@@ -47,6 +48,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 
 	private void init() {
 		paint.setARGB(0x60, 0x0, 0xff, 0x0);
+		paint.setStyle(Style.FILL);
 	}
 	
 	@Override
@@ -62,14 +64,52 @@ public class GraphicsImage extends GraphicsControlpoint {
 	@Override
 	public void draw(Canvas c, RectF bounding_box) {
 		computeScreenRect();
-		Log.e(TAG, "draw() "+ rect);
 		c.drawRect(rect, paint);
+		c.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
 	}
 
+	private Controlpoint oppositeControlpoint(Controlpoint point) {
+		if (point == bottom_right) return top_left;
+		if (point == bottom_left)  return top_right;
+		if (point == top_right)    return bottom_left;
+		if (point == top_left)     return bottom_right;
+		if (point == center)       return center;
+		Assert.fail("Unreachable"); return null;
+	}
+	
+	private final static float minDistancePixel = 30;
+	
 	@Override
 	void controlpointMoved(Controlpoint point) {
 		super.controlpointMoved(point);
-		// make rectangular again
+		if (point == center) {
+			float width2  = (bottom_right.x - bottom_left.x)/2;
+			float height2 = (top_right.y - bottom_right.y)/2;
+			bottom_right.y = bottom_left.y = center.y - height2;
+			top_right.y    = top_left.y    = center.y + height2;
+			bottom_right.x = top_right.x   = center.x + width2;
+			bottom_left.x  = top_left.x    = center.x - width2;		
+		} else {
+			Controlpoint opposite = oppositeControlpoint(point);
+			float dx = opposite.x - point.x;
+			float dy = opposite.y - point.y;
+			float minDistance = minDistancePixel / scale;
+			if (0<= dx && dx <= minDistance) dx = minDistance;
+			if (-minDistance <= dx && dx <= 0) dx = -minDistance;
+			if (0<= dy && dy <= minDistance) dy = minDistance;
+			if (-minDistance <= dy && dy <= 0) dy = -minDistance;
+			rectF.bottom = point.y;
+			rectF.top    = point.y + dy;
+			rectF.left   = point.x;
+			rectF.right  = point.x + dx;
+			rectF.sort();
+			bottom_right.y = bottom_left.y = rectF.bottom;
+			top_right.y    = top_left.y    = rectF.top;
+			bottom_right.x = top_right.x   = rectF.right;
+			bottom_left.x  = top_left.x    = rectF.left;
+			center.x = rectF.left   + (rectF.right - rectF.left)/2;
+			center.y = rectF.bottom + (rectF.top   - rectF.bottom)/2;
+		}
 	}
 
 	
@@ -78,7 +118,6 @@ public class GraphicsImage extends GraphicsControlpoint {
 		rectF.top    = top_left.screenY();
 		rectF.left   = bottom_left.screenX();
 		rectF.right  = bottom_right.screenX();
-		rectF.sort();
 		rectF.round(rect);
 	}
 	

@@ -46,8 +46,8 @@ public abstract class TouchHandlerControlpointABC
 	
 	@Override
 	protected void interrupt() {
+		abortMotion();
 		super.interrupt();
-		penID = fingerId1 = fingerId2 = -1;
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public abstract class TouchHandlerControlpointABC
 			if (useForTouch(event) && getDoubleTapWhileWriting() && Math.abs(newT-oldT) < 250) {
 				// double-tap
 				view.centerAndFillScreen(event.getX(), event.getY());
-				penID = fingerId1 = fingerId2 = -1;
+				abortMotion();
 				return true;
 			}
 			oldT = newT;
@@ -126,20 +126,21 @@ public abstract class TouchHandlerControlpointABC
 			}
 			if (penID != -1) {
 				Log.e(TAG, "ACTION_DOWN without previous ACTION_UP");
-				penID = -1;
-				activeControlpoint = null;
+				abortMotion();
 				return true;
 			}
 			// Log.v(TAG, "ACTION_DOWN");
 			if (!useForWriting(event)) 
 				return true;   // eat non-pen events
 			penID = event.getPointerId(0);
-			bBox.setEmpty();
 			activeControlpoint = findControlpoint(event.getX(), event.getY());
 			if (activeControlpoint == null) { 
 				// none within range, create new graphics
 				newGraphicsObject = newGraphics(event.getX(), event.getY(), event.getPressure());
 				activeControlpoint = newGraphicsObject.initialControlpoint();
+				bBox.setEmpty();
+			} else {
+				bBox.set(activeControlpoint.getGraphics().getBoundingBox());
 			}
 			return true;
 		}
@@ -163,16 +164,14 @@ public abstract class TouchHandlerControlpointABC
 				page.draw(view.canvas);
 				view.invalidate();				
 			}
-			penID = fingerId1 = fingerId2 = -1;
+			abortMotion();
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_CANCEL) {
 			// e.g. you start with finger and use pen
 			// if (event.getPointerId(0) != penID) return true;
 			Log.v(TAG, "ACTION_CANCEL");
-			penID = fingerId1 = fingerId2 = -1;
-			newGraphicsObject = null;
-			activeControlpoint = null;
+			abortMotion();
 			getPage().draw(view.canvas);
 			view.invalidate();
 			return true;
@@ -193,6 +192,12 @@ public abstract class TouchHandlerControlpointABC
 		}
 		return false;
 	}
+	
+	private void abortMotion() {
+		penID = fingerId1 = fingerId2 = -1;
+		newGraphicsObject = null;
+		activeControlpoint = null;
+	}
 
 	@Override
 	protected void onDraw(Canvas canvas, Bitmap bitmap) {
@@ -209,8 +214,8 @@ public abstract class TouchHandlerControlpointABC
 	}
 	
 	protected void drawControlpoints(Canvas canvas) {
-		for (GraphicsControlpoint line : getPage().lineArt) {
-			line.drawControlpoints(canvas);
+		for (GraphicsControlpoint graphics : getGraphicsObjects()) {
+			graphics.drawControlpoints(canvas);
 		}
 		view.invalidate();
 	}
@@ -250,7 +255,8 @@ public abstract class TouchHandlerControlpointABC
 		newBoundingBox.inset(-dr, -dr);
 		bBox.union(newBoundingBox);
 		getPage().draw(view.canvas, bBox);
-		graphics.draw(view.canvas, graphics.getBoundingBox());
+		if (newGraphicsObject != null) 
+			newGraphicsObject.draw(view.canvas, newGraphicsObject.getBoundingBox());
 		bBox.roundOut(rect);
 		view.invalidate(rect);
 		bBox.set(newBoundingBox);
@@ -260,7 +266,18 @@ public abstract class TouchHandlerControlpointABC
 	/**
 	 * Maximal distance to select control point (measured in dp)
 	 */
-	private static final float MAX_DISTANCE = 15; 
+	protected float maxDistanceControlpointScreen() {
+		return 15f;
+	}
+	
+	/**
+	 * Maximal distance to select control point (in page coordinate units)
+	 * @return
+	 */
+	protected float maxDistanceControlpoint() {
+		final Transformation transform = getPage().getTransform();
+		return maxDistanceControlpointScreen() * view.screenDensity / transform.scale;
+	}
 	
 	/**
 	 * Find the closest control point to a given screen position
@@ -272,8 +289,8 @@ public abstract class TouchHandlerControlpointABC
 		final Transformation transform = getPage().getTransform();
 		final float x = transform.inverseX(xScreen);
 		final float y = transform.inverseY(yScreen);
-		final float rMax = MAX_DISTANCE * view.screenDensity / transform.scale;
-		
+		final float rMax = maxDistanceControlpoint();
+				
 		float rMin2 = rMax * rMax;
 		Controlpoint closest = null;
 		for (GraphicsControlpoint graphics : getGraphicsObjects())
