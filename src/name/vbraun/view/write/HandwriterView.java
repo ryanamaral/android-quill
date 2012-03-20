@@ -54,18 +54,6 @@ public class HandwriterView extends ViewGroup {
 	private Bitmap bitmap;
 	protected Canvas canvas;
 	private Toast toast;
-	private final Rect mRect = new Rect();
-	private final RectF mRectF = new RectF();
-	private boolean automaticRedraw = true;
-	private final RectF clip = new RectF();  
-	private int penID = -1;
-	private int fingerId1 = -1;
-	private int fingerId2 = -1;
-	private float oldPressure, newPressure; 
-	private float oldX, oldY, newX, newY;  // main pointer (usually pen)
-	private float oldX1, oldY1, newX1, newY1;  // for 1st finger
-	private float oldX2, oldY2, newX2, newY2;  // for 2nd finger
-	private long oldT, newT;
 	
 	private boolean palmShield = false;
 	private RectF palmShieldRect;
@@ -144,12 +132,15 @@ public class HandwriterView extends ViewGroup {
 	}
 	
 	public void add(Graphics graphics) {
-		if (graphics instanceof Stroke) {
+		if (graphics instanceof Stroke) { // most likely first
 			Stroke s = (Stroke)graphics;
 			page.addStroke(s);
 		} else if (graphics instanceof GraphicsLine ) {
 			GraphicsLine l = (GraphicsLine)graphics;
 			page.addLine(l);
+		} else if (graphics instanceof GraphicsImage ) {
+			GraphicsImage img = (GraphicsImage)graphics;
+			page.addImage(img);
 		} else
 			Assert.fail("Unknown graphics object");
 		page.draw(canvas, graphics.getBoundingBox());
@@ -207,6 +198,9 @@ public class HandwriterView extends ViewGroup {
 			break;
 		case TEXT:
 			touchHandler = new TouchHandlerText(this);
+			break;
+		case IMAGE:
+			touchHandler = new TouchHandlerImage(this);
 			break;
 		default:
 			touchHandler = null;
