@@ -4,10 +4,10 @@ import java.util.LinkedList;
 
 import android.util.Log;
 
-public class TouchHandlerLine extends TouchHandlerControlpointABC {
-	private static final String TAG = "TouchHandlerLine";
+public class TouchHandlerImage extends TouchHandlerControlpointABC {
+	private static final String TAG = "TouchHandlerImage";
 
-	protected TouchHandlerLine(HandwriterView view) {
+	protected TouchHandlerImage(HandwriterView view) {
 		super(view, view.getOnlyPenInput());
 	}
 
@@ -18,10 +18,9 @@ public class TouchHandlerLine extends TouchHandlerControlpointABC {
 
 	@Override
 	protected GraphicsControlpoint newGraphics(float x, float y, float pressure) {
-		GraphicsLine line = new GraphicsLine(
-				getPage().getTransform(), x, y, 
-				view.getPenThickness(), view.getPenColor());
-		return line;
+		GraphicsImage image = new GraphicsImage(
+				getPage().getTransform(), x, y);
+		return image;
 	}
 
 	@Override
