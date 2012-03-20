@@ -13,7 +13,11 @@ public class TouchHandlerImage extends TouchHandlerControlpointABC {
 
 	@Override
 	protected LinkedList<GraphicsControlpoint> getGraphicsObjects() {
-		return (LinkedList<GraphicsControlpoint>) getPage().lineArt;
+		return (LinkedList<GraphicsControlpoint>) getPage().images;
+	}
+
+	protected float maxDistanceControlpointScreen() {
+		return 25f;
 	}
 
 	@Override

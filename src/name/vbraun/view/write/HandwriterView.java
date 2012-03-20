@@ -154,6 +154,9 @@ public class HandwriterView extends ViewGroup {
 		} else if (graphics instanceof GraphicsLine ) {
 			GraphicsLine l = (GraphicsLine)graphics;
 			page.removeLine(l);
+		} else if (graphics instanceof GraphicsImage ) {
+			GraphicsImage img = (GraphicsImage)graphics;
+			page.removeImage(img);
 		} else
 			Assert.fail("Unknown graphics object");
 		page.draw(canvas, graphics.getBoundingBox());
