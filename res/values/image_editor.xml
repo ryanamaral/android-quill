@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_editor_title">Select image</string>
+    <string name="image_editor_crop_label">Crop image</string>
+    
+</resources>
