@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 9.4
+  % Version 9.4
+  _ 2012-03-21
+    * Fix FC when overriding pen detection
 $ 9.3
   % Version 9.3
   _ 2012-03-20
