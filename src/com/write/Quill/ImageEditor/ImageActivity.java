@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 
 public class ImageActivity 
 	extends ActivityBase {
@@ -18,6 +19,7 @@ public class ImageActivity
 	private static final String TAG = "ImageActivity";
 
 	private View layout;
+	private LinearLayout linearLayout;
 	private Menu menu;
 	
 	private Bookshelf bookshelf = null;
@@ -29,8 +31,10 @@ public class ImageActivity
       	bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	
-		layout = getLayoutInflater().inflate(R.layout.thumbnail_activity, null);
+		layout = getLayoutInflater().inflate(R.layout.image_editor, null);
 		setContentView(layout);
+		
+		linearLayout = (LinearLayout) findViewById(R.id.image_editor_linear_layout);
 		
         ActionBar bar = getActionBar();
         bar.setTitle(R.string.image_editor_title);
@@ -47,5 +51,10 @@ public class ImageActivity
         return true;
     }
 	
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    }
 
 }
