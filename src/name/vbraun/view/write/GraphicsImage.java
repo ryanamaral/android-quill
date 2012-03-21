@@ -26,7 +26,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 	private final RectF rectF = new RectF();
 	
 	
-	enum FileType { 
+	public enum FileType { 
 		FILETYPE_NONE, FILETYPE_PNG, FILETYPE_JPG  
 	}
 
