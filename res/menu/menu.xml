@@ -18,7 +18,7 @@
     			
     			<item android:id="@+id/tools_line" android:titleCondensed="Line" android:title="Straight line"/><item android:id="@+id/tools_move" android:title="Move / Zoom"></item>
    				<item android:id="@+id/tools_eraser" android:title="Erase"></item>
-    			<item android:id="@+id/tools_image" android:title="Image" android:visible="false" android:enabled="false"/><item android:id="@+id/tools_typewriter" android:titleCondensed="Text" android:title="Text input" android:visible="false" android:enabled="false"></item>
+    			<item android:id="@+id/tools_image" android:title="Image"/><item android:id="@+id/tools_typewriter" android:titleCondensed="Text" android:title="Text input" android:visible="false" android:enabled="false"></item>
     			
     			
 			</group>			

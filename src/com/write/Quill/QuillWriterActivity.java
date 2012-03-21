@@ -482,7 +482,7 @@ public class QuillWriterActivity
     	case R.id.redo:
     		redo();
     		return true;
-   	default:
+    	default:
     		return super.onOptionsItemSelected(item);
     	}
     }
