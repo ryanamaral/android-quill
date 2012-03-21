@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import junit.framework.Assert;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -104,10 +105,16 @@ public class Hardware {
 			forceCapacitivePen();
 		else if (penType.equals(PEN_TYPE_THINKPAD_TABLET))
 			forceThinkpadTablet();
+		else if (penType.equals(PEN_TYPE_SAMSUNG_NOTE))
+			forceSamsungNote();
 		else if (penType.equals(PEN_TYPE_ICS))
 			forceICS();
-		else
+		else {
+			SharedPreferences.Editor editor = settings.edit();
+			editor.remove(KEY_OVERRIDE_PEN_TYPE);
+			editor.commit();
 			Assert.fail("The preference "+KEY_OVERRIDE_PEN_TYPE+" has invalid value: "+penType);
+		}
 	}
 	
 	/**
