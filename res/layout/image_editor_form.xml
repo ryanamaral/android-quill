@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+        <Button
+            android:id="@+id/image_editor_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="15dp"
+            android:layout_marginRight="15dp"
+            android:text="OK" />
+
+        <Button
+            android:id="@+id/image_editor_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image_editor_ok"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/image_editor_ok"
+            android:text="Cancel" />
+
+        <TextView
+            android:id="@+id/image_editor_source_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dp"
+            android:text="Image source"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/image_editor_source_uri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_editor_source_label"
+            android:layout_below="@+id/image_editor_source_label"
+            android:layout_marginLeft="30dp"
+            android:text="Source URI" />
+
+        <TextView
+            android:id="@+id/image_editor_resolution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_editor_source_uri"
+            android:layout_below="@+id/image_editor_source_uri"
+            android:text="Resolution" />
+
+        <Button
+            android:id="@+id/image_editor_crop_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/image_editor_ok"
+            android:layout_below="@+id/image_editor_resolution"
+            android:text="@string/image_editor_crop_button" />
+
+        <TextView
+            android:id="@+id/image_editor_crop_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_editor_source_label"
+            android:layout_below="@+id/image_editor_crop_button"
+            android:text="@string/image_editor_crop_label"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <CheckBox
+            android:id="@+id/image_editor_aspect_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_editor_source_uri"
+            android:layout_below="@+id/image_editor_crop_label"
+            android:checked="true"
+            android:text="@string/image_editor_aspect_checkbox_label" />
+    
+</RelativeLayout>

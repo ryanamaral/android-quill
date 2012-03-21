@@ -5,13 +5,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:baselineAligned="false"
-    android:orientation="vertical" >
+    android:orientation="horizontal" >
 
     <FrameLayout
         android:id="@+id/image_editor_preview"
-        android:layout_height="0px"
+        android:layout_width="0px"
         android:layout_weight="0.6"
-        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
@@ -19,8 +19,9 @@
 
     <include
 		layout="@layout/image_editor_form"
-        android:layout_height="0px"
-        android:layout_width="fill_parent"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_weight="0.4" />
 
 
