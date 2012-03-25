@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 public class Hardware {
@@ -19,6 +20,7 @@ public class Hardware {
     public static final String PEN_TYPE_CAPACITIVE = "PEN_TYPE_CAPACITIVE";
     public static final String PEN_TYPE_THINKPAD_TABLET = "PEN_TYPE_THINKPAD_TABLET";
     public static final String PEN_TYPE_SAMSUNG_NOTE = "PEN_TYPE_SAMSUNG_NOTE";
+    public static final String PEN_TYPE_LEFT_ALT = "PEN_TYPE_LEFT_ALT";
     public static final String PEN_TYPE_ICS = "PEN_TYPE_ICS";
 
 	
@@ -90,6 +92,12 @@ public class Hardware {
 		mPenEvent = new PenEvent();
 	}
 	
+	public void forceLeftAlt() {
+		mHasPenDigitizer = true;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEventLeftAlt();
+	}
+	
 	public void forceICS() {
 		mHasPenDigitizer = true;
 		mHasPressureSensor = true;
@@ -99,6 +107,7 @@ public class Hardware {
 	public void forceFromPreferences(Context context) {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		String penType = settings.getString(KEY_OVERRIDE_PEN_TYPE, PEN_TYPE_AUTO);
+		// Log.d(TAG, "forcing pen type "+penType);
 		if (penType.equals(PEN_TYPE_AUTO))
 			autodetect(context);
 		else if (penType.equals(PEN_TYPE_CAPACITIVE))
@@ -107,6 +116,8 @@ public class Hardware {
 			forceThinkpadTablet();
 		else if (penType.equals(PEN_TYPE_SAMSUNG_NOTE))
 			forceSamsungNote();
+		else if (penType.equals(PEN_TYPE_LEFT_ALT))
+			forceLeftAlt();
 		else if (penType.equals(PEN_TYPE_ICS))
 			forceICS();
 		else {
@@ -144,4 +155,27 @@ public class Hardware {
 		Assert.assertNotNull(instance);
 		return instance.mPenEvent.isPenEvent(event);
 	}
+	
+	/**
+	 * To be called from the controlling view's onKeyDown handler
+	 * @param keyCode
+	 * @param event
+	 * @return true if the event was handled and processing should be stopped
+	 */
+	public static boolean onKeyDown(int keyCode, KeyEvent event) {
+		Assert.assertNotNull(instance);
+		return instance.onKeyDown(keyCode, event);
+	}
+	
+	/**
+	 * To be called from the controlling view's onKeyUp handler
+	 * @param keyCode
+	 * @param event
+	 * @return true if the event was handled and processing should be stopped
+	 */
+	public static boolean onKeyUp(int keyCode, KeyEvent event) {
+		Assert.assertNotNull(instance);
+		return instance.onKeyUp(keyCode, event);
+	}
+
 }

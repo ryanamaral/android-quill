@@ -42,16 +42,17 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import name.vbraun.view.write.GraphicsImage.FileType;
 
-public class ImageActivity
-	extends ActivityBase
-	implements OnClickListener {
+public class ImageActivity extends ActivityBase implements OnClickListener,
+		OnCheckedChangeListener {
 
 	private static final String TAG = "ImageActivity";
 
@@ -61,7 +62,7 @@ public class ImageActivity
 	private ImageView imageView;
 	private Menu menu;
 	private MenuItem menuCropped;
-	private Button buttonOK, buttonCancel;
+	private Button buttonOK, buttonErase;
 	private CheckBox aspectCheckbox;
 
 	private Bookshelf bookshelf = null;
@@ -73,17 +74,17 @@ public class ImageActivity
 	// persistent data
 	protected Uri sourceUri = null;
 	protected UUID uuid = null;
-	protected boolean constrainAspect = false;
+	protected boolean constrainAspect;
 	protected FileType fileType = FileType.FILETYPE_NONE;
 
 	public final static String ACTION_NEW_IMAGE = "action_new_image";
 	public final static String ACTION_EDIT_EXISTING_IMAGE = "action_edit_existing_image";
-	
+
 	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
 	public final static String EXTRA_UUID = "extra_uuid";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_TYPE = "extra_file_type";
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -96,10 +97,12 @@ public class ImageActivity
 		preview = (FrameLayout) findViewById(R.id.image_editor_preview);
 		textSourceUri = (TextView) findViewById(R.id.image_editor_source_uri);
 		buttonOK = (Button) findViewById(R.id.image_editor_ok);
-		buttonCancel = (Button) findViewById(R.id.image_editor_cancel);
+		buttonErase = (Button) findViewById(R.id.image_editor_erase);
 		aspectCheckbox = (CheckBox) findViewById(R.id.image_editor_aspect_checkbox);
+		constrainAspect = aspectCheckbox.isChecked();
 		buttonOK.setOnClickListener(this);
-		buttonCancel.setOnClickListener(this);
+		buttonErase.setOnClickListener(this);
+		aspectCheckbox.setOnCheckedChangeListener(this);
 
 		ActionBar bar = getActionBar();
 		bar.setTitle(R.string.image_editor_title);
@@ -109,22 +112,47 @@ public class ImageActivity
 		String action = null;
 		if (intent != null)
 			action = intent.getAction();
-		if (action == null || action.equals(ACTION_NEW_IMAGE))
+		if (action != null && action.equals(ACTION_NEW_IMAGE))
 			initNewImage();
-		else if (action.equals(ACTION_EDIT_EXISTING_IMAGE))
-			initFromIntent(intent);
-		else 
+		else if (action != null && action.equals(ACTION_EDIT_EXISTING_IMAGE))
+			restoreFrom(intent.getExtras());
+		else if (savedInstanceState != null)
+			restoreFrom(savedInstanceState);
+		else
 			initNewImage();
-			//Assert.fail("Unknown action");
 	}
 
 	private void initNewImage() {
 		uuid = UUID.randomUUID();
 	}
 
-	private void initFromIntent(Intent intent) {
-		
+	private void restoreFrom(Bundle bundle) {
+		String sourceUriStr = bundle.getString(EXTRA_SOURCE_URI);
+		sourceUri = Uri.parse(sourceUriStr);
+		String uuidStr = bundle.getString(EXTRA_UUID);
+		uuid = UUID.fromString(uuidStr);
+		constrainAspect = bundle.getBoolean(EXTRA_CONSTRAIN_ASPECT);
+		int fileTypeInt = bundle.getInt(EXTRA_FILE_TYPE);
+		fileType = FileType.values()[fileTypeInt];
+		initBookImageFile();
+		update();
+	}
 
+	private Bundle saveTo(Bundle bundle) {
+		if (sourceUri == null)
+			return bundle;
+		bundle.putString(EXTRA_SOURCE_URI, sourceUri.toString());
+		bundle.putString(EXTRA_UUID, uuid.toString());
+		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
+		int fileTypeInt = fileType.ordinal();
+		bundle.putInt(EXTRA_FILE_TYPE, fileTypeInt);
+		return bundle;
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		saveTo(outState);
 	}
 
 	@Override
@@ -139,6 +167,7 @@ public class ImageActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
+		update();
 	}
 
 	@Override
@@ -171,7 +200,7 @@ public class ImageActivity
 	}
 
 	private void addCropToMediaStoreIntent(Intent intent) {
-		if (menuCropped.isChecked()) 
+		if (menuCropped.isChecked())
 			intent.putExtra("crop", "true");
 		imageFile = new File(Environment.getExternalStorageDirectory(),
 				uuid.toString() + ".jpg");
@@ -179,7 +208,6 @@ public class ImageActivity
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
 	}
 
-	
 	private final static int REQUEST_CODE_PICK_IMAGE = 1;
 	private final static int REQUEST_CODE_TAKE_PHOTO = 2;
 
@@ -193,7 +221,8 @@ public class ImageActivity
 				break;
 			if (!imageFile.exists()) {
 				imageFile = null;
-				Toast.makeText(this, "Camera did not capture photo!", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "Camera did not capture photo!",
+						Toast.LENGTH_LONG).show();
 				Log.e(TAG, "no photo");
 				return;
 			}
@@ -226,10 +255,11 @@ public class ImageActivity
 			}
 			boolean picasaImage = selectedImage.toString().startsWith(
 					"content://com.google.android.gallery3d");
-
+			
 			cursor.moveToFirst();
 			if (picasaImage) {
-				int columnIndex = cursor.getColumnIndex(MediaColumns.DISPLAY_NAME);
+				int columnIndex = cursor
+						.getColumnIndex(MediaColumns.DISPLAY_NAME);
 				if (columnIndex == -1) {
 					Log.e(TAG, "no DISPLAY_NAME column");
 					return;
@@ -244,7 +274,9 @@ public class ImageActivity
 				String name = cursor.getString(columnIndex);
 				File file = new File(name);
 				if (!file.exists() || !file.canRead()) {
-					Toast.makeText(this, "Image does not exist, or insufficient permissions!",
+					Toast.makeText(
+							this,
+							"Image does not exist, or insufficient permissions!",
 							Toast.LENGTH_LONG).show();
 					Log.e(TAG, "image file not readable");
 					return;
@@ -260,35 +292,47 @@ public class ImageActivity
 	}
 
 	protected void setSourceUri(Uri uri) {
-    	String uriStr = uri.toString();
-    	String fileExt;
-    	if (uriStr.substring(uriStr.length()-4).equalsIgnoreCase(".jpg")) {
-    		fileType = FileType.FILETYPE_JPG;
-    		fileExt = ".jpg";
-    	} else if (uriStr.substring(uriStr.length()-4).equalsIgnoreCase(".png")) {
-    		fileType = FileType.FILETYPE_PNG;
-    		fileExt = ".png";
-    	} else {
-    		fileType = FileType.FILETYPE_NONE;
-    		return;
-    	}
-    	sourceUri = uri;    		
-    	textSourceUri.setText(uriStr);
-    	
-		Storage storage = Storage.getInstance();
-		File dir = storage.getBookDirectory(book.getUUID());
-		
-		imageFile = new File(dir, uuid.toString() + fileExt);
+		String uriStr = uri.toString();
+		if (uriStr.substring(uriStr.length() - 4).equalsIgnoreCase(".jpg")) {
+			fileType = FileType.FILETYPE_JPG;
+		} else if (uriStr.substring(uriStr.length() - 4).equalsIgnoreCase(
+				".png")) {
+			fileType = FileType.FILETYPE_PNG;
+		} else {
+			fileType = FileType.FILETYPE_NONE;
+			return;
+		}
+		sourceUri = uri;
 		sourceFile = new File(sourceUri.getPath());
+		initBookImageFile();
 		copyfile(sourceFile, imageFile);
 	}
-	
-	private void updatePreview() {
-		imageView = new ImageView(getApplicationContext());
-		imageView.setImageURI(Uri.fromFile(imageFile));
-		preview.removeAllViews();
-		preview.addView(imageView);
-    }
+
+	private void initBookImageFile() {
+		Storage storage = Storage.getInstance();
+		File dir = storage.getBookDirectory(book.getUUID());
+		String fileExt;
+		if (fileType == FileType.FILETYPE_JPG) {
+			fileExt = ".jpg";
+		} else if (fileType == FileType.FILETYPE_PNG) {
+			fileExt = ".png";
+		} else {
+			return;
+		}
+		imageFile = new File(dir, uuid.toString() + fileExt);
+	}
+
+	private void update() {
+		if (sourceUri != null)
+			textSourceUri.setText(sourceUri.toString());
+		if (imageFile != null) {
+			imageView = new ImageView(getApplicationContext());
+			imageView.setImageURI(Uri.fromFile(imageFile));
+			preview.removeAllViews();
+			preview.addView(imageView);
+		}
+		aspectCheckbox.setChecked(constrainAspect);
+	}
 
 	protected Uri getSourceUri() {
 		return sourceUri;
@@ -321,18 +365,30 @@ public class ImageActivity
 	public void onClick(View v) {
 		Intent intent;
 		switch (v.getId()) {
-			case R.id.image_editor_cancel:
-		    	intent = new Intent();
-		    	setResult(RESULT_CANCELED, intent);
-				finish();
-				break;
-			case R.id.image_editor_ok:
-		    	intent = new Intent();
-		    	intent.putExtra(RESULT_BACK_KEY_PRESSED, false);
-		    	setResult(RESULT_OK, intent);
-				finish();
-				break;
+		case R.id.image_editor_erase:
+			intent = new Intent();
+			setResult(RESULT_OK, intent);
+			finish();
+			break;
+		case R.id.image_editor_ok:
+			intent = new Intent();
+			saveTo(intent.getExtras());
+			setResult(RESULT_OK, intent);
+			finish();
+			break;
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		Intent intent = new Intent();
+		setResult(RESULT_CANCELED, intent);
+		finish();
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		constrainAspect = aspectCheckbox.isChecked();
 	}
 
 }

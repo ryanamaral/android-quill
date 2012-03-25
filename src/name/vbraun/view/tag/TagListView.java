@@ -71,8 +71,8 @@ public class TagListView extends RelativeLayout {
 			context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		layout = layoutInflater.inflate(R.layout.tag_list, this);
         list = (ListView) findViewById(R.id.tag_list);     
-        edittext = (EditText) findViewById(R.id.tag_text);	
-        label = (TextView) findViewById(R.id.tag_new_label);
+        edittext = (EditText) findViewById(R.id.tag_list_text);	
+        label = (TextView) findViewById(R.id.tag_list_new_label);
     }
 
 	public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {

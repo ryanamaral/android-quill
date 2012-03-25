@@ -229,6 +229,7 @@ public class Preferences
 	    
     @Override
     protected void onResume() {
+        ActivityBase.quillIncRefcount();
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
@@ -236,7 +237,8 @@ public class Preferences
     @Override
     protected void onPause() {
         super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);    
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        ActivityBase.quillDecRefcount();
     }
 
 }

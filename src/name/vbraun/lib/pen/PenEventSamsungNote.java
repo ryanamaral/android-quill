@@ -13,8 +13,16 @@ public class PenEventSamsungNote extends PenEvent {
 	final static int SOURCE_S_PEN = InputDevice.SOURCE_KEYBOARD | InputDevice.SOURCE_CLASS_POINTER; 
 	
 	public boolean isPenEvent(MotionEvent event) {
-		//		InputDevice dev = event.getDevice();
-		//		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+event.getSource()+" "+dev.getSources()+" ");
+		if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+			InputDevice dev = event.getDevice();
+			Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
+			Log.v(TAG, "Touch: "+event.getDevice().getName()
+					+" action="+event.getActionMasked()
+					+" pressure="+event.getPressure()
+					+" fat="+event.getTouchMajor());
+		}
+		// InputDevice dev = event.getDevice();
+		// Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+event.getSource()+" "+dev.getSources()+" ");
 		return (event.getDevice().getSources() & SOURCE_S_PEN) == SOURCE_S_PEN;
 	}
 	
