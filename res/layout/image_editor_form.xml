@@ -10,7 +10,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
-        android:text="Source image"
+        android:text="@string/image_editor_source_image"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:maxLines="1"
         android:singleLine="true"
         android:ellipsize="middle"
-        android:text="Source URI" />
+        android:text="@string/image_editor_source_uri" />
 
     <TextView
         android:id="@+id/image_editor_resolution"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/image_editor_source_uri"
         android:layout_below="@+id/image_editor_source_uri"
-        android:text="Resolution" />
+        android:text="@string/image_editor_resolution" />
 
     <CheckBox
         android:id="@+id/image_editor_aspect_checkbox"
@@ -49,21 +49,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="25dp"
         android:layout_marginBottom="15dp"
         android:layout_below="@+id/image_editor_aspect_checkbox"
-        android:layout_marginRight="24dp"
-        android:text="OK" />
+        android:layout_marginRight="15dp"
+        android:text="@string/image_editor_ok" />
 
     <Button
-        android:id="@+id/image_editor_cancel"
+        android:id="@+id/image_editor_erase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/image_editor_ok"
         android:layout_alignBottom="@+id/image_editor_ok"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="20dp"
-        android:layout_toLeftOf="@+id/image_editor_ok"
-        android:text="Cancel" />
+        android:layout_alignLeft="@+id/image_editor_aspect_checkbox"
+        android:text="@string/image_editor_erase" />
 
 </RelativeLayout>

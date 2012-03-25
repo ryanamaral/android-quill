@@ -212,7 +212,7 @@ public class TagsListActivity
 		status = (TextView) findViewById(R.id.status);
 		
         ActionBar bar = getActionBar();
-        bar.setTitle(R.string.title_tag);
+        bar.setTitle(R.string.tag_list_title);
         bar.setDisplayShowTitleEnabled(true);
         bar.setDisplayHomeAsUpEnabled(true);
 	}

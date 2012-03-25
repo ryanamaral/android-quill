@@ -34,15 +34,23 @@ public class ActivityBase extends Activity {
 	
 	@Override
 	protected void onResume() {
-		backupHandler.removeCallbacks(backupAtExit);
-		quillActivitiesRunning += 1;
+		quillIncRefcount();
 		super.onResume();
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		quillActivitiesRunning -= 1;		
+		quillDecRefcount();
+	}
+	
+	protected static void quillIncRefcount() {
+		backupHandler.removeCallbacks(backupAtExit);
+		quillActivitiesRunning += 1;		
+	}
+	
+	protected static void quillDecRefcount() {
+		quillActivitiesRunning -= 1;				
 	}
 	
 	private final static int backupDelay = 5 * 1000;

@@ -119,7 +119,7 @@ public class ThumbnailActivity
     @Override
     public boolean onCreateOptionsMenu(Menu mMenu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.overview, mMenu);
+        inflater.inflate(R.menu.thumbnail, mMenu);
         menu = mMenu;
         return true;
     }

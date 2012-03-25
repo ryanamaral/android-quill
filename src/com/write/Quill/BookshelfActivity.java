@@ -54,9 +54,16 @@ public class BookshelfActivity
 	
 	@Override
 	protected void onResume() {
+        ActivityBase.quillIncRefcount();
 		super.onResume();
 		Bookshelf.sortBookPreviewList();
 		adapter.notifyDataSetChanged();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+        ActivityBase.quillDecRefcount();
 	}
 	
 	@Override

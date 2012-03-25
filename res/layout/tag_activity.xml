@@ -1,45 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal"
-	android:layout_width="fill_parent" 
-	android:layout_height="fill_parent"
->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
 
-   	<name.vbraun.view.tag.TagListView 
-   		android:id="@+id/tag_list_view" 
-   		android:layout_height="fill_parent"
-		android:gravity="left" 
- 		android:layout_width="0px" 
-	   	android:layout_weight=".30">
-   	</name.vbraun.view.tag.TagListView>    	
+    <name.vbraun.view.tag.TagListView
+        android:id="@+id/tag_list_view"
+        android:layout_width="0px"
+        android:layout_height="fill_parent"
+        android:layout_weight=".30"
+        android:gravity="left" >
+    </name.vbraun.view.tag.TagListView>
 
-    	
     <LinearLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical"
-		android:layout_height="match_parent"	
-		android:layout_width="0px" 
-		android:layout_weight=".70">
-    		
-		<name.vbraun.view.tag.TagCloudView 
-   			android:id="@+id/tag_cloud_view" 
-   			android:layout_width="match_parent"
-   			android:layout_height="match_parent"
-   			android:layout_weight="1.0">
-	   	</name.vbraun.view.tag.TagCloudView>
-	
-    	<TextView
-    	    android:id="@+id/status"
-    	    android:layout_width="match_parent"
-    	    android:layout_height="wrap_content"
-    	    android:gravity="center"
-    	    android:paddingBottom="5dp"
-    	    android:paddingRight="15dp"
-    	    android:paddingTop="0dp"
-    	    android:text="Status bar"
-    	    android:textSize="12dp" />
-					
-	</LinearLayout>
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight=".70"
+        android:orientation="vertical" >
+
+        <name.vbraun.view.tag.TagCloudView
+            android:id="@+id/tag_cloud_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0" >
+        </name.vbraun.view.tag.TagCloudView>
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingRight="15dp"
+            android:paddingTop="0dp"
+            android:text="Status bar"
+            android:textSize="12dp" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -23,12 +23,20 @@ import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.Display;
+import android.view.DragEvent;
+import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.view.WindowManager;
+import android.view.View.OnLongClickListener;
 
-public class HandwriterView extends ViewGroup {
+public class HandwriterView 
+	extends ViewGroup 
+	implements OnLongClickListener {
+	
 	private static final String TAG = "Handwrite";
 	
 	public static final String KEY_LIST_PEN_INPUT_MODE = "pen_input_mode";
@@ -74,7 +82,6 @@ public class HandwriterView extends ViewGroup {
 	
 	private GraphicsModifiedListener graphicsListener = null;
   
-	
 	public interface OnStrokeFinishedListener {
 		void onStrokeFinishedListener();
 	}
@@ -351,6 +358,17 @@ public class HandwriterView extends ViewGroup {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
     	boolean left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
     	setToolbox(left);
+    	
+    	setClickable(true);
+    	setLongClickable(true);
+    	setOnLongClickListener(this);
+    	setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Log.e(TAG, "onClick");
+            }
+        });
+    	toolbox.redButton.setLongClickable(true);
+    	toolbox.redButton.setOnLongClickListener(this);
 	}
 
 	/**
@@ -575,13 +593,6 @@ public class HandwriterView extends ViewGroup {
 	@Override 
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!acceptInput) return false;
-//		InputDevice dev = event.getDevice();
-//		Log.v(TAG, "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
-//		Log.v(TAG, "Touch: "+event.getDevice().getName()
-//				+" action="+event.getActionMasked()
-//				+" pressure="+event.getPressure()
-//				+" fat="+event.getTouchMajor()
-//				+" penID="+penID+" ID="+event.getPointerId(0)+" N="+N);
 		if (touchHandler == null)
 			return false;
 		return touchHandler.onTouchEvent(event);
@@ -654,5 +665,48 @@ public class HandwriterView extends ViewGroup {
 			graphicsListener.onGraphicsCreateListener(page, graphics);
 		}
 	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (Hardware.onKeyDown(keyCode, event))	
+			return true;
+		else
+			return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (Hardware.onKeyUp(keyCode, event))	
+			return true;
+		else
+			return super.onKeyUp(keyCode, event);
+	}
 
+	
+	
+	@Override
+	public boolean onDragEvent(DragEvent event) {
+		Log.e(TAG, "onDragEv");
+		return super.onDragEvent(event);
+	}
+	
+	@Override
+	public boolean onLongClick(View v) {
+		Log.e(TAG, "onLongClick");
+		return false;
+	}
+	
+//	@Override
+//	public boolean onInterceptTouchEvent(MotionEvent event) {
+//		InputDevice dev = event.getDevice();
+//		Log.v(TAG, "onInterceptTouchEvent: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" "+
+//				dev.getKeyboardType()+" "+dev.describeContents()+" "+event.getDeviceId()
+//				+ "name = "+event.getDevice().getName()
+//				+" action="+event.getAction()
+//				+" pressure="+event.getPressure()
+//				+" fat="+event.getTouchMajor() + " "+event.getFlags());
+//		return false; // super.onInterceptTouchEvent(event);
+//	}
+	
+	
 }

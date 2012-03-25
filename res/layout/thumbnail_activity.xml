@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal"
-	android:layout_width="fill_parent" 
-	android:layout_height="fill_parent"
->
-    <name.vbraun.view.tag.TagListView 
-    	android:id="@+id/tag_list_view" 
-    	android:layout_width="0px" 
-    	android:layout_height="fill_parent"
-    	android:layout_weight=".30" 
-    ></name.vbraun.view.tag.TagListView>
-    
-    <com.write.Quill.ThumbnailView 
-    	android:layout_width="0px" 
-    	android:layout_height="fill_parent" 
-    	android:id="@+id/thumbnail_grid" 
-    	android:layout_weight=".70" 
-    ></com.write.Quill.ThumbnailView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+
+    <name.vbraun.view.tag.TagListView
+        android:id="@+id/tag_list_view"
+        android:layout_width="0px"
+        android:layout_height="fill_parent"
+        android:layout_weight=".30" >
+    </name.vbraun.view.tag.TagListView>
+
+    <com.write.Quill.ThumbnailView
+        android:id="@+id/thumbnail_grid"
+        android:layout_width="0px"
+        android:layout_height="fill_parent"
+        android:layout_weight=".70" >
+    </com.write.Quill.ThumbnailView>
 
 </LinearLayout>

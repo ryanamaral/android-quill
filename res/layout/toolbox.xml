@@ -31,9 +31,9 @@
         android:id="@+id/toolbox_fountainpen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/toolbox_pencil"
         android:layout_alignBottom="@+id/toolbox_pencil"
         android:layout_marginLeft="2dp"
+        android:layout_toRightOf="@+id/toolbox_pencil"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
         android:src="@drawable/toolbox_fountainpen" />
@@ -91,11 +91,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/toolbox_resize"
-        android:layout_toRightOf="@+id/toolbox_resize"
         android:layout_marginLeft="2dp"
         android:layout_marginTop="2dp"
-        android:padding="3dp"
+        android:layout_toRightOf="@+id/toolbox_resize"
         android:background="@drawable/toolbox_background"
+        android:padding="3dp"
         android:src="@drawable/toolbox_line" />
 
     <ImageButton
@@ -115,11 +115,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/toolbox_line"
-        android:layout_toRightOf="@+id/toolbox_line"
         android:layout_marginLeft="2dp"
         android:layout_marginTop="2dp"
-        android:padding="3dp"
+        android:layout_toRightOf="@+id/toolbox_line"
         android:background="@drawable/toolbox_background"
+        android:padding="3dp"
         android:src="@drawable/toolbox_photo" />
 
     <Spinner
@@ -331,9 +331,9 @@
         android:layout_above="@+id/toolbox_prev"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/toolbox_quill_icon"
+        android:background="@drawable/toolbox_button"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
-        android:background="@drawable/toolbox_button"
         android:text="Tags" />
 
     <ImageButton
@@ -377,9 +377,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/toolbox_redbutton"
-        android:layout_marginLeft="40dp"
         android:layout_marginBottom="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_toRightOf="@+id/toolbox_redbutton"
         android:background="@drawable/toolbox_background"
         android:src="@drawable/transparent" />
 
@@ -388,8 +388,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="20dp"
         android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
         android:layout_toRightOf="@+id/toolbox_history_1"
         android:background="@drawable/toolbox_background"
         android:src="@drawable/transparent" />

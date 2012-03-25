@@ -10,8 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:text="Backup directory path:" />
 
     <TextView
@@ -30,8 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/update_path"
-        android:layout_marginTop="22dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="22dp"
         android:text="Required space:" />
 
     <TextView
@@ -40,8 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/update_space"
-        android:layout_marginTop="5dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
         android:text="Available space:" />
 
     <Button
