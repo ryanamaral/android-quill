@@ -9,6 +9,11 @@
     <string name="quill_inserted_at_end">Inserted new page at end</string>
     <string name="quill_undo">Undo</string>
     <string name="quill_redo">Redo</string>
+    <string name="command_clear_page">Clear page</string>
+    <string name="command_create_graphics">Add pen stroke on page</string>
+    <string name="command_erase_graphics">Remove pen stroke on page</string>
+    <string name="command_page_insert">Insert page number</string>
+    <string name="command_page_erase">Delete page number</string>
     
     
     

@@ -7,7 +7,7 @@
             android:summary="The red button and toolbox will be on the left"
             android:title="Right-handed (most common)" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Input preferences" >
+    <PreferenceCategory android:title="Input preferences" android:key="input_preferences_category">
         <ListPreference
             android:entries="@array/preferences_pen_input_mode_entries"
             android:entryValues="@array/preferences_pen_input_mode_values"

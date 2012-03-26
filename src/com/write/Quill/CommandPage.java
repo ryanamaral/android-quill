@@ -31,10 +31,11 @@ public class CommandPage extends Command {
 
 	@Override
 	public String toString() {
+		QuillWriterActivity app = UndoManager.getApplication();
 		if (insertOrErase)
-			return "Insert page number "+position;
+			return app.getString(R.string.command_page_insert)+" "+position;
 		else
-			return "Delete page number "+position;
+			return app.getString(R.string.command_page_erase)+" "+position;
 	}
 	
 }

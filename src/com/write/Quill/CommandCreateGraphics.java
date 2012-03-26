@@ -27,6 +27,7 @@ public class CommandCreateGraphics extends Command {
 	@Override
 	public String toString() {
 		int n = Bookshelf.getCurrentBook().getPageNumber(getPage());
-		return "Add pen stroke on page "+n;
+		QuillWriterActivity app = UndoManager.getApplication();
+		return app.getString(R.string.command_create_graphics)+" "+n;
 	}
 }
