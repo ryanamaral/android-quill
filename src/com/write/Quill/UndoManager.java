@@ -72,8 +72,15 @@ public class UndoManager
 		limitStackSize();
 		cmd.execute();
 	}
-
 	
+	public void onPageClearListener(Page page) {
+		Command cmd = new CommandClearPage(page);
+		undoStack.addFirst(cmd);
+		redoStack.clear();
+		limitStackSize();
+		cmd.execute();	
+	}
+
 	public void onPageInsertListener(Page page, int position) {
 		Command cmd = new CommandPage(page, position, true);
 		undoStack.addFirst(cmd);
@@ -90,7 +97,8 @@ public class UndoManager
 		cmd.execute();	
 	}
 
-	
+
+
 	private static final int MAX_STACK_SIZE = 50;
 	
 	private void limitStackSize() {

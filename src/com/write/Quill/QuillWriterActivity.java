@@ -821,6 +821,26 @@ public class QuillWriterActivity
     	updateUndoRedoIcons();
     }
     
+    public void add(Page page, LinkedList<Stroke> strokes) {
+    	if (page != mView.getPage()) {
+        	Assert.assertTrue("page not in book", book.getPages().contains(page));
+        	book.setCurrentPage(page);
+    		switchToPage(page);
+    	}
+    	mView.add(strokes);
+    	updateUndoRedoIcons();
+    }
+    
+    public void remove(Page page, LinkedList<Stroke> strokes) {
+    	if (page != mView.getPage()) {
+        	Assert.assertTrue("page not in book", book.getPages().contains(page));
+        	book.setCurrentPage(page);
+    		switchToPage(page);
+    	}
+    	mView.remove(strokes);
+    	updateUndoRedoIcons();
+    }
+
     private void updateUndoRedoIcons() {
     	if (mMenu==null) return;
     	UndoManager mgr = UndoManager.getUndoManager();
