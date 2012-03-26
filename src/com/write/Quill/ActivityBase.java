@@ -66,7 +66,7 @@ public class ActivityBase extends Activity {
     private static Runnable backupAtExit = new Runnable() {
     	public void run() {
     		Bookshelf.getBookshelf().backup();
-    		Toast.makeText(context, "Quill notebooks backed up.", Toast.LENGTH_SHORT).show();
+    		Toast.makeText(context, R.string.activity_base_backed_up, Toast.LENGTH_SHORT).show();
     	}
     };
     

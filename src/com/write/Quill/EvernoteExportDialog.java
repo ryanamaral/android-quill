@@ -41,12 +41,12 @@ public class EvernoteExportDialog
 		context = c;   
 		setIndeterminate(false);
 		setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		setTitle("Send to Evernote");
-		setMessage("Compressing pages...");
+		setTitle(R.string.export_evernote_title);
+		setMessage(c.getString(R.string.export_evernote_message));
 		setCancelable(true);
 		setCanceledOnTouchOutside(true);
 		setOnCancelListener(this);
-		setButton(BUTTON_NEGATIVE, "Cancel", this);
+		setButton(BUTTON_NEGATIVE, c.getString(R.string.export_evernote_cancel_button), this);
 	}
 	
     // Names of Evernote-specific Intent actions and extras
@@ -129,7 +129,7 @@ public class EvernoteExportDialog
     private void renderPages() {
     	File dir = context.getExternalCacheDir();
     	if (dir == null) {
-        	toast("Unable to open cache directory");
+        	toast(R.string.export_evernote_err_no_cache_dir);
     		return;
     	}
     	ListIterator<Page> iter = pages.listIterator();
@@ -146,7 +146,7 @@ public class EvernoteExportDialog
     			outStream = new FileOutputStream(file);
     		} catch (IOException e) {
     			Log.e(TAG, "Error writing file "+e.toString());
-            	toast("Unable to write file "+file.toString());
+            	toast(context.getString(R.string.export_evernote_err_cannot_write) +" "+file.toString());
             	return;
     		}
 			Page page = iter.next();
@@ -162,7 +162,7 @@ public class EvernoteExportDialog
         		outStream.close();
         	} catch (IOException e) {
     			Log.e(TAG, "Error closing file "+e.toString());
-            	toast("Unable to close file "+file.toString());
+            	toast(context.getString(R.string.export_evernote_err_cannot_close) +" "+file.toString());
             	return;     		
         	}
         	file.deleteOnExit();
@@ -176,7 +176,7 @@ public class EvernoteExportDialog
             public void run() {
             	renderPages();
             	if (cancel)
-            		toast("Cancelled export to Evernote");
+            		toast(R.string.export_evernote_cancel_message);
             	else
             		send();
             	dismiss();
@@ -208,7 +208,7 @@ public class EvernoteExportDialog
         try {
         	context.startActivity(intent);
         } catch (android.content.ActivityNotFoundException ex) {
-        	toast(context.getString(R.string.err_evernote_not_found)); 
+        	toast(context.getString(R.string.export_evernote_err_not_found)); 
         } 
     }
 
@@ -218,7 +218,12 @@ public class EvernoteExportDialog
         handler.sendMessage(msg);
     }
 
-    
+    private void toast(int resId) {
+        Message msg = handler.obtainMessage(0, context.getString(resId));
+        handler.sendMessage(msg);
+    }
+
+
     private Runnable mUpdateProgress = new Runnable() {
  	   public void run() {
  		   setProgress(progress);

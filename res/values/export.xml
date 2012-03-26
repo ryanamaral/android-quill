@@ -28,9 +28,9 @@
     </string-array>
     <string name="export_title">Export current page as...</string>
     <string name="export_name_header">Name:</string>
-    <string name="err_evernote_not_found">You must first install the Evernote app</string>
+    
     <string name="export_saved_as">Saved as</string>
-    <string name="err_no_way_to_share">No way to share</string>
+    <string name="export_err_no_way_to_share">No way to share</string>
     <string name="export_share_title">Export page via</string>
     <string name="export_size_header">Size:</string>
     <string-array name="export_size_vector">
@@ -45,10 +45,19 @@
         <item>800 x 600 pixels</item>
         
     </string-array>
-    <string name="err_folder_pick_not_found">You need to install a file manager to pick a directory</string>
     <string name="export_background">Include paper background</string>
     <string name="export_view_file_title">View exported file with</string>
-    <string name="export_filename_default">Filename.pdf</string>
+    <string name="export_filename_default">Filename.pdf</string><string name="export_evernote_err_not_found">You must first install the Evernote app</string>
+    <string name="export_evernote_title">Send to Evernote</string>
+    <string name="export_evernote_message">Compressing pages...</string>
+    <string name="export_evernote_cancel_button">Cancel</string>
+    <string name="export_evernote_err_no_cache_dir">Unable to open cache directory</string>
+    <string name="export_evernote_err_cannot_write">Unable to write file</string>
+    <string name="export_evernote_err_cannot_close">Unable to close file</string>
+    <string name="export_evernote_cancel_message">Cancelled export to Evernote</string>
+    <string name="export_err_path_does_not_exist">Path does not exist</string>
+    <string name="export_err_cannot_create_file">Unable to create file</string>
+    <string name="export_err_cannot_write_file">Unable to write to file</string>
     
     
 </resources>
