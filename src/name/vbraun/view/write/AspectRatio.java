@@ -20,7 +20,7 @@ public class AspectRatio {
 	public static final AspectRatio[] Table = {
 		new AspectRatio("Portrait Screen",      800f/1232f, heightA4),
 		new AspectRatio("Landscape Screen",     1280f/752f, widthA4),
-		new AspectRatio("A4 Paper", 1f/(float)Math.sqrt(2), heightA4),
+		new AspectRatio("A4 PaperType", 1f/(float)Math.sqrt(2), heightA4),
 		new AspectRatio("US Letter",                8f/11f, 11*INCH_in_MM),
 		new AspectRatio("US Legal",                 8f/14f, 14*INCH_in_MM),
 		new AspectRatio("Projector (4:3)",           4f/3f, widthA4),

@@ -7,6 +7,8 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import com.write.Quill.artist.Artist;
+
 import junit.framework.Assert;
 
 import android.graphics.Canvas;
@@ -154,6 +156,11 @@ public class GraphicsImage extends GraphicsControlpoint {
 //		controlpoints.add(p0);
 //		controlpoints.add(p1);
 		init();
+	}
+	
+	@Override
+	public void render(Artist artist) {
+		// TODO Auto-generated method stub
 	}
 
 }

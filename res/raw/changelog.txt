@@ -20,6 +20,12 @@
     </style>
   </head>
   <body>
+$ 9.5
+  % Version 9.5
+  _ 2012-03-27
+    * Make "clear page" also clear straight lines
+    * Export page background to PDF
+    * Reverse Vol up/down navigation
 $ 9.4
   % Version 9.4
   _ 2012-03-21

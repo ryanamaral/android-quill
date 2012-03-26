@@ -14,6 +14,7 @@ import org.libharu.Document.CompressionMode;
 import org.libharu.Page.PageSize;
 
 import com.write.Quill.R;
+import com.write.Quill.artist.PaperType;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 
@@ -412,7 +413,6 @@ public class ExportActivity
     private void doExportPng(final File file) {
 		threadLockActivity();
 		drawBackground = backgroundCheckbox.isChecked();
-		Log.d(TAG, "drawBackground = "+drawBackground);
 		int pos = sizes.getSelectedItemPosition();
 		int dim_big = 0, dim_small = 0;
 		switch (pos) {
@@ -456,16 +456,18 @@ public class ExportActivity
     
     private void doExportPdf(final File file, PageRange range) {
 		threadLockActivity();
+		drawBackground = backgroundCheckbox.isChecked();
         Assert.assertTrue("Trying to run two export threads??",  pdfExporter == null);
-    	pdfExporter = new PDFExporter();
-    	pdfExporter.setCompressionMode(CompressionMode.COMP_ALL);
-		int pos = sizes.getSelectedItemPosition();
+        PaperType paper = null;
+        int pos = sizes.getSelectedItemPosition();
 		switch (pos) {
-			case SIZE_PDF_A4:     pdfExporter.setPageSize(PageSize.A4); break;
-			case SIZE_PDF_LETTER: pdfExporter.setPageSize(PageSize.LETTER); break;
-			case SIZE_PDF_LEGAL:  pdfExporter.setPageSize(PageSize.LEGAL); break;
+			case SIZE_PDF_A4:     paper = new PaperType(PaperType.PageSize.A4); break;
+			case SIZE_PDF_LETTER: paper = new PaperType(PaperType.PageSize.LETTER); break;
+			case SIZE_PDF_LEGAL:  paper = new PaperType(PaperType.PageSize.LEGAL); break;
 			default: Assert.assertTrue("Unreachable", false);
     	}
+    	pdfExporter = new PDFExporter(paper, file);
+    	pdfExporter.setBackgroundVisible(drawBackground);
     	switch (range) {
     	case CURRENT_PAGE:     	pdfExporter.add(page); break;
     	case TAGGED_PAGES:     	pdfExporter.add(book.getFilteredPages()); break;
@@ -474,8 +476,7 @@ public class ExportActivity
         exportThread = new Thread(new Runnable() {
             public void run() {
             	pdfExporter.draw();
-            	pdfExporter.export(file);
-            	pdfExporter.destructAll();
+            	pdfExporter.destroy();
             	pdfExporter = null;
             	doShareInMainThread(file);
             }});

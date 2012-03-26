@@ -20,6 +20,7 @@ import org.libharu.Page.PageSize;
 import junit.framework.Assert;
 
 import android.util.Log;
+import android.widget.TextView.SavedState;
 
 import com.write.Quill.artist.LineStyle.Cap;
 import com.write.Quill.artist.LineStyle.Join;
@@ -29,9 +30,9 @@ public class ArtistPDF
 	
 	private final static String TAG = "ArtistPDF";
 	
-	private File file;
-	private Document doc;
-	private Page pdf;
+	private final File file;
+	private final Document doc;
+	private Page pdf = null;
 	
 	protected float height;
 	protected float width;
@@ -51,16 +52,62 @@ public class ArtistPDF
 		pageNumberFont = doc.getFont(BuiltinFont.COURIER_BOLD);
 	}
 
+	public void setPaper(PaperType paper) {
+		switch (paper.getPageSize()) {
+		case LETTER:
+			this.pageSize = Page.PageSize.LETTER;		
+			break;
+		case LEGAL:
+			this.pageSize = Page.PageSize.LEGAL;		
+			break;
+		case A3:
+			this.pageSize = Page.PageSize.A3;		
+			break;
+		case A4:
+			this.pageSize = Page.PageSize.A4;		
+			break;
+		case A5:
+			this.pageSize = Page.PageSize.A5;		
+			break;
+		case B4:
+			this.pageSize = Page.PageSize.B4;		
+			break;
+		case B5:
+			this.pageSize = Page.PageSize.B5;		
+			break;
+		case EXECUTIVE:
+			this.pageSize = Page.PageSize.EXECUTIVE;		
+			break;
+		case US4x6:
+			this.pageSize = Page.PageSize.US4x6;		
+			break;
+		case US4x8:
+			this.pageSize = Page.PageSize.US4x8;		
+			break;
+		case US5x7:
+			this.pageSize = Page.PageSize.US5x7;		
+			break;
+		case COMM10:
+			this.pageSize = Page.PageSize.COMM10;
+			break;
+		default:
+			Assert.fail();
+		}
+	}
+	
 	@Override
 	public void destroy() {
 		try {
+			if (file.exists()) file.delete();
 			String path = file.getAbsolutePath();
-			doc.saveToFile(path);
+			Log.e(TAG, "path = "+path);
+	 		doc.saveToFile(path);
+	 		doc.destructAll();
 		} catch (IOException e) {
 			Log.e(TAG, "Error saving PDF file: "+e.toString());
 		}	
-	}
-	
+	} 
+	 
 	public float scaledX(float x, float y) {
 		if (rotate)
 			return y * scale;
@@ -77,12 +124,12 @@ public class ArtistPDF
 	
 	@Override
 	public void moveTo(float x, float y) {
-		pdf.moveTo(scaledX(x), scaledY(y));
+		pdf.moveTo(scaledX(x,y), scaledY(x,y));
 	}
 
 	@Override
 	public void lineTo(float x, float y) {
-		pdf.lineTo(x, y);
+		pdf.lineTo(scaledX(x,y), scaledY(x,y));
 	}
 
 	@Override
@@ -158,22 +205,32 @@ public class ArtistPDF
 	}
 		
 
-	public void draw(name.vbraun.view.write.Page page) {
+	public void addPage(name.vbraun.view.write.Page page) {
 		boolean page_is_portrait = (page.getAspectRatio() < 1);
 		pdf = doc.addPage();
+		Assert.assertNotNull(pageSize);
 		if (page_is_portrait)	{
 			pdf.setSize(pageSize, PageDirection.PORTRAIT);
-			width = pdf.getWidth();
-			height = pdf.getHeight();
-			scale = Math.min(height, width/page.getAspectRatio());
 		} else {
 			pdf.setSize(pageSize, PageDirection.LANDSCAPE);
-			width = pdf.getWidth();
-			height = pdf.getHeight();
-			scale = Math.min(height, width/page.getAspectRatio());
 		}
-		page.renderArtist(this);
+		width = pdf.getWidth();
+		height = pdf.getHeight();
+		scale = Math.min(height, width/page.getAspectRatio());
+		page.render(this);
 		addPageNumber();
+	}
+
+	public void addTestPage(name.vbraun.view.write.Page page) {
+		Log.e(TAG, "Writing test page");
+		setPaper(new PaperType(PaperType.PageSize.A4));
+		addPage(page);
+		try {
+			doc.saveToFile("/mnt/sdcard/test.pdf");
+		} catch (IOException e) {
+			Log.e(TAG,e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 	}
 
 }

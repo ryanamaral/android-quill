@@ -547,6 +547,7 @@ public class HandwriterView
 	public void clear() {
 		if (canvas == null || page == null) return;		
 		page.strokes.clear();	
+		page.lineArt.clear();
 		page.draw(canvas);	
 		invalidate();
 	}

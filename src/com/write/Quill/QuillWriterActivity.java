@@ -22,6 +22,8 @@ import name.vbraun.view.write.ToolHistory.HistoryItem;
 import junit.framework.Assert;
 
 import com.write.Quill.R;
+import com.write.Quill.artist.ArtistPDF;
+import com.write.Quill.artist.PaperType;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Storage;
@@ -249,13 +251,13 @@ public class QuillWriterActivity
 		case KeyEvent.KEYCODE_VOLUME_UP:
 			if (!volumeKeyNavigation) return false;
 			if (action == KeyEvent.ACTION_UP) {
-				flip_page_prev();
+				flip_page_next();
 			}
 			return true;
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			if (!volumeKeyNavigation) return false;
 			if (action == KeyEvent.ACTION_DOWN) {
-				flip_page_next();
+				flip_page_prev();
 			}
 			return true;
 		default:
@@ -275,7 +277,6 @@ public class QuillWriterActivity
         			setPenColor(color);
         		}
         	});
-   //     dlg.viewSatVal.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         return dlg.getDialog();
     }
     
@@ -645,7 +646,7 @@ public class QuillWriterActivity
     }
     
     public void toast(int resId) {
-    	toast(resId);
+    	toast(getString(resId));
     }
 
     private void menu_prepare_page_has_changed() {

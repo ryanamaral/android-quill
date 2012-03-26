@@ -11,10 +11,10 @@ public class LineStyle {
 	    MITER_JOIN, ROUND_JOIN, BEVEL_JOIN
 	}
 
-	private float width;
-	private float colorRed, colorGreen, colorBlue;
-	private Cap cap;
-	private Join join;
+	private float width = 0;
+	private float colorRed = 0f, colorGreen=0f, colorBlue=0f;
+	private Cap cap = Cap.BUTT_END;
+	private Join join = Join.MITER_JOIN;
 	
 	public void setWidth(float width) {
 		this.width = width;

@@ -4,6 +4,9 @@ package name.vbraun.view.write;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.write.Quill.artist.Artist;
+import com.write.Quill.artist.LineStyle;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -288,6 +291,120 @@ public class Background {
 			c.drawLine(x, y0, x, y1, paint);
 		}
 	}
-}
+	
+	public void render(Artist artist) {
+		if (!artist.getBackgroundVisible()) return;
+		switch (paperType) {
+		case EMPTY:
+			return;
+		case RULED:
+			render_ruled(artist, LEGALRULED_SPACING, 31.75f);
+			return;
+		case COLLEGERULED:
+			render_ruled(artist, COLLEGERULED_SPACING, 31.75f);
+			return;			
+		case NARROWRULED:
+			render_ruled(artist, NARROWRULED_SPACING, 0.0f);
+			return;						
+		case QUAD:
+			render_quad(artist);
+			return;
+		case CORNELLNOTES:
+			render_cornellnotes(artist);
+			return;
+		case DAYPLANNER:
+			return;			
+		case HEX:
+		return;
+		}
+	}
+		
+	
+	private void render_ruled(Artist artist, float lineSpacing, float margin) {
+		float spacingMm = lineSpacing;
+		float vertLineMm = margin;
+		LineStyle line = new LineStyle();
+		line.setColor(0f, 0f, 0f);
+		line.setWidth(0);
+		int n = (int) Math.floor((heightMm - 2 * marginMm) / spacingMm) - 2;
+		float x0 = marginMm / heightMm;
+		float x1 = (widthMm - marginMm) / heightMm;
+		for (int i = 1; i <= n; i++) {
+			float y = ((heightMm - n * spacingMm) / 2 + i * spacingMm) / heightMm;
+			artist.drawLine(x0, y, x1, y, line);
+		}
 
+		// Paint margin
+		if (margin > 0.0f) {
+			line.setColor(1f, 0f, 0f);
+			line.setWidth(0);
+			float y0 = marginMm / heightMm;
+			float y1 = (heightMm - marginMm) / heightMm;
+			float x = vertLineMm / widthMm;
+			artist.drawLine(x, y0, x, y1, line);
+		}
+	}
+	
+	private void render_quad(Artist artist) {
+		float spacingMm = 5f;
+		int nx, ny;
+		float x, x0, x1, y, y0, y1;
+		LineStyle line = new LineStyle();
+		line.setColor(0f, 0f, 0f);
+		line.setWidth(0);
+		ny = (int)Math.floor((heightMm-2*marginMm) / spacingMm);
+		nx = (int)Math.floor((widthMm-2*marginMm) / spacingMm);
+		float marginXMm = (widthMm-nx*spacingMm)/2;
+		float marginYMm = (heightMm-ny*spacingMm)/2;
+		x0 = marginXMm/heightMm;
+		x1 = (widthMm-marginXMm)/heightMm;
+		y0 = marginYMm/heightMm;
+		y1 = (heightMm-marginYMm)/heightMm;
+		for (int i=0; i<=ny; i++) {
+			y = (marginYMm + i*spacingMm)/heightMm;
+			artist.drawLine(x0, y, x1, y, line);
+		}
+		for (int i=0; i<=nx; i++) {
+			x = (marginXMm + i*spacingMm)/heightMm;
+			artist.drawLine(x, y0, x, y1, line);
+		}
+	}
+	
+	private void render_cornellnotes(Artist artist) {	
+		float x0, x1, y0, y1;
+		final float MARGIN = 1.25f;
+		LineStyle line = new LineStyle();
+		line.setColor(0f, 0f, 0f);
+		line.setWidth(0);
+
+		// Cue Column
+		x0 = (MARGIN*INCH_in_MM)/widthMm;
+		x1 = x0;
+		y0 = 0f;
+		y1 = (heightMm-(MARGIN*INCH_in_MM))/heightMm;
+		artist.drawLine(x0, y0, x1, y1, line);
+		
+		// Summary area at base of page
+		x0 = 0f;
+		x1 = widthMm/heightMm;
+		y0 = (heightMm-(MARGIN*INCH_in_MM))/heightMm;
+		y1 = y0;
+		artist.drawLine(x0, y0, x1, y1, line);
+		
+		// Details
+		float spacingMm = COLLEGERULED_SPACING;
+		int n = (int)Math.floor((heightMm-(MARGIN*INCH_in_MM) - 2 * marginMm) / spacingMm);
+		
+		x0 = (MARGIN*INCH_in_MM)/widthMm + marginMm/heightMm;
+		x1 = (widthMm-marginMm)/heightMm;
+		
+		for (int i=1; i<=n; i++) {
+			float y = ((heightMm-n*spacingMm - MARGIN*INCH_in_MM)/2 + i*spacingMm)/heightMm;
+			artist.drawLine(x0, y, x1, y, line);
+		}
+		
+	}
+
+
+}
 

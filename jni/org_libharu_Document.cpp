@@ -91,7 +91,14 @@ JNIEXPORT void JNICALL Java_org_libharu_Document_saveToFile
   env->ReleaseStringUTFChars(filename, str);
   if (rc == HPDF_OK) return;
 
-  jclass excCls = env->FindClass("java/lang/IOException");
+  jclass excCls = env->FindClass("java/io/IOException");
   if (excCls == NULL) return;
-  env->ThrowNew(excCls, "Error saving file");
+  if (rc == HPDF_INVALID_DOCUMENT)
+    env->ThrowNew(excCls, "An invalid document handle is set.");
+  else if (rc == HPDF_FAILD_TO_ALLOC_MEM)
+    env->ThrowNew(excCls, "Memory allocation failed.");
+  else if (rc == HPDF_FILE_IO_ERROR)
+    env->ThrowNew(excCls, "An error occurred while processing file I/O.");
+  else 
+    env->ThrowNew(excCls, "Unknown return code.");
 }
