@@ -351,14 +351,15 @@ public class ExportActivity
 		File parent = file.getParentFile();
 		if (parent!=null && !parent.exists()) {
 			Log.e(TAG, "Path does not exist: "+parent.toString());
-        	Toast.makeText(this, "Path does not exist", Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, R.string.export_err_path_does_not_exist, Toast.LENGTH_LONG).show();
 			return null;
 		}
 		try {
 			file.createNewFile();
 		} catch(IOException e) {
 			Log.e(TAG, "Error creating file "+e.toString());
-        	Toast.makeText(this, "Unable to create file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, getString(R.string.export_err_cannot_create_file)
+        			+" "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         	return null;
         }
 		return file;
@@ -396,7 +397,8 @@ public class ExportActivity
     		Bookshelf.getBookshelf().exportCurrentBook(file);
     	} catch (Book.BookSaveException e) {
 			Log.e(TAG, "Error writing file "+e.getMessage());
-        	Toast.makeText(this, "Unable to write file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, getString(R.string.export_err_cannot_write_file)
+        			+" "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         	return;
     	}
     	doShare(file);
@@ -429,7 +431,8 @@ public class ExportActivity
 			outStream = new FileOutputStream(file);
 		} catch (IOException e) {
 			Log.e(TAG, "Error writing file "+e.toString());
-        	Toast.makeText(this, "Unable to write file "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, getString(R.string.export_err_cannot_write_file)
+        			+" "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         	return;
 		}
         exportThread = new Thread(new Runnable() {
@@ -546,7 +549,7 @@ public class ExportActivity
             		getString(R.string.export_share_title)));
             finish();
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, getString(R.string.err_no_way_to_share), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.export_err_no_way_to_share, Toast.LENGTH_LONG).show();
         }    	
     }
     

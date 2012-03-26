@@ -118,9 +118,9 @@ public class BookshelfActivity
 				        }
 				    }};
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setMessage("Deleting notebook, are you sure?")
-					.setPositiveButton("Yes", dialogClickListener)
-				    .setNegativeButton("No", dialogClickListener);
+				builder.setMessage(R.string.delete_notebook_message)
+					.setPositiveButton(R.string.delete_notebook_yes, dialogClickListener)
+				    .setNegativeButton(R.string.delete_notebook_no,  dialogClickListener);
 				return builder.create();
 	    }
 	}

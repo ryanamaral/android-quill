@@ -460,8 +460,8 @@ public class QuillWriterActivity
     		mView.clear();
     		return true;
     	case R.id.page_delete:
-    		toast("Deleted page "+(book.currentPageNumber()+1)+
-    				" / "+book.pagesSize());
+    		toast(getString(R.string.quill_deleted_page)+
+    				" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
     		book.deletePage();
     		switchToPage(book.currentPage());
     		return true;
@@ -585,53 +585,53 @@ public class QuillWriterActivity
     
     private void flip_page_prev() {
     	if (book.isFirstPage()) 
-    		toast("Already on first tagged page"); 
+    		toast(R.string.quill_already_first_tagged_page); 
 		else	
 			switchToPage(book.previousPage());
 			if (book.isFirstPage()) 
-				toast("Showing first tagged page"); 
+				toast(R.string.quill_showing_first_tagged_page); 
 			else
-				toast("Showing page "+(book.currentPageNumber()+1)+
-						" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page)
+					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
     }
     
     private void flip_page_next() {
 		if (book.isLastPage()) {
 			switchToPage(book.insertPageAtEnd());
-			toast("Inserted new page at end");
+			toast(R.string.quill_inserted_at_end);
 		} else {
 			switchToPage(book.nextPage());
 			if (book.isLastPage())
-				toast("Showing last tagged page");
+				toast(R.string.quill_showing_last_tagged_page);
 			else 
-				toast("Showing page "+(book.currentPageNumber()+1)+
-						" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page)
+					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
 		}
     }
     
     private void flip_page_prev_unfiltered() {
     	if (book.isFirstPageUnfiltered()) 
-    		toast("Already on first page"); 
+    		toast(R.string.quill_already_first_page); 
 		else	
 			switchToPage(book.previousPageUnfiltered());
 			if (book.isFirstPageUnfiltered()) 
-				toast("Showing first page"); 
+				toast(R.string.quill_showing_first_page);
 			else
-				toast("Showing page "+(book.currentPageNumber()+1)+
-						" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page)
+					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
     }
     
     private void flip_page_next_unfiltered() {
 		if (book.isLastPageUnfiltered()) {
 			switchToPage(book.insertPageAtEnd());
-			toast("Inserted new page at end");
+			toast(R.string.quill_inserted_at_end);
 		} else {
 			switchToPage(book.nextPageUnfiltered());
 			if (book.isLastPageUnfiltered())
-				toast("Showing last page");
+				toast(R.string.quill_showing_last_page);
 			else 
-				toast("Showing page "+(book.currentPageNumber()+1)+
-						" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page)
+					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
 		}
     }
     
@@ -644,6 +644,10 @@ public class QuillWriterActivity
     	mToast.show();
     }
     
+    public void toast(int resId) {
+    	toast(resId);
+    }
+
     private void menu_prepare_page_has_changed() {
     	if (mMenu == null) return;
     	mMenu.findItem(R.id.readonly).setChecked(book.currentPage().isReadonly());
@@ -671,8 +675,7 @@ public class QuillWriterActivity
 	private void switchPenHistory() {
 		ToolHistory h = ToolHistory.getToolHistory();
 		if (h.size() == 0) {
-			Toast.makeText(getApplicationContext(), 
-					"No other pen styles in history.", Toast.LENGTH_SHORT).show();
+			toast(R.string.quill_no_other_pen_styles);
 			return;
 		}
 		h.previous();
