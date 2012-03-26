@@ -2,6 +2,8 @@ package name.vbraun.lib.pen;
 
 import java.util.ArrayList;
 
+import com.write.Quill.ReleaseMode;
+
 import junit.framework.Assert;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -52,7 +54,10 @@ public class Hardware {
 	}};
 	
 	private Hardware(Context context) {
-		forceFromPreferences(context);
+		if (ReleaseMode.OEM)
+			autodetect(context);
+		else
+			forceFromPreferences(context);
 		Log.v(TAG, "Model = >"+model+"<, pen digitizer: "+mHasPenDigitizer);
 	}
 	
