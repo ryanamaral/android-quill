@@ -2,6 +2,8 @@ package com.write.Quill;
 
 import java.util.LinkedList;
 
+import android.content.Context;
+
 import junit.framework.Assert;
 
 import name.vbraun.view.write.Graphics;
@@ -103,7 +105,8 @@ public class UndoManager
 		Command cmd = undoStack.pollFirst();
 		if (cmd == null)
 			return false;
-		getApplication().toast("Undo: "+cmd.toString());
+		QuillWriterActivity activity = getApplication();
+		activity.toast(activity.getString(R.string.quill_undo) + ": "+cmd.toString());
 		cmd.revert();
 		redoStack.addFirst(cmd);
 		return true;
@@ -114,7 +117,8 @@ public class UndoManager
 		if (cmd == null)
 			return false;
 		cmd.execute();
-		getApplication().toast("Redo: "+cmd.toString());
+		QuillWriterActivity activity = getApplication();
+		activity.toast(activity.getString(R.string.quill_redo) + ": "+cmd.toString());
 		undoStack.addFirst(cmd);
 		return true;	
 	}

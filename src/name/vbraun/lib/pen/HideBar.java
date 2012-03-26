@@ -9,6 +9,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.write.Quill.R;
+
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
@@ -72,8 +74,7 @@ public class HideBar {
     	try {
     		hideSystembar();
     	} catch (HideBarException e) {
-    		Toast.makeText(context, "Failed to hide the system bar (Do you have root?)", 
-    				Toast.LENGTH_LONG).show();
+    		Toast.makeText(context, R.string.hide_bar_failed_hide, Toast.LENGTH_LONG).show();
     	}
     }
         
@@ -81,7 +82,7 @@ public class HideBar {
     	try {
     		showSystembar();
     	} catch (HideBarException e) {
-    		Toast.makeText(context, "Failed to show the system bar (Do you have root?)", 
+    		Toast.makeText(context, R.string.hide_bar_failed_show, 
     				Toast.LENGTH_LONG).show();
     	}
     }

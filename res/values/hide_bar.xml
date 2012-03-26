@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hide_bar_failed_hide">Failed to hide the system bar (Do you have root?)</string>
+    <string name="hide_bar_failed_show">Failed to show the system bar (Do you have root?)</string>
+    
+</resources>

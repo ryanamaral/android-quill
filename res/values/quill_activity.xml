@@ -7,6 +7,8 @@
     <string name="quill_showing_last_page">Showing last page</string><string name="quill_showing_first_tagged_page">Showing first tagged page</string><string name="quill_showing_last_tagged_page">Showing last tagged page</string>
     <string name="quill_showing_page">Showing page</string>
     <string name="quill_inserted_at_end">Inserted new page at end</string>
+    <string name="quill_undo">Undo</string>
+    <string name="quill_redo">Redo</string>
     
     
     
