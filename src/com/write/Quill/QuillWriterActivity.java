@@ -111,25 +111,24 @@ public class QuillWriterActivity
     private static final DialogThickness dialogThickness = new DialogThickness();
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogPaperType dialogPaperType = new DialogPaperType();
-
-	private name.vbraun.lib.pen.Hardware hardware; 
 		
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
       	if (UpdateActivity.needUpdate(this)) return;
       	
-  		ChangeLog changeLog = new ChangeLog(this);
-  		if (changeLog.firstRun())
-  			changeLog.getLogDialog().show();
-      	
+      	if (!ReleaseMode.OEM) {
+      		ChangeLog changeLog = new ChangeLog(this);
+      		if (changeLog.firstRun())
+      			changeLog.getLogDialog().show();
+      	}
       	bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         
-        hardware = name.vbraun.lib.pen.Hardware.getInstance(getApplicationContext()); 
+        name.vbraun.lib.pen.Hardware.getInstance(getApplicationContext()); 
 
         ToolHistory history = ToolHistory.getToolHistory();
         history.onCreate(getApplicationContext());

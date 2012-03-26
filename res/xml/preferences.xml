@@ -80,7 +80,7 @@
             android:key="backup_directory"
             android:title="Automatic backup directory" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Debug options" >
+    <PreferenceCategory android:title="Debug options" android:key="debug_preferences_category">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="debug_options_enable"

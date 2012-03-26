@@ -35,6 +35,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -105,6 +106,12 @@ public class Preferences
 		backupDirPreference = findPreference(PREFERENCE_BACKUP_DIR);
 		backupDirPreference.setOnPreferenceClickListener(this);
 
+		if (ReleaseMode.OEM) {
+			PreferenceCategory debugCategory = (PreferenceCategory) findPreference("debug_preferences_category");
+			debugCategory.removeAll();
+			getPreferenceScreen().removePreference(debugCategory);
+		}
+		
 		updatePreferences();
 	}
 
