@@ -324,7 +324,7 @@ public class ExportActivity
 			case SHARE_PICK_DIR:
 	    		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
 	    		intent.setAction("org.openintents.action.PICK_DIRECTORY");
-	    		intent.putExtra("org.openintents.extra.TITLE", "Select destination folder");
+	    		intent.putExtra("org.openintents.extra.TITLE", getString(R.string.export_pick_destination_directory));
 	    		startActivityForResult(intent, REQUEST_CODE_PICK_DIRECTORY);
 	    		break;
 			case SHARE_INTERNAL:
@@ -618,9 +618,9 @@ public class ExportActivity
         	finish();
         } catch (android.content.ActivityNotFoundException ex) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Evernote application not found");
-            builder.setMessage("Download from Android Market?");
-            builder.setPositiveButton("Yes",
+            builder.setTitle(R.string.export_evernote_err_not_found);
+            builder.setMessage(R.string.export_evernote_download_question);
+            builder.setPositiveButton(R.string.export_evernote_download_yes,
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -629,7 +629,7 @@ public class ExportActivity
                             startActivity(marketIntent);
                         }
                     });
-            builder.setNegativeButton("No", null);
+            builder.setNegativeButton(R.string.export_evernote_download_no, null);
             builder.create().show();
         } 
     }

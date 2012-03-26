@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tag_button">Tags</string>
-    <string name="title_filter">Only show pages that contain the following tags</string>
+    <string name="thumbnail_title_filter">Only show pages that contain the following tags</string>
+    <string name="thumbnail_new_notebook_title">Create new notebook</string>
+    <string name="thumbnail_multiselect_title">Select Items</string>
+    <string name="thumbnail_multiselect_single">One page selected</string>
+    <string name="thumbnail_multiselect_multiple">pages selected</string>
     
 </resources>

@@ -207,7 +207,7 @@ public class ThumbnailActivity
     	final View textEntryView = factory.inflate(R.layout.new_notebook, null);
     	AlertDialog dlg = new AlertDialog.Builder(this)
     		.setIconAttribute(android.R.attr.alertDialogIcon)
-    		.setTitle("Create new notebook")
+    		.setTitle(R.string.thumbnail_new_notebook_title)
     		.setView(textEntryView)
     		.setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
     			public void onClick(DialogInterface dialog, int whichButton) {
@@ -260,7 +260,7 @@ public class ThumbnailActivity
 		thumbnailGrid.setMultiChoiceModeListener(new MultiselectCallback());
 		
         ActionBar bar = getActionBar();
-        bar.setTitle(R.string.title_filter);
+        bar.setTitle(R.string.thumbnail_title_filter);
         bar.setDisplayHomeAsUpEnabled(true);
 	}
 	
@@ -292,7 +292,7 @@ public class ThumbnailActivity
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         	// MenuInflater inflater = getMenuInflater();
             // inflater.inflate(R.menu.menu, menu);
-            mode.setTitle("Select Items");
+            mode.setTitle(R.string.thumbnail_multiselect_title);
             return true;
         }
 
@@ -324,10 +324,10 @@ public class ThumbnailActivity
                     mode.setSubtitle(null);
                     break;
                 case 1:
-                    mode.setSubtitle("One page selected");
+                    mode.setSubtitle(R.string.thumbnail_multiselect_single);
                     break;
                 default:
-                    mode.setSubtitle("" + checkedCount + " pages selected");
+                    mode.setSubtitle("" + checkedCount + getString(R.string.thumbnail_multiselect_multiple));
                     break;
             }
         }
