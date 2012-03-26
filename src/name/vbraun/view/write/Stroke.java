@@ -14,6 +14,9 @@ import java.lang.Math;
 import org.libharu.Page.LineCap;
 import org.libharu.Page.LineJoin;
 
+import com.write.Quill.artist.Artist;
+import com.write.Quill.artist.LineStyle;
+
 import junit.framework.Assert;
 
 import android.util.FloatMath;
@@ -378,5 +381,63 @@ public class Stroke extends Graphics {
         pdf.stroke();
 	}
 
+
+	public void renderArtist(Artist artist) {
+        float red  = Color.red(pen_color)/(float)0xff;
+        float green = Color.green(pen_color)/(float)0xff;
+        float blue = Color.blue(pen_color)/(float)0xff;
+		LineStyle line = new LineStyle();
+        line.setColor(red, green, blue);
+		switch (tool) {
+		case FOUNTAINPEN:
+			renderFountainpen(artist, line);
+			break;
+		case PENCIL:
+			renderPencil(artist, line);
+			break;
+		default:
+			Assert.fail();
+		}
+	}
+	
+	private void renderFountainpen(Artist artist, LineStyle line) {
+		float scaled_pen_thickness = getScaledPenThickness(1f);
+		line.setCap(LineStyle.Cap.ROUND_END);
+		line.setJoin(LineStyle.Join.ROUND_JOIN);
+        float x0 = scale.scaledX(position_x[0], position_y[0]);
+        float y0 = scale.scaledY(position_x[0], position_y[0]);        
+        float p0 = pressure[0];
+        for (int i=1; i<N; i++) {
+        	float x1 = scale.scaledX(position_x[i], position_y[i]);
+            float y1 = scale.scaledY(position_x[i], position_y[i]);
+            float p1 = pressure[i];
+            pdf.setLineWidth((scaled_pen_thickness*(p0+p1)/2));
+            pdf.moveTo(x0, y0);
+            pdf.lineTo(x1, y1);
+            pdf.stroke();
+            x0 = x1;
+            y0 = y1;
+            p0 = p1;
+        }
+	}
+	
+	private void renderPencil(Artist artist, LineStyle line) {
+		float scaled_pen_thickness = getScaledPenThickness(1f);
+		line.setWidth(scaled_pen_thickness);
+		line.setCap(LineStyle.Cap.ROUND_END);
+		line.setJoin(LineStyle.Join.ROUND_JOIN);
+        float x = scale.scaledX(position_x[0], position_y[0]);
+        float y = scale.scaledY(position_x[0], position_y[0]);
+        pdf.moveTo(x, y);
+        for (int i=1; i<N; i++) {
+         	x = scale.scaledX(position_x[i], position_y[i]);
+            y = scale.scaledY(position_x[i], position_y[i]);
+            pdf.lineTo(x, y);
+        }
+        pdf.stroke();
+	}
+
+
 }
+
 
