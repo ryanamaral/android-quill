@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="pen_input_mode_entries">
- <item>Filter out finger touch events when writing</item>
- <item>Filter out finger touch but allow touch gestures</item>
- <item>Any touch event writes on screen, no gestures</item>
-</string-array>
-<string-array name="pen_input_mode_values">
- <item>STYLUS_ONLY</item>
- <item>STYLUS_WITH_GESTURES</item>
- <item>STYLUS_AND_TOUCH</item>
-</string-array>
-<string name="pen_input_mode_title">Pen input mode</string>
-<string name="override_pen_title">Override the detected pen type</string>
-<string-array name="override_pen_type_entries">
-    <item >Autodetect</item><item >Capacitive pen</item>
-    <item >Thinkpad Tablet pen</item>
-    <item >Samsung Note S-pen</item><item >Magic Left Alt Hack</item><item >Android ICS (4.0) stylus API</item>
-    
-    
-    
-</string-array>
-<string-array name="override_pen_type_values">
-    <item >PEN_TYPE_AUTO</item>
-    <item >PEN_TYPE_CAPACITIVE</item><item >PEN_TYPE_THINKPAD_TABLET</item>
-    <item >PEN_TYPE_SAMSUNG_NOTE</item><item >PEN_TYPE_LEFT_ALT</item><item >PEN_TYPE_ICS</item>
-    
-    
-    
-</string-array>
+
+    <string-array name="preferences_pen_input_mode_entries">
+        <item>Filter out finger touch events when writing</item>
+        <item>Filter out finger touch but allow touch gestures</item>
+        <item>Any touch event writes on screen, no gestures</item>
+    </string-array>
+    <string-array name="preferences_pen_input_mode_values">
+        <item>STYLUS_ONLY</item>
+        <item>STYLUS_WITH_GESTURES</item>
+        <item>STYLUS_AND_TOUCH</item>
+    </string-array>
+
+    <string name="preferences_pen_input_mode_title">Pen input mode</string>
+    <string name="preferences_override_pen_title">Override the detected pen type</string>
+
+    <string-array name="preferences_override_pen_type_entries">
+        <item>Autodetect</item>
+        <item>Capacitive pen</item>
+        <item>Thinkpad Tablet pen</item>
+        <item>Samsung Note S-pen</item>
+        <item>Magic Left Alt Hack</item>
+        <item>Android ICS (4.0) stylus API</item>
+    </string-array>
+    <string-array name="preferences_override_pen_type_values">
+        <item>PEN_TYPE_AUTO</item>
+        <item>PEN_TYPE_CAPACITIVE</item>
+        <item>PEN_TYPE_THINKPAD_TABLET</item>
+        <item>PEN_TYPE_SAMSUNG_NOTE</item>
+        <item>PEN_TYPE_LEFT_ALT</item>
+        <item>PEN_TYPE_ICS</item>
+    </string-array>
+
+    <string name="preferences_err_loading_backup">Error loading the backup file.</string>
+
 </resources>

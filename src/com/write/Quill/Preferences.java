@@ -96,7 +96,7 @@ public class Preferences
 				penMode.setValue(STYLUS_AND_TOUCH);
 		
 		overridePen = (ListPreference)findPreference(KEY_OVERRIDE_PEN_TYPE);
-		String overridePenAutomatic = res.getStringArray(R.array.override_pen_type_values)[0];
+		String overridePenAutomatic = res.getStringArray(R.array.preferences_override_pen_type_values)[0];
 		overridePen.setDefaultValue(overridePenAutomatic);
 		
 		restorePreference = findPreference(PREFERENCE_RESTORE);
@@ -211,7 +211,7 @@ public class Preferences
     			finish();
     		} catch (BookIOException e) {
     			Log.e(TAG, "Error loading the backup file.");
-    			Toast.makeText(this, "Error loading the backup file.", Toast.LENGTH_LONG).show();
+    			Toast.makeText(this, R.string.preferences_err_loading_backup, Toast.LENGTH_LONG).show();
     			return;
     		}
     		break;
