@@ -1,5 +1,7 @@
 package com.write.Quill.artist;
 
+import junit.framework.Assert;
+
 /**
  * Artist is the base class for exporters to other file formats. Think PDF export, for example
  * @author vbraun
@@ -7,15 +9,9 @@ package com.write.Quill.artist;
 abstract public class Artist {
 	private final static String TAG = "Artist";
 	
-	protected float scale;
-	
-	protected void setScale(float scale) {
-		this.scale = scale;
-	}
-	
-	protected float getScale() {
-		return scale;
-	}
+	protected boolean interrupt = false;	
+	protected float scale = 1f;
+	protected boolean backgroundVisible = true;
 	
 	///////////////////////////////////
 	// First the low-level API 
@@ -38,9 +34,16 @@ abstract public class Artist {
 	// write result and/or close output file
 	abstract public void destroy();
 	
-	// The artist is supposed to run in a background thread. This lets you interrupt it.
-	protected boolean interrupt = false;
+	// draw larger/smaller
+	protected void setScale(float scale) {
+		this.scale = scale;
+	}
 	
+	protected float getScale() {
+		return scale;
+	}
+	
+	// The artist is supposed to run in a background thread. This lets you interrupt it.
 	public boolean getInterrupt() {
 		return interrupt;
 	}
@@ -49,15 +52,38 @@ abstract public class Artist {
 		this.interrupt = interruptFlag;
 	}
 	
+	// Whether the background is visible
+	public void setBackgroundVisible(boolean visible) {
+		backgroundVisible = visible;
+	}
+	
+	public boolean getBackgroundVisible() {
+		return backgroundVisible;
+	}
+	
 	///////////////////////////////////
 	// The rest are helpers, forming the higher-level API 
 
 	protected LineStyle currentLineStyle = null;
 	public void setLineStyle(LineStyle lineStyle) {
-		lineStyle.commitChanges(currentLineStyle, this);
+		Assert.assertNotNull(lineStyle);
+		if (currentLineStyle == null) {
+			setLineWidth(lineStyle.getWidth());
+			setLineColor(lineStyle.getRed(), lineStyle.getGreen(), lineStyle.getBlue());
+			setLineCap(lineStyle.getCap());
+			setLineJoin(lineStyle.getJoin());
+		} else
+			lineStyle.commitChanges(currentLineStyle, this);
 		currentLineStyle = lineStyle;
 	}
+	
+	public void drawLine(float x0, float y0, float x1, float y1, LineStyle lineStyle) {
+		setLineStyle(lineStyle);
+		moveTo(x0,y0);
+		lineTo(x1,y1);
+		stroke();
+	}
 
-	abstract public void draw(name.vbraun.view.write.Page page);
+	abstract public void addPage(name.vbraun.view.write.Page page);
 	
 }

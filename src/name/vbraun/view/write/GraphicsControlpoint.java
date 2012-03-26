@@ -134,5 +134,5 @@ public abstract class GraphicsControlpoint extends Graphics {
 		return 0;
 	}
 
-
+	
 }

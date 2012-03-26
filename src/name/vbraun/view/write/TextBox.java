@@ -3,6 +3,8 @@ package name.vbraun.view.write;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.write.Quill.artist.Artist;
+
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.DynamicLayout;
@@ -54,6 +56,12 @@ public class TextBox extends Graphics {
 
 	@Override
 	public void writeToStream(DataOutputStream out) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void render(Artist artist) {
 		// TODO Auto-generated method stub
 		
 	}

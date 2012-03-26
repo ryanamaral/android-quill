@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import com.write.Quill.artist.Artist;
+import com.write.Quill.artist.LineStyle;
+
 import junit.framework.Assert;
 
 import android.graphics.Canvas;
@@ -58,6 +61,10 @@ public class GraphicsLine extends GraphicsControlpoint {
 		return Stroke.getScaledPenThickness(scale, pen_thickness);
 	}
 	
+	public float getScaledPenThickness(float scale) {
+		return Stroke.getScaledPenThickness(scale, pen_thickness);
+	}
+
 	protected float boundingBoxInset() { 
 		return -getScaledPenThickness()/2 - 1;
 	}
@@ -138,6 +145,23 @@ public class GraphicsLine extends GraphicsControlpoint {
 		controlpoints.add(p0);
 		controlpoints.add(p1);
 		setPen(pen_thickness, pen_color);
+	}
+	
+	@Override
+	public void render(Artist artist) {
+		LineStyle line = new LineStyle();
+		float scaled_pen_thickness = getScaledPenThickness(1f);
+		line.setWidth(scaled_pen_thickness);
+		line.setCap(LineStyle.Cap.ROUND_END);
+		line.setJoin(LineStyle.Join.ROUND_JOIN);
+        float red  = Color.red(pen_color)/(float)0xff;
+        float green = Color.green(pen_color)/(float)0xff;
+        float blue = Color.blue(pen_color)/(float)0xff;
+		line.setColor(red, green, blue);
+		artist.setLineStyle(line);
+		artist.moveTo(p0.x, p0.y);
+		artist.lineTo(p1.x, p1.y);
+		artist.stroke();
 	}
 
 }

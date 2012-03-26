@@ -333,11 +333,12 @@ public class Page {
 		return bitmap;
 	}
 	
-	public void renderArtist(Artist artist) {
+	public void render(Artist artist) {
+		background.render(artist);
 		for (Stroke stroke : strokes)
-			stroke.renderArtist(artist);
+			stroke.render(artist);
 		for (GraphicsControlpoint line : lineArt)
-			line.renderArtist(artist);
+			line.render(artist);
 	}
 }
 
