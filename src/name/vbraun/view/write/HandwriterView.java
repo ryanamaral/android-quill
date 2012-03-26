@@ -170,6 +170,18 @@ public class HandwriterView
 		invalidate(graphics.getBoundingBoxRoundOut());
 	}
 	
+    public void add(LinkedList<Stroke> penStrokes) {
+    	getPage().strokes.addAll(penStrokes);
+		page.draw(canvas);
+    	invalidate();
+    }
+    
+    public void remove(LinkedList<Stroke> penStrokes) {
+    	getPage().strokes.removeAll(penStrokes);
+		page.draw(canvas);
+    	invalidate();
+   }
+	
 	public void interrupt() {
 		if (page==null || canvas==null)
 			return;
@@ -545,10 +557,8 @@ public class HandwriterView
 
 	
 	public void clear() {
-		if (canvas == null || page == null) return;		
-		page.strokes.clear();	
-		page.lineArt.clear();
-		page.draw(canvas);	
+		graphicsListener.onPageClearListener(page);
+		page.draw(canvas);
 		invalidate();
 	}
 	

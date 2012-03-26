@@ -9,7 +9,6 @@ import java.util.ListIterator;
 
 import name.vbraun.view.write.Page;
 import name.vbraun.view.write.Stroke;
-import name.vbraun.view.write.ScalePDF;
 
 import com.write.Quill.artist.ArtistPDF;
 import com.write.Quill.artist.PaperType;
