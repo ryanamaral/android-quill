@@ -33,5 +33,9 @@
     </string-array>
 
     <string name="preferences_err_loading_backup">Error loading the backup file.</string>
+    <string name="preferences_err_not_a_directory">(Error: not a directory)</string>
+    <string name="preferences_err_permissions">(Error: no write permissions)</string>
+    <string name="preferences_pick_backup">Pick a backup to restore</string>
+    <string name="preferences_select_backup_folder">Please select a backup folder</string>
 
 </resources>

@@ -27,7 +27,8 @@ public class CommandEraseGraphics extends Command {
 	@Override
 	public String toString() {
 		int n = Bookshelf.getCurrentBook().getPageNumber(getPage());
-		return "Remove pen stroke on page "+n;
+		QuillWriterActivity app = UndoManager.getApplication();
+		return app.getString(R.string.command_erase_graphics)+" "+n;
 	}
 
 }

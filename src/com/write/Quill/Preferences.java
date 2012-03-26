@@ -110,6 +110,10 @@ public class Preferences
 			PreferenceCategory debugCategory = (PreferenceCategory) findPreference("debug_preferences_category");
 			debugCategory.removeAll();
 			getPreferenceScreen().removePreference(debugCategory);
+			
+			PreferenceCategory inputCategory = (PreferenceCategory) findPreference("input_preferences_category");
+	    	Preference hide_system_bar = findPreference(KEY_HIDE_SYSTEM_BAR);
+	    	inputCategory.removePreference(hide_system_bar);
 		}
 		
 		updatePreferences();
@@ -145,17 +149,19 @@ public class Preferences
     	
     	boolean touch = penMode.getValue().equals(STYLUS_AND_TOUCH);
     	findPreference(KEY_PALM_SHIELD).setEnabled(touch);
-    
-    	boolean hideBar = HideBar.isPossible();
-    	findPreference(KEY_HIDE_SYSTEM_BAR).setEnabled(hideBar);
+
+    	if (!ReleaseMode.OEM) {
+    		boolean hideBar = HideBar.isPossible();
+    		findPreference(KEY_HIDE_SYSTEM_BAR).setEnabled(hideBar);
+    	}
     	
     	Storage storage = Storage.getInstance();
 		String dirName = settings.getString(KEY_BACKUP_DIR, storage.getDefaultBackupDir().getAbsolutePath());
 		File dir = new File(dirName);
 		if (!dir.isDirectory())
-			dirName += " (Error: not a directory)";
+			dirName += " " + getString(R.string.preferences_err_not_a_directory);
 		else if (!dir.canWrite()) 
-			dirName += " (Error: no write permissions)";
+			dirName += " " + getString(R.string.preferences_err_permissions);
 		backupDirPreference.setSummary(dirName);    	
 	}
 	
@@ -183,13 +189,13 @@ public class Preferences
     	if (preference == restorePreference) {
     		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
     		intent.setAction("org.openintents.action.PICK_FILE");
-    		intent.putExtra("org.openintents.extra.TITLE", "Pick a backup to restore");
+    		intent.putExtra("org.openintents.extra.TITLE", getString(R.string.preferences_pick_backup));
     		startActivityForResult(intent, REQUEST_CODE_PICK_BACKUP);
     		return true;
     	} else if (preference == backupDirPreference) {
     		Intent intent = new Intent(getApplicationContext(), name.vbraun.filepicker.FilePickerActivity.class);
     		intent.setAction("org.openintents.action.PICK_DIRECTORY");
-    		intent.putExtra("org.openintents.extra.TITLE", "Please select a backup folder");
+    		intent.putExtra("org.openintents.extra.TITLE", getString(R.string.preferences_select_backup_folder));
     		startActivityForResult(intent, REQUEST_CODE_PICK_BACKUP_DIRECTORY);
     		return true;
     	}	
