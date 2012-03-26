@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import com.write.Quill.artist.Artist;
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.TagSet;
 
@@ -330,6 +331,13 @@ public class Page {
 		draw(c, background);
 		setTransform(backup);
 		return bitmap;
+	}
+	
+	public void renderArtist(Artist artist) {
+		for (Stroke stroke : strokes)
+			stroke.renderArtist(artist);
+		for (GraphicsControlpoint line : lineArt)
+			line.renderArtist(artist);
 	}
 }
 
