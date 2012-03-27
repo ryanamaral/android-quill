@@ -68,7 +68,8 @@ public class StorageAndroid extends Storage {
 	}
 
 	public void LogMessage(String TAG, String message) {
-		showToast(message, Toast.LENGTH_LONG);
+		Log.d(TAG, message);
+		// showToast(message, Toast.LENGTH_LONG);
 	}
 
 	public void LogError(String TAG, String message) {

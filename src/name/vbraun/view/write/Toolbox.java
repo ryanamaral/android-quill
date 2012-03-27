@@ -84,7 +84,7 @@ public class Toolbox
 	protected Toolbox(Context context, boolean left) {
 		super(context);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        debugOptions = settings.getBoolean("debug_options_enable", false);
+        debugOptions = settings.getBoolean(HandwriterView.KEY_DEBUG_OPTIONS, false);
 
 		hardware = Hardware.getInstance(context);
 		

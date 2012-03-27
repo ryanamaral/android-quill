@@ -1,12 +1,17 @@
 package com.write.Quill;
 
+import name.vbraun.lib.pen.Hardware;
+import name.vbraun.view.write.HandwriterView;
+
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.StorageAndroid;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,13 +28,17 @@ public class ActivityBase extends Activity {
 	private static int quillActivitiesRunning = 0;
 	private static Context context;
 	private static final Handler backupHandler = new Handler();
-	
+	private static boolean firstRun = true;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = getApplicationContext();
       	StorageAndroid.initialize(context);
+      	if (firstRun) {
+      		removeUnusedPreferences();
+          	firstRun = false;
+      	}
 	}
 	
 	@Override
@@ -69,5 +78,25 @@ public class ActivityBase extends Activity {
     		Toast.makeText(context, R.string.activity_base_backed_up, Toast.LENGTH_SHORT).show();
     	}
     };
+    
+    
+	private static final String KEY_DEBUG_OPTIONS = HandwriterView.KEY_DEBUG_OPTIONS;
+	private static final String KEY_HIDE_SYSTEM_BAR = Preferences.KEY_HIDE_SYSTEM_BAR;
+	private static final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
+	private static final String KEY_ONLY_PEN_INPUT_OBSOLETE = "only_pen_input";
+
+    private void removeUnusedPreferences() {
+        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());            
+        SharedPreferences.Editor editor = settings.edit();
+    	
+        editor.remove(KEY_ONLY_PEN_INPUT_OBSOLETE);  // obsoleted
+
+    	if (ReleaseMode.OEM) {
+    		editor.remove(KEY_HIDE_SYSTEM_BAR);
+    		editor.remove(KEY_DEBUG_OPTIONS);
+    		editor.remove(KEY_OVERRIDE_PEN_TYPE);
+    	}
+    	editor.commit();
+    }
     
 }
