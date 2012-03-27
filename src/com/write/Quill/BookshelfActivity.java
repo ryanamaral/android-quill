@@ -237,7 +237,7 @@ public class BookshelfActivity
 
 	void showNewNotebookDialog() {
 		Bookshelf bookshelf = Bookshelf.getBookshelf();
-		bookshelf.newBook("New notebook");
+		bookshelf.newBook(getString(R.string.new_notebook_default_title));
 		int position = Bookshelf.getBookPreviewList().indexOf(Bookshelf.getCurrentBookPreview());
 		Assert.assertTrue(position >= 0);
 	    DialogFragment newFragment = LongClickDialogFragment.newInstance(

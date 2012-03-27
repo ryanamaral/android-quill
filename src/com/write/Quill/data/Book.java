@@ -489,7 +489,7 @@ public class Book {
 		try {
 			doLoadBookFromDirectory(dir, -1);
 		} catch (BookLoadException e ) {
-			storage.LogError(TAG, e.getMessage());
+			storage.LogError(TAG, e.getLocalizedMessage());
 		} catch (IOException e ) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
@@ -504,7 +504,7 @@ public class Book {
 		try {
 			doLoadBookFromDirectory(dir, pageLimit);
 		} catch (BookLoadException e ) {
-			storage.LogError(TAG, e.getMessage());
+			storage.LogError(TAG, e.getLocalizedMessage());
 		} catch (IOException e ) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
@@ -525,7 +525,7 @@ public class Book {
 		try {
 			doSaveBookInDirectory(dir);
 		} catch (BookSaveException e ) {
-			storage.LogError(TAG, e.getMessage());
+			storage.LogError(TAG, e.getLocalizedMessage());
 		} catch (IOException e ) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}

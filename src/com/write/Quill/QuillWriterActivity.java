@@ -282,7 +282,7 @@ public class QuillWriterActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.quill, menu);
         mMenu = menu;
         if (!Hardware.hasPressureSensor()) {
         	MenuItem fountainPen = mMenu.findItem(R.id.fountainpen);

@@ -6,5 +6,11 @@
     <string name="thumbnail_multiselect_title">Select Items</string>
     <string name="thumbnail_multiselect_single">One page selected</string>
     <string name="thumbnail_multiselect_multiple">pages selected</string>
+    <string name="menu_thumbnail_delete">Delete pages</string>
+    <string name="menu_thumbnail_delete_condensed">Delete</string>
+    <string name="menu_thumbnail_switch_notebook">Switch notebook</string>
+    <string name="menu_thumbnail_new_notebook">New notebook</string>
+    <string name="menu_thumbnail_send_to_evernote">Send to Evernote</string>
+    <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
     
 </resources>
