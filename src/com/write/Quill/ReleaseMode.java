@@ -3,8 +3,8 @@ package com.write.Quill;
 public class ReleaseMode {
 
 	// OEM mode hides various goodies like root support
-	public final static boolean OEM = true;
+	//public final static boolean OEM = true;
 
-//	public final static boolean OEM = false;
+	public final static boolean OEM = false;
 
 }

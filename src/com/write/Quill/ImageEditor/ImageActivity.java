@@ -221,7 +221,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 				break;
 			if (!imageFile.exists()) {
 				imageFile = null;
-				Toast.makeText(this, "Camera did not capture photo!",
+				Toast.makeText(this, R.string.image_editor_err_no_photo,
 						Toast.LENGTH_LONG).show();
 				Log.e(TAG, "no photo");
 				return;
@@ -238,7 +238,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 			Cursor cursor = getContentResolver().query(selectedImage,
 					filePathColumn, null, null, null);
 			if (cursor == null) {
-				Toast.makeText(this, "No such image!", Toast.LENGTH_LONG)
+				Toast.makeText(this, R.string.image_editor_err_no_such_image, Toast.LENGTH_LONG)
 						.show();
 				Log.e(TAG, "cursor is null");
 				return;
@@ -274,9 +274,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 				String name = cursor.getString(columnIndex);
 				File file = new File(name);
 				if (!file.exists() || !file.canRead()) {
-					Toast.makeText(
-							this,
-							"Image does not exist, or insufficient permissions!",
+					Toast.makeText(this, R.string.image_editor_err_permissions,
 							Toast.LENGTH_LONG).show();
 					Log.e(TAG, "image file not readable");
 					return;

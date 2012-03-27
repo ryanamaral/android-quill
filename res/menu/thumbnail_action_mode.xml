@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/thumbnail_action_delete" android:title="Delete pages" android:titleCondensed="Delete"></item>
+    <item android:id="@+id/thumbnail_action_delete" android:title="@string/menu_thumbnail_delete" android:titleCondensed="@string/menu_thumbnail_delete_condensed"></item>
     
 
 </menu>

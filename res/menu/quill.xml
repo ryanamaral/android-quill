@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/pencil" android:title="@string/menu_quill_pencil" android:showAsAction="always" android:icon="@drawable/ic_menu_pencil"></item><item android:id="@+id/fountainpen" android:title="@string/menu_quill_fountain_pen" android:showAsAction="always" android:icon="@drawable/toolbox_fountainpen"></item>
+    
+    <item android:id="@+id/move" android:title="@string/menu_quill_move" android:showAsAction="always" android:icon="@drawable/ic_menu_resize"></item>
+   	<item android:title="@string/menu_quill_eraser" android:id="@+id/eraser" android:showAsAction="always" android:icon="@drawable/ic_menu_eraser"></item>
+    <item android:id="@+id/undo" android:icon="@drawable/ic_menu_undo" android:showAsAction="ifRoom" android:title="@string/menu_quill_undo"></item>
+    <item android:id="@+id/redo" android:title="@string/menu_quill_redo" android:showAsAction="ifRoom" android:icon="@drawable/ic_menu_redo"></item>
+    <item android:id="@+id/prev" android:titleCondensed="@string/menu_quill_prev_condensed" android:title="@string/menu_quill_prev" android:showAsAction="ifRoom|withText"></item>
+    <item android:id="@+id/next" android:titleCondensed="@string/menu_quill_next_condensed" android:title="@string/menu_quill_next" android:showAsAction="ifRoom|withText"></item>
+    <item android:showAsAction="always" android:icon="@drawable/ic_pen_pencil" android:title="@string/menu_quill_prev_pen" android:id="@+id/prev_pen"></item>
+    <item android:id="@+id/pen_history" android:title="@string/menu_quill_pen_history" android:visible="false"></item>
+    <item android:id="@+id/tools" android:title="@string/menu_quill_tools">
+        <menu>
+    		<group android:id="@+id/tools_group" android:checkableBehavior="single">
+        	    <item android:id="@+id/tools_pencil" android:title="@string/menu_quill_pencil"></item><item android:id="@+id/tools_fountainpen" android:title="@string/menu_quill_fountain_pen"></item>
+    			
+    			<item android:id="@+id/tools_line" android:titleCondensed="@string/menu_quill_straight_line_condensed" android:title="@string/menu_quill_straight_line"/><item android:id="@+id/tools_move" android:title="@string/menu_quill_move"></item>
+   				<item android:id="@+id/tools_eraser" android:title="@string/menu_quill_eraser"></item>
+    			<item android:id="@+id/tools_image" android:title="@string/menu_quill_image"/><item android:id="@+id/tools_typewriter" android:titleCondensed="@string/menu_quill_text_condensed" android:title="@string/menu_quill_text" android:visible="false" android:enabled="false"></item>
+    			
+    			
+			</group>			
+        </menu>
+    </item>
+    
+    
+    <item android:enabled="true" android:visible="true" android:id="@+id/color" android:title="@string/menu_quill_color" android:checkable="false"></item>
+    <item android:id="@+id/width" android:title="@string/menu_quill_width"></item>    
+    
+    <group android:enabled="true" android:visible="true" android:id="@+id/page_group">
+    <item android:id="@+id/page" android:title="@string/menu_quill_page_group">
+        <menu>
+    		<item android:checked="false" android:enabled="true" android:title="@string/menu_quill_page_readonly" android:checkable="true" android:visible="true" android:id="@+id/readonly"></item>
+            <item android:id="@+id/page_delete" android:title="@string/menu_quill_page_delete"></item>
+            <item android:title="@string/menu_quill_page_clear" android:id="@+id/page_clear"></item>
+            <item android:id="@+id/page_aspect" android:title="@string/menu_quill_page_aspect"></item>
+            <item android:id="@+id/page_type" android:title="@string/menu_quill_page_type"></item>
+            <item android:id="@+id/page_insert" android:title="@string/menu_quill_page_insert"></item>
+            <item android:id="@+id/page_duplicate" android:title="@string/menu_quill_page_duplicate"></item>
+            <item android:id="@+id/page_next" android:title="@string/menu_quill_page_prev"></item>
+            <item android:id="@+id/page_prev" android:title="@string/menu_quill_page_prev"></item><item android:title="@string/menu_quill_page_unfiltered_next" android:id="@+id/page_next_unfiltered"></item><item android:title="@string/menu_quill_page_unfiltered_prev" android:id="@+id/page_prev_unfiltered"></item>
+            <item android:id="@+id/page_last" android:title="@string/menu_quill_page_last"></item>
+            <item android:title="@string/menu_quill_page_tag" android:id="@+id/tag_page"></item>            
+        </menu>
+    </item>
+    </group>
+    
+    <item android:id="@+id/export" android:title="@string/menu_quill_export"></item>
+    <item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="@string/menu_quill_settings"></item>
+	<item android:id="@+id/tag_filter" android:title="@string/menu_quill_tag_filter"></item>
+    <item android:id="@+id/about" android:title="@string/menu_quill_about" android:orderInCategory="-100"></item>
+    
+    
+    
+    
+    
+    
+</menu>

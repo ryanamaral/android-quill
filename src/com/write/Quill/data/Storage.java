@@ -112,7 +112,6 @@ public abstract class Storage {
 		if (!name.startsWith(NOTEBOOK_DIRECTORY_PREFIX)) return null;
 		int n = NOTEBOOK_DIRECTORY_PREFIX.length();
 		String uuid = name.substring(n, n+36);
-		LogError(TAG, "UUID = " + uuid);
 		return UUID.fromString(uuid);
 	}
 	
