@@ -119,8 +119,8 @@ public class BookshelfActivity
 				    }};
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setMessage(R.string.delete_notebook_message)
-					.setPositiveButton(R.string.delete_notebook_yes, dialogClickListener)
-				    .setNegativeButton(R.string.delete_notebook_no,  dialogClickListener);
+					.setPositiveButton(android.R.string.yes, dialogClickListener)
+				    .setNegativeButton(android.R.string.no,  dialogClickListener);
 				return builder.create();
 	    }
 	}

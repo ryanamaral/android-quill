@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="activity_base_backed_up">Quill notebooks backed up.</string>
     <string name="quill_deleted_page">Deleted page</string>
     <string name="quill_no_other_pen_styles">No other pen styles in history.</string>
-    <string name="quill_already_first_page">Already on first page</string><string name="quill_already_first_tagged_page">Already on first tagged page</string><string name="quill_showing_first_page">Showing first page</string>
-    <string name="quill_showing_last_page">Showing last page</string><string name="quill_showing_first_tagged_page">Showing first tagged page</string><string name="quill_showing_last_tagged_page">Showing last tagged page</string>
+    <string name="quill_already_first_page">Already on first page</string>
+    <string name="quill_already_first_tagged_page">Already on first tagged page</string>
+    <string name="quill_showing_first_page">Showing first page</string>
+    <string name="quill_showing_last_page">Showing last page</string>
+    <string name="quill_showing_first_tagged_page">Showing first tagged page</string>
+    <string name="quill_showing_last_tagged_page">Showing last tagged page</string>
     <string name="quill_showing_page">Showing page</string>
     <string name="quill_inserted_at_end">Inserted new page at end</string>
     <string name="quill_undo">Undo</string>
@@ -14,9 +19,5 @@
     <string name="command_erase_graphics">Remove pen stroke on page</string>
     <string name="command_page_insert">Insert page number</string>
     <string name="command_page_erase">Delete page number</string>
-    
-    
-    
-    
-    
+
 </resources>

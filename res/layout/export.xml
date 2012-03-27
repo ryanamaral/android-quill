@@ -118,6 +118,6 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/export_button"
         android:layout_toLeftOf="@id/export_button"
-        android:text="@string/export_cancel_text" />
+        android:text="@android:string/cancel" />
 
 </RelativeLayout>
