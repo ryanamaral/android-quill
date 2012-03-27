@@ -26,7 +26,6 @@
         
         
     </string-array>
-    <string name="export_title">Export current page as...</string>
     <string name="export_name_header">Name:</string>
     
     <string name="export_saved_as">Saved as</string>
@@ -49,7 +48,7 @@
     <string name="export_view_file_title">View exported file with</string>
     <string name="export_filename_default">Filename.pdf</string><string name="export_evernote_err_not_found">You must first install the Evernote app</string>
     <string name="export_evernote_download_question">Download from Android Market?</string><string name="export_evernote_title">Send to Evernote</string>
-    <string name="export_evernote_message">Compressing pages...</string>
+    <string name="export_evernote_message">Compressing pages &#8230;</string>
     <string name="export_evernote_cancel_button">Cancel</string>
     <string name="export_evernote_err_no_cache_dir">Unable to open cache directory</string>
     <string name="export_evernote_err_cannot_write">Unable to write file</string>

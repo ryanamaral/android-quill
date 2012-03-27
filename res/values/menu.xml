@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="menu_quill_pencil">Pencil</string>
     <string name="menu_quill_fountain_pen">Fountain Pen</string>
     <string name="menu_quill_move">Move / Zoom</string>
@@ -12,28 +13,31 @@
     <string name="menu_quill_next_condensed">Next</string>
     <string name="menu_quill_prev_pen">Previous pen</string>
     <string name="menu_quill_pen_history">Pen history</string>
-    <string name="menu_quill_tools"/>
+    <string name="menu_quill_tools" />
     <string name="menu_quill_straight_line">Straight line</string>
-    <string name="menu_quill_straight_line_condensed">Line</string><string name="menu_quill_image">Image</string>
-    <string name="menu_quill_text">Text input</string><string name="menu_quill_text_condensed" >Text</string><string name="menu_quill_color">Color</string>
+    <string name="menu_quill_straight_line_condensed">Line</string>
+    <string name="menu_quill_image">Image</string>
+    <string name="menu_quill_text">Text input</string>
+    <string name="menu_quill_text_condensed">Text</string>
+    <string name="menu_quill_color">Color</string>
     <string name="menu_quill_width">Thickness</string>
     <string name="menu_quill_page_group">Page</string>
-    <string name="menu_quill_page_readonly"/>
+    <string name="menu_quill_page_readonly" />
     <string name="menu_quill_page_delete">Delete</string>
     <string name="menu_quill_page_clear">Clear</string>
-    <string name="menu_quill_page_aspect">Aspect ratio</string><string name="menu_quill_page_type" >Paper</string>
+    <string name="menu_quill_page_aspect">Aspect ratio</string>
+    <string name="menu_quill_page_type">Paper</string>
     <string name="menu_quill_page_insert">Insert</string>
-    
     <string name="menu_quill_page_duplicate">Duplicate</string>
-    <string name="menu_quill_page_next">Next</string><string name="menu_quill_page_prev">Previous</string>
-    <string name="menu_quill_page_unfiltered_next">Unfiltered next</string><string name="menu_quill_page_unfiltered_prev">Unfiltered previous</string><string name="menu_quill_page_last">Last</string><string name="menu_quill_page_tag">Tags</string>
+    <string name="menu_quill_page_next">Next</string>
+    <string name="menu_quill_page_prev">Previous</string>
+    <string name="menu_quill_page_unfiltered_next">Unfiltered next</string>
+    <string name="menu_quill_page_unfiltered_prev">Unfiltered previous</string>
+    <string name="menu_quill_page_last">Last</string>
+    <string name="menu_quill_page_tag">Tags</string>
     <string name="menu_quill_export">Export</string>
     <string name="menu_quill_settings">Settings</string>
     <string name="menu_quill_tag_filter">Filter</string>
     <string name="menu_quill_about">About Quill</string>
-    
-    
-    
-    
-    
+
 </resources>
