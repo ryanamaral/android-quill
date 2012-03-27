@@ -1,13 +1,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceCategory android:title="User handedness" >
+    <PreferenceCategory android:title="@string/preferences_user_handedness" >
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="toolbox_left"
-            android:summary="The red button and toolbox will be on the left"
-            android:title="Right-handed (most common)" />
+            android:summary="@string/preferences_toolbox_left_summary"
+            android:title="@string/preferences_toolbox_left" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Input preferences" android:key="input_preferences_category">
+    <PreferenceCategory android:title="@string/preferences_input" android:key="input_preferences_category">
         <ListPreference
             android:entries="@array/preferences_pen_input_mode_entries"
             android:entryValues="@array/preferences_pen_input_mode_values"
@@ -17,75 +17,75 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="double_tap_while_write"
-            android:summary="Zoom in/out by double tapping the screen with fingers while writing"
-            android:title="Double tap while writing" >
+            android:summary="@string/preferences_double_tap_summary"
+            android:title="@string/preferences_double_tap" >
         </CheckBoxPreference>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="move_gesture_while_writing"
-            android:summary="Drag the page around with two finger touch while writing"
-            android:title="Move gesture while writing" >
+            android:summary="@string/preferences_move_gesture_summary"
+            android:title="@string/preferences_move_gesture" >
         </CheckBoxPreference>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="move_gesture_fix_zoom"
-            android:summary="Whether or not zoom stays constant or changes with pinch"
-            android:title="Lock zoom during move gesture" />
+            android:summary="@string/preferences_move_zoom_summary"
+            android:title="@string/preferences_move_zoom" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="palm_shield"
-            android:summary="Make bottom half of screen insensitive to touch (top half if left-handed)"
-            android:title="Palm shield" />
+            android:summary="@string/preferences_palm_shield_summary"
+            android:title="@string/preferences_palm_shield" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="volume_key_navigation"
-            android:summary="Press volume-up for next page, volume-down for previous page"
-            android:title="Volume key navigation" >
+            android:summary="@string/preferences_volume_key_nav_summary"
+            android:title="@string/preferences_volume_key_nav" >
         </CheckBoxPreference>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="show_action_bar"
-            android:summary="Whether to show the horizontal bar on the top of the screen"
-            android:title="Show the action bar" />
+            android:summary="@string/preferences_action_bar_summary"
+            android:title="@string/preferences_action_bar" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="hide_system_bar"
-            android:summary="Remove the horizontal bar at the bottom (home button, clock) of the screen"
-            android:title="Hide system bar (requires root)" />
+            android:summary="@string/preferences_system_bar_summary"
+            android:title="@string/preferences_system_bar" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="some_tools_switch_back"
-            android:summary="Automatically switch back to pen after finishing move/zoom/erase"
-            android:title="Tools switch back" />
+            android:summary="@string/preferences_tools_switch_back_summary"
+            android:title="@string/preferences_tools_switch_back" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="keep_screen_on"
-            android:summary="Screen stays on in the main window"
-            android:title="Keep screen on" />
+            android:summary="@string/preferences_keep_screen_on_summary"
+            android:title="@string/preferences_keep_screen_on" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="User data" >
+    <PreferenceCategory android:title="@string/preferences_user_data" >
         <Preference
             android:key="restore_backup"
-            android:summary="Import a .quill backup file (Use &quot;Export&quot; to make backups)"
-            android:title="Restore Backup" >
+            android:summary="@string/preferences_restore_summary"
+            android:title="@string/preferences_restore" >
         </Preference>
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="backup_automatic"
-            android:summary="Make backups of your notebooks automatically"
-            android:title="Automatic backups" />
+            android:summary="@string/preferences_backup_auto_summary"
+            android:title="@string/preferences_backup_auto" />
 
         <Preference
             android:key="backup_directory"
-            android:title="Automatic backup directory" />
+            android:title="@string/preferences_backup_dir" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Debug options" android:key="debug_preferences_category">
+    <PreferenceCategory android:title="@string/preferences_debug" android:key="debug_preferences_category">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="debug_options_enable"
-            android:summary="Enable features that are not finished yet."
-            android:title="Incomplete features" />
+            android:summary="@string/preferences_incomplete_summary"
+            android:title="@string/preferences_incomplete" />
 
         <ListPreference
             android:entries="@array/preferences_override_pen_type_entries"

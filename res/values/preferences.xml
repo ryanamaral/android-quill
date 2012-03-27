@@ -37,5 +37,36 @@
     <string name="preferences_err_permissions">(Error: no write permissions)</string>
     <string name="preferences_pick_backup">Pick a backup to restore</string>
     <string name="preferences_select_backup_folder">Please select a backup folder</string>
+    <string name="preferences_user_handedness">User handedness</string>
+    <string name="preferences_toolbox_left">Right-handed (most common)</string>
+    <string name="preferences_toolbox_left_summary">The red button and toolbox will be on the left</string>
+    <string name="preferences_input">Input preferences</string>
+    <string name="preferences_double_tap">Double tap while writing</string>
+    <string name="preferences_double_tap_summary">Zoom in/out by double tapping the screen with fingers while writing</string>
+    <string name="preferences_move_gesture">Move gesture while writing</string>
+    <string name="preferences_move_gesture_summary">Drag the page around with two finger touch while writing</string>
+    <string name="preferences_move_zoom">Lock zoom during move gesture</string>
+    <string name="preferences_move_zoom_summary">Whether or not zoom stays constant or changes with pinch</string>
+    <string name="preferences_palm_shield">Palm shield</string>
+    <string name="preferences_palm_shield_summary">Make bottom half of screen insensitive to touch (top half if left-handed)</string>
+    <string name="preferences_volume_key_nav">Volume key navigation</string>
+    <string name="preferences_volume_key_nav_summary">Press volume-up for next page, volume-down for previous page</string>
+    <string name="preferences_action_bar">Show the action bar</string>
+    <string name="preferences_action_bar_summary">Whether to show the horizontal bar on the top of the screen</string>
+    <string name="preferences_system_bar">Hide system bar (requires root)</string>
+    <string name="preferences_system_bar_summary">Remove the horizontal bar at the bottom (home button, clock) of the screen</string>
+    <string name="preferences_tools_switch_back">Tools switch back</string>
+    <string name="preferences_tools_switch_back_summary">Automatically switch back to pen after finishing move/zoom/erase</string>
+    <string name="preferences_keep_screen_on">Keep screen on</string>
+    <string name="preferences_keep_screen_on_summary">Screen stays on in the main window</string>
+    <string name="preferences_user_data">User data</string>
+    <string name="preferences_restore">Restore Backup</string>
+    <string name="preferences_restore_summary">Import a .quill backup file (Use \"Export\" to make backups)</string>
+    <string name="preferences_backup_auto">Automatic backups</string>
+    <string name="preferences_backup_auto_summary">Make backups of your notebooks automatically</string>
+    <string name="preferences_backup_dir">Automatic backup directory</string>
+    <string name="preferences_debug">Debug options</string>
+    <string name="preferences_incomplete">Incomplete features</string>
+    <string name="preferences_incomplete_summary">Enable features that are not finished yet</string>
 
 </resources>
