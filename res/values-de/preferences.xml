@@ -38,4 +38,36 @@
     <string name="preferences_pick_backup">Wählen Sie ein Backup zum wiederherstellen aus</string>
     <string name="preferences_select_backup_folder">Wählen Sie einen Backup-Ordner aus</string>
 
+    <string name="preferences_user_handedness">Dominante Hand</string>
+    <string name="preferences_toolbox_left">Rechtshänder (die Meisten)</string>
+    <string name="preferences_toolbox_left_summary">Der Rote Knopf und Toolbox sind auf der linken Seite</string>
+    <string name="preferences_input">Eingabe Präferenzen</string>
+    <string name="preferences_double_tap">Doppel-Antippen beim Schreiben</string>
+    <string name="preferences_double_tap_summary">Vergrössern/verkleinern durch doppelt antippen im Schreibmodus</string>
+    <string name="preferences_move_gesture">Verschiebe-Geste beim Schreiben</string>
+    <string name="preferences_move_gesture_summary">Bildschirm berühren mit zwei Fingern verschiebt im Schreibmodus</string>
+    <string name="preferences_move_zoom">Feste Vergrösserung während der Verschiebe-Geste</string>
+    <string name="preferences_move_zoom_summary">Ob der Zoom-Faktor konstant bleibt oder sich mit der Zwick-Geste verändert</string>
+    <string name="preferences_palm_shield">Handballenauflage</string>
+    <string name="preferences_palm_shield_summary">Macht die untere Bildschirmhälfte unempfindlich fuer Berührungen (obere Hälfte für Linkshänder)</string>
+    <string name="preferences_volume_key_nav">Lautstärke Navigation</string>
+    <string name="preferences_volume_key_nav_summary">Volume-up für nächste Seite, Volume-down für vorhergehende Seite</string>
+    <string name="preferences_action_bar">Zeige die Action Leiste</string>
+    <string name="preferences_action_bar_summary">Ob die horizontale Leiste am oberen Bildschirmrand angezeigt wird</string>
+    <string name="preferences_system_bar">Verstecke die System Leiste (Benötigt root)</string>
+    <string name="preferences_system_bar_summary">Entfernt die horizontale Leiste am underen Bildschirmrand (Home button, Uhr)</string>
+    <string name="preferences_tools_switch_back">Tools schalten zurück</string>
+    <string name="preferences_tools_switch_back_summary">Schalte automatisch zum Stift zurueck nach verschieben/zoom und radieren.</string>
+    <string name="preferences_keep_screen_on">Bildschirm an lassen</string>
+    <string name="preferences_keep_screen_on_summary">Der Bildschirm bleibt an solange das Hauptfenster angezeigt wird</string>
+    <string name="preferences_user_data">User Daten</string>
+    <string name="preferences_restore">Backup wiedereinspielen</string>
+    <string name="preferences_restore_summary">Importiert eine .quill Backup Datei (\"Export\" erstellt Backups)</string>
+    <string name="preferences_backup_auto">Automatische Backups</string>
+    <string name="preferences_backup_auto_summary">Erstellt Sicherungskopien aller Notizbücher automatisch</string>
+    <string name="preferences_backup_dir">Ordner für automatische Backups</string>
+    <string name="preferences_debug">Debug Optionen</string>
+    <string name="preferences_incomplete">Unvollständige Funktionen</string>
+    <string name="preferences_incomplete_summary">Funktionen die noch nicht fertig sind werden angeboten</string>
+    
 </resources>
