@@ -620,7 +620,7 @@ public class ExportActivity
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.export_evernote_err_not_found);
             builder.setMessage(R.string.export_evernote_download_question);
-            builder.setPositiveButton(R.string.export_evernote_download_yes,
+            builder.setPositiveButton(android.R.string.yes,
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -629,7 +629,7 @@ public class ExportActivity
                             startActivity(marketIntent);
                         }
                     });
-            builder.setNegativeButton(R.string.export_evernote_download_no, null);
+            builder.setNegativeButton(android.R.string.no, null);
             builder.create().show();
         } 
     }

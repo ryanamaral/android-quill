@@ -65,7 +65,5 @@
     <string name="export_err_cannot_create_file">Unable to create file</string>
     <string name="export_err_cannot_write_file">Unable to write to file</string>
     <string name="export_pick_destination_directory">Select destination folder</string>
-    <string name="export_evernote_download_yes">Yes</string>
-    <string name="export_evernote_download_no">No</string>
 
 </resources>
