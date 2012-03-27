@@ -14,8 +14,9 @@ import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
 
 public class BookshelfAdapter extends ArrayAdapter<BookPreview> {
-
-	Context context;
+	private final static String TAG = "BookshelfAdapter";
+	
+	private Context context;
 	
 	public BookshelfAdapter(Context c) {
 		super(c, R.layout.bookshelf_item, Bookshelf.getBookPreviewList());
@@ -41,7 +42,7 @@ public class BookshelfAdapter extends ArrayAdapter<BookPreview> {
         ImageView thumb = (ImageView) layout.findViewById(R.id.bookshelf_image);
         
         if (position == Bookshelf.getBookPreviewList().size()) {
-            title.setText("Create new notebook");
+            title.setText(context.getString(R.string.edit_notebook_title_new));
             summary.setText("");
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_150);
             thumb.setImageBitmap(icon);

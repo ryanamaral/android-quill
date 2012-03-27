@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="preferences_pen_input_mode_entries">
+        <item>Finger herausfiltern beim schreiben</item>
+        <item>Finger herausfiltern, aber Gesten zulassen</item>
+        <item>Alles schreibt auf den Bildschirm</item>
+    </string-array>
+    <string-array name="preferences_pen_input_mode_values">
+        <item>STYLUS_ONLY</item>
+        <item>STYLUS_WITH_GESTURES</item>
+        <item>STYLUS_AND_TOUCH</item>
+    </string-array>
+
+    <string name="preferences_pen_input_mode_title">Stift Eingabemodus</string>
+    <string name="preferences_override_pen_title">Stiftentdeckung überschreiben</string>
+
+    <string-array name="preferences_override_pen_type_entries">
+        <item>Automatisch</item>
+        <item>Kapazitiver Stift</item>
+        <item>Thinkpad Tablet Stift</item>
+        <item>Samsung Note S-pen</item>
+        <item>Magic Left Alt Hack</item>
+        <item>Android ICS (4.0) Stift API</item>
+    </string-array>
+    <string-array name="preferences_override_pen_type_values">
+        <item>PEN_TYPE_AUTO</item>
+        <item>PEN_TYPE_CAPACITIVE</item>
+        <item>PEN_TYPE_THINKPAD_TABLET</item>
+        <item>PEN_TYPE_SAMSUNG_NOTE</item>
+        <item>PEN_TYPE_LEFT_ALT</item>
+        <item>PEN_TYPE_ICS</item>
+    </string-array>
+
+    <string name="preferences_err_loading_backup">Fehler beim laden der Backupdatei</string>
+    <string name="preferences_err_not_a_directory">(Fehler: Ist kein Ordner)</string>
+    <string name="preferences_err_permissions">(Fehler: Keine Schreibrechte)</string>
+    <string name="preferences_pick_backup">Wählen Sie ein Backup zum wiederherstellen aus</string>
+    <string name="preferences_select_backup_folder">Wählen Sie einen Backup-Ordner aus</string>
+
+</resources>
