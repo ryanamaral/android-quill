@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tag_list_title">Tag current page</string><string name="tag_list_new_label">New</string>
+
+    <string name="tag_list_title">Tag current page</string>
+    <string name="tag_list_new_label">New</string>
     <string name="tag_list_default_text">Description</string>
     <string name="menu_tag_list_filter">Filter</string>
-    
+
 </resources>

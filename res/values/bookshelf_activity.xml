@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="edit_notebook_delete">Delete</string><string name="edit_notebook_export">Export</string><string name="edit_notebook_header">Description:</string>
-    <string name="edit_notebook_title">Edit notebook</string>
-    <string name="edit_notebook_title_new">Create new notebook</string><string name="new_notebook_description">Description:</string>
-    <string name="new_notebook_default_title">New notebook</string><string name="delete_notebook_message">Deleting notebook, are you sure?</string>
-    <string name="delete_notebook_yes">Yes</string>
-    <string name="delete_notebook_no">No</string>
-    
-    
-    
 
-    
+    <string name="edit_notebook_delete">Delete</string>
+    <string name="edit_notebook_export">Export</string>
+    <string name="edit_notebook_header">Description:</string>
+    <string name="edit_notebook_title">Edit notebook</string>
+    <string name="edit_notebook_title_new">Create new notebook</string>
+    <string name="new_notebook_description">Description:</string>
+    <string name="new_notebook_default_title">New notebook</string>
+    <string name="delete_notebook_message">Deleting notebook, are you sure?</string>
+
 </resources>

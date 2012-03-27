@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="tag_button">Tags</string>
     <string name="thumbnail_title_filter">Only show pages that contain the following tags</string>
     <string name="thumbnail_new_notebook_title">Create new notebook</string>
@@ -12,5 +13,5 @@
     <string name="menu_thumbnail_new_notebook">New notebook</string>
     <string name="menu_thumbnail_send_to_evernote">Send to Evernote</string>
     <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
-    
+
 </resources>

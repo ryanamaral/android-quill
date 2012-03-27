@@ -53,7 +53,7 @@
         android:layout_marginBottom="15dp"
         android:layout_below="@+id/image_editor_aspect_checkbox"
         android:layout_marginRight="15dp"
-        android:text="@string/image_editor_ok" />
+        android:text="@android:string/ok" />
 
     <Button
         android:id="@+id/image_editor_erase"

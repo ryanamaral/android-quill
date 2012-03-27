@@ -46,7 +46,7 @@ public class EvernoteExportDialog
 		setCancelable(true);
 		setCanceledOnTouchOutside(true);
 		setOnCancelListener(this);
-		setButton(BUTTON_NEGATIVE, c.getString(R.string.export_evernote_cancel_button), this);
+		setButton(BUTTON_NEGATIVE, c.getString(android.R.string.cancel), this);
 	}
 	
     // Names of Evernote-specific Intent actions and extras

@@ -205,7 +205,7 @@ public class ThumbnailActivity extends ActivityBase implements
 				.setIconAttribute(android.R.attr.alertDialogIcon)
 				.setTitle(R.string.thumbnail_new_notebook_title)
 				.setView(textEntryView)
-				.setPositiveButton(R.string.alert_dialog_ok,
+				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
@@ -216,7 +216,7 @@ public class ThumbnailActivity extends ActivityBase implements
 								reloadTags();
 							}
 						})
-				.setNegativeButton(R.string.alert_dialog_cancel,
+				.setNegativeButton(android.R.string.cancel,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
