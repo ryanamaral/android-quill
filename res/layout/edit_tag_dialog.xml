@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/edit_tag_header"
         android:selectAllOnFocus="true"
+        android:inputType="text"
         android:singleLine="true" >
         <requestFocus />
     </EditText>
@@ -41,7 +42,7 @@
         android:layout_below="@id/edit_tag_help"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="@string/edit_tag_button" />
+        android:text="@android:string/ok" />
 
     <Button
         android:id="@+id/edit_tag_cancel"
@@ -49,6 +50,6 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/edit_tag_button"
         android:layout_toLeftOf="@id/edit_tag_button"
-        android:text="@string/edit_tag_cancel" />
+        android:text="@android:string/cancel" />
 
 </RelativeLayout>

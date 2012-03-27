@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="edit_notebook_button">Ok</string>
-    <string name="edit_notebook_cancel">Cancel</string>
     <string name="edit_notebook_delete">Delete</string><string name="edit_notebook_export">Export</string><string name="edit_notebook_header">Description:</string>
     <string name="edit_notebook_title">Edit notebook</string>
     <string name="edit_notebook_title_new">Create new notebook</string><string name="new_notebook_description">Description:</string>

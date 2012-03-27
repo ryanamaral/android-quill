@@ -334,7 +334,7 @@
         android:background="@drawable/toolbox_button"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
-        android:text="Tags" />
+        android:text="@string/tag_button" />
 
     <ImageButton
         android:id="@+id/toolbox_menu"

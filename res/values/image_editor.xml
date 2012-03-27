@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="image_editor_title">Select image</string>
-    <string name="image_editor_crop_label">Cropped image</string>
-    <string name="image_editor_crop_button">Crop</string>
     <string name="image_editor_aspect_checkbox_label">Fix 1:1 aspect ratio</string>
     <string name="image_editor_erase">Remove</string>
     <string name="image_editor_ok">OK</string>

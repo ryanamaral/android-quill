@@ -34,7 +34,7 @@
         android:layout_below="@id/edit_notebook_title"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="@string/edit_notebook_button" />
+        android:text="@android:string/ok" />
 
     <Button
         android:id="@+id/edit_notebook_cancel"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/edit_notebook_button"
         android:layout_toLeftOf="@id/edit_notebook_button"
-        android:text="@string/edit_notebook_cancel" />
+        android:text="@android:string/cancel" />
 
     <Button
         android:id="@+id/edit_notebook_delete"
