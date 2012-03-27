@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_list_title">Tag aktuelle Seite</string>
+    <string name="tag_list_new_label">Neu</string>
+    <string name="tag_list_default_text">Beschreibung</string>
+    <string name="menu_tag_list_filter">Filter</string>
+
+</resources>

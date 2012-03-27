@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hide_bar_failed_hide">Kann die Systemleiste nicht abschalten (Sind Sie root?)</string>
+    <string name="hide_bar_failed_show">Kann die Systemleiste nicht zeigen (Sind Sie root?)</string>
+
+</resources>

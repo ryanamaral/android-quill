@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="edit_notebook_delete">Löschen</string>
+    <string name="edit_notebook_export">Export</string>
+    <string name="edit_notebook_header">Beschreibung:</string>
+    <string name="edit_notebook_title">Notizen editieren</string>
+    <string name="edit_notebook_title_new">Neues Notizbuch</string>
+    <string name="new_notebook_description">Beschreibung:</string>
+    <string name="new_notebook_default_title">Neues Notizbuch </string>
+    <string name="delete_notebook_message">Notizbuch löschen, sind Sie sich sicher?</string>
+
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_editor_title">Bild auswählen</string>
+    <string name="image_editor_aspect_checkbox_label">Seitenverhältnis 1:1 festlegen</string>
+    <string name="image_editor_erase">Entfernen</string>
+    <string name="image_editor_resolution">Auflösung</string>
+    <string name="image_editor_source_uri">Ursprungs URI</string>
+    <string name="image_editor_source_image">Ursprungsbild</string>
+    <string name="menu_image_pick">Bild auswählen</string>
+    <string name="menu_image_pick_condensed">Galerie</string>
+    <string name="menu_image_photo">Photo aufnehmen</string>
+    <string name="menu_image_photo_condensed">Photo</string>
+    <string name="menu_image_cropped">Bilder beschneiden</string>
+    <string name="menu_image_cropped_condensed">Beschneiden</string>
+    <string name="image_editor_err_no_photo">Kamera hat kein Bild aufgenommen!</string>
+    <string name="image_editor_err_no_such_image">Kein solches Bild!</string>
+    <string name="image_editor_err_permissions">Bild existiert nicht, oder unzureichende Berechtigung!</string>
+
+</resources>

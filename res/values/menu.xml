@@ -13,7 +13,7 @@
     <string name="menu_quill_next_condensed">Next</string>
     <string name="menu_quill_prev_pen">Previous pen</string>
     <string name="menu_quill_pen_history">Pen history</string>
-    <string name="menu_quill_tools" />
+    <string name="menu_quill_tools" >Tools</string>
     <string name="menu_quill_straight_line">Straight line</string>
     <string name="menu_quill_straight_line_condensed">Line</string>
     <string name="menu_quill_image">Image</string>
@@ -22,7 +22,7 @@
     <string name="menu_quill_color">Color</string>
     <string name="menu_quill_width">Thickness</string>
     <string name="menu_quill_page_group">Page</string>
-    <string name="menu_quill_page_readonly" />
+    <string name="menu_quill_page_readonly" >Readonly</string>
     <string name="menu_quill_page_delete">Delete</string>
     <string name="menu_quill_page_clear">Clear</string>
     <string name="menu_quill_page_aspect">Aspect ratio</string>

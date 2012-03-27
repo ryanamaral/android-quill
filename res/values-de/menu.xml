@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="menu_quill_pencil">Bleistift</string>
+    <string name="menu_quill_fountain_pen">Federhalter</string>
+    <string name="menu_quill_move">Verschieben / Zoom</string>
+    <string name="menu_quill_eraser">Radieren</string>
+    <string name="menu_quill_undo">Undo</string>
+    <string name="menu_quill_redo">Redo</string>
+    <string name="menu_quill_prev">Vorherige Seite</string>
+    <string name="menu_quill_prev_condensed">Vorwärts</string>
+    <string name="menu_quill_next">Nächste Seite</string>
+    <string name="menu_quill_next_condensed">Zurück</string>
+    <string name="menu_quill_prev_pen">Vorherige Stilart</string>
+    <string name="menu_quill_pen_history">Benutzte Stilarten</string>
+    <string name="menu_quill_tools">Tools</string>
+    <string name="menu_quill_straight_line">Gerade Linie</string>
+    <string name="menu_quill_straight_line_condensed">Gerade</string>
+    <string name="menu_quill_image">Bilder</string>
+    <string name="menu_quill_text">Text Eingabe</string>
+    <string name="menu_quill_text_condensed">Text</string>
+    <string name="menu_quill_color">Stiftfarbe</string>
+    <string name="menu_quill_width">Stiftbreite</string>
+    <string name="menu_quill_page_group">Seite</string>
+    <string name="menu_quill_page_readonly">Schreibschutz</string>
+    <string name="menu_quill_page_delete">Entfernen</string>
+    <string name="menu_quill_page_clear">Löschen</string>
+    <string name="menu_quill_page_aspect">Seitenverhältnis</string>
+    <string name="menu_quill_page_type">Papier</string>
+    <string name="menu_quill_page_insert">Einfügen</string>
+    <string name="menu_quill_page_duplicate">Verdoppeln</string>
+    <string name="menu_quill_page_next">Weiter</string>
+    <string name="menu_quill_page_prev">Zurück</string>
+    <string name="menu_quill_page_unfiltered_next">Weiter ohne Filter</string>
+    <string name="menu_quill_page_unfiltered_prev">Zurück ohne Filter</string>
+    <string name="menu_quill_page_last">Letzte</string>
+    <string name="menu_quill_page_tag">Tags</string>
+    <string name="menu_quill_export">Exportieren</string>
+    <string name="menu_quill_settings">Einstellungen</string>
+    <string name="menu_quill_tag_filter">Filter</string>
+    <string name="menu_quill_about">Über Quill</string>
+
+</resources>
