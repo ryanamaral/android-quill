@@ -69,11 +69,20 @@ public class Preferences
 	protected static final String KEY_HIDE_SYSTEM_BAR = "hide_system_bar";
 	protected static final String KEY_TOOLS_SWITCH_BACK = "some_tools_switch_back";
 	protected static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	protected static final String KEY_DEBUG_OPTIONS = HandwriterView.KEY_DEBUG_OPTIONS;
 	
+	// values for KEY_LIST_PEN_INPUT_MODE
     protected static final String STYLUS_ONLY = HandwriterView.STYLUS_ONLY;
     protected static final String STYLUS_WITH_GESTURES = HandwriterView.STYLUS_WITH_GESTURES;
     protected static final String STYLUS_AND_TOUCH = HandwriterView.STYLUS_AND_TOUCH;
-        
+
+    // values for KEY_OVERRIDE_PEN_TYPE
+    protected static final String PEN_TYPE_AUTO = Hardware.PEN_TYPE_AUTO;
+    protected static final String PEN_TYPE_CAPACITIVE = Hardware.PEN_TYPE_CAPACITIVE;
+    protected static final String PEN_TYPE_SAMSUNG_NOTE = Hardware.PEN_TYPE_SAMSUNG_NOTE;
+    protected static final String PEN_TYPE_THINKPAD_TABLET = Hardware.PEN_TYPE_THINKPAD_TABLET;
+    protected static final String PEN_TYPE_ICS = Hardware.PEN_TYPE_ICS;
+    
     private Preference restorePreference;
     private Preference backupDirPreference;
     
@@ -106,17 +115,20 @@ public class Preferences
 		backupDirPreference = findPreference(PREFERENCE_BACKUP_DIR);
 		backupDirPreference.setOnPreferenceClickListener(this);
 
-		if (ReleaseMode.OEM) {
-			PreferenceCategory debugCategory = (PreferenceCategory) findPreference("debug_preferences_category");
-			debugCategory.removeAll();
-			getPreferenceScreen().removePreference(debugCategory);
-			
-			PreferenceCategory inputCategory = (PreferenceCategory) findPreference("input_preferences_category");
-	    	Preference hide_system_bar = findPreference(KEY_HIDE_SYSTEM_BAR);
-	    	inputCategory.removePreference(hide_system_bar);
-		}
-		
+		if (ReleaseMode.OEM) releaseModeOEM();
 		updatePreferences();
+	}
+	
+	private void releaseModeOEM() {
+		// hide debug prefs
+		PreferenceCategory debugCategory = (PreferenceCategory) findPreference("debug_preferences_category");
+		debugCategory.removeAll();
+		getPreferenceScreen().removePreference(debugCategory);
+		
+		// hide root options
+		PreferenceCategory inputCategory = (PreferenceCategory) findPreference("input_preferences_category");
+    	Preference hide_system_bar = findPreference(KEY_HIDE_SYSTEM_BAR);
+    	inputCategory.removePreference(hide_system_bar);
 	}
 
 	@Override

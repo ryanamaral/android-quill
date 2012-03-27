@@ -75,10 +75,6 @@ public class Bookshelf {
     		return preview.currentPage().renderBitmap(width, height, true);
 		}
 		public void reload() {
-//			if (uuid.equals(currentBook.uuid)) {
-//				preview.title = currentBook.title;
-//				return;
-//			}
 			preview = new Book(storage, uuid, 1);
 		}
 		public void deleteFromStorage() { storage.deleteBookDirectory(uuid); }

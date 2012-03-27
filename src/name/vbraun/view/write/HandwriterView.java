@@ -49,7 +49,7 @@ public class HandwriterView
 	private static final String KEY_PEN_TYPE = "pen_type";
 	private static final String KEY_PEN_COLOR = "pen_color";
 	private static final String KEY_PEN_THICKNESS = "pen_thickness";
-	private static final String KEY_ONLY_PEN_INPUT_OBSOLETE = "only_pen_input";
+	public static final String KEY_DEBUG_OPTIONS = "debug_options_enable";
 	
 	// values for the preferences key KEY_LIST_PEN_INPUT_MODE
     public static final String STYLUS_ONLY = "STYLUS_ONLY";
@@ -411,13 +411,7 @@ public class HandwriterView
     	
     	final boolean hwPen = Hardware.hasPenDigitizer();
         String pen_input_mode;
-		if (settings.contains(KEY_ONLY_PEN_INPUT_OBSOLETE)) { 
-			// import obsoleted setting
-			if (settings.getBoolean(KEY_ONLY_PEN_INPUT_OBSOLETE, false)) 
-				pen_input_mode = STYLUS_WITH_GESTURES;
-			else 
-				pen_input_mode = STYLUS_AND_TOUCH;
-		} else if (hwPen)
+		if (hwPen)
 			pen_input_mode = settings.getString(KEY_LIST_PEN_INPUT_MODE, STYLUS_WITH_GESTURES);
 		else
 			pen_input_mode = STYLUS_AND_TOUCH;
@@ -462,8 +456,6 @@ public class HandwriterView
 
 		ToolHistory history = ToolHistory.getToolHistory();
     	history.saveToSettings(editor);
-    	
-        editor.remove(KEY_ONLY_PEN_INPUT_OBSOLETE);  // obsoleted
 	}
 	
 	

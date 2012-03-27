@@ -563,7 +563,7 @@ public class Book {
 		}
 
 		for (UUID unused: pageUUIDsInDir) {
-			Storage.getInstance().LogError(TAG, "Deleteing unusued page file: "+unused);
+			Log.d(TAG, "Deleteing unusued page file: "+unused);
 			getPageFile(dir, unused).delete();
 		}
 	}
