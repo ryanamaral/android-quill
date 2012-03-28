@@ -39,7 +39,7 @@ public class CommandClearPage extends Command {
 	public String toString() {
 		int n = Bookshelf.getCurrentBook().getPageNumber(getPage());
 		QuillWriterActivity app = UndoManager.getApplication();
-		return app.getString(R.string.command_clear_page)+" "+n;
+		return app.getString(R.string.command_clear_page, n);
 	}
 
 }

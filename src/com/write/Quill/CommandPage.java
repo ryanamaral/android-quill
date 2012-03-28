@@ -33,9 +33,9 @@ public class CommandPage extends Command {
 	public String toString() {
 		QuillWriterActivity app = UndoManager.getApplication();
 		if (insertOrErase)
-			return app.getString(R.string.command_page_insert)+" "+position;
+			return app.getString(R.string.command_page_insert, position);
 		else
-			return app.getString(R.string.command_page_erase)+" "+position;
+			return app.getString(R.string.command_page_erase, position);
 	}
 	
 }

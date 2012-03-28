@@ -6,7 +6,7 @@
     <string name="thumbnail_new_notebook_title">Neues Notizbuch erstellen</string>
     <string name="thumbnail_multiselect_title">Ausgewählt</string>
     <string name="thumbnail_multiselect_single">Eine Seite</string>
-    <string name="thumbnail_multiselect_multiple">Seiten ausgewählt</string>
+    <string name="thumbnail_multiselect_multiple">%1$d Seiten ausgewählt</string>
     <string name="menu_thumbnail_delete">Seiten Entfernen</string>
     <string name="menu_thumbnail_delete_condensed">Entfernen</string>
     <string name="menu_thumbnail_switch_notebook">Notizbuch wechseln</string>

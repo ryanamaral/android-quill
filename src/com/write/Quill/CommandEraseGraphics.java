@@ -28,7 +28,7 @@ public class CommandEraseGraphics extends Command {
 	public String toString() {
 		int n = Bookshelf.getCurrentBook().getPageNumber(getPage());
 		QuillWriterActivity app = UndoManager.getApplication();
-		return app.getString(R.string.command_erase_graphics)+" "+n;
+		return app.getString(R.string.command_erase_graphics, n);
 	}
 
 }
