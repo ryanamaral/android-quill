@@ -37,7 +37,7 @@
     <string name="menu_quill_page_tag">Tags</string>
     <string name="menu_quill_export">Export</string>
     <string name="menu_quill_settings">Settings</string>
-    <string name="menu_quill_tag_filter">Filter</string>
+    <string name="menu_quill_thumbnails">Page thumbnails</string>
     <string name="menu_quill_about">About Quill</string>
 
 </resources>

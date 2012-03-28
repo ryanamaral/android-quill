@@ -164,7 +164,9 @@ public class TagsListActivity
 	}
 
 	protected void updateStatusBar() {
-		status.setText("Selected "+tags.size()+" / "+tags.allTags().size()+" tags");
+		String msg = String.format(getString(R.string.tag_list_status), 
+				tags.size(), tags.allTags().size());
+		status.setText(msg);
 	}
 	
     @Override
@@ -184,7 +186,7 @@ public class TagsListActivity
 	        case android.R.id.home:
 	        	finish();
 	        	return true;
-	        case R.id.menu_tag_filter:
+	        case R.id.menu_tag_thumbnails:
 	        	finish();
 	    		i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
 	        	startActivity(i);

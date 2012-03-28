@@ -4,6 +4,7 @@
     <string name="tag_list_title">Tag aktuelle Seite</string>
     <string name="tag_list_new_label">Neu</string>
     <string name="tag_list_default_text">Beschreibung</string>
-    <string name="menu_tag_list_filter">Filter</string>
-
+    <string name="menu_tag_list_thumbnails">Seitenübersicht</string>
+    <string name="tag_list_status">%1$d / %2$d Tags sind ausgewählt</string>
+    
 </resources>
