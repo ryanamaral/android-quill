@@ -258,27 +258,6 @@ public class ExportActivity
 	private static final int OUTPUT_FORMAT_BACKUP = 4;
 
 	
-//	// somebody changed the Output format
-//	private void changeExportFileFormat(Spinner format) {
-//      	Spinner sizes = (Spinner)layout.findViewById(R.id.export_size);
-//      	Log.v(TAG, "Format "+format.getSelectedItemPosition());
-//		switch (format.getSelectedItemPosition()) {
-//		case OUTPUT_FORMAT_PDF_SINGLE:
-//		case OUTPUT_FORMAT_PDF_TAGGED:
-//		case OUTPUT_FORMAT_PDF_ALL:
-//			sizes.setEnabled(true);
-//			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_vector));
-//			return;
-//		case OUTPUT_FORMAT_PNG:
-//			sizes.setEnabled(true);
-//			sizes.setAdapter(new ArrayAdapter<String>(this, R.array.export_size_raster));
-//			return;
-//		case OUTPUT_FORMAT_BACKUP:
-//			sizes.setEnabled(false);
-//			return;
-//		}
-//	}
-
 	private enum PageRange {
 		CURRENT_PAGE, TAGGED_PAGES, ALL_PAGES
 	}
@@ -373,19 +352,15 @@ public class ExportActivity
     	switch (format.getSelectedItemPosition()) {
 		case OUTPUT_FORMAT_PDF_SINGLE:
 			doExportPdf(file, PageRange.CURRENT_PAGE);
-			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PDF_TAGGED:
 			doExportPdf(file, PageRange.TAGGED_PAGES);
-			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PDF_ALL:
 			doExportPdf(file, PageRange.ALL_PAGES);
-			doShare(file);
 			return;
 		case OUTPUT_FORMAT_PNG:
 			doExportPng(file);
-			doShare(file);
 			return;
 		case OUTPUT_FORMAT_BACKUP:
 			doExportArchive(file);
