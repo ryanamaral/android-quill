@@ -56,8 +56,8 @@
     <string name="export_evernote_title">An Evernote senden</string>
     <string name="export_evernote_message">Komprimiere Seiten …</string>
     <string name="export_evernote_err_no_cache_dir">Kann den Cache-Ordner nicht öffnen</string>
-    <string name="export_evernote_err_cannot_write">Kann die Datei nicht speichern</string>
-    <string name="export_evernote_err_cannot_close">Kann die Datei nicht schließen </string>
+    <string name="export_evernote_err_cannot_write">Kann die Datei %1$s nicht speichern</string>
+    <string name="export_evernote_err_cannot_close">Kann die Datei  %1$s nicht schließen </string>
     <string name="export_evernote_cancel_message">Export an Evernote abgebrochen</string>
     <string name="export_err_path_does_not_exist">Pfad existiert nicht</string>
     <string name="export_err_cannot_create_file">Kann die Datei nicht erstellen</string>

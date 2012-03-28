@@ -153,7 +153,7 @@ public class ThumbnailAdapter extends BaseAdapter {
         thumb.page = page;
         thumb.position = position;
         thumb.bitmap = null;
-        thumb.tagOverlay = new TagOverlay(page.tags, true);
+        thumb.tagOverlay = new TagOverlay(context, page.tags, true);
         thumb.requestLayout();     
         unfinishedThumbnails.add(thumb);
         ThumbnailView grid = (ThumbnailView)parent;

@@ -164,7 +164,7 @@ public class TagsListActivity
 	}
 
 	protected void updateStatusBar() {
-		String msg = String.format(getString(R.string.tag_list_status), 
+		String msg = getString(R.string.tag_list_status, 
 				tags.size(), tags.allTags().size());
 		status.setText(msg);
 	}

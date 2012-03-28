@@ -6,7 +6,7 @@
     <string name="thumbnail_new_notebook_title">Create new notebook</string>
     <string name="thumbnail_multiselect_title">Select Items</string>
     <string name="thumbnail_multiselect_single">One page selected</string>
-    <string name="thumbnail_multiselect_multiple">pages selected</string>
+    <string name="thumbnail_multiselect_multiple">%1$d pages selected</string>
     <string name="menu_thumbnail_delete">Delete pages</string>
     <string name="menu_thumbnail_delete_condensed">Delete</string>
     <string name="menu_thumbnail_switch_notebook">Switch notebook</string>

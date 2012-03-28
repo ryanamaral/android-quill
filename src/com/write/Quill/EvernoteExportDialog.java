@@ -146,7 +146,7 @@ public class EvernoteExportDialog
     			outStream = new FileOutputStream(file);
     		} catch (IOException e) {
     			Log.e(TAG, "Error writing file "+e.toString());
-            	toast(context.getString(R.string.export_evernote_err_cannot_write) +" "+file.toString());
+            	toast(context.getString(R.string.export_evernote_err_cannot_write, file.toString()));
             	return;
     		}
 			Page page = iter.next();
@@ -162,7 +162,7 @@ public class EvernoteExportDialog
         		outStream.close();
         	} catch (IOException e) {
     			Log.e(TAG, "Error closing file "+e.toString());
-            	toast(context.getString(R.string.export_evernote_err_cannot_close) +" "+file.toString());
+            	toast(context.getString(R.string.export_evernote_err_cannot_close, file.toString()));
             	return;     		
         	}
         	file.deleteOnExit();

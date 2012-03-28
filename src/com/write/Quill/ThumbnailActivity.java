@@ -337,8 +337,8 @@ public class ThumbnailActivity extends ActivityBase implements
 				mode.setSubtitle(R.string.thumbnail_multiselect_single);
 				break;
 			default:
-				mode.setSubtitle("" + checkedCount + " "
-						+ getString(R.string.thumbnail_multiselect_multiple));
+				mode.setSubtitle(getString(R.string.thumbnail_multiselect_multiple, 
+									       checkedCount));
 				break;
 			}
 		}

@@ -460,8 +460,8 @@ public class QuillWriterActivity
     		mView.clear();
     		return true;
     	case R.id.page_delete:
-    		toast(getString(R.string.quill_deleted_page)+
-    				" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
+    		toast(getString(R.string.quill_deleted_page, 
+    				book.currentPageNumber()+1, book.pagesSize()));
     		book.deletePage();
     		switchToPage(book.currentPage());
     		return true;
@@ -579,7 +579,9 @@ public class QuillWriterActivity
     
     private void switchToPage(Page page) {
     	mView.setPageAndZoomOut(page);
-    	mView.setOverlay(new TagOverlay(page.tags, book.currentPageNumber(), mView.isToolboxOnLeft()));
+    	TagOverlay overlay = new TagOverlay(getApplicationContext(), 
+    				page.tags, book.currentPageNumber(), mView.isToolboxOnLeft());
+    	mView.setOverlay(overlay);
     	menu_prepare_page_has_changed();
     }
     
@@ -591,8 +593,8 @@ public class QuillWriterActivity
 			if (book.isFirstPage()) 
 				toast(R.string.quill_showing_first_tagged_page); 
 			else
-				toast(getString(R.string.quill_showing_page)
-					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page,
+					book.currentPageNumber()+1, book.pagesSize()));
     }
     
     private void flip_page_next() {
@@ -604,8 +606,8 @@ public class QuillWriterActivity
 			if (book.isLastPage())
 				toast(R.string.quill_showing_last_tagged_page);
 			else 
-				toast(getString(R.string.quill_showing_page)
-					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page,
+					book.currentPageNumber()+1, book.pagesSize()));
 		}
     }
     
@@ -617,8 +619,8 @@ public class QuillWriterActivity
 			if (book.isFirstPageUnfiltered()) 
 				toast(R.string.quill_showing_first_page);
 			else
-				toast(getString(R.string.quill_showing_page)
-					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page,
+					book.currentPageNumber()+1, book.pagesSize()));
     }
     
     private void flip_page_next_unfiltered() {
@@ -630,8 +632,8 @@ public class QuillWriterActivity
 			if (book.isLastPageUnfiltered())
 				toast(R.string.quill_showing_last_page);
 			else 
-				toast(getString(R.string.quill_showing_page)
-					+" "+(book.currentPageNumber()+1)+" / "+book.pagesSize());
+				toast(getString(R.string.quill_showing_page, 
+					book.currentPageNumber()+1, book.pagesSize()));
 		}
     }
     
@@ -722,7 +724,9 @@ public class QuillWriterActivity
         	Page p = book.currentPage();
         	if (mView.getPage() == p) {
         		book.filterChanged();
-        		mView.setOverlay(new TagOverlay(p.getTags(), book.currentPageNumber(), mView.isToolboxOnLeft()));
+            	TagOverlay overlay = new TagOverlay(getApplicationContext(), 
+            			p.getTags(), book.currentPageNumber(), mView.isToolboxOnLeft());
+            	mView.setOverlay(overlay);
         	} else {
         		switchToPage(p);
         	}

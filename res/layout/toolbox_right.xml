@@ -114,10 +114,10 @@
         android:id="@+id/toolbox_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/toolbox_text"
+        android:layout_alignBottom="@+id/toolbox_line"
         android:layout_marginRight="2dp"
         android:layout_marginTop="2dp"
-        android:layout_toLeftOf="@+id/toolbox_text"
+        android:layout_toLeftOf="@+id/toolbox_line"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
         android:src="@drawable/toolbox_photo" />
@@ -127,8 +127,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toolbox_text"
+        android:layout_alignParentRight="true"
         android:layout_alignLeft="@+id/toolbox_color_black"
-        android:layout_alignRight="@+id/toolbox_text"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="2dp"
         android:entries="@array/toolbox_thickness" />
@@ -140,8 +140,8 @@
         android:layout_above="@+id/toolbox_thickness_spinner"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="@dimen/toolbox_color_sep"
         android:layout_marginRight="2dp"
+        android:layout_marginLeft="@dimen/toolbox_color_sep"
         android:layout_marginTop="@dimen/toolbox_color_sep"
         android:background="#ffffff"
         android:src="#0000" />
@@ -319,8 +319,8 @@
         android:layout_alignParentTop="true"
         android:background="@drawable/actionbar_background"
         android:paddingBottom="4dp"
-        android:paddingLeft="23dp"
         android:paddingRight="22dp"
+        android:paddingLeft="23dp"
         android:paddingTop="4dp"
         android:src="@drawable/toolbox_quill" />
 
@@ -344,8 +344,8 @@
         android:layout_toLeftOf="@+id/toolbox_tag"
         android:background="@drawable/actionbar_background"
         android:paddingBottom="4dp"
-        android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:paddingTop="4dp"
         android:src="@drawable/ic_menu_moreoverflow_holo_light" />
 
@@ -355,8 +355,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/toolbox_quill_icon"
-        android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp"
         android:layout_marginTop="2dp"
         android:background="@drawable/toolbox_background"
         android:padding="3dp"
