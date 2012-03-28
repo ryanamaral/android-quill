@@ -49,7 +49,7 @@
     
     <item android:id="@+id/export" android:title="@string/menu_quill_export"></item>
     <item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="@string/menu_quill_settings"></item>
-	<item android:id="@+id/tag_filter" android:title="@string/menu_quill_tag_filter"></item>
+	<item android:id="@+id/thumbnails" android:title="@string/menu_quill_thumbnails"></item>
     <item android:id="@+id/about" android:title="@string/menu_quill_about" android:orderInCategory="-100"></item>
     
     

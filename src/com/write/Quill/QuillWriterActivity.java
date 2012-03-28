@@ -473,7 +473,7 @@ public class QuillWriterActivity
     	case R.id.tag_page:
     		launchTagActivity();
     		return true;
-    	case R.id.tag_filter:
+    	case R.id.thumbnails:
     	case android.R.id.home:
     		launchOverviewActivity();
     		return true;
