@@ -210,8 +210,8 @@ public class Toolbox
 			colorNavy.setVisibility(View.GONE); 
 			colorFuchsia.setVisibility(View.GONE); 
 			colorPurple.setVisibility(View.GONE);
-			resizeButton.setVisibility(View.GONE);
-			eraserButton.setVisibility(View.GONE);			
+			//			resizeButton.setVisibility(View.GONE);
+			//			eraserButton.setVisibility(View.GONE);			
 		}
 
 		ToolHistory.getToolHistory().setOnToolHistoryChangedListener(this);
@@ -318,9 +318,9 @@ public class Toolbox
 			colorNavy.setVisibility(vis); 
 			colorFuchsia.setVisibility(vis); 
 			colorPurple.setVisibility(vis);
-			resizeButton.setVisibility(vis);
-	    	lineButton.setVisibility(vis);
-			eraserButton.setVisibility(vis);			
+			//resizeButton.setVisibility(vis);
+	    	//lineButton.setVisibility(vis);
+			//eraserButton.setVisibility(vis);			
 		}
 	}
 	

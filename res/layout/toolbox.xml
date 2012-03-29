@@ -343,10 +343,10 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/toolbox_tag"
         android:background="@drawable/actionbar_background"
-        android:paddingBottom="4dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="4dp"
+		android:layout_alignBottom="@+id/toolbox_tag"
+		android:layout_alignTop="@+id/toolbox_tag"
         android:src="@drawable/ic_menu_moreoverflow_holo_light" />
 
     <ImageButton
