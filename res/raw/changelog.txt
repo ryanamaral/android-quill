@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 9.6
+  % Version 9.6
+  _ 2012-04-xx
+    * Show prev/next page buttons on smaller screens
 $ 9.5
   % Version 9.5
   _ 2012-03-28

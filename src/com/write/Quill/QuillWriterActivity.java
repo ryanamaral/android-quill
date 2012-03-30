@@ -351,10 +351,12 @@ public class QuillWriterActivity
 			setActiveTool(Tool.ERASER);
 			break;
 		case R.id.toolbox_next:
+		case R.id.toolbox_action_next:
     		flip_page_next();
 			break;
 		case R.id.toolbox_prev:
-    		flip_page_prev();
+		case R.id.toolbox_action_prev:
+			flip_page_prev();
 			break;
 		case R.id.toolbox_history_1:
 			switchPenHistory();
