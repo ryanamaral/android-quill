@@ -29,6 +29,11 @@ public class BookshelfAdapter extends ArrayAdapter<BookPreview> {
 	}
 	
 	@Override
+	public boolean hasStableIds() {
+		return false;
+	}
+	
+	@Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View layout;
         if (convertView == null) {

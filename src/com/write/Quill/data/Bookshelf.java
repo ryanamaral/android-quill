@@ -282,8 +282,8 @@ public class Bookshelf {
 
 	public void setCurrentBook(BookPreview nb, boolean saveCurrent) {
 		if (currentBook != null) {
-			if (nb.getUUID().equals(currentBook.getUUID())) return;
 			if (saveCurrent) saveBook(getCurrentBook());
+			if (nb.getUUID().equals(currentBook.getUUID())) return;
 		}
 		currentBook = new Book(storage, nb.uuid);
 		UndoManager.getUndoManager().clearHistory();
