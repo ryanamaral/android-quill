@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_editor_title">Seleccionar imagen</string>
+    <string name="image_editor_aspect_checkbox_label">Relación de aspecto fija 1:1</string>
+    <string name="image_editor_erase">Eliminar</string>
+    <string name="image_editor_resolution">Resolución</string>
+    <string name="image_editor_source_uri">URI de origen</string>
+    <string name="image_editor_source_image">Imagen de origen </string>
+    <string name="menu_image_pick">Seleccionar imagen</string>
+    <string name="menu_image_pick_condensed">Galería</string>
+    <string name="menu_image_photo">Hacer foto</string>
+    <string name="menu_image_photo_condensed">Foto</string>
+    <string name="menu_image_cropped">Recortar imágenes </string>
+    <string name="menu_image_cropped_condensed">Recortar</string>
+    <string name="image_editor_err_no_photo">¡La cámara no hizo la foto!</string>
+    <string name="image_editor_err_no_such_image">¡No hay imagen!</string>
+    <string name="image_editor_err_permissions">¡La imagen no existe o los permisos son insuficientes!</string>
+
+</resources>

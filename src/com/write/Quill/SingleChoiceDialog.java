@@ -8,6 +8,8 @@ import android.util.Log;
 public abstract class SingleChoiceDialog<T> {
 	public static final String TAG = "SingleChoiceDialog";
 	
+	protected Context context = null;
+	
 	abstract public String getTitle(); 
 	abstract public CharSequence[] getItems();
 	abstract public T[] getValues();	
@@ -39,8 +41,8 @@ public abstract class SingleChoiceDialog<T> {
 		dialog.getListView().setItemChecked(index, true);
 	}
 	
-	public AlertDialog create(Context context, 
-				DialogInterface.OnClickListener listener) {
+	public AlertDialog create(Context context, DialogInterface.OnClickListener listener) {
+		this.context = context;
     	AlertDialog.Builder builder = new AlertDialog.Builder(context);
     	builder.setTitle(getTitle());
     	builder.setSingleChoiceItems(getItems(), -1, listener); 

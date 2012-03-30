@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_editor_title">Choisir image</string>
+    <string name="image_editor_aspect_checkbox_label">Fixer rapport aspect 1:1</string>
+    <string name="image_editor_erase">Supprimer</string>
+    <string name="image_editor_resolution">Résolution</string>
+    <string name="image_editor_source_uri">URI source</string>
+    <string name="image_editor_source_image">Image source</string>
+    <string name="menu_image_pick">Choisir image</string>
+    <string name="menu_image_pick_condensed">Galerie</string>
+    <string name="menu_image_photo">Prendre une photo</string>
+    <string name="menu_image_photo_condensed">Photo</string>
+    <string name="menu_image_cropped">Découper images</string>
+    <string name="menu_image_cropped_condensed">Découper</string>
+    <string name="image_editor_err_no_photo">Aucune photo n\'a été prise!</string>
+    <string name="image_editor_err_no_such_image">Ce type d\'image n\'est pas présent!</string>
+    <string name="image_editor_err_permissions">Cette image n\'existe pas ou vous ne disposez pas d\'assez de droits!</string>
+
+</resources>

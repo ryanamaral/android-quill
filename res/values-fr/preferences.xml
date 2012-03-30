@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="preferences_pen_input_mode_entries">
+        <item>Filtrer doigtés durant écriture</item>
+        <item>Filtrer les doigtés mais pas les gestes</item>
+        <item>Tout type de doigté pour écrire sur l\'écran, sauf les gestes</item>
+    </string-array>
+
+    <string name="preferences_pen_input_mode_title">Mode de saisie avec stylet</string>
+    <string name="preferences_override_pen_title">Fonction type de stylet détecté désactivée</string>
+
+    <string-array name="preferences_override_pen_type_entries">
+        <item>Détection automatique</item>
+        <item>Stylet capacitif</item>
+        <item>Stylet tablette Thinkpad</item>
+        <item>S-stylet Note Samsung</item>
+        <item>Magic Left Alt Hack</item>
+        <item>Stylet API Android ICS (4.0)</item>
+    </string-array>
+
+    <string name="preferences_err_loading_backup">Erreur durant chargement du fichier de sauvegarde.</string>
+    <string name="preferences_err_not_a_directory">(Erreur: ce n\'est pas un dossier)</string>
+    <string name="preferences_err_permissions">(Erreur: autorisations d\'écriture non présentes)</string>
+    <string name="preferences_pick_backup">Choisir une sauvegarde à restaurer</string>
+    <string name="preferences_select_backup_folder">Veuillez choisir un dossier de sauvegarde</string>
+    <string name="preferences_user_handedness">Utilisateur gaucher</string>
+    <string name="preferences_toolbox_left">Droitier(le plus utilisé)</string>
+    <string name="preferences_toolbox_left_summary">La touche rouge et la boîte à outils seront sur la gauche</string>
+    <string name="preferences_input">Préférences de saisie</string>
+    <string name="preferences_double_tap">Taper deux fois durant écriture</string>
+    <string name="preferences_double_tap_summary">Agrandir/réduire en tapant deux fois avec les doigts durant écriture</string>
+    <string name="preferences_move_gesture">Déplacer gestes durant écriture</string>
+    <string name="preferences_move_gesture_summary">Faire glisser la page sur les côtés avec deux doigts durant écriture</string>
+    <string name="preferences_move_zoom">Verrouiller zoom durant les gestes</string>
+    <string name="preferences_move_zoom_summary">Zoom fixe ou changeant durant toucher</string>
+    <string name="preferences_palm_shield">Ecran paume</string>
+    <string name="preferences_palm_shield_summary">Moitié inférieure insensible au toucher (ou moitié supérieure pour les gauchers)</string>
+    <string name="preferences_volume_key_nav">Navigation touche volume</string>
+    <string name="preferences_volume_key_nav_summary">Appuyer sur volume-haut pour page suivante, sur volume-bas pour page précédente</string>
+    <string name="preferences_action_bar">Afficher barre d\'action</string>
+    <string name="preferences_action_bar_summary">Afficher ou non barre sur la partie supérieure de l\'écran</string>
+    <string name="preferences_system_bar">Cacher barre de système (emplacement nécessaire)</string>
+    <string name="preferences_system_bar_summary">Supprimer barre horizontale dans partie inférieure (touche accueil, pendule) de l\'écran</string>
+    <string name="preferences_tools_switch_back">Revenir à Outils précédents</string>
+    <string name="preferences_tools_switch_back_summary">Revenir automatiquement au stylet après avoir déplacé/agrandi/effacé</string>
+    <string name="preferences_keep_screen_on">Conserver écran allumé</string>
+    <string name="preferences_keep_screen_on_summary">Ecran reste allumé dans la fenêtre principale</string>
+    <string name="preferences_user_data">Infos utilisateur</string>
+    <string name="preferences_restore">Restaurer sauvegarde</string>
+    <string name="preferences_restore_summary">Importer un fichier de sauvegarde .quill (Utiliser \"Export\" pour sauvegarder)</string>
+    <string name="preferences_backup_auto">Sauvegardes automatiques</string>
+    <string name="preferences_backup_auto_summary">Sauvegarder les notebooks automatiquement</string>
+    <string name="preferences_backup_dir">Dossier de sauvegarde automatique</string>
+    <string name="preferences_debug">Options de débogage</string>
+    <string name="preferences_incomplete">Fonctions incomplètes</string>
+    <string name="preferences_incomplete_summary">Activer les fonctions pas encore terminées</string>
+
+</resources>

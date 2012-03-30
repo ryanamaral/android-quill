@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_button">Balises</string>
+    <string name="thumbnail_title_filter">Ne montrer que les pages qui contiennent les balises suivantes</string>
+    <string name="thumbnail_new_notebook_title">Créer nouveau notebook</string>
+    <string name="thumbnail_multiselect_title">Choisir éléments</string>
+    <string name="thumbnail_multiselect_single">Une page sélectionnée</string>
+    <string name="thumbnail_multiselect_multiple">%1$d pages sélectionnées</string>
+    <string name="menu_thumbnail_delete">Supprimer pages</string>
+    <string name="menu_thumbnail_delete_condensed">Supprimer</string>
+    <string name="menu_thumbnail_switch_notebook">Changer de notebook</string>
+    <string name="menu_thumbnail_new_notebook">Nouveau notebook</string>
+    <string name="menu_thumbnail_send_to_evernote">Envoyer vers Evernote</string>
+    <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
+
+</resources>

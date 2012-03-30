@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="dlg_thickness_title">Epaisseur</string>
+
+    <string-array name="dlg_thickness_entries">
+        <item>Pixel</item>
+        <item>Ultra-fin</item>
+        <item>Fin</item>
+        <item>Moyen</item>
+        <item>Epais</item>
+        <item>Géant</item>
+    </string-array>
+
+    <string name="dlg_background_title">Papier</string>
+
+    <string-array name="dlg_background_entries">
+        <item>Page blanche</item>
+        <item>Lignage 8.7mm (Legal ruled)</item>
+        <item>Lignage 7.1mm (College ruled)</item>
+        <item>Lignage 6.3mm (Narrow ruled)</item>
+        <item>Petits carreaux</item>
+        <item>Cornell Notes</item>
+        <item>Agenda</item>
+    </string-array>
+
+    <string name="dlg_aspect_title">Format de papier</string>
+
+    <string-array name="dlg_aspect_entries">
+        <item>Écran format portrait</item>
+        <item>Écran format paysage</item>
+        <item>Papier A4</item>
+        <item>Lettre US</item>
+        <item>Légal US</item>
+        <item>Projecteur (4:3)</item>
+        <item>HDTV (16:9)</item>
+    </string-array>
+
+</resources>

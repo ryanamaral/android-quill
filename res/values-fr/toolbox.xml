@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="toolbox_thickness">
+        <item>Ultra-fin</item>
+        <item>Fin</item>
+        <item>Moyen</item>
+        <item>Epais</item>
+        <item>Géant</item>
+    </string-array>
+
+</resources>

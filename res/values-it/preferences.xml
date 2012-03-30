@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="preferences_pen_input_mode_entries">
+        <item>Filtra eventi contatto dita durante scrittura</item>
+        <item>Filtra contatto dita ma consenti di toccare</item>
+        <item> Qualsiasi evento contatto scrivi su schermo,nessun gesto</item>
+    </string-array>
+
+    <string name="preferences_pen_input_mode_title">Modalità immissione pennino</string>
+    <string name="preferences_override_pen_title">Sovrapponi tipo pennino localizzato</string>
+
+    <string-array name="preferences_override_pen_type_entries">
+        <item>Autodetect</item>
+        <item>Pennino capacitivo</item>
+        <item>Pennino Tablet Thinkpad </item>
+        <item>S-pen Samsung Note </item>
+        <item>Magico sinistro Alt Ingresso</item>
+        <item>Android ICS (4.0) puntina API</item>
+    </string-array>
+
+    <string name="preferences_err_loading_backup">Errore caricamento file backup.</string>
+    <string name="preferences_err_not_a_directory">(Errore: non una directory)</string>
+    <string name="preferences_err_permissions">(Errore: no autorizzazioni a scrivere)</string>
+    <string name="preferences_pick_backup">Seleziona un backup per ripristino</string>
+    <string name="preferences_select_backup_folder">Si prega di selezionare una cartella di backup</string>
+    <string name="preferences_user_handedness">Manulateralità utente</string>
+    <string name="preferences_toolbox_left">Mano destra (pià comune)</string>
+    <string name="preferences_toolbox_left_summary">Il tasto rosso e gli strumenti saranno a sinistra</string>
+    <string name="preferences_input">Immetti preferenze</string>
+    <string name="preferences_double_tap">Picchiettare due volte durante scrittura</string>
+    <string name="preferences_double_tap_summary">Zoom in/out con picchiettatura doppia dello schermo con le dita durante scrittura</string>
+    <string name="preferences_move_gesture">Sposta gesto durante scrittura</string>
+    <string name="preferences_move_gesture_summary">Trascina attorno pagina con due dita durante scrittura</string>
+    <string name="preferences_move_zoom">Blocca zoom durante spostamento gesto</string>
+    <string name="preferences_move_zoom_summary">Se o no lo zoom rimane costante o cambia con pinzatura</string>
+    <string name="preferences_palm_shield">Scudo palmo</string>
+    <string name="preferences_palm_shield_summary">Rendi metà inferiore dello schermo insensibile al contatto (metà superiore se mano sinistra)</string>
+    <string name="preferences_volume_key_nav">Navigazione chiave estensione</string>
+    <string name="preferences_volume_key_nav_summary">Premere estensione-su per pagina successiva, estensione-già per pagina precedente</string>
+    <string name="preferences_action_bar">Mostra barra azione</string>
+    <string name="preferences_action_bar_summary">Se o no mostrare barra orizzontale in alto sullo schermo</string>
+    <string name="preferences_system_bar">Nascondi barra sistema (richiede radice)</string>
+    <string name="preferences_system_bar_summary">Elimina barra orizzontale in basso (tasto home, orologio) dello schermo</string>
+    <string name="preferences_tools_switch_back">Strumenti torna indietro</string>
+    <string name="preferences_tools_switch_back_summary">Torna automaticamente indietro al pennino dopo completamento sposta/zoom/cancella</string>
+    <string name="preferences_keep_screen_on">Tenere schermo acceso</string>
+    <string name="preferences_keep_screen_on_summary">Lo schermo resta sulla finestra principale</string>
+    <string name="preferences_user_data">Dati utente</string>
+    <string name="preferences_restore">Ripristina Backup</string>
+    <string name="preferences_restore_summary">Importa un file .quill backup  (Usa \"Esporta\" per fare backups)</string>
+    <string name="preferences_backup_auto">Backups automatici</string>
+    <string name="preferences_backup_auto_summary">Fare backups dei vostri appunti automaticamente</string>
+    <string name="preferences_backup_dir">Backup directory automatico</string>
+    <string name="preferences_debug">Metti a punto opzioni</string>
+    <string name="preferences_incomplete">Caratteristiche incomplete</string>
+    <string name="preferences_incomplete_summary"> Consenti caratteristiche che non sono ancora complete</string>
+
+</resources>

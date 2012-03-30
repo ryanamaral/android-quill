@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="export_file_format_header">Exporter format:</string>
+    <string name="export_button_text">Exporter</string>
+    <string name="export_via_header">Partager fichier via:</string>
+
+    <string-array name="export_via_entries">
+        <item>Utiliser une autre appli Android</item>
+        <item>Evernote</item>
+        <item>Choisir dossier d\'enregistrement</item>
+        <item>Carte SD externe</item>
+        <item>Mémoire interne</item>
+        <item>Clé USB</item>
+    </string-array>
+    <string-array name="export_file_format">
+        <item>Page actuelle comme image matricielle (PNG)</item>
+        <item>Page actuelle comme  image vectorielle (PDF)</item>
+        <item>Pages balisée comme image vectorielle (PDF)</item>
+        <item>Tout le notebook comme image vectorielle(PDF)</item>
+        <item>Tout le notebook comme archives de sauvegarde Quill</item>
+    </string-array>
+
+    <string name="export_name_header">Nom:</string>
+    <string name="export_saved_as">Enregistrer sous</string>
+    <string name="export_err_no_way_to_share">Ne peut pas être partagé</string>
+    <string name="export_share_title">Exporter page via</string>
+    <string name="export_size_header">Dimension :</string>
+
+    <string-array name="export_size_vector">
+        <item>Papier A4 (210 × 297mm)</item>
+        <item>Lettre US (8,5 x 11in)</item>
+        <item>Légal US (8,5 x 14in)</item>
+    </string-array>
+
+    <string-array name="export_size_raster">
+        <item>1920 x 1080 pixels (HDTV)</item>
+        <item>1280 x 800 pixels</item>
+        <item>1024 x 768 pixels (Projecteur)</item>
+        <item>800 x 600 pixels</item>
+    </string-array>
+
+    <string name="export_background">Inclure fond sur papier</string>
+    <string name="export_view_file_title">Voir fichier exporté avec</string>
+    <string name="export_filename_default">Nomfichier.pdf</string>
+    <string name="export_evernote_err_not_found">Il faut que l\'appli Evernote soit installée</string>
+    <string name="export_evernote_download_question">Télécharger depuis la Boutique Android?</string>
+    <string name="export_evernote_title">Envoyer à Evernote</string>
+    <string name="export_evernote_message">Compression des pages en cours &#8230;</string>
+    <string name="export_evernote_err_no_cache_dir">Ouverture dossier cache impossible</string>
+    <string name="export_evernote_err_cannot_write">Ecriture fichier %1$s impossible</string>
+    <string name="export_evernote_err_cannot_close">Fermeture fichier %1$s impossible</string>
+    <string name="export_evernote_cancel_message">Export vers Evernote annulé</string>
+    <string name="export_err_path_does_not_exist">L\'emplacement n\'existe pas</string>
+    <string name="export_err_cannot_create_file">Création fichier impossible</string>
+    <string name="export_err_cannot_write_file">Ecriture vers fichier impossible</string>
+    <string name="export_pick_destination_directory">Choisir dossier de destination</string>
+
+</resources>

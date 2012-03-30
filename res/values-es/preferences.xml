@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="preferences_pen_input_mode_entries">
+        <item>Omitir los eventos de toque de dedos al escribir</item>
+        <item>Omitir los toques de dedos pero permitir los movimientos de toque</item>
+        <item>Cualquier evento de toque escribe en la pantalla, sin movimientos</item>
+    </string-array>
+
+    <string name="preferences_pen_input_mode_title">Modo de introducción del lápiz</string>
+    <string name="preferences_override_pen_title">Redefinir el tipo de lápiz detectado</string>
+
+    <string-array name="preferences_override_pen_type_entries">
+        <item>Detección automática</item>
+        <item>Lápiz capacitivo</item>
+        <item>Lápiz de tableta Thinkpad</item>
+        <item>Samsung Note S-pen</item>
+        <item>Magic Left Alt Hack</item>
+        <item>Android ICS (4.0) API para Stylus</item>
+    </string-array>
+
+    <string name="preferences_err_loading_backup">Error al cargar el archivo de copia de seguridad.</string>
+    <string name="preferences_err_not_a_directory">(Error: no hay directorio)</string>
+    <string name="preferences_err_permissions">(Error: sin permisos de escritura)</string>
+    <string name="preferences_pick_backup">Seleccionar una copia de seguridad para restaurarla</string>
+    <string name="preferences_select_backup_folder">Seleccione una carpeta de copia de seguridad</string>
+    <string name="preferences_user_handedness">Preferencia de mano del usuario</string>
+    <string name="preferences_toolbox_left">Diestro (la más habitual)</string>
+    <string name="preferences_toolbox_left_summary">El botón rojo y la caja de herramientas estarán a la izquierda</string>
+    <string name="preferences_input">Preferencias de introducción</string>
+    <string name="preferences_double_tap">Doble toque durante la escritura</string>
+    <string name="preferences_double_tap_summary">Ampliar o reducir con el doble toque de los dedos en la pantalla durante la escritura</string>
+    <string name="preferences_move_gesture">Realizar movimientos durante la escritura</string>
+    <string name="preferences_move_gesture_summary">Arrastrar la página con un toque de dos dedos durante la escritura</string>
+    <string name="preferences_move_zoom">Bloquear el zoom durante el movimiento</string>
+    <string name="preferences_move_zoom_summary">Si el zoom permanece constante o cambia al pellizcar</string>
+    <string name="preferences_palm_shield">Protección antipalma</string>
+    <string name="preferences_palm_shield_summary">Hace que la mitad inferior de la pantalla no reaccione a los toques (la mitad superior en el caso de los zurdos)</string>
+    <string name="preferences_volume_key_nav">Navegación de la tecla de volumen</string>
+    <string name="preferences_volume_key_nav_summary">Pulse volumen-subir para ir a la página siguiente y volumen-bajar para ir a la página anterior</string>
+    <string name="preferences_action_bar">Mostrar la barra de acción</string>
+    <string name="preferences_action_bar_summary">Si desea mostrar la barra horizontal en la parte superior de la pantalla</string>
+    <string name="preferences_system_bar">Ocultar barra del sistema (requiere raíz)</string>
+    <string name="preferences_system_bar_summary">Quitar la barra horizontal de la parte inferior (botón inicio, reloj) de la pantalla</string>
+    <string name="preferences_tools_switch_back">Volver a herramientas</string>
+    <string name="preferences_tools_switch_back_summary">Vuelve automáticamente al lápiz al terminar de mover/ampliar/borrar</string>
+    <string name="preferences_keep_screen_on">Mantener pantalla encendida</string>
+    <string name="preferences_keep_screen_on_summary">La pantalla permanece encendida en la ventana principal</string>
+    <string name="preferences_user_data">Datos del usuario</string>
+    <string name="preferences_restore">Restaurar copia de seguridad</string>
+    <string name="preferences_restore_summary">Importar un archivo de copia de seguridad .quill (Utilice \"Exportar\" para realizar las copias de seguridad)</string>
+    <string name="preferences_backup_auto">Copias de seguridad automáticas</string>
+    <string name="preferences_backup_auto_summary">Cree automáticamente copias de seguridad de sus notebooks</string>
+    <string name="preferences_backup_dir">Directorio de copia de seguridad automática</string>
+    <string name="preferences_debug">Opciones de depuración</string>
+    <string name="preferences_incomplete">Características incompletas</string>
+    <string name="preferences_incomplete_summary">Habilitar características que aún no han finalizado</string>
+
+</resources>

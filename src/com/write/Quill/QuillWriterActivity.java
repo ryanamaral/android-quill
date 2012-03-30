@@ -110,7 +110,7 @@ public class QuillWriterActivity
 
     private static final DialogThickness dialogThickness = new DialogThickness();
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
-    private static final DialogPaperType dialogPaperType = new DialogPaperType();
+    private static final DialogBackground dialogPaperType = new DialogBackground();
 		
     @Override 
     protected void onCreate(Bundle savedInstanceState) {

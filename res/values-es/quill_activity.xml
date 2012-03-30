@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="activity_base_backed_up">Copia de seguridad de los notebooks de Quill realizada.</string>
+    <string name="quill_deleted_page">Página eliminada %1$d / %2$d</string>
+    <string name="quill_no_other_pen_styles">No hay otros estilos de lápiz en el historial.</string>
+    <string name="quill_already_first_page">Ya en la primera página</string>
+    <string name="quill_already_first_tagged_page">Ya en la primera página marcada</string>
+    <string name="quill_showing_first_page">Mostrando primera página</string>
+    <string name="quill_showing_last_page">Mostrando última página</string>
+    <string name="quill_showing_first_tagged_page">Mostrando primera página marcada</string>
+    <string name="quill_showing_last_tagged_page">Mostrando última página marcada</string>
+    <string name="quill_showing_page">Mostrando página %1$d / %2$d</string>
+    <string name="quill_inserted_at_end">Insertada nueva página al final</string>
+    <string name="quill_undo">Deshacer</string>
+    <string name="quill_redo">Rehacer</string>
+    <string name="command_clear_page">Borrar página %1$d</string>
+    <string name="command_create_graphics">Añadir trazo de lápiz en la página %1$d</string>
+    <string name="command_erase_graphics">Quitar trazo de lápiz de la página %1$d</string>
+    <string name="command_page_insert">Insertar número de página %1$d </string>
+    <string name="command_page_erase">Eliminar número de página %1$d </string>
+    <string name="tag_overlay_tags">Marcadores:</string>
+    <string name="tag_overlay_required">(obligatorio)</string>
+    <string name="tag_overlay_missing">(falta)</string>
+    <string name="tag_overlay_page_number">Página %1$d</string>
+
+</resources>

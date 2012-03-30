@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hide_bar_failed_hide">Fallo al ocultar la barra de sistemas (¿tiene raíz?)</string>
+    <string name="hide_bar_failed_show">Fallo al mostrar la barra de sistemas (¿tiene raíz?)</string>
+
+</resources>

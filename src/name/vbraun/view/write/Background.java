@@ -41,7 +41,7 @@ public class Background {
 	}
 	
 	public void setAspectRatio(float aspect) {
-		aspectRatio = new AspectRatio(aspect);
+		aspectRatio = AspectRatio.closestMatch(aspect);
 		heightMm = aspectRatio.guessHeightMm();
 		widthMm = aspectRatio.guessWidthMm();
 	}

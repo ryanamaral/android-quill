@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="edit_tag_help">Effacer le nom pour supprimer la balise</string>
+    <string name="edit_tag_header">Balise:</string>
+    <string name="edit_tag_title">Modifier balise</string>
+
+</resources>
