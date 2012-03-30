@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="edit_notebook_delete">Eliminar</string>
+    <string name="edit_notebook_export">Exportar</string>
+    <string name="edit_notebook_header">Descripción:</string>
+    <string name="edit_notebook_title">Editar notebook</string>
+    <string name="edit_notebook_title_new">Crear nuevo notebook</string>
+    <string name="new_notebook_description">Descripción:</string>
+    <string name="new_notebook_default_title">Nuevo notebook</string>
+    <string name="delete_notebook_message">Eliminando notebook ¿desea realmente hacerlo?</string>
+
+</resources>

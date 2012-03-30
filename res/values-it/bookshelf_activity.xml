@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="edit_notebook_delete">Cancella</string>
+    <string name="edit_notebook_export">Esporta</string>
+    <string name="edit_notebook_header">Descrizione:</string>
+    <string name="edit_notebook_title">Revisione appunti</string>
+    <string name="edit_notebook_title_new">Crea nuovi appunti</string>
+    <string name="new_notebook_description">Descrizione:</string>
+    <string name="new_notebook_default_title">Nuovi appunti</string>
+    <string name="delete_notebook_message">Cancella appunti, sei sicuro?</string>
+
+</resources>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_button">Marcadores</string>
+    <string name="thumbnail_title_filter">Mostrar sólo las páginas que contienen los siguientes marcadores</string>
+    <string name="thumbnail_new_notebook_title">Crear nuevo notebook</string>
+    <string name="thumbnail_multiselect_title">Seleccione elementos</string>
+    <string name="thumbnail_multiselect_single">Una página seleccionada</string>
+    <string name="thumbnail_multiselect_multiple">%1$d páginas seleccionadas</string>
+    <string name="menu_thumbnail_delete">Eliminar páginas</string>
+    <string name="menu_thumbnail_delete_condensed">Eliminar</string>
+    <string name="menu_thumbnail_switch_notebook">Cambiar de notebook</string>
+    <string name="menu_thumbnail_new_notebook">Nuevo notebook</string>
+    <string name="menu_thumbnail_send_to_evernote">Enviar a Evernote</string>
+    <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
+
+</resources>

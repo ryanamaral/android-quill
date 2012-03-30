@@ -13,14 +13,6 @@
         <item>Interner Speicher</item>
         <item>USB Speicherriegel</item>
     </string-array>
-    <string-array name="export_via_values">
-        <item>EXPORT_VIA_APP</item>
-        <item>EXPORT_VIA_EVERNOTE</item>
-        <item>EXPORT_VIA_PICK</item>
-        <item>EXPORT_VIA_EXTERNALSD</item>
-        <item>EXPORT_VIA_SDCARD</item>
-        <item>EXPORT_VIA_USB</item>
-    </string-array>
     <string-array name="export_file_format">
         <item>Aktuelle Seite als Bild (PNG)</item>
         <item>Aktuelle Seite als Vektor Grafik (PDF)</item>
@@ -54,7 +46,7 @@
     <string name="export_evernote_err_not_found">Sie müssen zuerst die Evernote app installieren</string>
     <string name="export_evernote_download_question">Vom Android Marktplatz herunterladen?</string>
     <string name="export_evernote_title">An Evernote senden</string>
-    <string name="export_evernote_message">Komprimiere Seiten …</string>
+    <string name="export_evernote_message">Komprimiere Seiten &#8230;</string>
     <string name="export_evernote_err_no_cache_dir">Kann den Cache-Ordner nicht öffnen</string>
     <string name="export_evernote_err_cannot_write">Kann die Datei %1$s nicht speichern</string>
     <string name="export_evernote_err_cannot_close">Kann die Datei  %1$s nicht schließen </string>

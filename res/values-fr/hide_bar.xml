@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hide_bar_failed_hide">Il a été impossible de cacher la barre de système (Vous avez un emplacement?)</string>
+    <string name="hide_bar_failed_show">Il a été impossible d\'afficher la barre de système (Vous avez un emplacement?)</string>
+
+</resources>

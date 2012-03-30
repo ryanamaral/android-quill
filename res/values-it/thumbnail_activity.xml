@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_button">Tags</string>
+    <string name="thumbnail_title_filter">Mostra solo pagine che contengono tags seguenti</string>
+    <string name="thumbnail_new_notebook_title">Crea nuovi appunti</string>
+    <string name="thumbnail_multiselect_title">Seleziona voci </string>
+    <string name="thumbnail_multiselect_single">Una pagina selezionata</string>
+    <string name="thumbnail_multiselect_multiple">%1$d pagine selezionate</string>
+    <string name="menu_thumbnail_delete">Cancella pagine</string>
+    <string name="menu_thumbnail_delete_condensed">Cancella</string>
+    <string name="menu_thumbnail_switch_notebook">Trasferisci appunti</string>
+    <string name="menu_thumbnail_new_notebook">Nuovi appunti</string>
+    <string name="menu_thumbnail_send_to_evernote">Invia a Evernote</string>
+    <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
+
+</resources>

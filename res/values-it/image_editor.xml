@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_editor_title">Seleziona immagine</string>
+    <string name="image_editor_aspect_checkbox_label">Fissare 1:1 rapporto aspetto</string>
+    <string name="image_editor_erase">Elimina</string>
+    <string name="image_editor_resolution">Risoluzione</string>
+    <string name="image_editor_source_uri">Fonte URI</string>
+    <string name="image_editor_source_image">Fonte immagine</string>
+    <string name="menu_image_pick">Seleziona immagine</string>
+    <string name="menu_image_pick_condensed">Gallery</string>
+    <string name="menu_image_photo">Scatta foto</string>
+    <string name="menu_image_photo_condensed">Foto</string>
+    <string name="menu_image_cropped">Raccogli immagini</string>
+    <string name="menu_image_cropped_condensed">Raccogli</string>
+    <string name="image_editor_err_no_photo">La telecamera non ha catturato la foto!</string>
+    <string name="image_editor_err_no_such_image">Non foto simile!</string>
+    <string name="image_editor_err_permissions">L\'immagine non esiste, oppure permessi insufficienti!</string>
+
+</resources>

@@ -6,11 +6,6 @@
         <item>Finger herausfiltern, aber Gesten zulassen</item>
         <item>Alles schreibt auf den Bildschirm</item>
     </string-array>
-    <string-array name="preferences_pen_input_mode_values">
-        <item>STYLUS_ONLY</item>
-        <item>STYLUS_WITH_GESTURES</item>
-        <item>STYLUS_AND_TOUCH</item>
-    </string-array>
 
     <string name="preferences_pen_input_mode_title">Stift Eingabemodus</string>
     <string name="preferences_override_pen_title">Stiftentdeckung überschreiben</string>
@@ -22,14 +17,6 @@
         <item>Samsung Note S-pen</item>
         <item>Magic Left Alt Hack</item>
         <item>Android ICS (4.0) Stift API</item>
-    </string-array>
-    <string-array name="preferences_override_pen_type_values">
-        <item>PEN_TYPE_AUTO</item>
-        <item>PEN_TYPE_CAPACITIVE</item>
-        <item>PEN_TYPE_THINKPAD_TABLET</item>
-        <item>PEN_TYPE_SAMSUNG_NOTE</item>
-        <item>PEN_TYPE_LEFT_ALT</item>
-        <item>PEN_TYPE_ICS</item>
     </string-array>
 
     <string name="preferences_err_loading_backup">Fehler beim laden der Backupdatei</string>

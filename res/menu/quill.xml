@@ -39,7 +39,7 @@
             <item android:id="@+id/page_type" android:title="@string/menu_quill_page_type"></item>
             <item android:id="@+id/page_insert" android:title="@string/menu_quill_page_insert"></item>
             <item android:id="@+id/page_duplicate" android:title="@string/menu_quill_page_duplicate"></item>
-            <item android:id="@+id/page_next" android:title="@string/menu_quill_page_prev"></item>
+            <item android:id="@+id/page_next" android:title="@string/menu_quill_page_next"></item>
             <item android:id="@+id/page_prev" android:title="@string/menu_quill_page_prev"></item><item android:title="@string/menu_quill_page_unfiltered_next" android:id="@+id/page_next_unfiltered"></item><item android:title="@string/menu_quill_page_unfiltered_prev" android:id="@+id/page_prev_unfiltered"></item>
             <item android:id="@+id/page_last" android:title="@string/menu_quill_page_last"></item>
             <item android:title="@string/menu_quill_page_tag" android:id="@+id/tag_page"></item>            

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_list_title">Página actual de marcador</string>
+    <string name="tag_list_new_label">Nuevo</string>
+    <string name="tag_list_default_text">Descripción</string>
+    <string name="menu_tag_list_thumbnails">Miniaturas de página</string>
+    <string name="tag_list_status">Marcadores %1$d / %2$d seleccionados</string>
+
+</resources>

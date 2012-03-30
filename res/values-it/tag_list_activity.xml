@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tag_list_title">Tag pagina attuale</string>
+    <string name="tag_list_new_label">Nuova</string>
+    <string name="tag_list_default_text">Descrizione</string>
+    <string name="menu_tag_list_thumbnails">Miniature pagina </string>
+    <string name="tag_list_status">Selezionati %1$d / %2$d tags</string>
+
+</resources>

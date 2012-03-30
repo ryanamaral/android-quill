@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Quill</string>
+    <string name="changelog_full_title">Cambia Log</string>
+    <string name="changelog_title">Cosa c\'à di nuovo</string>
+    <string name="changelog_ok_button">OK</string>
+
+</resources>
