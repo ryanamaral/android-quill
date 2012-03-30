@@ -12,3 +12,6 @@ jni/org_libharu_Page_PageSize.h
 *~
 gen/*
 bin/*
+
+syntax: regexp
+^scripts/icons$
