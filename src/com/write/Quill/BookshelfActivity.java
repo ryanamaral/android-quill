@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import junit.framework.Assert;
 
+import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
 import com.write.Quill.data.StorageAndroid;
@@ -194,21 +195,23 @@ public class BookshelfActivity
 	    @Override
 	    public void onClick(View v) {
     		Bookshelf bookshelf = Bookshelf.getBookshelf();
+			BookshelfActivity activity = ((BookshelfActivity)getActivity());
 	    	switch (v.getId()) {
 	    	case R.id.edit_notebook_button:
 	    		BookPreview previous = Bookshelf.getCurrentBookPreview();
 	    		String title = text.getText().toString();
 	    		if (title.equals(Bookshelf.getCurrentBook().getTitle())) return;
 	    		bookshelf.setCurrentBook(notebook);
-	    		Bookshelf.getCurrentBook().setTitle(title); 
+	    		Book book = Bookshelf.getCurrentBook();
+	    		book.setTitle(title);
+//	    		book.save();
 	    		bookshelf.setCurrentBook(previous);
-	    		notebook.reload();
-	    		((BookshelfActivity)getActivity()).adapter.notifyDataSetChanged();
+//	    		notebook.reload();
+	    		activity.adapter.notifyDataSetChanged();
 	    		dismiss();
 	    		break;
 	    	case R.id.edit_notebook_cancel:
 	    		if (is_new_notebook_dialog) {
-	    			BookshelfActivity activity = ((BookshelfActivity)getActivity());
 	    	    	Bookshelf.getBookshelf().deleteBook(notebook.getUUID());	    			
 	    			activity.adapter.notifyDataSetChanged();
 	    		}
@@ -223,7 +226,7 @@ public class BookshelfActivity
 	    		break;
 	    	case R.id.edit_notebook_delete:
 	    		dismiss();
-	    		((BookshelfActivity)getActivity()).showDeleteConfirmationDialog(position);
+	    		activity.showDeleteConfirmationDialog(position);
 	    		break;
 	    	}
 	    }
