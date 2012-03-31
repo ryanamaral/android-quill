@@ -28,7 +28,14 @@
         <item>Whole notebook as vector graphics (PDF)</item>
         <item>Whole notebook as Quill backup archive</item>
     </string-array>
-
+    <string-array name="export_file_values">
+        <item>EXPORT_FILE_PNG</item>
+        <item>EXPORT_FILE_PDF_PAGE</item>
+        <item>EXPORT_FILE_PDF_TAGGED</item>
+        <item>EXPORT_FILE_PDF_ALL</item>
+        <item>EXPORT_FILE_QUILL</item>
+    </string-array>
+    
     <string name="export_name_header">Name:</string>
     <string name="export_saved_as">Saved as</string>
     <string name="export_err_no_way_to_share">No way to share</string>
