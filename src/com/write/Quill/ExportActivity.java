@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -126,9 +127,30 @@ public class ExportActivity
     	checkConstants();
 	}
 	
-	private final static String DIRECTORY_SDCARD     = "/mnt/sdcard";
-	private final static String DIRECTORY_EXTERNALSD = "/mnt/external_sd";
-	private final static String DIRECTORY_USBDRIVE   = "/mnt/usbdrive";
+	public ExportActivity() {
+		if (DIRECTORY_SDCARD == null) 
+			DIRECTORY_SDCARD     = tryDirectories(DIRECTORY_SDCARD_TRY);
+		if (DIRECTORY_EXTERNALSD == null) 
+			DIRECTORY_EXTERNALSD = tryDirectories(DIRECTORY_EXTERNALSD_TRY);
+		if (DIRECTORY_USBDRIVE == null) 
+			DIRECTORY_USBDRIVE   = tryDirectories(DIRECTORY_USBDRIVE_TRY);
+	}
+
+	private String tryDirectories(String[] dirs) {
+		for (String name : dirs) {
+			File dir = new File(name);
+			if (dir.exists())
+				return name;
+		}
+		return dirs[0];
+	}
+	
+	private static final String[] DIRECTORY_SDCARD_TRY     = {"/mnt/sdcard"};
+	private static final String[] DIRECTORY_EXTERNALSD_TRY = {"/mnt/external_sd", "/mnt/sdcard2"};
+	private static final String[] DIRECTORY_USBDRIVE_TRY   = {"/mnt/usbdrive", "/mnt/usb"};
+	private static String DIRECTORY_SDCARD     = null;
+	private static String DIRECTORY_EXTERNALSD = null;
+	private static String DIRECTORY_USBDRIVE   = null;
 	
 	private void checkConstants() {
 		String[] export_via_values = getResources().getStringArray(R.array.export_via_values);
@@ -138,6 +160,12 @@ public class ExportActivity
 		Assert.assertEquals(export_via_values[SHARE_EXTERNAL], "EXPORT_VIA_EXTERNALSD");
 		Assert.assertEquals(export_via_values[SHARE_INTERNAL], "EXPORT_VIA_SDCARD");
 		Assert.assertEquals(export_via_values[SHARE_USB],      "EXPORT_VIA_USB");
+		String[] export_file_values = getResources().getStringArray(R.array.export_file_values);
+		Assert.assertEquals(export_file_values[OUTPUT_FORMAT_PNG],        "EXPORT_FILE_PNG");
+		Assert.assertEquals(export_file_values[OUTPUT_FORMAT_PDF_SINGLE], "EXPORT_FILE_PDF_PAGE");
+		Assert.assertEquals(export_file_values[OUTPUT_FORMAT_PDF_TAGGED], "EXPORT_FILE_PDF_TAGGED");
+		Assert.assertEquals(export_file_values[OUTPUT_FORMAT_PDF_ALL],    "EXPORT_FILE_PDF_ALL");
+		Assert.assertEquals(export_file_values[OUTPUT_FORMAT_BACKUP],     "EXPORT_FILE_QUILL");
 	}
 	
     
@@ -165,8 +193,7 @@ public class ExportActivity
 	}	
 	
 	@Override
-	public void onItemSelected(AdapterView<?> spinner, View view, int position,
-			long id) {
+	public void onItemSelected(AdapterView<?> spinner, View view, int position,	long id) {
 		if (spinner == format)
 			onItemSelectedFormat(position);
 		else if (spinner == sizes)
@@ -179,7 +206,7 @@ public class ExportActivity
 	 * @param position
 	 */
 	public void onItemSelectedFormat(int position) {
-		// Log.v(TAG, "Format "+position);
+		// Log.e(TAG, "Format "+position);
       	String[] strings;
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         int sizesPos;

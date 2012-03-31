@@ -1,123 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView01"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="10dp" >
+    android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/export_name_header"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/export_spacer"
-        android:text="@string/export_name_header" >
-    </TextView>
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp" >
 
-    <EditText
-        android:id="@+id/export_name"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/export_name_header"
-        android:layout_toRightOf="@id/export_name_header"
-        android:inputType="text"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:text="@string/export_filename_default" >
-    </EditText>
+        <TextView
+            android:id="@+id/export_name_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/export_spacer"
+            android:text="@string/export_name_header" >
+        </TextView>
 
-    <TextView
-        android:id="@+id/export_file_format_header"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_name"
-        android:layout_marginTop="@dimen/export_spacer"
-        android:text="@string/export_file_format_header" >
-    </TextView>
+        <EditText
+            android:id="@+id/export_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/export_name_header"
+            android:layout_toRightOf="@id/export_name_header"
+            android:inputType="text"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:text="@string/export_filename_default" >
+        </EditText>
 
-    <Spinner
-        android:id="@+id/export_file_format"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_file_format_header"
-        android:layout_marginLeft="20dp"
-        android:entries="@array/export_file_format" >
-    </Spinner>
+        <TextView
+            android:id="@+id/export_file_format_header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_name"
+            android:layout_marginTop="@dimen/export_spacer"
+            android:text="@string/export_file_format_header" >
+        </TextView>
 
-    <CheckBox
-        android:id="@+id/export_background"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_file_format"
-        android:layout_marginTop="@dimen/export_spacer"
-        android:checked="true"
-        android:text="@string/export_background" />
+        <Spinner
+            android:id="@+id/export_file_format"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_file_format_header"
+            android:layout_marginLeft="20dp"
+            android:entries="@array/export_file_format" >
+        </Spinner>
 
-    <TextView
-        android:id="@+id/export_size_header"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_background"
-        android:layout_marginTop="@dimen/export_spacer"
-        android:text="@string/export_size_header" >
-    </TextView>
+        <CheckBox
+            android:id="@+id/export_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_file_format"
+            android:layout_marginTop="@dimen/export_spacer"
+            android:checked="true"
+            android:text="@string/export_background" />
 
-    <Spinner
-        android:id="@+id/export_size"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_size_header"
-        android:layout_marginLeft="20dp"
-        android:entries="@array/export_size_vector" >
-    </Spinner>
+        <TextView
+            android:id="@+id/export_size_header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_background"
+            android:text="@string/export_size_header" >
+        </TextView>
 
-    <TextView
-        android:id="@+id/export_via_header"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_size"
-        android:layout_marginTop="@dimen/export_spacer"
-        android:text="@string/export_via_header" >
-    </TextView>
+        <Spinner
+            android:id="@+id/export_size"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_size_header"
+            android:layout_marginLeft="20dp"
+            android:entries="@array/export_size_vector" >
+        </Spinner>
 
-    <Spinner
-        android:id="@+id/export_via"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_via_header"
-        android:layout_marginLeft="20dp"
-        android:dropDownVerticalOffset="-200dp"
-        android:entries="@array/export_via_entries" >
-    </Spinner>
+        <TextView
+            android:id="@+id/export_via_header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_size"
+            android:layout_marginTop="@dimen/export_spacer"
+            android:text="@string/export_via_header" >
+        </TextView>
 
-    <ProgressBar
-        android:id="@+id/export_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/export_via"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="@dimen/export_spacer" >
-    </ProgressBar>
+        <Spinner
+            android:id="@+id/export_via"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_via_header"
+            android:layout_marginLeft="20dp"
+            android:dropDownVerticalOffset="-200dp"
+            android:entries="@array/export_via_entries" >
+        </Spinner>
 
-    <Button
-        android:id="@+id/export_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/export_progress"
-        android:layout_marginLeft="10dip"
-        android:text="@string/export_button_text" />
+        <ProgressBar
+            android:id="@+id/export_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/export_via"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="@dimen/export_spacer" >
+        </ProgressBar>
 
-    <Button
-        android:id="@+id/export_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/export_button"
-        android:layout_toLeftOf="@id/export_button"
-        android:text="@android:string/cancel" />
+        <Button
+            android:id="@+id/export_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/export_progress"
+            android:layout_marginLeft="10dip"
+            android:text="@string/export_button_text" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/export_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/export_button"
+            android:layout_toLeftOf="@id/export_button"
+            android:text="@android:string/cancel" />
+    </RelativeLayout>
+
+</ScrollView>

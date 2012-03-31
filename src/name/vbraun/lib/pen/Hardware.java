@@ -170,7 +170,7 @@ public class Hardware {
 	 */
 	public static boolean onKeyDown(int keyCode, KeyEvent event) {
 		Assert.assertNotNull(instance);
-		return instance.onKeyDown(keyCode, event);
+		return instance.mPenEvent.onKeyDown(keyCode, event);
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public class Hardware {
 	 */
 	public static boolean onKeyUp(int keyCode, KeyEvent event) {
 		Assert.assertNotNull(instance);
-		return instance.onKeyUp(keyCode, event);
+		return instance.mPenEvent.onKeyUp(keyCode, event);
 	}
 
 }
