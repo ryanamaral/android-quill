@@ -129,7 +129,7 @@ public class ExportActivity
 	
 	public ExportActivity() {
 		if (DIRECTORY_SDCARD == null) 
-			DIRECTORY_SDCARD     = tryDirectories(DIRECTORY_SDCARD_TRY);
+			DIRECTORY_SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
 		if (DIRECTORY_EXTERNALSD == null) 
 			DIRECTORY_EXTERNALSD = tryDirectories(DIRECTORY_EXTERNALSD_TRY);
 		if (DIRECTORY_USBDRIVE == null) 
@@ -145,9 +145,8 @@ public class ExportActivity
 		return dirs[0];
 	}
 	
-	private static final String[] DIRECTORY_SDCARD_TRY     = {"/mnt/sdcard"};
-	private static final String[] DIRECTORY_EXTERNALSD_TRY = {"/mnt/external_sd", "/mnt/sdcard2"};
-	private static final String[] DIRECTORY_USBDRIVE_TRY   = {"/mnt/usbdrive", "/mnt/usb"};
+	private static final String[] DIRECTORY_EXTERNALSD_TRY = {"/mnt/external_sd", "/mnt/sdcard2", "/mnt/sdcard/external_sd"};
+	private static final String[] DIRECTORY_USBDRIVE_TRY   = {"/mnt/usbdrive", "/mnt/usb", "/mnt/usb0", "/mnt/sdcard/usbStorage"};
 	private static String DIRECTORY_SDCARD     = null;
 	private static String DIRECTORY_EXTERNALSD = null;
 	private static String DIRECTORY_USBDRIVE   = null;
