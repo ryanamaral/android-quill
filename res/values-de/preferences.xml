@@ -24,7 +24,6 @@
     <string name="preferences_err_permissions">(Fehler: Keine Schreibrechte)</string>
     <string name="preferences_pick_backup">Wählen Sie ein Backup zum wiederherstellen aus</string>
     <string name="preferences_select_backup_folder">Wählen Sie einen Backup-Ordner aus</string>
-
     <string name="preferences_user_handedness">Dominante Hand</string>
     <string name="preferences_toolbox_left">Rechtshänder (die Meisten)</string>
     <string name="preferences_toolbox_left_summary">Der Rote Knopf und Toolbox sind auf der linken Seite</string>
@@ -56,5 +55,5 @@
     <string name="preferences_debug">Debug Optionen</string>
     <string name="preferences_incomplete">Unvollständige Funktionen</string>
     <string name="preferences_incomplete_summary">Funktionen die noch nicht fertig sind werden angeboten</string>
-    
+
 </resources>

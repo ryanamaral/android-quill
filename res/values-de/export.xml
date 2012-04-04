@@ -32,7 +32,6 @@
         <item>US Letter (8.5 x 11in)</item>
         <item>US Legal (8.5 x 14in)</item>
     </string-array>
-
     <string-array name="export_size_raster">
         <item>1920 x 1080 pixel (HDTV)</item>
         <item>1280 x 800 pixel</item>
@@ -46,7 +45,7 @@
     <string name="export_evernote_err_not_found">Sie müssen zuerst die Evernote app installieren</string>
     <string name="export_evernote_download_question">Vom Android Marktplatz herunterladen?</string>
     <string name="export_evernote_title">An Evernote senden</string>
-    <string name="export_evernote_message">Komprimiere Seiten &#8230;</string>
+    <string name="export_evernote_message">Komprimiere Seiten …</string>
     <string name="export_evernote_err_no_cache_dir">Kann den Cache-Ordner nicht öffnen</string>
     <string name="export_evernote_err_cannot_write">Kann die Datei %1$s nicht speichern</string>
     <string name="export_evernote_err_cannot_close">Kann die Datei  %1$s nicht schließen </string>

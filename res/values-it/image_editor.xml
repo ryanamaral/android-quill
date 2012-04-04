@@ -8,13 +8,13 @@
     <string name="image_editor_source_uri">Fonte URI</string>
     <string name="image_editor_source_image">Fonte immagine</string>
     <string name="menu_image_pick">Seleziona immagine</string>
-    <string name="menu_image_pick_condensed">Gallery</string>
+    <string name="menu_image_pick_condensed">Galleria</string>
     <string name="menu_image_photo">Scatta foto</string>
     <string name="menu_image_photo_condensed">Foto</string>
-    <string name="menu_image_cropped">Raccogli immagini</string>
-    <string name="menu_image_cropped_condensed">Raccogli</string>
-    <string name="image_editor_err_no_photo">La telecamera non ha catturato la foto!</string>
-    <string name="image_editor_err_no_such_image">Non foto simile!</string>
+    <string name="menu_image_cropped">Raggruppa immagini</string>
+    <string name="menu_image_cropped_condensed">Raggruppa</string>
+    <string name="image_editor_err_no_photo">La fotocamera non ha catturato l\'immagine!</string>
+    <string name="image_editor_err_no_such_image">Nessuna immagine!</string>
     <string name="image_editor_err_permissions">L\'immagine non esiste, oppure permessi insufficienti!</string>
 
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hide_bar_failed_hide">occultamento barra sistema non riuscito(hai radice?)</string>
-    <string name="hide_bar_failed_show">esposizione barra sistema non riuscita(hai radice?)</string>
+    <string name="hide_bar_failed_hide">Impossibile nascondere la barra di sistema(hai la root?)</string>
+    <string name="hide_bar_failed_show">Impossibile visualizzare la barra di sistema(hai la root?)</string>
 
 </resources>
