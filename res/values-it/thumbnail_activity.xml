@@ -2,7 +2,7 @@
 <resources>
 
     <string name="tag_button">Tags</string>
-    <string name="thumbnail_title_filter">Mostra solo pagine che contengono tags seguenti</string>
+    <string name="thumbnail_title_filter">Mostra solo pagine che contengono i tags seguenti</string>
     <string name="thumbnail_new_notebook_title">Crea nuovi appunti</string>
     <string name="thumbnail_multiselect_title">Seleziona voci </string>
     <string name="thumbnail_multiselect_single">Una pagina selezionata</string>

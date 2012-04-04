@@ -2,58 +2,58 @@
 <resources>
 
     <string-array name="preferences_pen_input_mode_entries">
-        <item>Filtra eventi contatto dita durante scrittura</item>
-        <item>Filtra contatto dita ma consenti di toccare</item>
-        <item> Qualsiasi evento contatto scrivi su schermo,nessun gesto</item>
+        <item>Ignora i contatti dita durante la scrittura</item>
+        <item>Ignora i contatti dita ma consente i gesti multi-touch</item>
+        <item>Qualsiasi contatto dita scrive sullo schermo, non consente i gesti multi-touch</item>
     </string-array>
 
-    <string name="preferences_pen_input_mode_title">Modalità immissione pennino</string>
-    <string name="preferences_override_pen_title">Sovrapponi tipo pennino localizzato</string>
+    <string name="preferences_pen_input_mode_title">Selezione tipo di pennino</string>
+    <string name="preferences_override_pen_title">Annulla tipo pennino rilevato</string>
 
     <string-array name="preferences_override_pen_type_entries">
-        <item>Autodetect</item>
+        <item>Rilevamento automatico</item>
         <item>Pennino capacitivo</item>
-        <item>Pennino Tablet Thinkpad </item>
+        <item>Pennino Tablet ThinkPad</item>
         <item>S-pen Samsung Note </item>
-        <item>Magico sinistro Alt Ingresso</item>
-        <item>Android ICS (4.0) puntina API</item>
+        <item>Magic Left Alt Hack</item>
+        <item>Android ICS (4.0) pennino API</item>
     </string-array>
 
     <string name="preferences_err_loading_backup">Errore caricamento file backup.</string>
-    <string name="preferences_err_not_a_directory">(Errore: non una directory)</string>
-    <string name="preferences_err_permissions">(Errore: no autorizzazioni a scrivere)</string>
+    <string name="preferences_err_not_a_directory">(Errore: non é una cartella)</string>
+    <string name="preferences_err_permissions">(Errore: nessuna autorizzazione a scrivere)</string>
     <string name="preferences_pick_backup">Seleziona un backup per ripristino</string>
     <string name="preferences_select_backup_folder">Si prega di selezionare una cartella di backup</string>
-    <string name="preferences_user_handedness">Manulateralità utente</string>
-    <string name="preferences_toolbox_left">Mano destra (pià comune)</string>
-    <string name="preferences_toolbox_left_summary">Il tasto rosso e gli strumenti saranno a sinistra</string>
-    <string name="preferences_input">Immetti preferenze</string>
-    <string name="preferences_double_tap">Picchiettare due volte durante scrittura</string>
-    <string name="preferences_double_tap_summary">Zoom in/out con picchiettatura doppia dello schermo con le dita durante scrittura</string>
-    <string name="preferences_move_gesture">Sposta gesto durante scrittura</string>
-    <string name="preferences_move_gesture_summary">Trascina attorno pagina con due dita durante scrittura</string>
-    <string name="preferences_move_zoom">Blocca zoom durante spostamento gesto</string>
-    <string name="preferences_move_zoom_summary">Se o no lo zoom rimane costante o cambia con pinzatura</string>
-    <string name="preferences_palm_shield">Scudo palmo</string>
+    <string name="preferences_user_handedness">Manualità utente</string>
+    <string name="preferences_toolbox_left">Mano destra (più comune)</string>
+    <string name="preferences_toolbox_left_summary">Il tasto rosso e la barra strumenti saranno a sinistra</string>
+    <string name="preferences_input">Introdurre preferenze</string>
+    <string name="preferences_double_tap">Toccare due volte durante la scrittura</string>
+    <string name="preferences_double_tap_summary">Toccare due volte con le dita per aumentare o diminuire lo zoom durante la scrittura</string>
+    <string name="preferences_move_gesture">Spostamento durante la scrittura</string>
+    <string name="preferences_move_gesture_summary">Toccare e trascinare la pagina con due dita durante la scrittura</string>
+    <string name="preferences_move_zoom">Blocca zoom durante lo spostamento</string>
+    <string name="preferences_move_zoom_summary">Zoom costante o modificato con il gesto del pizzico</string>
+    <string name="preferences_palm_shield">Protezione schermo</string>
     <string name="preferences_palm_shield_summary">Rendi metà inferiore dello schermo insensibile al contatto (metà superiore se mano sinistra)</string>
-    <string name="preferences_volume_key_nav">Navigazione chiave estensione</string>
-    <string name="preferences_volume_key_nav_summary">Premere estensione-su per pagina successiva, estensione-già per pagina precedente</string>
-    <string name="preferences_action_bar">Mostra barra azione</string>
-    <string name="preferences_action_bar_summary">Se o no mostrare barra orizzontale in alto sullo schermo</string>
-    <string name="preferences_system_bar">Nascondi barra sistema (richiede radice)</string>
-    <string name="preferences_system_bar_summary">Elimina barra orizzontale in basso (tasto home, orologio) dello schermo</string>
-    <string name="preferences_tools_switch_back">Strumenti torna indietro</string>
-    <string name="preferences_tools_switch_back_summary">Torna automaticamente indietro al pennino dopo completamento sposta/zoom/cancella</string>
-    <string name="preferences_keep_screen_on">Tenere schermo acceso</string>
-    <string name="preferences_keep_screen_on_summary">Lo schermo resta sulla finestra principale</string>
+    <string name="preferences_volume_key_nav">Funzione del tasto volume durante la navigazione </string>
+    <string name="preferences_volume_key_nav_summary">Premere aumenta volume per pagina successiva, abbassa volume per pagina precedente</string>
+    <string name="preferences_action_bar">Visualizza barra azione</string>
+    <string name="preferences_action_bar_summary">Visualizza barra orizzontale in alto sullo schermo</string>
+    <string name="preferences_system_bar">Nascondi barra di sistema (richiede root)</string>
+    <string name="preferences_system_bar_summary">Elimina barra orizzontale in basso (tasto home, orologio) dallo schermo</string>
+    <string name="preferences_tools_switch_back">Strumento torna indietro</string>
+    <string name="preferences_tools_switch_back_summary">Torna automaticamente indietro al puntatore al termine delle operazioni sposta/zoom/cancella</string>
+    <string name="preferences_keep_screen_on">Lo schermo sempre acceso</string>
+    <string name="preferences_keep_screen_on_summary">Lo schermo resta acceso vilualizzando la finestra principale</string>
     <string name="preferences_user_data">Dati utente</string>
     <string name="preferences_restore">Ripristina Backup</string>
-    <string name="preferences_restore_summary">Importa un file .quill backup  (Usa \"Esporta\" per fare backups)</string>
-    <string name="preferences_backup_auto">Backups automatici</string>
-    <string name="preferences_backup_auto_summary">Fare backups dei vostri appunti automaticamente</string>
-    <string name="preferences_backup_dir">Backup directory automatico</string>
-    <string name="preferences_debug">Metti a punto opzioni</string>
+    <string name="preferences_restore_summary">Importa un file di backup .quill (Utilizzare \"Esporta\" per eseguire backup)</string>
+    <string name="preferences_backup_auto">Backup automatici</string>
+    <string name="preferences_backup_auto_summary">Eseguire il backup automatico dei vostri appunti</string>
+    <string name="preferences_backup_dir">Cartella Backup automatico</string>
+    <string name="preferences_debug">Opzioni di debug</string>
     <string name="preferences_incomplete">Caratteristiche incomplete</string>
-    <string name="preferences_incomplete_summary"> Consenti caratteristiche che non sono ancora complete</string>
+    <string name="preferences_incomplete_summary">Abilita caratteristiche che non sono ancora complete</string>
 
 </resources>

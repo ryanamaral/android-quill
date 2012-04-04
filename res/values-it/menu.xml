@@ -8,7 +8,7 @@
     <string name="menu_quill_undo">Annulla</string>
     <string name="menu_quill_redo">Ripeti</string>
     <string name="menu_quill_prev">Pagina precedente</string>
-    <string name="menu_quill_prev_condensed">Prec</string>
+    <string name="menu_quill_prev_condensed">Precedente</string>
     <string name="menu_quill_next">Pagina successiva</string>
     <string name="menu_quill_next_condensed">Successiva</string>
     <string name="menu_quill_prev_pen">Penna precedente</string>
@@ -16,8 +16,8 @@
     <string name="menu_quill_tools" >Strumenti</string>
     <string name="menu_quill_straight_line">Linea diritta</string>
     <string name="menu_quill_straight_line_condensed">Linea</string>
-    <string name="menu_quill_image">Imagine</string>
-    <string name="menu_quill_text">Immissione testo</string>
+    <string name="menu_quill_image">Immagine</string>
+    <string name="menu_quill_text">Inserimento testo</string>
     <string name="menu_quill_text_condensed">Testo</string>
     <string name="menu_quill_color">Colore</string>
     <string name="menu_quill_width">Spessore</string>
@@ -25,19 +25,19 @@
     <string name="menu_quill_page_readonly" >Solo lettura</string>
     <string name="menu_quill_page_delete">Cancella</string>
     <string name="menu_quill_page_clear">Elimina</string>
-    <string name="menu_quill_page_aspect">Assetto rapporto</string>
-    <string name="menu_quill_page_type">Documento</string>
+    <string name="menu_quill_page_aspect">Rapporto d\'aspetto</string>
+    <string name="menu_quill_page_type">Foglio</string>
     <string name="menu_quill_page_insert">Inserisci</string>
     <string name="menu_quill_page_duplicate">Duplica</string>
     <string name="menu_quill_page_next">Successivo</string>
     <string name="menu_quill_page_prev">Precedente</string>
-    <string name="menu_quill_page_unfiltered_next">Successivo non filtrato</string>
-    <string name="menu_quill_page_unfiltered_prev">Precedente non filtrato</string>
+    <string name="menu_quill_page_unfiltered_next">Successivo non processato</string>
+    <string name="menu_quill_page_unfiltered_prev">Precedente non processato</string>
     <string name="menu_quill_page_last">Ultimo</string>
     <string name="menu_quill_page_tag">Tags</string>
     <string name="menu_quill_export">Esporta</string>
     <string name="menu_quill_settings">Impostazioni</string>
     <string name="menu_quill_thumbnails">Miniature pagina</string>
-    <string name="menu_quill_about">Quill</string>
+    <string name="menu_quill_about">Informazioni su Quill</string>
 
 </resources>

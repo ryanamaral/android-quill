@@ -12,7 +12,7 @@
         <item>Gigante</item>
     </string-array>
 
-    <string name="dlg_background_title">Documento</string>
+    <string name="dlg_background_title">Foglio</string>
 
     <string-array name="dlg_background_entries">
         <item>Bianco</item>
@@ -24,15 +24,15 @@
         <item>Agenda</item>
     </string-array>
 
-    <string name="dlg_aspect_title">Rapporto di aspetto</string>
+    <string name="dlg_aspect_title">Rapporto d\'aspetto</string>
 
     <string-array name="dlg_aspect_entries">
         <item>Portrait Screen</item>
         <item>Landscape Screen</item>
-        <item>A4 Paper</item>
-        <item>US Letter</item>
-        <item>US Legal</item>
-        <item>Projector (4:3)</item>
+        <item>Foglio A4</item>
+        <item>Foglio US Letter</item>
+        <item>Foglio US Legal</item>
+        <item>Proiettore (4:3)</item>
         <item>HDTV (16:9)</item>
     </string-array>
 

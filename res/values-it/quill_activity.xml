@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="activity_base_backed_up">Quill appunti backed up.</string>
+    <string name="activity_base_backed_up">Eseguito il backup degli appunti Quill.</string>
     <string name="quill_deleted_page">Pagina cancellata %1$d / %2$d</string>
-    <string name="quill_no_other_pen_styles">Nessun altro stile pennino in storico.</string>
-    <string name="quill_already_first_page">Già su prima pagina</string>
-    <string name="quill_already_first_tagged_page">Già su prima pagina taggata</string>
-    <string name="quill_showing_first_page">Mostrando prima pagina</string>
-    <string name="quill_showing_last_page">Mostrando ultima pagina</string>
-    <string name="quill_showing_first_tagged_page">Mostrando prima pagina taggata</string>
-    <string name="quill_showing_last_tagged_page">Mostrando ultima pagina taggata</string>
-    <string name="quill_showing_page">Mostrando pagina %1$d / %2$d</string>
-    <string name="quill_inserted_at_end">Inserita nuova pagina alla fine</string>
+    <string name="quill_no_other_pen_styles">Nessun altro stile pennino nello storico.</string>
+    <string name="quill_already_first_page">Già sulla prima pagina</string>
+    <string name="quill_already_first_tagged_page">Già sulla prima pagina taggata</string>
+    <string name="quill_showing_first_page">Visualizzazione prima pagina</string>
+    <string name="quill_showing_last_page">Visualizzazione ultima pagina</string>
+    <string name="quill_showing_first_tagged_page">Visualizzazione prima pagina taggata</string>
+    <string name="quill_showing_last_tagged_page">Visualizzazione ultima pagina taggata</string>
+    <string name="quill_showing_page">Visualizzazione pagina %1$d / %2$d</string>
+    <string name="quill_inserted_at_end">Inserita nuova pagina alla fine del documento</string>
     <string name="quill_undo">Annulla</string>
     <string name="quill_redo">Ripeti</string>
     <string name="command_clear_page">Elimina pagina %1$d</string>
-    <string name="command_create_graphics">Aggiungi colpo pennino su pagina %1$d</string>
-    <string name="command_erase_graphics">Elimina colpo pennino su pagina%1$d</string>
+    <string name="command_create_graphics">Aggiungi tratto di penna su pagina %1$d</string>
+    <string name="command_erase_graphics">Elimina tratto di penna su pagina%1$d</string>
     <string name="command_page_insert">Inserisci numero pagina %1$d </string>
     <string name="command_page_erase">Cancella numero pagina%1$d </string>
     <string name="tag_overlay_tags">Tags:</string>
