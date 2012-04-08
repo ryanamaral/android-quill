@@ -341,27 +341,26 @@ public class Toolbox
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		Log.d(TAG, "onDraw "+redButton.getLeft()+" "+getTop());
-//		redButton.draw(canvas);
+		// Log.d(TAG, "onDraw "+redButton.getLeft()+" "+getTop());
 	}
 	
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
 		super.dispatchDraw(canvas);
-		Log.d(TAG, "dispatchDraw");
+		// Log.d(TAG, "dispatchDraw");
 	}
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.d(TAG, "onLayout "+l+" "+t+" "+r+" "+b);
+		// Log.d(TAG, "onLayout "+l+" "+t+" "+r+" "+b);
 		super.onLayout(changed, l, t, r, b);
 	}	
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		Log.d(TAG, "onMeasure "+View.MeasureSpec.getSize(widthMeasureSpec)+
-				" "+View.MeasureSpec.getSize(heightMeasureSpec));
+//		Log.d(TAG, "onMeasure "+View.MeasureSpec.getSize(widthMeasureSpec)+
+//				" "+View.MeasureSpec.getSize(heightMeasureSpec));
 	}
 
 	@Override
@@ -448,7 +447,7 @@ public class Toolbox
 	@Override
 	public void onToolHistoryChanged(boolean onlyCurrent) {
 		ToolHistory h = ToolHistory.getToolHistory();
-		Log.d(TAG, "onToolHistoryChanged "+h.size());
+		// Log.d(TAG, "onToolHistoryChanged "+h.size());
 		history1.setImageDrawable(h.getIcon());
 		if (onlyCurrent) return;
 		if (h.size() > 0) history2.setImageDrawable(h.getIcon(0));

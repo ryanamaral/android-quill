@@ -3,6 +3,7 @@ package name.vbraun.lib.pen;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 public class PenEvent {
 	private final static String TAG = "PenEvent";
@@ -25,4 +26,6 @@ public class PenEvent {
 		return false;
 	}
 
+	public void addViewHack(ViewGroup viewGroup) {
+	}
 }

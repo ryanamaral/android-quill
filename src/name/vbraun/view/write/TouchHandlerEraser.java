@@ -19,9 +19,24 @@ public class TouchHandlerEraser extends TouchHandlerABC {
 	protected void destroy() {
 	}
 
+	/* 
+	 * The touch handler for the eraser is special in that it can be 
+	 * called during the touch event. Namely, if the user presses the 
+	 * stylus button we immediately switch to eraser. 
+	 */
 	@Override
 	protected boolean onTouchEvent(MotionEvent event) {
 		int action = event.getActionMasked();
+		
+		if (action == MotionEvent.ACTION_MOVE && penID == -1) {
+			if (getPage().is_readonly) return true;
+			if (view.isOnPalmShield(event)) return true;
+			if (!useForWriting(event)) return true;
+			penID = event.getPointerId(0);
+			oldX = newX = event.getX();
+			oldY = newY = event.getY();
+		}
+		
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (penID == -1) return true;
 			int idx = event.findPointerIndex(penID);

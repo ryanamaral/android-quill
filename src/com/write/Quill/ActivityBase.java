@@ -91,7 +91,7 @@ public class ActivityBase extends Activity {
     	
         editor.remove(KEY_ONLY_PEN_INPUT_OBSOLETE);  // obsoleted
 
-    	if (ReleaseMode.OEM) {
+    	if (Global.releaseModeOEM) {
     		editor.remove(KEY_HIDE_SYSTEM_BAR);
     		editor.remove(KEY_DEBUG_OPTIONS);
     		editor.remove(KEY_OVERRIDE_PEN_TYPE);

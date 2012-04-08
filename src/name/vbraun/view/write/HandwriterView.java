@@ -1,9 +1,6 @@
 package name.vbraun.view.write;
 
 import java.util.LinkedList;
-import java.util.ListIterator;
-
-import com.write.Quill.Preferences;
 
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
@@ -31,11 +28,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.view.WindowManager;
-import android.view.View.OnLongClickListener;
+
 
 public class HandwriterView 
-	extends ViewGroup 
-	implements OnLongClickListener {
+	extends ViewGroup {
 	
 	private static final String TAG = "Handwrite";
 	
@@ -371,16 +367,7 @@ public class HandwriterView
     	boolean left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
     	setToolbox(left);
     	
-    	setClickable(true);
-    	setLongClickable(true);
-    	setOnLongClickListener(this);
-    	setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	Log.e(TAG, "onClick");
-            }
-        });
-    	toolbox.redButton.setLongClickable(true);
-    	toolbox.redButton.setOnLongClickListener(this);
+    	Hardware.getInstance(context).addViewHack(this);
 	}
 
 	/**
@@ -476,7 +463,9 @@ public class HandwriterView
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		toolbox.layout(l, t, r, b);
+		for (int i=0; i<getChildCount(); i++)
+			getChildAt(i).layout(l, t, r, b);
+//		toolbox.layout(l, t, r, b);
 //		if (editText != null) {
 //			editText.layout(100, 70, 400, 200);
 //		}
@@ -596,9 +585,18 @@ public class HandwriterView
 	@Override 
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!acceptInput) return false;
-		if (touchHandler == null)
-			return false;
-		return touchHandler.onTouchEvent(event);
+		if (touchHandler == null) return false;
+		
+		// Log.e(TAG, "onTouch "+ Hardware.isPenButtonPressed(event));
+		// switch to eraser if button is pressed
+		if (getToolType() != Tool.ERASER && Hardware.isPenButtonPressed(event)) {
+			interrupt();
+			setToolType(Tool.ERASER);
+		}
+		
+		// return touchHandler.onTouchEvent(event);
+		touchHandler.onTouchEvent(event);
+		return true;
 	}
 	
 	protected void toastIsReadonly() {
@@ -692,24 +690,6 @@ public class HandwriterView
 		Log.e(TAG, "onDragEv");
 		return super.onDragEvent(event);
 	}
-	
-	@Override
-	public boolean onLongClick(View v) {
-		Log.e(TAG, "onLongClick");
-		return false;
-	}
-	
-//	@Override
-//	public boolean onInterceptTouchEvent(MotionEvent event) {
-//		InputDevice dev = event.getDevice();
-//		Log.v(TAG, "onInterceptTouchEvent: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" "+
-//				dev.getKeyboardType()+" "+dev.describeContents()+" "+event.getDeviceId()
-//				+ "name = "+event.getDevice().getName()
-//				+" action="+event.getAction()
-//				+" pressure="+event.getPressure()
-//				+" fat="+event.getTouchMajor() + " "+event.getFlags());
-//		return false; // super.onInterceptTouchEvent(event);
-//	}
 	
 	
 }

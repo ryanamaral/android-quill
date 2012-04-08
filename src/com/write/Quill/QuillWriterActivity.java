@@ -63,7 +63,6 @@ import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -117,7 +116,7 @@ public class QuillWriterActivity
         super.onCreate(savedInstanceState);
       	if (UpdateActivity.needUpdate(this)) return;
       	
-      	if (!ReleaseMode.OEM) {
+      	if (!Global.releaseModeOEM) {
       		ChangeLog changeLog = new ChangeLog(this);
       		if (changeLog.firstRun())
       			changeLog.getLogDialog().show();
@@ -139,7 +138,7 @@ public class QuillWriterActivity
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         mView.setOnToolboxListener(this);
         mView.setOnStrokeFinishedListener(this);
-        
+
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
