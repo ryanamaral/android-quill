@@ -2,7 +2,7 @@ package name.vbraun.lib.pen;
 
 import java.util.ArrayList;
 
-import com.write.Quill.ReleaseMode;
+import com.write.Quill.Global;
 
 import junit.framework.Assert;
 import android.content.Context;
@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 public class Hardware {
 	private final static String TAG = "PenHardware";
@@ -54,7 +55,7 @@ public class Hardware {
 	}};
 	
 	private Hardware(Context context) {
-		if (ReleaseMode.OEM)
+		if (Global.releaseModeOEM)
 			autodetect(context);
 		else
 			forceFromPreferences(context);
@@ -163,6 +164,16 @@ public class Hardware {
 	}
 	
 	/**
+	 * Test whether the pen button is pressed
+	 * @param event A MotionEvent
+	 * @return
+	 */
+	public static boolean isPenButtonPressed(MotionEvent event) {
+		Assert.assertNotNull(instance);
+		return instance.mPenEvent.isPenButtonPressed(event);
+	}
+	
+	/**
 	 * To be called from the controlling view's onKeyDown handler
 	 * @param keyCode
 	 * @param event
@@ -171,6 +182,14 @@ public class Hardware {
 	public static boolean onKeyDown(int keyCode, KeyEvent event) {
 		Assert.assertNotNull(instance);
 		return instance.mPenEvent.onKeyDown(keyCode, event);
+	}
+	
+	/**
+	 * Add an invisible view to capture the pen button on the Thinkpad Tablet
+	 * @param viewGroup
+	 */
+	public void addViewHack(ViewGroup viewGroup) {
+		mPenEvent.addViewHack(viewGroup);
 	}
 	
 	/**

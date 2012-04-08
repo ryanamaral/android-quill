@@ -115,7 +115,7 @@ public class Preferences
 		backupDirPreference = findPreference(PREFERENCE_BACKUP_DIR);
 		backupDirPreference.setOnPreferenceClickListener(this);
 
-		if (ReleaseMode.OEM) releaseModeOEM();
+		if (Global.releaseModeOEM) releaseModeOEM();
 		updatePreferences();
 	}
 	
@@ -162,7 +162,7 @@ public class Preferences
     	boolean touch = penMode.getValue().equals(STYLUS_AND_TOUCH);
     	findPreference(KEY_PALM_SHIELD).setEnabled(touch);
 
-    	if (!ReleaseMode.OEM) {
+    	if (!Global.releaseModeOEM) {
     		boolean hideBar = HideBar.isPossible();
     		findPreference(KEY_HIDE_SYSTEM_BAR).setEnabled(hideBar);
     	}
