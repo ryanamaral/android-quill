@@ -1,4 +1,4 @@
-package com.write.Quill.ImageEditor;
+package com.write.Quill.image;
 
 import android.app.Dialog;
 import android.app.DialogFragment;

@@ -9,6 +9,7 @@ import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
 import com.write.Quill.data.StorageAndroid;
+import com.write.Quill.export.ExportActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

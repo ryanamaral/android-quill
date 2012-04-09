@@ -13,5 +13,7 @@
     <string name="menu_thumbnail_new_notebook">New notebook</string>
     <string name="menu_thumbnail_send_to_evernote">Send to Evernote</string>
     <string name="menu_thumbnail_send_to_evernote_condensed">Evernote</string>
-
+    <string name="menu_thumbnail_show_tags">Show tags</string>
+    <string name="menu_thumbnail_send_to_catch">Send to Catch.com</string>
+    
 </resources>

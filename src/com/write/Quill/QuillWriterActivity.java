@@ -29,6 +29,8 @@ import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Storage;
 import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.Book.BookIOException;
+import com.write.Quill.export.ExportActivity;
+import com.write.Quill.thumbnail.ThumbnailActivity;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -282,7 +284,7 @@ public class QuillWriterActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.quill, menu);
-        mMenu = menu;
+        mMenu = menu;        
         if (!Hardware.hasPressureSensor()) {
         	MenuItem fountainPen = mMenu.findItem(R.id.fountainpen);
         	fountainPen.setVisible(false);

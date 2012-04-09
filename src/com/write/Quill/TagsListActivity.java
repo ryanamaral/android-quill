@@ -11,6 +11,7 @@ import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
+import com.write.Quill.thumbnail.ThumbnailActivity;
 
 import android.app.ActionBar;
 import android.app.Activity;

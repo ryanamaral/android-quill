@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.thumbnail;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -8,14 +8,23 @@ import name.vbraun.view.tag.TagListView;
 import name.vbraun.view.write.Page;
 import junit.framework.Assert;
 
+import com.write.Quill.ActivityBase;
+import com.write.Quill.BookshelfActivity;
 import com.write.Quill.R;
-import com.write.Quill.ThumbnailAdapter.Thumbnail;
+import com.write.Quill.UndoManager;
+import com.write.Quill.R.id;
+import com.write.Quill.R.layout;
+import com.write.Quill.R.menu;
+import com.write.Quill.R.string;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.TagManager;
 import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
+import com.write.Quill.export.EvernoteExportDialog;
+import com.write.Quill.export.SendDialogEvernote;
+import com.write.Quill.thumbnail.ThumbnailAdapter.Thumbnail;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -23,7 +32,10 @@ import android.app.Dialog;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -32,8 +44,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.content.DialogInterface;
@@ -49,7 +65,9 @@ public class ThumbnailActivity extends ActivityBase implements
 
 	private View layout;
 	private Menu menu;
-
+	private MenuItem menuTagsVisible;
+	private boolean showTags;
+	
 	protected TagListView tagList;
 	protected ThumbnailView thumbnailGrid;
 
@@ -119,6 +137,8 @@ public class ThumbnailActivity extends ActivityBase implements
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.thumbnail, mMenu);
 		menu = mMenu;
+		menuTagsVisible = menu.findItem(R.id.show_tags);
+		menuTagsVisible.setChecked(showTags);
 		return true;
 	}
 
@@ -138,13 +158,6 @@ public class ThumbnailActivity extends ActivityBase implements
 			dlg.setTag(longClickedTag);
 			longClickedTag = null;
 			dlg.setOnDismissListener(this);
-			break;
-		case DIALOG_SEND_TO_EVERNOTE:
-			EvernoteExportDialog evernote = (EvernoteExportDialog) dialog;
-			Book book = Bookshelf.getCurrentBook();
-			LinkedList<Page> pages = book.getFilteredPages();
-			evernote.setPages(book, pages);
-			evernote.setUUID(book.getUUID());
 			break;
 		default:
 			super.onPrepareDialog(id, dialog);
@@ -166,86 +179,36 @@ public class ThumbnailActivity extends ActivityBase implements
 		case android.R.id.home:
 			launchQuillWriterActivity();
 			return true;
+		case R.id.show_tags:		
+			setTagsVisible(!item.isChecked());
+			return true;
 		case R.id.switch_notebook:
 			i = new Intent(getApplicationContext(), BookshelfActivity.class);
 			startActivity(i);
 			return true;
-		case R.id.new_notebook:
-			showDialog(DIALOG_NEW_NOTEBOOK);
-			return true;
 		case R.id.send_to_evernote:
-			showDialog(DIALOG_SEND_TO_EVERNOTE);
+			Book book = Bookshelf.getCurrentBook();
+			LinkedList<Page> pages = book.getFilteredPages();
+			SendDialogEvernote dialog = SendDialogEvernote.newInstance(book, pages);
+			dialog.show(getFragmentManager(), "sendDialogEvernote");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private static final int DIALOG_NEW_NOTEBOOK = 0;
 	private static final int DIALOG_SEND_TO_EVERNOTE = 1;
 	private static final int DIALOG_EDIT_TAG = 2;
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case DIALOG_NEW_NOTEBOOK:
-			return createNewNotebookDialog();
 		case DIALOG_SEND_TO_EVERNOTE:
 			return new EvernoteExportDialog(this);
 		case DIALOG_EDIT_TAG:
 			return new TagEditDialog(this);
 		}
 		return null;
-	}
-
-	private Dialog createNewNotebookDialog() {
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.new_notebook, null);
-		AlertDialog dlg = new AlertDialog.Builder(this)
-				.setIconAttribute(android.R.attr.alertDialogIcon)
-				.setTitle(R.string.thumbnail_new_notebook_title)
-				.setView(textEntryView)
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int whichButton) {
-								EditText text = (EditText) textEntryView
-										.findViewById(R.id.new_notebook_title);
-								String title = text.getText().toString();
-								Bookshelf.getBookshelf().newBook(title);
-								reloadTags();
-							}
-						})
-				.setNegativeButton(android.R.string.cancel,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int whichButton) {
-								// do nothing
-							}
-						}).create();
-
-		textEntryView.findViewById(R.id.new_notebook_title).setOnKeyListener(
-				new View.OnKeyListener() {
-					@Override
-					public boolean onKey(View v, int keyCode, KeyEvent event) {
-						if (keyCode == KeyEvent.KEYCODE_ENTER
-								&& event.getAction() == KeyEvent.ACTION_UP) {
-							EditText editText = (EditText) v;
-							String text = editText.getText().toString();
-							int editTextRowCount = text.split("\\n").length;
-							if (editTextRowCount >= 3) {
-								int lastBreakIndex = text.lastIndexOf("\n");
-								String newText = text.substring(0,
-										lastBreakIndex);
-								editText.setText("");
-								editText.append(newText);
-							}
-							return true;
-						}
-						return false;
-					}
-				});
-		return dlg;
 	}
 
 	@Override
@@ -258,7 +221,7 @@ public class ThumbnailActivity extends ActivityBase implements
 		tagList.setOnItemLongClickListener(this);
 		Assert.assertTrue("Tag list not created.", tagList != null);
 		tagList.showNewTextEdit(false);
-
+		
 		thumbnailGrid = (ThumbnailView) findViewById(R.id.thumbnail_grid);
 		Assert.assertTrue("Thumbnail grid not created.", thumbnailGrid != null);
 		thumbnailGrid.setOnItemClickListener(this);
@@ -278,18 +241,35 @@ public class ThumbnailActivity extends ActivityBase implements
 		dataChanged();
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		tool.debug.MemDebug.logHeap(this.getClass());
-		thumbnailGrid.setAdapter(null); // stop updates
-	}
-
+	private final static String KEY_TAGS_VISIBLE = "thumbnail_activity_tags_visible";
+	
 	@Override
 	protected void onResume() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        showTags = settings.getBoolean(KEY_TAGS_VISIBLE, true);
+        setTagsVisible(showTags);
 		reloadTags();
 		Log.d(TAG, "onResume");
 		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		thumbnailGrid.setAdapter(null); // stop updates
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(KEY_TAGS_VISIBLE, showTags);
+        editor.commit();
+		super.onPause();
+		// tool.debug.MemDebug.logHeap(this.getClass());
+		thumbnailGrid.setAdapter(null); // stop updates
+	}
+	
+	private void setTagsVisible(boolean visible) {
+		showTags = visible;
+		if (menuTagsVisible != null)
+			menuTagsVisible.setChecked(visible);
+		tagList.setVisibility(visible ? View.VISIBLE : View.GONE);		
 	}
 
 	private class MultiselectCallback implements
@@ -303,6 +283,8 @@ public class ThumbnailActivity extends ActivityBase implements
 		}
 
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			tagList.setOnItemClickListener(null);
+			tagList.setOnItemLongClickListener(null );
 			return true;
 		}
 
@@ -322,6 +304,8 @@ public class ThumbnailActivity extends ActivityBase implements
 		}
 
 		public void onDestroyActionMode(ActionMode mode) {
+			tagList.setOnItemClickListener(ThumbnailActivity.this);
+			tagList.setOnItemLongClickListener(ThumbnailActivity.this);
 			thumbnailGrid.uncheckAll();
 		}
 
