@@ -1,6 +1,6 @@
-package com.write.Quill;
+package com.write.Quill.thumbnail;
 
-import com.write.Quill.ThumbnailAdapter.Thumbnail;
+import com.write.Quill.thumbnail.ThumbnailAdapter.Thumbnail;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -19,13 +19,13 @@ public class ThumbnailView extends GridView {
 	private Handler handler = new Handler();
 
 	public void notifyTagsChanged() {
-    	// Log.d(TAG, "notifyTagsChanged");
+    	Log.d(TAG, "notifyTagsChanged");
 		handler.removeCallbacks(incrementalDraw);
 		int width = adapter.thumbnail_width;
 		adapter = new ThumbnailAdapter(context);
 		adapter.thumbnail_width = width;
-		setAdapter(adapter);
 		adapter.setNumColumns(getNumColumns());
+		setAdapter(adapter);
 	}
 	
 	public ThumbnailView(Context c, AttributeSet attrs) {
@@ -43,7 +43,7 @@ public class ThumbnailView extends GridView {
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		// Log.d(TAG, "onLayout "+t);
+		// Log.d(TAG, "onLayout "+l+" "+t+" "+r+" "+b);
 		super.onLayout(changed, l, t, r, b);
 
 		int width = r-l;
@@ -83,7 +83,29 @@ public class ThumbnailView extends GridView {
 
     @Override
     protected void onDetachedFromWindow() {
+    	// Log.e(TAG, "onDetachedFromWindow");
     	handler.removeCallbacks(incrementalDraw);
     	super.onDetachedFromWindow();	
     }
+    
+    @Override
+    protected void onAttachedToWindow() {
+    	// Log.e(TAG, "onAttachedToWindow");
+    	super.onAttachedToWindow();
+        handler.post(incrementalDraw);		
+   }
+    
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    	super.onSizeChanged(w, h, oldw, oldh);
+    	// Log.e(TAG, "onSizeChanged");
+        handler.post(runInvalidateViews);
+
+    }
+    
+    private Runnable runInvalidateViews = new Runnable() {
+    	public void run() {
+    		invalidateViews();
+    	};
+    };
 }

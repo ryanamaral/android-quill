@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.export;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,7 +13,13 @@ import name.vbraun.view.write.Page;
 import org.libharu.Document.CompressionMode;
 import org.libharu.Page.PageSize;
 
+import com.write.Quill.ActivityBase;
+import com.write.Quill.PDFExporter;
 import com.write.Quill.R;
+import com.write.Quill.R.array;
+import com.write.Quill.R.id;
+import com.write.Quill.R.layout;
+import com.write.Quill.R.string;
 import com.write.Quill.artist.PaperType;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;

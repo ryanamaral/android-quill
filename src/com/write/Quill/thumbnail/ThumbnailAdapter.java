@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.thumbnail;
 
 import java.util.Hashtable;
 import java.util.IdentityHashMap;
@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 
+import com.write.Quill.TagOverlay;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 
@@ -40,16 +41,21 @@ public class ThumbnailAdapter extends BaseAdapter {
     	computeItemHeights();
 	}
 
+    @Override
     public int getCount() {
         return Bookshelf.getCurrentBook().filteredPagesSize();
     }
 
+    @Override
     public Object getItem(int position) {
-        return null;
+        Book book = Bookshelf.getCurrentBook();
+        Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
+        return page;
     }
 
+    @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
@@ -148,7 +154,7 @@ public class ThumbnailAdapter extends BaseAdapter {
             	thumb.bitmap.recycle();
         }
         Book book = Bookshelf.getCurrentBook();
-        //   Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
+        // Log.d(TAG, "getView "+position+" "+book.filteredPagesSize());
         Page page = book.getFilteredPage(book.filteredPagesSize() - 1 - position);
         thumb.page = page;
         thumb.position = position;

@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.export;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.UUID;
 
+import com.write.Quill.R;
+import com.write.Quill.R.string;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
