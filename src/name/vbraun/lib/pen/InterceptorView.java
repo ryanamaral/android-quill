@@ -32,10 +32,11 @@ public class InterceptorView
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		// Log.e(TAG, "onTouchEvent");
 		// this will only be called for ACTION_DOWN because we return false
 		Assert.assertTrue(event.getActionMasked() == MotionEvent.ACTION_DOWN);
 		afterActionDown = true;
-		handler.postDelayed(timer, 10);
+		handler.postDelayed(timer, 200);
 		buttonPressed = false;
 		super.onTouchEvent(event);   // important to trigger the long click
 		return false;
@@ -46,6 +47,7 @@ public class InterceptorView
 	 */
 	private Runnable timer = new Runnable() {
 			public void run() {
+				// Log.e(TAG,"timer");
 				afterActionDown = false;
 				cancelLongPress();
 			};
@@ -58,7 +60,7 @@ public class InterceptorView
 	public boolean onLongClick(View v) {
 		handler.removeCallbacks(timer);
 		if (!afterActionDown) return false;
-		Log.e(TAG, "button");
+		// Log.e(TAG, "button");
 		buttonPressed = true;
 		return true;
 	}
