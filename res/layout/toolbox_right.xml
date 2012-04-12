@@ -318,9 +318,9 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/actionbar_background"
-        android:paddingBottom="4dp"
         android:paddingRight="22dp"
         android:paddingLeft="23dp"
+        android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:src="@drawable/toolbox_quill" />
 
@@ -328,27 +328,50 @@
         android:id="@+id/toolbox_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/toolbox_next"
-        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/toolbox_quill_icon"
         android:background="@drawable/toolbox_button"
-        android:paddingBottom="4dp"
-        android:paddingTop="4dp"
+		android:layout_alignBottom="@+id/toolbox_quill_icon"
+		android:layout_alignTop="@+id/toolbox_quill_icon"
         android:text="@string/tag_button" />
 
     <ImageButton
         android:id="@+id/toolbox_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/toolbox_tag"
         android:background="@drawable/actionbar_background"
-        android:paddingBottom="4dp"
         android:paddingRight="10dp"
         android:paddingLeft="10dp"
-        android:paddingTop="4dp"
+		android:layout_alignBottom="@+id/toolbox_quill_icon"
+		android:layout_alignTop="@+id/toolbox_quill_icon"
         android:src="@drawable/ic_menu_moreoverflow_holo_light" />
 
+    <ImageButton
+        android:id="@+id/toolbox_action_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/toolbox_menu"
+        android:layout_alignBottom="@+id/toolbox_quill_icon"
+		android:layout_alignTop="@+id/toolbox_quill_icon"
+        android:background="@drawable/toolbox_background"
+        android:paddingRight="4dp"
+        android:paddingLeft="4dp"
+        android:visibility="gone"
+        android:src="@drawable/toolbox_next" />
+
+    <ImageButton
+        android:id="@+id/toolbox_action_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/toolbox_action_prev"
+        android:layout_alignBottom="@+id/toolbox_quill_icon"
+		android:layout_alignTop="@+id/toolbox_quill_icon"
+        android:background="@drawable/toolbox_background"
+        android:paddingRight="4dp"
+        android:paddingLeft="4dp"
+        android:visibility="gone"
+        android:src="@drawable/toolbox_prev" />
+    
     <ImageButton
         android:id="@+id/toolbox_next"
         android:layout_width="wrap_content"
