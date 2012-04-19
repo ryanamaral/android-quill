@@ -25,13 +25,13 @@ public class StorageAndroid extends Storage {
 	public static void initialize(Context context) {
 		if (instance != null) return;
 		instance = new StorageAndroid(context);
+		instance.postInitializaton();
 	}
 	
 	private StorageAndroid(Context context) {
 		Assert.assertNull(Storage.instance); // only construct once
 		this.context = context.getApplicationContext();
 		handler = new Handler();
-		postInitializaton();
 	}
 	
 	public File getFilesDir() {
@@ -68,13 +68,23 @@ public class StorageAndroid extends Storage {
 	}
 
 	public void LogMessage(String TAG, String message) {
-		Log.d(TAG, message);
+		final String msg;
+		if (message != null)
+			msg = message;
+		else
+			msg = "No message details provided.";
+		Log.d(TAG, msg);
 		// showToast(message, Toast.LENGTH_LONG);
 	}
 
 	public void LogError(String TAG, String message) {
-		Log.e(TAG, message);
-		showToast(message, Toast.LENGTH_LONG);
+		final String msg;
+		if (message != null)
+			msg = message;
+		else
+			msg = "Unknown error.";		
+		Log.e(TAG, msg);
+		showToast(msg, Toast.LENGTH_LONG);
 	}
 	
 	private void showToast(final String message, final int length) {

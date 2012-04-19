@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -488,9 +489,11 @@ public class Book {
 		File dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, -1);
-		} catch (BookLoadException e ) {
+		} catch (BookLoadException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
-		} catch (IOException e ) {
+		} catch (EOFException e) {
+			storage.LogError(TAG, "Truncated data file");
+		} catch (IOException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
 		this.uuid = uuid;
@@ -503,9 +506,11 @@ public class Book {
 		File dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, pageLimit);
-		} catch (BookLoadException e ) {
+		} catch (BookLoadException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
-		} catch (IOException e ) {
+		} catch (EOFException e) {
+			storage.LogError(TAG, "Truncated data file");
+		} catch (IOException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
 		this.uuid = uuid;
@@ -582,9 +587,13 @@ public class Book {
 			String path = pagefile.getAbsolutePath();
 			int pos = path.lastIndexOf(Book.PAGE_FILE_PREFIX);
 			pos += Book.PAGE_FILE_PREFIX.length();
-			UUID uuid = UUID.fromString(path.substring(pos, pos+36));
-			Log.d(TAG, "Found page: "+uuid);
-			uuids.add(uuid);
+			try {
+				UUID uuid = UUID.fromString(path.substring(pos, pos+36));
+				Log.d(TAG, "Found page: "+uuid);
+				uuids.add(uuid);
+			} catch (StringIndexOutOfBoundsException e) {
+				Log.e(TAG, "Malformed file name: "+uuid);
+			}
 		}
 		return uuids;
 	}
@@ -765,8 +774,10 @@ public class Book {
 			buffer = new BufferedInputStream(fis);
 			dataIn = new DataInputStream(buffer);
 			Page page = loadPage(dataIn);
-			if (!page.getUUID().equals(uuid)) 
+			if (!page.getUUID().equals(uuid)) {
 				Storage.getInstance().LogError(TAG, "Page UUID mismatch.");
+				page.touch();
+			}
 			pages.add(page);
 		} finally {
 			if (dataIn != null) dataIn.close();
