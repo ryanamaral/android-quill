@@ -22,11 +22,13 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -41,6 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -51,29 +54,34 @@ import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import name.vbraun.view.write.GraphicsImage.FileType;
 
-public class ImageActivity extends ActivityBase implements OnClickListener,
+public class ImageActivity 
+	extends 
+		ActivityBase 
+	implements 
+		OnClickListener, 
 		OnCheckedChangeListener {
 
 	private static final String TAG = "ImageActivity";
 
 	private View layout;
-	private TextView textSourceUri;
-	private FrameLayout preview;
-	private ImageView imageView;
+	private CropImageView preview;
 	private Menu menu;
-	private MenuItem menuCropped;
-	private Button buttonOK, buttonErase;
-	private CheckBox aspectCheckbox;
+	private MenuItem menuAspect;
+	private Button buttonSave, buttonErase;
+	private ImageButton buttonRotateLeft, buttonRotateRight;
+	private CheckBox checkBoxCrop;
 
 	private Bookshelf bookshelf = null;
 	private Book book = null;
 
-	private File sourceFile = null;
-	private File imageFile = null;
+	private Bitmap bitmap;
+	private File photoFile = null;
+	boolean mSaving;  // Whether the "save" button is already clicked.
 
 	// persistent data
 	protected Uri sourceUri = null;
-	protected UUID uuid = null;
+	protected int rotation;
+	protected UUID uuid;
 	protected boolean constrainAspect;
 	protected FileType fileType = FileType.FILETYPE_NONE;
 
@@ -82,6 +90,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 
 	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
 	public final static String EXTRA_UUID = "extra_uuid";
+	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_TYPE = "extra_file_type";
 
@@ -94,15 +103,17 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		layout = getLayoutInflater().inflate(R.layout.image_editor, null);
 		setContentView(layout);
 
-		preview = (FrameLayout) findViewById(R.id.image_editor_preview);
-		textSourceUri = (TextView) findViewById(R.id.image_editor_source_uri);
-		buttonOK = (Button) findViewById(R.id.image_editor_ok);
+		preview = (CropImageView) findViewById(R.id.image_editor_preview);
+		buttonSave = (Button) findViewById(R.id.image_editor_save);
 		buttonErase = (Button) findViewById(R.id.image_editor_erase);
-		aspectCheckbox = (CheckBox) findViewById(R.id.image_editor_aspect_checkbox);
-		constrainAspect = aspectCheckbox.isChecked();
-		buttonOK.setOnClickListener(this);
+		buttonRotateLeft  = (ImageButton) findViewById(R.id.image_editor_rotate_left);
+		buttonRotateRight = (ImageButton) findViewById(R.id.image_editor_rotate_right);
+		checkBoxCrop = (CheckBox) findViewById(R.id.image_editor_check_crop);
+
+		buttonSave.setOnClickListener(this);
 		buttonErase.setOnClickListener(this);
-		aspectCheckbox.setOnCheckedChangeListener(this);
+		buttonRotateLeft.setOnClickListener(this);
+		buttonRotateRight.setOnClickListener(this);
 
 		ActionBar bar = getActionBar();
 		bar.setTitle(R.string.image_editor_title);
@@ -118,31 +129,42 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 			restoreFrom(intent.getExtras());
 		else if (savedInstanceState != null)
 			restoreFrom(savedInstanceState);
-		else
-			initNewImage();
+		if (sourceUri == null) // get into a consistent state
+			initNewImage();  
 	}
 
 	private void initNewImage() {
+		File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
+		sourceUri = Uri.fromFile(file);
+		fileType = FileType.FILETYPE_JPG;
 		uuid = UUID.randomUUID();
+		rotation = 0;
+		constrainAspect = true;
+		loadBitmap();
 	}
 
 	private void restoreFrom(Bundle bundle) {
+		if (bundle == null) return;
 		String sourceUriStr = bundle.getString(EXTRA_SOURCE_URI);
-		sourceUri = Uri.parse(sourceUriStr);
+		if (sourceUriStr == null) return;
 		String uuidStr = bundle.getString(EXTRA_UUID);
-		uuid = UUID.fromString(uuidStr);
+		if (uuidStr == null) return;
 		constrainAspect = bundle.getBoolean(EXTRA_CONSTRAIN_ASPECT);
+		sourceUri = Uri.parse(sourceUriStr);
+		uuid = UUID.fromString(uuidStr);
 		int fileTypeInt = bundle.getInt(EXTRA_FILE_TYPE);
 		fileType = FileType.values()[fileTypeInt];
+		rotation = bundle.getInt(EXTRA_ROTATION);
+		loadBitmap();
 		initBookImageFile();
-		update();
 	}
 
 	private Bundle saveTo(Bundle bundle) {
-		if (sourceUri == null)
-			return bundle;
-		bundle.putString(EXTRA_SOURCE_URI, sourceUri.toString());
+		Log.d(TAG, "saveTo");
+		if (sourceUri == null) return bundle;
+        bundle.putString(EXTRA_SOURCE_URI, sourceUri.toString());
 		bundle.putString(EXTRA_UUID, uuid.toString());
+		bundle.putInt(EXTRA_ROTATION, rotation);
 		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
 		int fileTypeInt = fileType.ordinal();
 		bundle.putInt(EXTRA_FILE_TYPE, fileTypeInt);
@@ -160,18 +182,24 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.image_editor, menu);
 		this.menu = menu;
-		menuCropped = menu.findItem(R.id.image_editor_capture_cropped);
+        menuAspect = menu.findItem(R.id.image_editor_aspect);
+		menuAspect.setChecked(constrainAspect);
 		return true;
 	}
 
 	@Override
 	protected void onResume() {
+		mSaving = false;
 		super.onResume();
-		update();
+		checkBoxCrop.setChecked(false);
+		checkBoxCrop.setOnCheckedChangeListener(this);
+		if (menuAspect != null)
+			menuAspect.setChecked(constrainAspect);
 	}
 
 	@Override
 	protected void onPause() {
+		checkBoxCrop.setOnCheckedChangeListener(null);
 		super.onPause();
 	}
 
@@ -183,29 +211,23 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 			intent = new Intent();
 			intent.setAction(Intent.ACTION_PICK);
 			intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-			addCropToMediaStoreIntent(intent);
 			startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
 			return true;
 		case R.id.image_editor_photo:
 			intent = new Intent();
 			intent.setAction("android.media.action.IMAGE_CAPTURE");
-			addCropToMediaStoreIntent(intent);
+			photoFile = new File(Environment.getExternalStorageDirectory(),
+					uuid.toString() + ".jpg");
+			photoFile.deleteOnExit();
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
 			startActivityForResult(intent, REQUEST_CODE_TAKE_PHOTO);
 			return true;
-		case R.id.image_editor_capture_cropped:
-			menuCropped.setChecked(!menuCropped.isChecked());
+		case R.id.image_editor_aspect:
+			constrainAspect = !constrainAspect;
+            menuAspect.setChecked(constrainAspect);
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void addCropToMediaStoreIntent(Intent intent) {
-		if (menuCropped.isChecked())
-			intent.putExtra("crop", "true");
-		imageFile = new File(Environment.getExternalStorageDirectory(),
-				uuid.toString() + ".jpg");
-		imageFile.deleteOnExit();
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
 	}
 
 	private final static int REQUEST_CODE_PICK_IMAGE = 1;
@@ -219,20 +241,27 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		case REQUEST_CODE_TAKE_PHOTO:
 			if (resultCode != RESULT_OK)
 				break;
-			if (!imageFile.exists()) {
-				imageFile = null;
+			if (!photoFile.exists()) {
+				photoFile = null;
 				Toast.makeText(this, R.string.image_editor_err_no_photo,
 						Toast.LENGTH_LONG).show();
 				Log.e(TAG, "no photo");
 				return;
 			}
-			setSourceUri(Uri.fromFile(imageFile));
+			loadBitmap(Uri.fromFile(photoFile), FileType.FILETYPE_JPG, 0);
+			photoFile = null;
 			break;
 		case REQUEST_CODE_PICK_IMAGE:
 			if (resultCode != RESULT_OK)
 				break;
 
 			Uri selectedImage = intent.getData();
+			if (selectedImage == null) {
+				Log.e(TAG, "Selected image is NULL!");
+				return;
+			} else {
+				Log.d(TAG, "Selected image!");
+			}
 			final String[] filePathColumn = { MediaColumns.DATA,
 					MediaColumns.DISPLAY_NAME };
 			Cursor cursor = getContentResolver().query(selectedImage,
@@ -258,8 +287,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 			
 			cursor.moveToFirst();
 			if (picasaImage) {
-				int columnIndex = cursor
-						.getColumnIndex(MediaColumns.DISPLAY_NAME);
+				int columnIndex = cursor.getColumnIndex(MediaColumns.DISPLAY_NAME);
 				if (columnIndex == -1) {
 					Log.e(TAG, "no DISPLAY_NAME column");
 					return;
@@ -279,8 +307,7 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 					Log.e(TAG, "image file not readable");
 					return;
 				}
-				Uri uri = Uri.fromFile(file);
-				setSourceUri(uri);
+				loadBitmap(Uri.fromFile(file), FileType.FILETYPE_JPG, 0);
 			}
 			cursor.close();
 			break;
@@ -289,23 +316,20 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		}
 	}
 
-	protected void setSourceUri(Uri uri) {
-		String uriStr = uri.toString();
-		if (uriStr.substring(uriStr.length() - 4).equalsIgnoreCase(".jpg")) {
-			fileType = FileType.FILETYPE_JPG;
-		} else if (uriStr.substring(uriStr.length() - 4).equalsIgnoreCase(
-				".png")) {
-			fileType = FileType.FILETYPE_PNG;
-		} else {
-			fileType = FileType.FILETYPE_NONE;
-			return;
-		}
-		sourceUri = uri;
-		sourceFile = new File(sourceUri.getPath());
-		initBookImageFile();
-		copyfile(sourceFile, imageFile);
+	
+	protected void loadBitmap(Uri sourceUri, FileType fileType, int rotation ) {
+		this.sourceUri = sourceUri;
+		this.fileType = fileType;
+		this.rotation = rotation;
+		loadBitmap();
 	}
-
+	
+	private void loadBitmap() {
+		bitmap = Util.getBitmap(getContentResolver(), sourceUri);		
+		bitmap = Util.rotate(bitmap, rotation);
+		preview.setImageBitmapResetBase(bitmap, true);
+	}
+	
 	private void initBookImageFile() {
 		Storage storage = Storage.getInstance();
 		File dir = storage.getBookDirectory(book.getUUID());
@@ -317,46 +341,12 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		} else {
 			return;
 		}
-		imageFile = new File(dir, uuid.toString() + fileExt);
-	}
-
-	private void update() {
-		if (sourceUri != null)
-			textSourceUri.setText(sourceUri.toString());
-		if (imageFile != null) {
-			imageView = new ImageView(getApplicationContext());
-			imageView.setImageURI(Uri.fromFile(imageFile));
-			preview.removeAllViews();
-			preview.addView(imageView);
-		}
-		aspectCheckbox.setChecked(constrainAspect);
-	}
-
-	protected Uri getSourceUri() {
-		return sourceUri;
+		photoFile = new File(dir, uuid.toString() + fileExt);
 	}
 
 	private void downloadImage(final Uri uri) {
 		DialogFragment newFragment = DownloadImageFragment.newInstance(uri);
 		newFragment.show(getFragmentManager(), "downloadImage");
-	}
-
-	private static void copyfile(File source, File dest) {
-		try {
-			InputStream in = new FileInputStream(source);
-			OutputStream out = new FileOutputStream(dest);
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
-			}
-			in.close();
-			out.close();
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, e.getLocalizedMessage());
-		} catch (IOException e) {
-			Log.e(TAG, e.getLocalizedMessage());
-		}
 	}
 
 	@Override
@@ -368,13 +358,55 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 			setResult(RESULT_OK, intent);
 			finish();
 			break;
-		case R.id.image_editor_ok:
+		case R.id.image_editor_save:
 			intent = new Intent();
 			saveTo(intent.getExtras());
 			setResult(RESULT_OK, intent);
 			finish();
 			break;
+		case R.id.image_editor_rotate_right:
+			addToRotation(90);
+			break;
+		case R.id.image_editor_rotate_left:
+			addToRotation(270);
+			break;
 		}
+	}
+	
+	private void addToRotation(int degrees) {
+		rotation = (rotation + degrees) % 360;
+		bitmap = Util.rotate(bitmap, degrees);
+		preview.setImageBitmapResetBase(bitmap, true);
+		checkBoxCrop.setChecked(false);
+		preview.setHighlight(null);		
+	}
+	
+	@Override
+	public void onCheckedChanged(CompoundButton button, boolean isChecked) {
+		if (button == checkBoxCrop) {
+			Log.e(TAG, "onCheckChanged");
+			if (isChecked)
+				makeHighlight();
+			else
+				preview.setHighlight(null);
+		}
+	}
+		
+	private void makeHighlight() {
+		HighlightView hv = new HighlightView(preview);
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		Rect imageRect = new Rect(0, 0, width, height);
+
+		// make the default size about 4/5 of the width or height
+		int cropWidth = Math.min(width, height) * 4 / 5;
+		int cropHeight = cropWidth;
+		int x = (width - cropWidth) / 2;
+		int y = (height - cropHeight) / 2;
+		RectF cropRect = new RectF(x, y, x + cropWidth, y + cropHeight);
+		hv.setup(preview.getImageMatrix(), imageRect, cropRect, false, false);
+		hv.setFocus(true);
+		preview.setHighlight(hv);
 	}
 	
 	@Override
@@ -382,11 +414,6 @@ public class ImageActivity extends ActivityBase implements OnClickListener,
 		Intent intent = new Intent();
 		setResult(RESULT_CANCELED, intent);
 		finish();
-	}
-
-	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		constrainAspect = aspectCheckbox.isChecked();
 	}
 
 }
