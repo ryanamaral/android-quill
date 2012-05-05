@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/image_editor_pick" android:title="@string/menu_image_pick" android:showAsAction="ifRoom" android:titleCondensed="@string/menu_image_pick_condensed"></item>
     <item android:id="@+id/image_editor_photo" android:title="@string/menu_image_photo" android:showAsAction="ifRoom" android:titleCondensed="@string/menu_image_photo_condensed"></item>
-    <item android:id="@+id/image_editor_capture_cropped" android:title="@string/menu_image_cropped" android:titleCondensed="@string/menu_image_cropped_condensed" android:checkable="true" android:checked="false"></item>
+    <item android:id="@+id/image_editor_aspect" android:title="@string/menu_image_aspect" android:checkable="true" android:checked="true"></item>
     
 
 </menu>

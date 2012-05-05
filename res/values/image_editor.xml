@@ -16,5 +16,6 @@
     <string name="image_editor_err_no_photo">Camera did not capture photo!</string>
     <string name="image_editor_err_no_such_image">No such image!</string>
     <string name="image_editor_err_permissions">Image does not exist, or insufficient permissions!</string>
+    <string name="menu_image_aspect">Fix aspect ratio</string>
 
 </resources>
