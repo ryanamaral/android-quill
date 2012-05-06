@@ -37,7 +37,7 @@ import name.vbraun.view.write.Page;
  * 
  */
 public abstract class SendDialog extends DialogFragment {
-	private final static String TAG = "SendDialog";
+	private final static String TAG = "DialogBase";
 
 	abstract protected String getTitle();
 	abstract protected String getMessage();

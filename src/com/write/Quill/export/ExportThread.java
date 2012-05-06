@@ -18,7 +18,7 @@ import com.write.Quill.data.Book;
 import name.vbraun.view.write.Page;
 
 public class ExportThread extends Thread {
-	private final static String TAG = "ExportThread";
+	private final static String TAG = "ThreadBase";
 	
 	protected SendDialog fragment;
 	protected int progress = 0;

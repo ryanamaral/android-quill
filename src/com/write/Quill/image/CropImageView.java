@@ -13,6 +13,7 @@ import android.view.View;
 class CropImageView extends ImageViewTouchBase {
 	float mLastX, mLastY;
 	int mMotionEdge;
+	boolean stop = false;
 	private Context mContext;
 	private HighlightView mCrop = null;
 	private HighlightView mMotionHighlightView = null;
@@ -76,13 +77,10 @@ class CropImageView extends ImageViewTouchBase {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (mCrop == null)
+		if (stop || mCrop == null)
 			return false;
 		
 		ImageActivity imageActivity = (ImageActivity) mContext;
-		if (imageActivity.mSaving)
-			return false;
-		
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			int edge = mCrop.getHit(event.getX(), event.getY());
