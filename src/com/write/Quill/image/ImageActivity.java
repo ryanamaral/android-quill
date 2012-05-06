@@ -73,6 +73,7 @@ public class ImageActivity
 
 	private Bookshelf bookshelf = null;
 	private Book book = null;
+	private UUID uuid = UUID.randomUUID();
 
 	private Bitmap bitmap;
 	private File photoFile = null;
@@ -80,7 +81,6 @@ public class ImageActivity
 	// persistent data
 	protected Uri sourceUri = null;
 	protected int rotation;
-	protected UUID uuid;
 	protected boolean constrainAspect;
 	protected FileType fileType = FileType.FILETYPE_NONE;
 
@@ -88,7 +88,6 @@ public class ImageActivity
 	public final static String ACTION_EDIT_EXISTING_IMAGE = "action_edit_existing_image";
 
 	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
-	public final static String EXTRA_UUID = "extra_uuid";
 	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_TYPE = "extra_file_type";
@@ -136,7 +135,6 @@ public class ImageActivity
 		File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
 		sourceUri = Uri.fromFile(file);
 		fileType = FileType.FILETYPE_JPG;
-		uuid = UUID.randomUUID();
 		rotation = 0;
 		constrainAspect = true;
 		loadBitmap();
@@ -146,23 +144,18 @@ public class ImageActivity
 		if (bundle == null) return;
 		String sourceUriStr = bundle.getString(EXTRA_SOURCE_URI);
 		if (sourceUriStr == null) return;
-		String uuidStr = bundle.getString(EXTRA_UUID);
-		if (uuidStr == null) return;
 		constrainAspect = bundle.getBoolean(EXTRA_CONSTRAIN_ASPECT);
 		sourceUri = Uri.parse(sourceUriStr);
-		uuid = UUID.fromString(uuidStr);
 		int fileTypeInt = bundle.getInt(EXTRA_FILE_TYPE);
 		fileType = FileType.values()[fileTypeInt];
 		rotation = bundle.getInt(EXTRA_ROTATION);
 		loadBitmap();
-		initBookImageFile();
 	}
 
 	private Bundle saveTo(Bundle bundle) {
 		Log.d(TAG, "saveTo");
 		if (sourceUri == null) return bundle;
         bundle.putString(EXTRA_SOURCE_URI, sourceUri.toString());
-		bundle.putString(EXTRA_UUID, uuid.toString());
 		bundle.putInt(EXTRA_ROTATION, rotation);
 		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
 		int fileTypeInt = fileType.ordinal();
@@ -328,18 +321,10 @@ public class ImageActivity
 		preview.setImageBitmapResetBase(bitmap, true);
 	}
 	
-	private void initBookImageFile() {
+	private File getBookImageFile() {
 		Storage storage = Storage.getInstance();
 		File dir = storage.getBookDirectory(book.getUUID());
-		String fileExt;
-		if (fileType == FileType.FILETYPE_JPG) {
-			fileExt = ".jpg";
-		} else if (fileType == FileType.FILETYPE_PNG) {
-			fileExt = ".png";
-		} else {
-			return;
-		}
-		photoFile = new File(dir, uuid.toString() + fileExt);
+		return new File(dir, uuid.toString() + getFileExt());
 	}
 
 	private void downloadImage(final Uri uri) {
@@ -347,8 +332,19 @@ public class ImageActivity
 		newFragment.show(getFragmentManager(), "downloadImage");
 	}
 
+	private String getFileExt() {
+		if (fileType == FileType.FILETYPE_JPG) {
+			return ".jpg";
+		} else if (fileType == FileType.FILETYPE_PNG) {
+			return ".png";
+		} else {
+			Assert.fail();
+			return null;
+		}
+	}
+	
 	private File getCacheFile() {
- 		String randomFileName = UUID.randomUUID().toString() + ".jpg";
+ 		String randomFileName = uuid.toString() + getFileExt();
 		File file = new File(getCacheDir(), randomFileName);
 		file.deleteOnExit();
 		return file;
@@ -364,10 +360,6 @@ public class ImageActivity
 			finish();
 			break;
 		case R.id.image_editor_save:
-			intent = new Intent();
-			saveTo(intent.getExtras());
-			setResult(RESULT_OK, intent);
-			finish();
 			break;
 		case R.id.image_editor_rotate_right:
 			addToRotation(90);
@@ -421,4 +413,14 @@ public class ImageActivity
 		finish();
 	}
 
+	/**
+	 * Callback from the save progress dialog
+	 */
+	protected void onSaveFinished() {
+		Intent intent = new Intent();
+		saveTo(intent.getExtras());
+		setResult(RESULT_OK, intent);
+		finish();
+	}
+	
 }

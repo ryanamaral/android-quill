@@ -48,7 +48,7 @@ public class ThreadPicasaDownload extends ThreadBase {
 			} catch (IOException e) {
                 Log.e(TAG, e.getMessage());
 			}          	
-    		Log.v(TAG, "Got "+len+" bytes");
+    		// Log.v(TAG, "Got "+len+" bytes");
         }
         close();
 
