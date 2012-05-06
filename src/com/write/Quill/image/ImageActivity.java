@@ -76,7 +76,6 @@ public class ImageActivity
 
 	private Bitmap bitmap;
 	private File photoFile = null;
-	boolean mSaving;  // Whether the "save" button is already clicked.
 
 	// persistent data
 	protected Uri sourceUri = null;
@@ -189,7 +188,6 @@ public class ImageActivity
 
 	@Override
 	protected void onResume() {
-		mSaving = false;
 		super.onResume();
 		checkBoxCrop.setChecked(false);
 		checkBoxCrop.setOnCheckedChangeListener(this);
@@ -345,10 +343,17 @@ public class ImageActivity
 	}
 
 	private void downloadImage(final Uri uri) {
-		DialogFragment newFragment = DownloadImageFragment.newInstance(uri);
+		DialogFragment newFragment = DialogPicasaDownload.newInstance(uri, getCacheFile());
 		newFragment.show(getFragmentManager(), "downloadImage");
 	}
 
+	private File getCacheFile() {
+ 		String randomFileName = UUID.randomUUID().toString() + ".jpg";
+		File file = new File(getCacheDir(), randomFileName);
+		file.deleteOnExit();
+		return file;
+	}
+	
 	@Override
 	public void onClick(View v) {
 		Intent intent;
