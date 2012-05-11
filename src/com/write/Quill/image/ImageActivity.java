@@ -70,6 +70,7 @@ public class ImageActivity
 	private Button buttonSave, buttonErase;
 	private ImageButton buttonRotateLeft, buttonRotateRight;
 	private CheckBox checkBoxCrop;
+	private TextView noImageText;
 
 	private Bookshelf bookshelf = null;
 	private Book book = null;
@@ -88,6 +89,7 @@ public class ImageActivity
 	public final static String ACTION_EDIT_EXISTING_IMAGE = "action_edit_existing_image";
 
 	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
+	public final static String EXTRA_UUID = "extra_uuid";
 	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_TYPE = "extra_file_type";
@@ -107,6 +109,7 @@ public class ImageActivity
 		buttonRotateLeft  = (ImageButton) findViewById(R.id.image_editor_rotate_left);
 		buttonRotateRight = (ImageButton) findViewById(R.id.image_editor_rotate_right);
 		checkBoxCrop = (CheckBox) findViewById(R.id.image_editor_check_crop);
+		noImageText = (TextView) findViewById(R.id.image_editor_no_image_text);
 
 		buttonSave.setOnClickListener(this);
 		buttonErase.setOnClickListener(this);
@@ -134,6 +137,7 @@ public class ImageActivity
 	private void initNewImage() {
 		File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
 		sourceUri = Uri.fromFile(file);
+//		sourceUri = null;
 		fileType = FileType.FILETYPE_JPG;
 		rotation = 0;
 		constrainAspect = true;
@@ -186,8 +190,17 @@ public class ImageActivity
 		checkBoxCrop.setOnCheckedChangeListener(this);
 		if (menuAspect != null)
 			menuAspect.setChecked(constrainAspect);
+		showImageTools(sourceUri != null);
 	}
 
+	private void showImageTools(boolean show) {
+		noImageText.setVisibility(show ? View.GONE : View.VISIBLE);
+		buttonSave.setEnabled(show);
+		buttonRotateLeft.setEnabled(show);
+		buttonRotateRight.setEnabled(show);
+		checkBoxCrop.setEnabled(show);
+	}
+	
 	@Override
 	protected void onPause() {
 		checkBoxCrop.setOnCheckedChangeListener(null);
@@ -316,6 +329,8 @@ public class ImageActivity
 	}
 	
 	private void loadBitmap() {
+		if (sourceUri == null) return;
+		Log.e(TAG, "showing "+sourceUri);
 		bitmap = Util.getBitmap(getContentResolver(), sourceUri);		
 		bitmap = Util.rotate(bitmap, rotation);
 		preview.setImageBitmapResetBase(bitmap, true);
@@ -360,6 +375,9 @@ public class ImageActivity
 			finish();
 			break;
 		case R.id.image_editor_save:
+			DialogFragment newFragment = 
+				DialogSave.newInstance(sourceUri, getBookImageFile(), rotation);
+			newFragment.show(getFragmentManager(), "saveImage");
 			break;
 		case R.id.image_editor_rotate_right:
 			addToRotation(90);
@@ -381,7 +399,6 @@ public class ImageActivity
 	@Override
 	public void onCheckedChanged(CompoundButton button, boolean isChecked) {
 		if (button == checkBoxCrop) {
-			Log.e(TAG, "onCheckChanged");
 			if (isChecked)
 				makeHighlight();
 			else
@@ -418,7 +435,10 @@ public class ImageActivity
 	 */
 	protected void onSaveFinished() {
 		Intent intent = new Intent();
-		saveTo(intent.getExtras());
+        intent.putExtra(EXTRA_SOURCE_URI, Uri.fromFile(getBookImageFile()).toString());
+        intent.putExtra(EXTRA_UUID, uuid.toString());
+		intent.putExtra(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
+		intent.putExtra(EXTRA_FILE_TYPE, fileType.ordinal());
 		setResult(RESULT_OK, intent);
 		finish();
 	}
