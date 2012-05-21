@@ -35,7 +35,7 @@ public class Page {
 	
 	// persistent data
 	protected UUID uuid;  // unique identifier
-	public final LinkedList<GraphicsControlpoint> images = new LinkedList<GraphicsControlpoint>();
+	public final LinkedList<GraphicsImage> images = new LinkedList<GraphicsImage>();
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	// lineArt contains straight lines, arrows, etc.
 	public final LinkedList<GraphicsControlpoint> lineArt = new LinkedList<GraphicsControlpoint>();
@@ -123,7 +123,7 @@ public class Page {
 	    	stroke.setTransform(transformation);
 	    for (GraphicsControlpoint line : lineArt)
 	    	line.setTransform(transformation);
-	    for (GraphicsControlpoint image : images)
+	    for (GraphicsImage image : images)
 	    	image.setTransform(transformation);
 	}
 
@@ -192,7 +192,7 @@ public class Page {
 		else
 			background.drawEmptyBackground(canvas, bounding_box, transformation);
 		backgroundText.draw(canvas, bounding_box);
-		for (GraphicsControlpoint graphics: images) {
+		for (GraphicsImage graphics: images) {
 		   	if (!canvas.quickReject(graphics.getBoundingBox(), Canvas.EdgeType.AA))
 		   		graphics.draw(canvas, bounding_box);
 	    }

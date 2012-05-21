@@ -1,6 +1,8 @@
 package name.vbraun.view.write;
 
+import java.io.File;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
@@ -78,19 +80,21 @@ public class HandwriterView
 	
 	private GraphicsModifiedListener graphicsListener = null;
   
-	public interface OnStrokeFinishedListener {
-		void onStrokeFinishedListener();
-	}
 	
-	private OnStrokeFinishedListener strokeFinishedListener = null;
+	private InputListener inputListener = null;
 	
-	public void setOnStrokeFinishedListener(OnStrokeFinishedListener listener) {
-		strokeFinishedListener = listener;
+	public void setOnInputListener(InputListener listener) {
+		inputListener = listener;
 	}
 	
 	protected void callOnStrokeFinishedListener() {
-		if (strokeFinishedListener != null)
-			strokeFinishedListener.onStrokeFinishedListener();
+		if (inputListener != null)
+			inputListener.onStrokeFinishedListener();
+	}
+	
+	protected void callOnPickImageListener(UUID uuid) {
+		if (inputListener != null)
+			inputListener.onPickImageListener(uuid);
 	}
 	
 	private int N = 0;
@@ -177,6 +181,26 @@ public class HandwriterView
 		page.draw(canvas);
     	invalidate();
    }
+    
+    /**
+     * @param uuidOld The previous UUID
+     * @param uuidNew The new UUID
+     * @param file The image file
+     * @param name The image file name (uuid+extension)
+     */
+    public void setImage(UUID uuidOld, UUID uuidNew, String name) {
+    	for (GraphicsImage image : getPage().images)
+    		if (image.getUuid().equals(uuidOld)) {
+    			if (uuidNew==null || name==null)
+    				getPage().images.remove(image);
+    			else
+    				image.setBitmap(uuidNew, name);
+    			page.draw(canvas);
+    			invalidate();
+    			return;
+    		}
+    	Log.e(TAG, "Image does not exists");
+    }
 	
 	public void interrupt() {
 		if (page==null || canvas==null)
@@ -368,7 +392,8 @@ public class HandwriterView
     	setToolbox(left);
     	
     	Hardware.getInstance(context).addViewHack(this);
-	}
+    	// setLayerType(LAYER_TYPE_SOFTWARE, null);
+	}	
 
 	/**
 	 * To be called from the onResume method of the activity. Update appearance according to preferences etc.

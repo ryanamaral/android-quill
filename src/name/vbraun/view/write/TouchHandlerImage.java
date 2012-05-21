@@ -11,13 +11,27 @@ public class TouchHandlerImage extends TouchHandlerControlpointABC {
 		super(view, view.getOnlyPenInput());
 	}
 
+	private LinkedList<GraphicsControlpoint> graphicsObjectsCache = new LinkedList<GraphicsControlpoint>();
+	
 	@Override
 	protected LinkedList<GraphicsControlpoint> getGraphicsObjects() {
-		return (LinkedList<GraphicsControlpoint>) getPage().images;
+		LinkedList<GraphicsImage> images = getPage().images;
+		if (images.equals(graphicsObjectsCache))
+			return graphicsObjectsCache;
+		graphicsObjectsCache.clear();
+		for (GraphicsControlpoint img : images)
+			graphicsObjectsCache.add(img);
+		return graphicsObjectsCache;
 	}
 
 	protected float maxDistanceControlpointScreen() {
 		return 25f;
+	}
+	
+	@Override
+	protected void onPenUp(GraphicsControlpoint graphics) {
+		GraphicsImage image = (GraphicsImage) graphics;
+		view.callOnPickImageListener(image.getUuid());
 	}
 
 	@Override

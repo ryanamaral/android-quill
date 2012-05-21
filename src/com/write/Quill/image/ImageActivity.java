@@ -75,6 +75,7 @@ public class ImageActivity
 	private Bookshelf bookshelf = null;
 	private Book book = null;
 	private UUID uuid = UUID.randomUUID();
+	private UUID uuidOld = null;
 
 	private Bitmap bitmap;
 	private File photoFile = null;
@@ -90,9 +91,11 @@ public class ImageActivity
 
 	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
 	public final static String EXTRA_UUID = "extra_uuid";
+	public final static String EXTRA_OLD_UUID = "extra_old_uuid";
 	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_TYPE = "extra_file_type";
+	public final static String EXTRA_FILE_NAME = "extra_file_name";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -132,12 +135,22 @@ public class ImageActivity
 			restoreFrom(savedInstanceState);
 		if (sourceUri == null) // get into a consistent state
 			initNewImage();  
+		initOldUuid(intent.getExtras());
 	}
 
+	private void initOldUuid(Bundle bundle) {
+		if (bundle == null) 
+			return;
+		String uuidOldStr = bundle.getString(EXTRA_OLD_UUID);
+		if (uuidOldStr == null)
+			return;
+		uuidOld = UUID.fromString(uuidOldStr);		
+	}
+	
 	private void initNewImage() {
-		File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
-		sourceUri = Uri.fromFile(file);
-//		sourceUri = null;
+		//	File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
+		//	sourceUri = Uri.fromFile(file);
+		sourceUri = null;
 		fileType = FileType.FILETYPE_JPG;
 		rotation = 0;
 		constrainAspect = true;
@@ -164,6 +177,8 @@ public class ImageActivity
 		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
 		int fileTypeInt = fileType.ordinal();
 		bundle.putInt(EXTRA_FILE_TYPE, fileTypeInt);
+		if (uuidOld != null)
+			bundle.putString(EXTRA_OLD_UUID, uuidOld.toString());
 		return bundle;
 	}
 
@@ -339,27 +354,20 @@ public class ImageActivity
 	private File getBookImageFile() {
 		Storage storage = Storage.getInstance();
 		File dir = storage.getBookDirectory(book.getUUID());
-		return new File(dir, uuid.toString() + getFileExt());
+		return new File(dir, getImageFileName());
 	}
 
 	private void downloadImage(final Uri uri) {
 		DialogFragment newFragment = DialogPicasaDownload.newInstance(uri, getCacheFile());
 		newFragment.show(getFragmentManager(), "downloadImage");
 	}
-
-	private String getFileExt() {
-		if (fileType == FileType.FILETYPE_JPG) {
-			return ".jpg";
-		} else if (fileType == FileType.FILETYPE_PNG) {
-			return ".png";
-		} else {
-			Assert.fail();
-			return null;
-		}
+		
+	private String getImageFileName() {
+		return Util.getImageFileName(uuid, fileType);
 	}
-	
+
 	private File getCacheFile() {
- 		String randomFileName = uuid.toString() + getFileExt();
+ 		String randomFileName = getImageFileName();
 		File file = new File(getCacheDir(), randomFileName);
 		file.deleteOnExit();
 		return file;
@@ -371,6 +379,8 @@ public class ImageActivity
 		switch (v.getId()) {
 		case R.id.image_editor_erase:
 			intent = new Intent();
+			if (uuidOld != null)
+				intent.putExtra(EXTRA_OLD_UUID, uuidOld.toString());
 			setResult(RESULT_OK, intent);
 			finish();
 			break;
@@ -439,6 +449,9 @@ public class ImageActivity
         intent.putExtra(EXTRA_UUID, uuid.toString());
 		intent.putExtra(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
 		intent.putExtra(EXTRA_FILE_TYPE, fileType.ordinal());
+		intent.putExtra(EXTRA_FILE_NAME, getBookImageFile().getAbsolutePath());
+		if (uuidOld != null)
+			intent.putExtra(EXTRA_OLD_UUID, uuidOld.toString());
 		setResult(RESULT_OK, intent);
 		finish();
 	}
