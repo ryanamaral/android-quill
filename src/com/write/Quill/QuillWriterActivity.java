@@ -3,6 +3,7 @@ package com.write.Quill;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import javax.net.ssl.HandshakeCompletedListener;
 
@@ -11,12 +12,13 @@ import sheetrock.panda.changelog.ChangeLog;
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.lib.pen.HideBar;
 import name.vbraun.view.write.Graphics;
+import name.vbraun.view.write.GraphicsImage;
 import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.Page;
 import name.vbraun.view.write.ToolHistory;
 import name.vbraun.view.write.Stroke;
 import name.vbraun.view.write.Graphics.Tool;
-import name.vbraun.view.write.HandwriterView.OnStrokeFinishedListener;
+import name.vbraun.view.write.HandwriterView;
 import name.vbraun.view.write.ToolHistory.HistoryItem;
 
 import junit.framework.Assert;
@@ -30,6 +32,7 @@ import com.write.Quill.data.Storage;
 import com.write.Quill.data.StorageAndroid;
 import com.write.Quill.data.Book.BookIOException;
 import com.write.Quill.export.ExportActivity;
+import com.write.Quill.image.ImageActivity;
 import com.write.Quill.thumbnail.ThumbnailActivity;
 
 import android.app.ActionBar;
@@ -89,7 +92,7 @@ public class QuillWriterActivity
 		ActivityBase
 	implements 
 		name.vbraun.view.write.Toolbox.OnToolboxListener,
-		OnStrokeFinishedListener {
+		name.vbraun.view.write.InputListener {
 	private static final String TAG = "Quill";
 
 	public static final int DIALOG_COLOR = 1;
@@ -139,7 +142,7 @@ public class QuillWriterActivity
         setContentView(mView);
         mView.setOnGraphicsModifiedListener(UndoManager.getUndoManager());
         mView.setOnToolboxListener(this);
-        mView.setOnStrokeFinishedListener(this);
+        mView.setOnInputListener(this);
 
         ActionBar bar = getActionBar();
         bar.setDisplayShowTitleEnabled(false);
@@ -744,7 +747,7 @@ public class QuillWriterActivity
 		mView.getToolBox().setActionBarReplacementVisible(!showActionBar);
 
         mView.setOnToolboxListener(this);
-        mView.setOnStrokeFinishedListener(this);
+        mView.setOnInputListener(this);
     	updateUndoRedoIcons();
     	setKeepScreenOn();
     	mView.startInput();
@@ -774,6 +777,7 @@ public class QuillWriterActivity
     }
     
     private final static int REQUEST_REPORT_BACK_KEY = 1;
+    private final static int REQUEST_PICK_IMAGE = 2;
     
     private void launchOverviewActivity() {
 		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
@@ -782,10 +786,27 @@ public class QuillWriterActivity
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (requestCode == REQUEST_REPORT_BACK_KEY && resultCode == RESULT_OK) {
+    	switch (requestCode) {
+    	case REQUEST_REPORT_BACK_KEY:
+    		if (resultCode == RESULT_OK) return;
     		boolean backPressed = data.getBooleanExtra(ThumbnailActivity.RESULT_BACK_KEY_PRESSED, false);
     		if (backPressed) 
     			finish();
+    		break;
+    	case REQUEST_PICK_IMAGE:
+    		if (resultCode != RESULT_OK) return;
+    		String uuidOldStr = data.getStringExtra(ImageActivity.EXTRA_OLD_UUID);
+    		Assert.assertNotNull(uuidOldStr);
+    		UUID uuidOld = UUID.fromString(uuidOldStr);
+    		String uuidNewStr = data.getStringExtra(ImageActivity.EXTRA_UUID);
+    		String name = data.getStringExtra(ImageActivity.EXTRA_FILE_NAME);
+    		if (uuidNewStr==null || name==null) {
+    			mView.setImage(uuidOld, null, null);
+    		} else {
+    			UUID uuidNew = UUID.fromString(uuidNewStr);
+    			mView.setImage(uuidOld, uuidNew, name);
+    		}
+    		break;
     	}
     }
     
@@ -826,7 +847,8 @@ public class QuillWriterActivity
     	}
     	mView.remove(graphics);
     	updateUndoRedoIcons();
-    }
+    }    
+
     
     public void add(Page page, LinkedList<Stroke> strokes) {
     	if (page != mView.getPage()) {
@@ -880,5 +902,12 @@ public class QuillWriterActivity
 		setActiveTool(h.getTool());
 	}
 
+	@Override
+	public void onPickImageListener(UUID uuid) {
+    	Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+    	intent.putExtra(ImageActivity.EXTRA_OLD_UUID, uuid.toString());
+    	startActivityForResult(intent, REQUEST_PICK_IMAGE);
+	}
+	
 }
 

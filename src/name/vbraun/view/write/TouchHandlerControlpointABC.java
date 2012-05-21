@@ -151,9 +151,9 @@ public abstract class TouchHandlerControlpointABC
 				// Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
 				if (newGraphicsObject != null) {
 					saveGraphics(newGraphicsObject);
+					onPenUp(newGraphicsObject);
 					newGraphicsObject = null;
 				}
-				view.callOnStrokeFinishedListener();
 			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
 						fingerId1 != -1 && fingerId2 != -1) {
@@ -191,6 +191,13 @@ public abstract class TouchHandlerControlpointABC
 			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
 		}
 		return false;
+	}
+	
+	/** 
+	 *  Called whenever the user lifts the pen to complete a stroke
+	 */
+	protected void onPenUp(GraphicsControlpoint graphics) {
+		view.callOnStrokeFinishedListener();
 	}
 	
 	private void abortMotion() {

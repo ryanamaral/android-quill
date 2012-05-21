@@ -7,6 +7,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
+
+import junit.framework.Assert;
+
+import name.vbraun.view.write.GraphicsImage;
+import name.vbraun.view.write.GraphicsImage.FileType;
 
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
@@ -92,6 +98,14 @@ public class Util {
 		}
 	}
 
+	
+	public static String getImageFileExt(FileType fileType) {
+		return GraphicsImage.getImageFileExt(fileType);
+	}
+
+	public static String getImageFileName(UUID uuid, FileType fileType) {
+		return GraphicsImage.getImageFileName(uuid, fileType);
+	}
 
 
 
