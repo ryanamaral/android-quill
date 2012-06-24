@@ -25,6 +25,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
+import android.widget.ImageButton;
 
 public class GraphicsImage extends GraphicsControlpoint {
 	private static final String TAG = "GraphicsImage";
@@ -287,4 +288,5 @@ public class GraphicsImage extends GraphicsControlpoint {
 		width = o2.outWidth;
 	}
 
+		
 }

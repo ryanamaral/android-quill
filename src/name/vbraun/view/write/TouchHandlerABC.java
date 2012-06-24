@@ -19,7 +19,7 @@ public abstract class TouchHandlerABC {
 	protected TouchHandlerABC(HandwriterView view) {
 		this.view = view;
 	}
-	
+		
 	// Convenience functions to access the view's settings
 	
 	protected Context getContext() {
