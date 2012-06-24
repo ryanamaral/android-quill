@@ -106,6 +106,7 @@ public abstract class TouchHandlerControlpointABC
 				saveGraphics(activeControlpoint.getGraphics());
 			}
 			drawOutline(oldX, oldY, newX, newY, oldPressure, newPressure);
+			view.getToolBox().onControlpointMotion(event);
 			return true;
 		}		
 		else if (action == MotionEvent.ACTION_DOWN) {
@@ -139,8 +140,10 @@ public abstract class TouchHandlerControlpointABC
 				newGraphicsObject = newGraphics(event.getX(), event.getY(), event.getPressure());
 				activeControlpoint = newGraphicsObject.initialControlpoint();
 				bBox.setEmpty();
+				onPenDown(activeControlpoint, true);
 			} else {
 				bBox.set(activeControlpoint.getGraphics().getBoundingBox());
+				onPenDown(activeControlpoint, false);
 			}
 			return true;
 		}
@@ -193,6 +196,15 @@ public abstract class TouchHandlerControlpointABC
 		return false;
 	}
 	
+	/**
+	 * Called when the user touches with the pen
+	 * @param graphics 
+	 * @param isNew Whether the graphics object is new or an existing controlpoint
+	 */
+	protected void onPenDown(Controlpoint controlpoint, boolean isNew) {
+		view.getToolBox().startControlpointMove(true, true);		
+	}
+	
 	/** 
 	 *  Called whenever the user lifts the pen to complete a stroke
 	 */
@@ -204,6 +216,7 @@ public abstract class TouchHandlerControlpointABC
 		penID = fingerId1 = fingerId2 = -1;
 		newGraphicsObject = null;
 		activeControlpoint = null;
+		view.getToolBox().stopControlpointMove();
 	}
 
 	@Override

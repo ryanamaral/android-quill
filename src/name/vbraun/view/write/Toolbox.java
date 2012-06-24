@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -19,6 +20,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -77,6 +79,8 @@ public class Toolbox
 	protected Button tagButton;
 	protected ImageButton menuButton;
 
+	protected ImageButton controlpointGearsButton, controlpointTrashButton;
+	
 	private boolean height_small, height_tiny;
 	
 	private final Hardware hardware;
@@ -138,9 +142,12 @@ public class Toolbox
 		quillButton  = (ImageButton) findViewById(R.id.toolbox_quill_icon);
 		tagButton    = (Button)      findViewById(R.id.toolbox_tag);
 		menuButton   = (ImageButton) findViewById(R.id.toolbox_menu);
-
+		
 		thicknessSpinner = (Spinner) findViewById(R.id.toolbox_thickness_spinner);
 		thicknessSpinner.setOnItemSelectedListener(this);
+		
+		controlpointGearsButton = (ImageButton) findViewById(R.id.toolbox_controlpoint_gears);
+		controlpointTrashButton = (ImageButton) findViewById(R.id.toolbox_controlpoint_trash);
 		
 		if (!Hardware.hasPressureSensor()) {
 			fountainpenButton.setVisibility(View.INVISIBLE);
@@ -455,4 +462,56 @@ public class Toolbox
 		if (h.size() > 2) history4.setImageDrawable(h.getIcon(2));
 	}
 
+	
+	private boolean toolboxVisibleBeforeMove;
+	private Rect rectGears = new Rect();
+	private Rect rectTrash = new Rect();
+	
+	public void startControlpointMove(boolean showGearsButton, boolean showTrashButton) {
+		toolboxVisibleBeforeMove = toolboxIsVisible;
+		setToolboxVisible(false);
+		redButton.setVisibility(INVISIBLE);
+		if (showGearsButton)
+			controlpointGearsButton.setVisibility(VISIBLE);
+		if (showTrashButton)
+			controlpointTrashButton.setVisibility(VISIBLE);
+		controlpointGearsButton.setPressed(false);
+		controlpointTrashButton.setPressed(false);
+	}
+	
+	public void stopControlpointMove() {
+		redButton.setVisibility(VISIBLE);
+		setToolboxVisible(toolboxVisibleBeforeMove);
+		controlpointGearsButton.setVisibility(GONE);
+		controlpointTrashButton.setVisibility(GONE);
+	}
+
+	/**
+	 * While moving the control point, the event must be passed to this method.
+	 * @param event
+	 * @return true if the point hovers over the "gears" button that is visible only while moving the control point.
+	 */
+	public boolean onControlpointMotion(MotionEvent event) {
+		int action = event.getActionMasked();
+		if (action == MotionEvent.ACTION_MOVE) {
+			boolean pressGears = false;
+			boolean pressTrash = false;
+			float x=0, y=0;
+			controlpointGearsButton.getHitRect(rectGears);
+			controlpointTrashButton.getHitRect(rectTrash);
+			for (int idx = 0; idx < event.getPointerCount(); idx++) {
+				int id = event.getPointerId(idx);
+				x = event.getX(id);
+				y = event.getY(id);
+				pressGears = pressGears || rectGears.contains((int)x, (int)y);
+				pressTrash = pressTrash || rectTrash.contains((int)x, (int)y);
+			}			
+			controlpointGearsButton.setPressed(pressGears);
+			controlpointTrashButton.setPressed(pressTrash);
+			return pressGears;
+		}
+		return false;
+	}
+	
+	
 }
