@@ -2,6 +2,8 @@ package name.vbraun.view.write;
 
 import java.util.LinkedList;
 
+import name.vbraun.view.write.GraphicsControlpoint.Controlpoint;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
@@ -57,6 +59,14 @@ public class TouchHandlerImage extends TouchHandlerControlpointABC {
 //		edit.setMinimumHeight(50);
 //		edit.setMinimumWidth(50);
 		
+	}
+
+	/**
+	 * Called when the user touches with the pen
+	 */
+	@Override
+	protected void onPenDown(Controlpoint controlpoint, boolean isNew) {
+		view.getToolBox().startControlpointMove(!isNew, true);		
 	}
 
 	private LinkedList<GraphicsControlpoint> graphicsObjectsCache = new LinkedList<GraphicsControlpoint>();
