@@ -163,6 +163,13 @@ public class GraphicsImage extends GraphicsControlpoint {
 
 	@Override
 	public void draw(Canvas c, RectF bounding_box) {
+		if (file != null && bitmap == null)
+			try {
+				loadBitmap();
+			} catch (IOException e) {
+				Log.e(TAG, "loading bitmap: "+e.getMessage());
+			}
+		
 		computeScreenRect();
 		c.clipRect(0, 0, c.getWidth(), c.getHeight(), android.graphics.Region.Op.REPLACE);
 
@@ -246,19 +253,40 @@ public class GraphicsImage extends GraphicsControlpoint {
 	}
 
 	public void writeToStream(DataOutputStream out) throws IOException {
+		out.writeInt(1);  // protocol #1
+		out.writeUTF(uuid.toString());
+		out.writeFloat(top_left.x);
+		out.writeFloat(top_right.x);
+		out.writeFloat(top_left.y);
+		out.writeFloat(bottom_left.y);
+		out.writeBoolean(constrainAspect);
 	}
 
-	public GraphicsImage(DataInputStream in) throws IOException {
+	public GraphicsImage(DataInputStream in, File dir) throws IOException {
 		super(Tool.IMAGE);
 		int version = in.readInt();
 		if (version > 1)
-			throw new IOException("Unknown version!");
-		tool = Tool.values()[in.readInt()];
-		if (tool != Tool.LINE)
-			throw new IOException("Unknown tool type!");
+			throw new IOException("Unknown image version!");
 
+		uuid = UUID.fromString(in.readUTF());
+		float left   = in.readFloat(); 
+		float right  = in.readFloat();
+		float top    = in.readFloat();
+		float bottom = in.readFloat();  		
+		constrainAspect = in.readBoolean();
+		
+		bottom_left = new Controlpoint(transform, left, bottom);
+		bottom_right = new Controlpoint(transform, right, bottom);
+		top_left = new Controlpoint(transform, left, top);
+		top_right = new Controlpoint(transform, right, top);
+		center = new Controlpoint(transform, (left+right)/2, (top+bottom)/2);
+		controlpoints.add(bottom_left);
+		controlpoints.add(bottom_right);
+		controlpoints.add(top_left);
+		controlpoints.add(top_right);
+		controlpoints.add(center);
 		init();
-		loadBitmap();
+		file = new File(dir, getImageFileName(uuid, FileType.FILETYPE_JPG));
 	}
 
 	@Override

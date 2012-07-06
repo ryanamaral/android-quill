@@ -310,10 +310,10 @@ public class Toolbox
 		resizeButton.setVisibility(vis);
 		lineButton.setVisibility(vis);
 		eraserButton.setVisibility(vis);
+    	photoButton.setVisibility(vis);
 		
 		if (debugOptions) {
         	textButton.setVisibility(vis);  // TODO
-        	photoButton.setVisibility(vis);  // TODO
         }
 
 		if (prevButton.getVisibility() != View.GONE) {

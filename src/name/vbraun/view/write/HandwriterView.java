@@ -192,14 +192,14 @@ public class HandwriterView
      * @param uuid The UUID
      * @param name The image file name (path+uuid+extension)
      */
-    public void setImage(UUID uuid, String name) {
+    public void setImage(UUID uuid, String name, boolean constrainAspect) {
     	for (GraphicsImage image : getPage().images)
     		if (image.getUuid().equals(uuid)) {
     			if (name==null)
     				getPage().images.remove(image);
     			else { 
     				if (image.checkFileName(name)) {
-        				image.setFile(name);
+        				image.setFile(name, constrainAspect);
     				} else {
     					Log.e(TAG, "incorrect image file name");
         				getPage().images.remove(image);
