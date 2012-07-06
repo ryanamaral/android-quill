@@ -4,5 +4,6 @@ import java.util.UUID;
 
 public interface InputListener {
 	void onStrokeFinishedListener();
-	void onPickImageListener(UUID uuid);
+	void onPickImageListener(GraphicsImage image);
+	void onEditImageListener(GraphicsImage image);
 }

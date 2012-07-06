@@ -67,7 +67,7 @@ public class DialogSave extends DialogBase {
 	@Override
 	protected void onFinish(File file) {
 		ImageActivity activity = (ImageActivity) getActivity();
-		activity.onSaveFinished();
+		activity.onSaveFinished(destinationFile);
 	}
 
 }

@@ -52,7 +52,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import name.vbraun.view.write.GraphicsImage.FileType;
 
 public class ImageActivity 
 	extends 
@@ -74,28 +73,20 @@ public class ImageActivity
 
 	private Bookshelf bookshelf = null;
 	private Book book = null;
-	private UUID uuid = UUID.randomUUID();
-	private UUID uuidOld = null;
+	private UUID uuid = null;
 
 	private Bitmap bitmap;
 	private File photoFile = null;
 
 	// persistent data
-	protected Uri sourceUri = null;
+	protected Uri uri = null;
 	protected int rotation;
 	protected boolean constrainAspect;
-	protected FileType fileType = FileType.FILETYPE_NONE;
 
-	public final static String ACTION_NEW_IMAGE = "action_new_image";
-	public final static String ACTION_EDIT_EXISTING_IMAGE = "action_edit_existing_image";
-
-	public final static String EXTRA_SOURCE_URI = "extra_source_uri";
 	public final static String EXTRA_UUID = "extra_uuid";
-	public final static String EXTRA_OLD_UUID = "extra_old_uuid";
 	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
-	public final static String EXTRA_FILE_TYPE = "extra_file_type";
-	public final static String EXTRA_FILE_NAME = "extra_file_name";
+	public final static String EXTRA_FILE_URI = "extra_file_uri";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -124,61 +115,37 @@ public class ImageActivity
 		bar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
-		String action = null;
-		if (intent != null)
-			action = intent.getAction();
-		if (action != null && action.equals(ACTION_NEW_IMAGE))
-			initNewImage();
-		else if (action != null && action.equals(ACTION_EDIT_EXISTING_IMAGE))
-			restoreFrom(intent.getExtras());
-		else if (savedInstanceState != null)
+		if (savedInstanceState != null)
 			restoreFrom(savedInstanceState);
-		if (sourceUri == null) // get into a consistent state
-			initNewImage();  
-		initOldUuid(intent.getExtras());
-	}
-
-	private void initOldUuid(Bundle bundle) {
-		if (bundle == null) 
-			return;
-		String uuidOldStr = bundle.getString(EXTRA_OLD_UUID);
-		if (uuidOldStr == null)
-			return;
-		uuidOld = UUID.fromString(uuidOldStr);		
-	}
-	
-	private void initNewImage() {
-		//	File file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
-		//	sourceUri = Uri.fromFile(file);
-		sourceUri = null;
-		fileType = FileType.FILETYPE_JPG;
-		rotation = 0;
-		constrainAspect = true;
-		loadBitmap();
+		else
+			restoreFrom(intent.getExtras());
 	}
 
 	private void restoreFrom(Bundle bundle) {
 		if (bundle == null) return;
-		String sourceUriStr = bundle.getString(EXTRA_SOURCE_URI);
-		if (sourceUriStr == null) return;
-		constrainAspect = bundle.getBoolean(EXTRA_CONSTRAIN_ASPECT);
-		sourceUri = Uri.parse(sourceUriStr);
-		int fileTypeInt = bundle.getInt(EXTRA_FILE_TYPE);
-		fileType = FileType.values()[fileTypeInt];
-		rotation = bundle.getInt(EXTRA_ROTATION);
-		loadBitmap();
+		String uuidStr = bundle.getString(EXTRA_UUID);
+		if (uuidStr != null)
+			uuid = UUID.fromString(uuidStr);		
+		else {
+			Log.e(TAG, "no image uuid set");
+			return;
+		}
+		constrainAspect = bundle.getBoolean(EXTRA_CONSTRAIN_ASPECT, true);
+		rotation = bundle.getInt(EXTRA_ROTATION, 0);
+		String uriStr = bundle.getString(EXTRA_FILE_URI);
+		if (uriStr != null) {
+			uri = Uri.parse(uriStr);
+			loadBitmap();
+		}
 	}
 
 	private Bundle saveTo(Bundle bundle) {
 		Log.d(TAG, "saveTo");
-		if (sourceUri == null) return bundle;
-        bundle.putString(EXTRA_SOURCE_URI, sourceUri.toString());
+		if (uri != null)
+			bundle.putString(EXTRA_FILE_URI, uri.toString());
+        bundle.putString(EXTRA_UUID, uuid.toString());
 		bundle.putInt(EXTRA_ROTATION, rotation);
 		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
-		int fileTypeInt = fileType.ordinal();
-		bundle.putInt(EXTRA_FILE_TYPE, fileTypeInt);
-		if (uuidOld != null)
-			bundle.putString(EXTRA_OLD_UUID, uuidOld.toString());
 		return bundle;
 	}
 
@@ -205,7 +172,7 @@ public class ImageActivity
 		checkBoxCrop.setOnCheckedChangeListener(this);
 		if (menuAspect != null)
 			menuAspect.setChecked(constrainAspect);
-		showImageTools(sourceUri != null);
+		showImageTools(uri != null);
 	}
 
 	private void showImageTools(boolean show) {
@@ -267,7 +234,7 @@ public class ImageActivity
 				Log.e(TAG, "no photo");
 				return;
 			}
-			loadBitmap(Uri.fromFile(photoFile), FileType.FILETYPE_JPG, 0);
+			loadBitmap(Uri.fromFile(photoFile), 0);
 			photoFile = null;
 			break;
 		case REQUEST_CODE_PICK_IMAGE:
@@ -326,7 +293,7 @@ public class ImageActivity
 					Log.e(TAG, "image file not readable");
 					return;
 				}
-				loadBitmap(Uri.fromFile(file), FileType.FILETYPE_JPG, 0);
+				loadBitmap(Uri.fromFile(file), 0);
 			}
 			cursor.close();
 			break;
@@ -336,17 +303,16 @@ public class ImageActivity
 	}
 
 	
-	protected void loadBitmap(Uri sourceUri, FileType fileType, int rotation ) {
-		this.sourceUri = sourceUri;
-		this.fileType = fileType;
+	protected void loadBitmap(Uri sourceUri, int rotation ) {
+		this.uri = sourceUri;
 		this.rotation = rotation;
 		loadBitmap();
 	}
 	
 	private void loadBitmap() {
-		if (sourceUri == null) return;
-		Log.e(TAG, "showing "+sourceUri);
-		bitmap = Util.getBitmap(getContentResolver(), sourceUri);		
+		if (uri == null) return;
+		Log.i(TAG, "showing "+uri);
+		bitmap = Util.getBitmap(getContentResolver(), uri);		
 		bitmap = Util.rotate(bitmap, rotation);
 		preview.setImageBitmapResetBase(bitmap, true);
 	}
@@ -363,7 +329,7 @@ public class ImageActivity
 	}
 		
 	private String getImageFileName() {
-		return Util.getImageFileName(uuid, fileType);
+		return Util.getImageFileName(uuid);
 	}
 
 	private File getCacheFile() {
@@ -379,14 +345,13 @@ public class ImageActivity
 		switch (v.getId()) {
 		case R.id.image_editor_erase:
 			intent = new Intent();
-			if (uuidOld != null)
-				intent.putExtra(EXTRA_OLD_UUID, uuidOld.toString());
+	        intent.putExtra(EXTRA_UUID, uuid.toString());
 			setResult(RESULT_OK, intent);
 			finish();
 			break;
 		case R.id.image_editor_save:
 			DialogFragment newFragment = 
-				DialogSave.newInstance(sourceUri, getBookImageFile(), rotation);
+				DialogSave.newInstance(uri, getBookImageFile(), rotation);
 			newFragment.show(getFragmentManager(), "saveImage");
 			break;
 		case R.id.image_editor_rotate_right:
@@ -443,15 +408,11 @@ public class ImageActivity
 	/**
 	 * Callback from the save progress dialog
 	 */
-	protected void onSaveFinished() {
+	protected void onSaveFinished(File file) {
 		Intent intent = new Intent();
-        intent.putExtra(EXTRA_SOURCE_URI, Uri.fromFile(getBookImageFile()).toString());
+        intent.putExtra(EXTRA_FILE_URI, Uri.fromFile(file).toString());
         intent.putExtra(EXTRA_UUID, uuid.toString());
 		intent.putExtra(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
-		intent.putExtra(EXTRA_FILE_TYPE, fileType.ordinal());
-		intent.putExtra(EXTRA_FILE_NAME, getBookImageFile().getAbsolutePath());
-		if (uuidOld != null)
-			intent.putExtra(EXTRA_OLD_UUID, uuidOld.toString());
 		setResult(RESULT_OK, intent);
 		finish();
 	}

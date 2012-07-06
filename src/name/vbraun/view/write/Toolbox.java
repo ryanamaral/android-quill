@@ -513,5 +513,12 @@ public class Toolbox
 		return false;
 	}
 	
+	public boolean isGearsSelectedControlpointMove() {
+		return controlpointGearsButton.isPressed();
+	}
+	
+	public boolean isTrashSelectedControlpointMove() {
+		return controlpointTrashButton.isPressed();
+	}
 	
 }

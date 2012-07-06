@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
+import android.util.Log;
 
 
 
@@ -18,7 +19,12 @@ import android.graphics.RectF;
  * @author vbraun
  *
  */
+/**
+ * @author vbraun
+ *
+ */
 public abstract class GraphicsControlpoint extends Graphics {
+	private static final String TAG = "GraphicsControlpoint";
 
 	public class Controlpoint {
 		protected float x,y;   // page coordinates
@@ -43,6 +49,8 @@ public abstract class GraphicsControlpoint extends Graphics {
 		}
 		public float screenX() { return transform.applyX(x); };
 		public float screenY() { return transform.applyY(y); };
+		public Controlpoint copy() { return new Controlpoint(x, y); };
+		public void set(final Controlpoint p) { x = p.x; y = p.y; };
 	}
 	
 	
@@ -50,6 +58,39 @@ public abstract class GraphicsControlpoint extends Graphics {
 	 * Derived classes must add their control points to this list
 	 */
 	protected LinkedList<Controlpoint> controlpoints = new LinkedList<Controlpoint>();
+	
+	protected LinkedList<Controlpoint> backupControlpoints = null;
+	
+	/**
+	 * Backup the controlpoints so that you can restore them later (e.g. user aborted move)
+	 */
+	protected void backup() {
+		if (backupControlpoints == null) {
+			backupControlpoints = new LinkedList<Controlpoint>();
+			for (Controlpoint p : controlpoints) 
+				backupControlpoints.add(p.copy());
+		} else {
+			ListIterator<Controlpoint> point_iter = controlpoints.listIterator();
+			ListIterator<Controlpoint> backup_iter = backupControlpoints.listIterator();
+			while (point_iter.hasNext())
+				backup_iter.next().set(point_iter.next());				
+		}
+	}
+	
+	
+	/**
+	 * Restore the control points having calling backup() earlier
+	 */
+	protected void restore() {
+		if (backupControlpoints == null) {
+			Log.e(TAG, "restore() called without backup()");
+			return;
+		}
+		ListIterator<Controlpoint> point_iter = controlpoints.listIterator();
+		ListIterator<Controlpoint> backup_iter = backupControlpoints.listIterator();
+		while (point_iter.hasNext())
+			point_iter.next().set(backup_iter.next());				
+	}
 	
 	/**
 	 * The control point that is active after object creation. 

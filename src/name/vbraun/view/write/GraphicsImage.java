@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageButton;
 
@@ -68,24 +69,46 @@ public class GraphicsImage extends GraphicsControlpoint {
 		return FileType.FILETYPE_NONE;
 	}
 
+	/**
+	 * Helper to construct a file name out of uuid and file type
+	 * @param uuid
+	 * @param fileType
+	 * @return
+	 */
 	public static String getImageFileName(UUID uuid, FileType fileType) {
 		return uuid.toString() + getImageFileExt(fileType);
 	}
 
-	public String getImageFileExt() {
-		return getImageFileExt(fileType);
+	public String getFileName() {
+		return file.getAbsolutePath();
 	}
 	
-	public String getImageFileName() {
-		return getImageFileName(getUuid(), fileType);
-	}
-
 	// persistent data
-	protected URI sourceUri = null;
 	protected UUID uuid = null;
 	protected boolean constrainAspect = false;
-	protected FileType fileType = FileType.FILETYPE_NONE;
 	protected Rect cropRect = new Rect();
+
+	public UUID getUuid() {
+		if (uuid == null)
+			uuid = UUID.randomUUID();
+		return uuid;
+	}
+
+	public Uri getFileUri() {
+		return Uri.fromFile(file);
+	}
+	
+	public File getFile() {
+		return file;
+	}
+
+	public boolean getConstrainAspect() {
+		return constrainAspect;
+	}
+	
+	public FileType getFileType() {
+		return getImageFileType(file.getName());
+	}
 
 	/**
 	 * @param transform
@@ -233,26 +256,22 @@ public class GraphicsImage extends GraphicsControlpoint {
 		// TODO Auto-generated method stub
 	}
 
-	public void setBitmap(UUID newUuid, String fileName) {
+	public boolean checkFileName(String fileName) {
+		FileType fileType = getImageFileType(fileName);
+		return fileName.endsWith(getImageFileName(uuid, fileType));
+	}
+	
+	public void setFile(String fileName) {
 		// file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
+		if (!checkFileName(fileName)) {
+			Log.e(TAG, "filename must be uuid.ext");
+		}
 		file = new File(fileName);
-		uuid = newUuid;
-		fileType = getImageFileType(fileName);
 		try {
 			loadBitmap();
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to load file " + file.toString() + " (missing?");
 		}
-	}
-
-	public UUID getUuid() {
-		if (uuid == null)
-			uuid = UUID.randomUUID();
-		return uuid;
-	}
-
-	public File getFile() {
-		return file;
 	}
 
 	private final int IMAGE_MAX_SIZE = 1024;

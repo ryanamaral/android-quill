@@ -47,6 +47,10 @@ public abstract class TouchHandlerControlpointABC
 	@Override
 	protected void interrupt() {
 		abortMotion();
+		if (newGraphicsObject == null && activeControlpoint != null) {
+			// editing existing object
+			activeControlpoint.getGraphics().restore();
+		}
 		super.interrupt();
 	}
 
@@ -142,6 +146,7 @@ public abstract class TouchHandlerControlpointABC
 				bBox.setEmpty();
 				onPenDown(activeControlpoint, true);
 			} else {
+				activeControlpoint.getGraphics().backup();
 				bBox.set(activeControlpoint.getGraphics().getBoundingBox());
 				onPenDown(activeControlpoint, false);
 			}
@@ -152,11 +157,7 @@ public abstract class TouchHandlerControlpointABC
 			int id = event.getPointerId(0);
 			if (id == penID) {
 				// Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
-				if (newGraphicsObject != null) {
-					saveGraphics(newGraphicsObject);
-					onPenUp(newGraphicsObject);
-					newGraphicsObject = null;
-				}
+				onPenUp();
 			} else if (getMoveGestureWhileWriting() && 
 						(id == fingerId1 || id == fingerId2) &&
 						fingerId1 != -1 && fingerId2 != -1) {
@@ -202,16 +203,30 @@ public abstract class TouchHandlerControlpointABC
 	 * @param isNew Whether the graphics object is new or an existing controlpoint
 	 */
 	protected void onPenDown(Controlpoint controlpoint, boolean isNew) {
-		view.getToolBox().startControlpointMove(true, true);		
+		view.getToolBox().startControlpointMove(false, true);		
 	}
 	
-	/** 
-	 *  Called whenever the user lifts the pen to complete a stroke
-	 */
-	protected void onPenUp(GraphicsControlpoint graphics) {
+	protected void onPenUp() {
+		boolean isNew = (newGraphicsObject != null);
+		boolean trash = view.getToolBox().isTrashSelectedControlpointMove();
+		boolean gears = view.getToolBox().isGearsSelectedControlpointMove();
+		Log.d(TAG, "trash = "+trash);
+		if (trash) {
+			if (isNew)
+				getPage().draw(view.canvas);		
+			else
+				removeGraphics(activeControlpoint.getGraphics());
+		} else if (gears) {
+			Assert.assertNull(newGraphicsObject); // gears are only shown with existing graphics object
+			editGraphics(activeControlpoint.getGraphics());
+		} else {
+			if (isNew)
+				saveGraphics(newGraphicsObject);
+		}
+		newGraphicsObject = null;
 		view.callOnStrokeFinishedListener();
 	}
-	
+		
 	private void abortMotion() {
 		penID = fingerId1 = fingerId2 = -1;
 		newGraphicsObject = null;
@@ -256,10 +271,23 @@ public abstract class TouchHandlerControlpointABC
 	
 	/**
 	 * Save the graphics object to the current page
-	 * @param graphics
 	 */
 	protected void saveGraphics(GraphicsControlpoint graphics) {
 		view.saveGraphics(graphics);
+	}
+	
+	/**
+	 * Remove the graphics from the current page
+	 */
+	protected void removeGraphics(GraphicsControlpoint graphics) {
+		view.removeGraphics(graphics);
+	}
+	
+	/**
+	 * Edit an existing graphics object
+	 */
+	protected void editGraphics(GraphicsControlpoint graphics) {
+		Log.e(TAG,"editGraphics does nothing by default");
 	}
 	
 	private final RectF bBox = new RectF();
@@ -324,6 +352,5 @@ public abstract class TouchHandlerControlpointABC
 				}
 			}
 		return closest;
-	}
-	
+	}	
 }

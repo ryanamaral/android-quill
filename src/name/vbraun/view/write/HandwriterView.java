@@ -92,9 +92,14 @@ public class HandwriterView
 			inputListener.onStrokeFinishedListener();
 	}
 	
-	protected void callOnPickImageListener(UUID uuid) {
+	protected void callOnPickImageListener(GraphicsImage image) {
 		if (inputListener != null)
-			inputListener.onPickImageListener(uuid);
+			inputListener.onPickImageListener(image);
+	}
+	
+	protected void callOnEditImageListener(GraphicsImage image) {
+		if (inputListener != null)
+			inputListener.onEditImageListener(image);
 	}
 	
 	private int N = 0;
@@ -183,25 +188,38 @@ public class HandwriterView
    }
     
     /**
-     * @param uuidOld The previous UUID
-     * @param uuidNew The new UUID
-     * @param file The image file
-     * @param name The image file name (uuid+extension)
+     * Set the image
+     * @param uuid The UUID
+     * @param name The image file name (path+uuid+extension)
      */
-    public void setImage(UUID uuidOld, UUID uuidNew, String name) {
+    public void setImage(UUID uuid, String name) {
     	for (GraphicsImage image : getPage().images)
-    		if (image.getUuid().equals(uuidOld)) {
-    			if (uuidNew==null || name==null)
+    		if (image.getUuid().equals(uuid)) {
+    			if (name==null)
     				getPage().images.remove(image);
-    			else
-    				image.setBitmap(uuidNew, name);
+    			else { 
+    				if (image.checkFileName(name)) {
+        				image.setFile(name);
+    				} else {
+    					Log.e(TAG, "incorrect image file name");
+        				getPage().images.remove(image);
+    				}
+    			}
     			page.draw(canvas);
     			invalidate();
     			return;
     		}
-    	Log.e(TAG, "Image does not exists");
+    	Log.e(TAG, "setImage(): Image does not exist");
     }
 	
+    public GraphicsImage getImage(UUID uuid) {
+    	for (GraphicsImage image : getPage().images)
+    		if (image.getUuid().equals(uuid))
+    			return image;
+    	Log.e(TAG, "getImage(): Image does not exists");
+    	return null;
+    }
+    
 	public void interrupt() {
 		if (page==null || canvas==null)
 			return;
@@ -689,6 +707,16 @@ public class HandwriterView
 		}
 		if (page != null && graphicsListener != null) {
 			graphicsListener.onGraphicsCreateListener(page, graphics);
+		}
+	}
+	
+	protected void removeGraphics(GraphicsControlpoint graphics) {
+		if (page.is_readonly) {
+			toastIsReadonly();
+			return;
+		}
+		if (page != null && graphicsListener != null) {
+			graphicsListener.onGraphicsEraseListener(page, graphics);
 		}
 	}
 	
