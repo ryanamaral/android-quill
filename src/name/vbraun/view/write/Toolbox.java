@@ -514,11 +514,13 @@ public class Toolbox
 	}
 	
 	public boolean isGearsSelectedControlpointMove() {
-		return controlpointGearsButton.isPressed();
+		return controlpointGearsButton.getVisibility() == VISIBLE && 
+				controlpointGearsButton.isPressed();
 	}
 	
 	public boolean isTrashSelectedControlpointMove() {
-		return controlpointTrashButton.isPressed();
+		return controlpointTrashButton.getVisibility() == VISIBLE && 
+				controlpointTrashButton.isPressed();
 	}
 	
 }

@@ -18,6 +18,8 @@ import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.util.Log;
 
@@ -60,25 +62,56 @@ public class Util {
 	
     // Rotates the bitmap by the specified degree.
     // If a new bitmap is created, the original bitmap is recycled.
-    public static Bitmap rotate(Bitmap b, int degrees) {
-        if (degrees != 0 && b != null) {
-            Matrix m = new Matrix();
-            m.setRotate(degrees,
-                    (float) b.getWidth() / 2, (float) b.getHeight() / 2);
-            try {
-                Bitmap b2 = Bitmap.createBitmap(
-                        b, 0, 0, b.getWidth(), b.getHeight(), m, true);
-                if (b != b2) {
-                    b.recycle();
-                    b = b2;
-                }
-            } catch (OutOfMemoryError ex) {
-                // We have no memory to rotate. Return the original bitmap.
-            }
+    public static Bitmap rotateAndCrop(Bitmap b, int degrees, Rect crop) {
+    	Assert.assertNotNull(b);
+    	Bitmap b2 = null;
+    	try {
+    		if (degrees != 0) {
+    			Matrix m = new Matrix();
+    			m.setRotate(degrees, 0, 0);
+				RectF r_rot = new RectF(0,0,b.getWidth(),b.getHeight());
+				m.mapRect(r_rot);
+				m.postTranslate(-r_rot.left, -r_rot.top);
+
+//				r_rot.set(0,0,b.getWidth(),b.getHeight());
+//				m.mapRect(r_rot);
+//				Log.d(TAG, "rotated bitmap = "+r_rot.toString());
+
+				if (crop == null)
+    				b2 = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, true);
+    			else {
+    				Matrix minv = new Matrix();
+    				m.invert(minv);
+    				RectF r = new RectF();
+    				r.set(crop);
+    				minv.mapRect(r);
+    				r.round(crop);
+    				// Log.d(TAG, "inv rotated crop = "+crop.toString());
+    				b2 = Bitmap.createBitmap(b, crop.left, crop.top, crop.width(), crop.height(), m, true);
+    			}
+    		} else {
+    			if (crop != null)
+    				b2 = Bitmap.createBitmap(b, crop.left, crop.top, crop.width(), crop.height());
+    			else
+    				b2 = b;
+    		}
+    	} catch (OutOfMemoryError ex) {
+    		// We have no memory to rotate. Return the original bitmap.
+    		b2 = b;
+    	}
+    	Assert.assertNotNull(b2);
+        if (b == b2) {
+        	return b;
+        } else {
+        	Log.d(TAG, "b != b2, recycling b");
+            b.recycle();
+            return b2;
         }
-        return b;
     }
 
+    public static Bitmap rotate(Bitmap b, int degrees) {
+    	return rotateAndCrop(b, degrees, null);
+    }
 	
 	public static void copyfile(File source, File dest) {
 		try {

@@ -351,7 +351,8 @@ public class ImageActivity
 			break;
 		case R.id.image_editor_save:
 			DialogFragment newFragment = 
-				DialogSave.newInstance(uri, getBookImageFile(), rotation);
+				DialogSave.newInstance(uri, getBookImageFile(), 
+						rotation, preview.getCropRect());
 			newFragment.show(getFragmentManager(), "saveImage");
 			break;
 		case R.id.image_editor_rotate_right:
