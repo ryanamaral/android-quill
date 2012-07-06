@@ -37,7 +37,7 @@ public class Book {
 	protected static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
 	private static final String PAGE_FILE_PREFIX = "page_";
 
-	private TagManager tagManager = new TagManager();
+	protected final TagManager tagManager = new TagManager();
 
 	public TagManager getTagManager() {
 		return tagManager;
@@ -773,7 +773,7 @@ public class Book {
 			fis = new FileInputStream(file);
 			buffer = new BufferedInputStream(fis);
 			dataIn = new DataInputStream(buffer);
-			Page page = loadPage(dataIn);
+			Page page = new Page(dataIn, tagManager, dir);
 			if (!page.getUUID().equals(uuid)) {
 				Storage.getInstance().LogError(TAG, "Page UUID mismatch.");
 				page.touch();
@@ -801,11 +801,6 @@ public class Book {
 			else if (buffer != null) buffer.close();
 			else if (fos != null) fos.close();
 		}
-	}
-
-	protected Page loadPage(DataInputStream dataIn) throws IOException {
-		Page page = new Page(dataIn, tagManager);
-		return page;
 	}
 
 	protected void savePage(Page page, DataOutputStream dataOut) throws IOException {

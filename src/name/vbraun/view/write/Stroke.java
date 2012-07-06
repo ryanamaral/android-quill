@@ -177,7 +177,7 @@ public class Stroke extends Graphics {
 		super(Tool.FOUNTAINPEN);
 		int version = in.readInt();
 		if (version < 1  ||  version > 2)
-			throw new IOException("Unknown version!");
+			throw new IOException("Unknown stroke version!");
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
 		tool = Tool.values()[in.readInt()];

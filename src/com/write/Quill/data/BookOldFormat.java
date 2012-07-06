@@ -162,7 +162,7 @@ public class BookOldFormat extends Book {
 
 	private Page loadPage(int i, DataInputStream dataIn) throws IOException {
 		// Log.d(TAG, "Loading book page " + i);
-		return new Page(dataIn, getTagManager());
+		return new Page(dataIn, getTagManager(), null);
 	}
 	
 	////////////////////////////////////////
@@ -218,7 +218,7 @@ public class BookOldFormat extends Book {
 			int n_pages = loadIndex(dataIn);
 			for (int n=0; n<n_pages; n++) {
 				if (pageLimit >=0 && pages.size() >= pageLimit) return;
-				Page page = loadPage(dataIn);
+				Page page = new Page(dataIn, tagManager, null);
 				page.touch();
 				pages.add(page);
 			}

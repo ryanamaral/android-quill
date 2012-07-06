@@ -18,7 +18,7 @@
     			
     			<item android:id="@+id/tools_line" android:titleCondensed="@string/menu_quill_straight_line_condensed" android:title="@string/menu_quill_straight_line"/><item android:id="@+id/tools_move" android:title="@string/menu_quill_move"></item>
    				<item android:id="@+id/tools_eraser" android:title="@string/menu_quill_eraser"></item>
-    			<item android:id="@+id/tools_image" android:title="@string/menu_quill_image" android:visible="false"/><item android:id="@+id/tools_typewriter" android:titleCondensed="@string/menu_quill_text_condensed" android:title="@string/menu_quill_text" android:visible="false"></item>
+    			<item android:id="@+id/tools_image" android:title="@string/menu_quill_image"/><item android:id="@+id/tools_typewriter" android:titleCondensed="@string/menu_quill_text_condensed" android:title="@string/menu_quill_text" android:visible="false"></item>
     			
     			
 			</group>			

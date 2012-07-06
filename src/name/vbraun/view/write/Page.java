@@ -2,6 +2,7 @@ package name.vbraun.view.write;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -229,11 +230,15 @@ public class Page {
 	
 	
 	public void writeToStream(DataOutputStream out) throws IOException {
-		out.writeInt(5);  // protocol version number
+		out.writeInt(6);  // protocol version number
 		out.writeUTF(uuid.toString());
 		tags.write_to_stream(out);
 		out.writeInt(paper_type.ordinal());
-		out.writeInt(0); // reserved1
+		
+		out.writeInt(images.size());
+		for (GraphicsControlpoint img : images)
+			img.writeToStream(out);
+		
 		out.writeInt(0); // reserved2
 		out.writeBoolean(is_readonly);
 		out.writeFloat(aspect_ratio);
@@ -246,7 +251,7 @@ public class Page {
 		for (GraphicsControlpoint line : lineArt)
 			line.writeToStream(out);
 		
-		out.writeInt(0); // number of images
+		out.writeInt(0); // reserved
 		out.writeInt(0); // number of text boxes
 	}
 	
@@ -271,7 +276,7 @@ public class Page {
 	}
 	
 
-	public Page(DataInputStream in, TagManager tagMgr) throws IOException {
+	public Page(DataInputStream in, TagManager tagMgr, File dir) throws IOException {
 		tagManager = tagMgr;
 		int version = in.readInt();
 		if (version == 1) {
@@ -296,11 +301,19 @@ public class Page {
 			paper_type = Paper.Type.values()[in.readInt()];
 			in.readInt();
 			in.readInt();
-		} else 
-			throw new IOException("Unknown version!");
+		} else if (version == 6) {
+			uuid = UUID.fromString(in.readUTF());
+			tags = tagManager.loadTagSet(in);
+			paper_type = Paper.Type.values()[in.readInt()];			
+			int nImages= in.readInt();
+			for (int i=0; i<nImages; i++)
+				images.add(new GraphicsImage(in, dir));
+			int dummy = in.readInt();    Assert.assertTrue(dummy == 0);
+		} else 	
+			throw new IOException("Unknown page version!");
 		is_readonly = in.readBoolean();
 		aspect_ratio = in.readFloat();
-		
+
 		int nStrokes = in.readInt();
 		for (int i=0; i<nStrokes; i++) {
 			strokes.add(new Stroke(in));
@@ -311,7 +324,7 @@ public class Page {
 			for (int i=0; i<nLines; i++) {
 				lineArt.add(new GraphicsLine(in));
 			}
-			int nImages= in.readInt(); // TODO
+			in.readInt(); // dummy
 			int nText = in.readInt();  // TODO
 		}
 		

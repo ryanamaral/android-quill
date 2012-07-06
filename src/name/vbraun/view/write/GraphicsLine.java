@@ -133,7 +133,7 @@ public class GraphicsLine extends GraphicsControlpoint {
 		super(Tool.LINE);
 		int version = in.readInt();
 		if (version > 1)
-			throw new IOException("Unknown version!");
+			throw new IOException("Unknown line version!");
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
 		tool = Tool.values()[in.readInt()];

@@ -801,13 +801,14 @@ public class QuillWriterActivity
     		String uuidStr = data.getStringExtra(ImageActivity.EXTRA_UUID);
     		Assert.assertNotNull(uuidStr);
     		UUID uuid = UUID.fromString(uuidStr);
+    		boolean constrain = data.getBooleanExtra(ImageActivity.EXTRA_CONSTRAIN_ASPECT, true);
     		String uriStr = data.getStringExtra(ImageActivity.EXTRA_FILE_URI);
     		if (uriStr == null)
-        		mView.setImage(uuid, null);
+        		mView.setImage(uuid, null, constrain);
     		else {
     			Uri uri = Uri.parse(uriStr);
     			String name = uri.getPath();
-    			mView.setImage(uuid, name);
+    			mView.setImage(uuid, name, constrain);
     		}
     	}
     }
@@ -899,7 +900,7 @@ public class QuillWriterActivity
 	public void onStrokeFinishedListener() {
 		if (!someToolsSwitchBack) return;
 		Tool tool = mView.getToolType();
-		if (tool != tool.MOVE && tool != tool.ERASER) return;
+		if (tool != Tool.MOVE && tool != Tool.ERASER) return;
 		ToolHistory h = ToolHistory.getToolHistory();
 		setActiveTool(h.getTool());
 	}
