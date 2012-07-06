@@ -25,6 +25,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.util.FloatMath;
 import android.util.Log;
 import android.widget.ImageButton;
 
@@ -42,6 +43,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 	private File file = null;
 
 	private int height, width;
+	private float sqrtAspect;
 
 	public enum FileType {
 		FILETYPE_NONE, FILETYPE_PNG, FILETYPE_JPG
@@ -85,7 +87,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 	
 	// persistent data
 	protected UUID uuid = null;
-	protected boolean constrainAspect = false;
+	protected boolean constrainAspect = true;
 	protected Rect cropRect = new Rect();
 
 	public UUID getUuid() {
@@ -204,18 +206,26 @@ public class GraphicsImage extends GraphicsControlpoint {
 			float dx = opposite.x - point.x;
 			float dy = opposite.y - point.y;
 			float minDistance = minDistancePixel / scale;
-			if (0 <= dx && dx <= minDistance)
-				dx = minDistance;
-			if (-minDistance <= dx && dx <= 0)
-				dx = -minDistance;
-			if (0 <= dy && dy <= minDistance)
-				dy = minDistance;
-			if (-minDistance <= dy && dy <= 0)
-				dy = -minDistance;
-			rectF.bottom = point.y;
-			rectF.top = point.y + dy;
-			rectF.left = point.x;
-			rectF.right = point.x + dx;
+			if (-minDistance <= dx && dx <= minDistance) {
+				float sgn = Math.signum(dx);
+				opposite.x = point.x + sgn * minDistance;
+				dx = sgn * minDistance;
+			}
+			if (-minDistance <= dy && dy <= minDistance) {
+				float sgn = Math.signum(dy);
+				opposite.y = point.y + sgn * minDistance;
+				dy = sgn *minDistance;
+			}
+			if (constrainAspect && bitmap != null) {
+				float r = (Math.abs(dx)+Math.abs(dy))/2;
+				dx = r * sqrtAspect * Math.signum(dx);
+				dy = r / sqrtAspect * Math.signum(dy);
+				// Log.d(TAG, "move "+dx + " "+dy + " " + r + " "+(sqrtAspect*sqrtAspect));
+			}
+			rectF.bottom = opposite.y;
+			rectF.top = opposite.y - dy;
+			rectF.left = opposite.x;
+			rectF.right = opposite.x - dx;
 			rectF.sort();
 			bottom_right.y = bottom_left.y = rectF.bottom;
 			top_right.y = top_left.y = rectF.top;
@@ -261,7 +271,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 		return fileName.endsWith(getImageFileName(uuid, fileType));
 	}
 	
-	public void setFile(String fileName) {
+	public void setFile(String fileName, boolean constrainAspect) {
 		// file = new File("/mnt/sdcard/d5efe912-4b03-4ed7-a124-bff4984691d6.jpg");
 		if (!checkFileName(fileName)) {
 			Log.e(TAG, "filename must be uuid.ext");
@@ -271,6 +281,18 @@ public class GraphicsImage extends GraphicsControlpoint {
 			loadBitmap();
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to load file " + file.toString() + " (missing?");
+		}
+		this.constrainAspect = constrainAspect;
+		if (constrainAspect) {
+			float w = top_right.x - top_left.x;
+			float h = bottom_right.y - top_right.y;
+			float r = (w+h)/2f;
+			w = r * sqrtAspect;
+			h = r / sqrtAspect;
+			bottom_left.x = top_left.x = center.x - w/2;
+			bottom_right.x = top_right.x = center.x + w/2;
+			bottom_left.y = bottom_right.y = center.y + h/2;
+			top_left.y = top_right.y = center.y - h/2;
 		}
 	}
 
@@ -305,6 +327,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 
 		height = o2.outHeight;
 		width = o2.outWidth;
+		sqrtAspect = FloatMath.sqrt((float)width / (float)height);
 	}
 
 		
