@@ -40,6 +40,7 @@ import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -778,7 +779,8 @@ public class QuillWriterActivity
     
     private final static int REQUEST_REPORT_BACK_KEY = 1;
     private final static int REQUEST_PICK_IMAGE = 2;
-    
+    private final static int REQUEST_EDIT_IMAGE = 3;
+
     private void launchOverviewActivity() {
 		Intent i = new Intent(getApplicationContext(), ThumbnailActivity.class);    
     	startActivity(i);
@@ -794,19 +796,19 @@ public class QuillWriterActivity
     			finish();
     		break;
     	case REQUEST_PICK_IMAGE:
+    	case REQUEST_EDIT_IMAGE:
     		if (resultCode != RESULT_OK) return;
-    		String uuidOldStr = data.getStringExtra(ImageActivity.EXTRA_OLD_UUID);
-    		Assert.assertNotNull(uuidOldStr);
-    		UUID uuidOld = UUID.fromString(uuidOldStr);
-    		String uuidNewStr = data.getStringExtra(ImageActivity.EXTRA_UUID);
-    		String name = data.getStringExtra(ImageActivity.EXTRA_FILE_NAME);
-    		if (uuidNewStr==null || name==null) {
-    			mView.setImage(uuidOld, null, null);
-    		} else {
-    			UUID uuidNew = UUID.fromString(uuidNewStr);
-    			mView.setImage(uuidOld, uuidNew, name);
+    		String uuidStr = data.getStringExtra(ImageActivity.EXTRA_UUID);
+    		Assert.assertNotNull(uuidStr);
+    		UUID uuid = UUID.fromString(uuidStr);
+    		String uriStr = data.getStringExtra(ImageActivity.EXTRA_FILE_URI);
+    		if (uriStr == null)
+        		mView.setImage(uuid, null);
+    		else {
+    			Uri uri = Uri.parse(uriStr);
+    			String name = uri.getPath();
+    			mView.setImage(uuid, name);
     		}
-    		break;
     	}
     }
     
@@ -903,10 +905,19 @@ public class QuillWriterActivity
 	}
 
 	@Override
-	public void onPickImageListener(UUID uuid) {
+	public void onPickImageListener(GraphicsImage image) {
     	Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
-    	intent.putExtra(ImageActivity.EXTRA_OLD_UUID, uuid.toString());
+    	intent.putExtra(ImageActivity.EXTRA_UUID, image.getUuid().toString());
     	startActivityForResult(intent, REQUEST_PICK_IMAGE);
+	}
+	
+	@Override
+	public void onEditImageListener(GraphicsImage image) {
+    	Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+        intent.putExtra(ImageActivity.EXTRA_UUID, image.getUuid().toString());
+		intent.putExtra(ImageActivity.EXTRA_CONSTRAIN_ASPECT, image.getConstrainAspect());
+        intent.putExtra(ImageActivity.EXTRA_FILE_URI, image.getFileUri().toString());
+    	startActivityForResult(intent, REQUEST_EDIT_IMAGE);
 	}
 	
 }

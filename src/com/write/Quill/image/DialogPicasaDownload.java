@@ -75,7 +75,7 @@ public class DialogPicasaDownload extends DialogBase {
 	@Override
 	protected void onFinish(File file) {		
 		ImageActivity activity = (ImageActivity) getActivity();
-		activity.loadBitmap(Uri.fromFile(file), FileType.FILETYPE_JPG, 0);
+		activity.loadBitmap(Uri.fromFile(file), 0);
 	}
 
 

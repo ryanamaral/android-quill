@@ -99,12 +99,8 @@ public class Util {
 	}
 
 	
-	public static String getImageFileExt(FileType fileType) {
-		return GraphicsImage.getImageFileExt(fileType);
-	}
-
-	public static String getImageFileName(UUID uuid, FileType fileType) {
-		return GraphicsImage.getImageFileName(uuid, fileType);
+	public static String getImageFileName(UUID uuid) {
+		return GraphicsImage.getImageFileName(uuid, FileType.FILETYPE_JPG);
 	}
 
 
