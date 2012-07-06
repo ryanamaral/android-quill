@@ -39,6 +39,13 @@ class CropImageView extends ImageViewTouchBase {
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 	}
 	
+	protected Rect getCropRect() {
+		if (mCrop == null)
+			return null;
+		else
+			return mCrop.getCropRect();
+	}
+	
 	@Override
 	protected void zoomTo(float scale, float centerX, float centerY) {
 		super.zoomTo(scale, centerX, centerY);

@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 
 // This class is used by CropImage to display a highlighted cropping rectangle
@@ -351,8 +352,9 @@ class HighlightView {
 
     // Returns the cropping rectangle in image space.
     public Rect getCropRect() {
-        return new Rect((int) mCropRect.left, (int) mCropRect.top,
-                        (int) mCropRect.right, (int) mCropRect.bottom);
+    	Rect r = new Rect();
+    	mCropRect.round(r);
+    	return r;
     }
 
     // Maps the cropping rectangle from image space to screen space.
