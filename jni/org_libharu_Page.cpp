@@ -229,7 +229,6 @@ JNIEXPORT void JNICALL Java_org_libharu_Page_image
 {
   HPDF_Page page = get_HPDF_Page(env, obj_page); 
   HPDF_Image image = get_HPDF_Image(env, obj_image);
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "image %x %x", page, image);  
   HPDF_Page_DrawImage(page, image, x, y, width, height);
 }
 
