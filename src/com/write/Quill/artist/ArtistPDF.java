@@ -11,6 +11,7 @@ import org.libharu.Document;
 import org.libharu.Document.CompressionMode;
 import org.libharu.Font;
 import org.libharu.Font.BuiltinFont;
+import org.libharu.Image;
 import org.libharu.Page;
 import org.libharu.Page.LineCap;
 import org.libharu.Page.LineJoin;
@@ -204,6 +205,31 @@ public class ArtistPDF
         pageNumber++;
 	}
 		
+
+	@Override
+	public void imageJpeg(File jpgFile, float left, float right, float top, float bottom) {
+		Image image = doc.getImage(jpgFile.getAbsolutePath());
+		float x0 = scaledX(left,top);
+		float y0 = scaledY(left,top);
+		float x1 = scaledX(right,bottom);
+		float y1 = scaledY(right,bottom);
+		float width, height;
+		if (x0 < x1) {
+			width = x1 - x0;
+		} else {
+			width = x0 - x1;
+			x0 = x1;
+		}
+		if (y0 < y1) {
+			height = y1 - y0;
+		} else {
+			height = y0 - y1;
+			y0 = y1;
+		}
+		Log.e(TAG, "Image "+x0+":"+y0+" "+width+"x"+height);
+		pdf.image(image, x0, y0, width, height);
+	}
+
 
 	public void addPage(name.vbraun.view.write.Page page) {
 		boolean page_is_portrait = (page.getAspectRatio() < 1);

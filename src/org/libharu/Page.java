@@ -1,5 +1,6 @@
 package org.libharu;
 
+import java.io.File;
 import java.util.LinkedList;
 
 public class Page {
@@ -53,6 +54,12 @@ public class Page {
 	public native void stroke();
 	public native void fill();
 	public native void fillStroke();
+	
+	///////////////////////////////////////////////////////
+	/// Images
+	///////////////////////////////////////////////////////
+
+	public native void image(Image img, float x, float y, float width, float height);
 	
 	///////////////////////////////////////////////////////
 	/// Text

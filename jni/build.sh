@@ -5,8 +5,9 @@ pushd /home/vbraun/Eclipse/workspace/Quill
 javah -jni -d jni -classpath bin/classes org.libharu.Document
 javah -jni -d jni -classpath bin/classes org.libharu.Page
 javah -jni -d jni -classpath bin/classes org.libharu.Font
+javah -jni -d jni -classpath bin/classes org.libharu.Image
 
 
-/home/vbraun/opt/android-ndk-r7/ndk-build
+/home/vbraun/opt/android-ndk-r8/ndk-build
 
 popd

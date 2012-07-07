@@ -1,5 +1,7 @@
 package com.write.Quill.artist;
 
+import java.io.File;
+
 import junit.framework.Assert;
 
 /**
@@ -84,6 +86,8 @@ abstract public class Artist {
 		stroke();
 	}
 
+	abstract public void imageJpeg(File jpgFile, float left, float right, float top, float bottom);
+	
 	abstract public void addPage(name.vbraun.view.write.Page page);
 	
 }

@@ -291,7 +291,7 @@ public class GraphicsImage extends GraphicsControlpoint {
 
 	@Override
 	public void render(Artist artist) {
-		// TODO Auto-generated method stub
+		artist.imageJpeg(file, top_left.x, top_right.x, top_left.y, bottom_left.y);
 	}
 
 	public boolean checkFileName(String fileName) {

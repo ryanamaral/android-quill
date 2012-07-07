@@ -121,6 +121,14 @@ JNIEXPORT void JNICALL Java_org_libharu_Page_fillStroke
 
 /*
  * Class:     org_libharu_Page
+ * Method:    image
+ * Signature: (Lorg/libharu/Image;FFFF)V
+ */
+JNIEXPORT void JNICALL Java_org_libharu_Page_image
+  (JNIEnv *, jobject, jobject, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     org_libharu_Page
  * Method:    beginText
  * Signature: ()V
  */
