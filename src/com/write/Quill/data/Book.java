@@ -35,7 +35,7 @@ public class Book {
 	private static final String TAG = "Book";
 	private static final String QUILL_DATA_FILE_SUFFIX = ".quill_data";
 	protected static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
-	private static final String PAGE_FILE_PREFIX = "page_";
+	protected static final String PAGE_FILE_PREFIX = "page_";
 
 	protected final TagManager tagManager = new TagManager();
 
@@ -486,7 +486,7 @@ public class Book {
 	// Loads the book. This is the complement to the save() method
 	public Book(Storage storage, UUID uuid) {
 		allowSave = true;
-		File dir = storage.getBookDirectory(uuid);
+		BookDirectory dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, -1);
 		} catch (BookLoadException e) {
@@ -503,7 +503,7 @@ public class Book {
 	// Load a truncated preview of the book
 	public Book(Storage storage, UUID uuid, int pageLimit) {
 		allowSave = false;
-		File dir = storage.getBookDirectory(uuid);
+		BookDirectory dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, pageLimit);
 		} catch (BookLoadException e) {
@@ -526,7 +526,7 @@ public class Book {
 	// save data internally. To load, use the constructor.
 	public void save(Storage storage) {
 		Assert.assertTrue(allowSave);
-		File dir = storage.getBookDirectory(getUUID());
+		BookDirectory dir = storage.getBookDirectory(getUUID());
 		try {
 			doSaveBookInDirectory(dir);
 		} catch (BookSaveException e ) {
@@ -536,13 +536,13 @@ public class Book {
 		}
 	}
 	
-	private void doLoadBookFromDirectory(File dir, int pageLimit) throws BookLoadException, IOException {
+	private void doLoadBookFromDirectory(BookDirectory dir, int pageLimit) throws BookLoadException, IOException {
 		if (!dir.isDirectory())
 			throw new BookLoadException("No such directory: "+dir.toString());
 		LinkedList<UUID> pageUUIDs = loadIndex(dir);
 
 		// add  remaining page uuids from files in dir 
-		LinkedList<UUID> pageUUIDsInDir = listPagesInDirectory(dir);
+		LinkedList<UUID> pageUUIDsInDir = dir.listPages();
 		pageUUIDsInDir.removeAll(pageUUIDs);
 		if (!pageUUIDsInDir.isEmpty()) {
 			pageUUIDs.addAll(pageUUIDsInDir);
@@ -556,48 +556,34 @@ public class Book {
 		}
 	}
 	
-	private void doSaveBookInDirectory(File dir) throws BookSaveException, IOException {
+	private void doSaveBookInDirectory(BookDirectory dir) throws BookSaveException, IOException {
 		if (!dir.isDirectory() && !dir.mkdir())
 			throw new BookSaveException("Error creating directory "+dir.toString());
 		saveIndex(dir);
-		LinkedList<UUID> pageUUIDsInDir = listPagesInDirectory(dir);
+		LinkedList<UUID> pageUUIDsInDir = dir.listPages();
+		LinkedList<UUID> blobUUIDsInDir = dir.listBlobs();
 		for (Page page : getPages()) {
 			pageUUIDsInDir.remove(page.getUUID());
+			blobUUIDsInDir.removeAll(page.getBlobUUIDs());
 			if (!page.isModified())	continue;
 			savePage(page, dir);
 		}
 
 		for (UUID unused: pageUUIDsInDir) {
-			Log.d(TAG, "Deleteing unusued page file: "+unused);
-			getPageFile(dir, unused).delete();
+			File file = dir.getFile(unused);
+			Log.d(TAG, "Deleteing unusued page file: "+file.toString());
+			file.delete();
+		}
+		for (UUID unused: blobUUIDsInDir) {
+			File file = dir.getFile(unused);
+			Log.d(TAG, "Deleteing unusued blob file: "+file.toString());
+			file.delete();
 		}
 	}
 
 	
 	
-	private LinkedList<UUID> listPagesInDirectory(File dir) {
-		FilenameFilter filter = new FilenameFilter() {
-		    public boolean accept(File directory, String name) {
-		        return name.startsWith(Book.PAGE_FILE_PREFIX);
-		    }};
-		File[] entries = dir.listFiles(filter);
-		LinkedList<UUID> uuids = new LinkedList<UUID>();
-		if (entries == null) return uuids;
-		for (File pagefile : entries) {
-			String path = pagefile.getAbsolutePath();
-			int pos = path.lastIndexOf(Book.PAGE_FILE_PREFIX);
-			pos += Book.PAGE_FILE_PREFIX.length();
-			try {
-				UUID uuid = UUID.fromString(path.substring(pos, pos+36));
-				Log.d(TAG, "Found page: "+uuid);
-				uuids.add(uuid);
-			} catch (StringIndexOutOfBoundsException e) {
-				Log.e(TAG, "Malformed file name: "+uuid);
-			}
-		}
-		return uuids;
-	}
-	
+
 //	////////////////////////////////////////
 //	/// Load and save archives 
 //	/// Throw error if necessary

@@ -319,7 +319,7 @@ public class ImageActivity
 	
 	private File getBookImageFile() {
 		Storage storage = Storage.getInstance();
-		File dir = storage.getBookDirectory(book.getUUID());
+		File dir = storage.getBookDirectory(book);
 		return new File(dir, getImageFileName());
 	}
 
