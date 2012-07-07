@@ -226,7 +226,6 @@ public class ArtistPDF
 			height = y0 - y1;
 			y0 = y1;
 		}
-		Log.e(TAG, "Image "+x0+":"+y0+" "+width+"x"+height);
 		pdf.image(image, x0, y0, width, height);
 	}
 

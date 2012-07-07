@@ -39,8 +39,6 @@ JNIEXPORT void JNICALL Java_org_libharu_Image_construct
   __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "Constructing Image");  
 
   const char* file_str = env->GetStringUTFChars(fileName, 0);
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "file_str = %s", file_str);  
-
   HPDF_Doc pdf = get_HPDF_Doc(env, document);
   HPDF_Image image = HPDF_LoadJpegImageFromFile(pdf, file_str);
   set_HPDF_Image(env, obj, image);
