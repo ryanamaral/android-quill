@@ -61,6 +61,13 @@ public class Page {
 		return uuid;
 	}
 	
+	public LinkedList<UUID> getBlobUUIDs() {
+		LinkedList<UUID> blobs = new LinkedList<UUID>();
+		for (GraphicsImage image : images)
+			blobs.add(image.getUuid());
+		return blobs;
+	}
+	
 	public boolean is_empty() {
 		return strokes.isEmpty() && lineArt.isEmpty();
 	}

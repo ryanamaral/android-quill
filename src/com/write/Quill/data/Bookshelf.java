@@ -77,7 +77,7 @@ public class Bookshelf {
 		public void reload() {
 			preview = new Book(storage, uuid, 1);
 		}
-		public void deleteFromStorage() { storage.deleteBookDirectory(uuid); }
+		public void deleteFromStorage() { storage.getBookDirectory(uuid).deleteAll(); }
 	}
 	
 	public static class BookPreviewComparator implements Comparator<BookPreview> {

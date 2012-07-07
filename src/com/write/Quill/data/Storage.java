@@ -104,10 +104,6 @@ public abstract class Storage {
 	////////////////////////////////////////////////////
 	/// Book directory handlings
 
-	public String getBookDirectoryName(UUID uuid) {
-		return NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
-	}	
-	
 	protected UUID getBookUUIDfromDirectoryName(String name) {
 		if (!name.startsWith(NOTEBOOK_DIRECTORY_PREFIX)) return null;
 		int n = NOTEBOOK_DIRECTORY_PREFIX.length();
@@ -115,28 +111,14 @@ public abstract class Storage {
 		return UUID.fromString(uuid);
 	}
 	
-	public File getBookDirectory(UUID uuid) {
-		String dirname = getBookDirectoryName(uuid);
-		return new File(getFilesDir(), dirname);
+	public BookDirectory getBookDirectory(Book book) {
+		return getBookDirectory(book.getUUID());
+	}
+	 
+	public BookDirectory getBookDirectory(UUID uuid) {
+		return new BookDirectory(this, uuid);
 
 	}
-	
-	public void deleteBookDirectory(UUID uuid) {
-		File dir = getBookDirectory(uuid);
-		deleteDirectory(dir);
-	}
-	
-	private void deleteDirectory(File dir) {
-        String[] children = dir.list();
-        for (String child : children) {
-        	File file = new File(dir, child);
-        	file.delete();
-        }
-        boolean rc = dir.delete();
-        if (!rc) 
-        	LogError(TAG, "Unable to delete directory "+dir.toString());		
-	}
-
 
 	public LinkedList<UUID> listBookUUIDs() {
 		FilenameFilter filter = new FilenameFilter() {

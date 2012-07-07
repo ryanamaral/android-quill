@@ -20,6 +20,10 @@
     </style>
   </head>
   <body>
+$ 10.0
+  % Version 10.0
+  _ 2012-07-08
+    * Image support!   
 $ 9.9
   % Version 9.9
   _ 2012-04-19
