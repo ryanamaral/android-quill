@@ -36,12 +36,28 @@ public class Document {
 		destruct();
 	}
 	
+	/**
+	 * Construct a new Font object. Use then Page.setFontAndSize() to change the font.
+	 * @param font
+	 * @param encodingName
+	 * @return
+	 */
 	public Font getFont(Font.BuiltinFont font, String encodingName) {
 		return new Font(this, font, encodingName);
 	}
 
 	public Font getFont(Font.BuiltinFont font) {
 		return new Font(this, font);
+	}
+
+	
+	/**
+	 * Construct a new Image object. Use then Page.image() to draw it on the desired location.
+	 * @param fileName
+	 * @return
+	 */
+	public Image getImage(String fileName) {
+		return new Image(this, fileName);
 	}
 	
 	// private stuff follows

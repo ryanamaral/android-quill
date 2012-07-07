@@ -20,6 +20,9 @@ void set_HPDF_Doc(JNIEnv *env, jobject obj, HPDF_Doc ptr);
 HPDF_Font get_HPDF_Font(JNIEnv *env, jobject obj);
 void set_HPDF_Font(JNIEnv *env, jobject obj, HPDF_Font ptr);
 
+// access to the HPDF_Image field in org.libharu.Image
+HPDF_Image get_HPDF_Image(JNIEnv *env, jobject obj);
+void set_HPDF_Image(JNIEnv *env, jobject obj, HPDF_Image ptr);
 
 #ifdef __cplusplus
 }

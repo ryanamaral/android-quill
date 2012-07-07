@@ -348,6 +348,9 @@ public class Page {
 	
 	public void render(Artist artist) {
 		background.render(artist);
+		for (GraphicsImage image: images) {
+		   	image.render(artist);
+	    }
 		for (Stroke stroke : strokes)
 			stroke.render(artist);
 		for (GraphicsControlpoint line : lineArt)
