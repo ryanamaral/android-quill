@@ -26,10 +26,21 @@ import android.util.Log;
 public class Util {
 	private static final String TAG = "Util";
 	
+	public final static int IMAGE_MAX_SIZE = 2048;
+
+	public static int scalePow2(int height, int width) {
+        int scale = 1;
+        int size = Math.max(height, width);
+        if (size > IMAGE_MAX_SIZE) {
+            scale = (int)Math.pow(2, (int) Math.round(Math.log(IMAGE_MAX_SIZE / 
+            			(double) size) / Math.log(0.5)));
+        }
+        return scale;
+	}
+	
 	public static Bitmap getBitmap(ContentResolver contentResolver, Uri uri) {
 		InputStream in = null;
 		try {
-			final int IMAGE_MAX_SIZE = 2048;
 			in = contentResolver.openInputStream(uri);
 			
 			//Decode image size
@@ -39,12 +50,7 @@ public class Util {
 	        BitmapFactory.decodeStream(in, null, o);
 	        in.close();
 
-	        int scale = 1;
-	        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
-	            scale = (int)Math.pow(2, (int) Math.round(Math.log(IMAGE_MAX_SIZE / 
-	            			(double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
-	        }
-
+	        int scale = Util.scalePow2(o.outHeight, o.outWidth);
 	        BitmapFactory.Options o2 = new BitmapFactory.Options();
 	        o2.inSampleSize = scale;
 	        in = contentResolver.openInputStream(uri);
@@ -65,6 +71,13 @@ public class Util {
     public static Bitmap rotateAndCrop(Bitmap b, int degrees, Rect crop) {
     	Assert.assertNotNull(b);
     	Bitmap b2 = null;
+        int scale = Util.scalePow2(b.getHeight(), b.getWidth());
+        if (scale != 1 && crop != null) {
+        	crop.left *= scale;
+        	crop.right*= scale;
+        	crop.bottom *= scale;
+        	crop.top *= scale;
+        }
     	try {
     		if (degrees != 0) {
     			Matrix m = new Matrix();
@@ -82,17 +95,24 @@ public class Util {
     			else {
     				Matrix minv = new Matrix();
     				m.invert(minv);
+//      			minv.postScale(scale, scale);
     				RectF r = new RectF();
     				r.set(crop);
     				minv.mapRect(r);
+    				Log.d(TAG, "crop = "+crop.toString());
     				r.round(crop);
-    				// Log.d(TAG, "inv rotated crop = "+crop.toString());
+    				Log.d(TAG, "bitmap "+b.getDensity() + " " + b.getWidth() + " x "+b.getHeight());
+    				Log.d(TAG, "inv rotated crop = "+crop.toString());
     				b2 = Bitmap.createBitmap(b, crop.left, crop.top, crop.width(), crop.height(), m, true);
     			}
     		} else {
-    			if (crop != null)
+    			if (crop != null) {
+    				Log.d(TAG, "crop = "+crop.toString());
+    				Log.d(TAG, "bitmap "+b.getDensity() + " " + b.getWidth() + " x "+b.getHeight());
     				b2 = Bitmap.createBitmap(b, crop.left, crop.top, crop.width(), crop.height());
-    			else
+//  				b2 = Bitmap.createBitmap(b, scale*crop.left, scale*crop.top, 
+//  						scale*crop.width(), scale*crop.height());
+    			} else
     				b2 = b;
     		}
     	} catch (OutOfMemoryError ex) {
