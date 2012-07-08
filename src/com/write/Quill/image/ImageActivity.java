@@ -246,8 +246,21 @@ public class ImageActivity
 				Log.e(TAG, "Selected image is NULL!");
 				return;
 			} else {
-				Log.d(TAG, "Selected image!");
+				Log.d(TAG, "Selected image: "+selectedImage);
 			}
+
+			if (selectedImage.toString().startsWith(
+					"content://com.android.gallery3d.provider")) {
+				// some devices/OS versions return an URI of com.android instead
+				// of com.google.android
+				String str = selectedImage.toString()
+						.replace("com.android.gallery3d", "com.google.android.gallery3d");
+				selectedImage = Uri.parse(str);
+				Log.d(TAG, "Rewrote to: "+selectedImage);
+			}
+			boolean picasaImage = selectedImage.toString().startsWith(
+					"content://com.google.android.gallery3d");
+			
 			final String[] filePathColumn = { MediaColumns.DATA,
 					MediaColumns.DISPLAY_NAME };
 			Cursor cursor = getContentResolver().query(selectedImage,
@@ -258,18 +271,6 @@ public class ImageActivity
 				Log.e(TAG, "cursor is null");
 				return;
 			}
-
-			if (selectedImage.toString().startsWith(
-					"content://com.android.gallery3d.provider")) {
-				// some devices/OS versions return an URI of com.android instead
-				// of com.google.android
-				String str = selectedImage.toString()
-						.replace("com.android.gallery3d",
-								"com.google.android.gallery3d");
-				selectedImage = Uri.parse(str);
-			}
-			boolean picasaImage = selectedImage.toString().startsWith(
-					"content://com.google.android.gallery3d");
 			
 			cursor.moveToFirst();
 			if (picasaImage) {
