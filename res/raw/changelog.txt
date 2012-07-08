@@ -23,7 +23,7 @@
 $ 10.0
   % Version 10.0
   _ 2012-07-08
-    * Image support!   
+    * New feature: Insert images into your notes  
 $ 9.9
   % Version 9.9
   _ 2012-04-19
