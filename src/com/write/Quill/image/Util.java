@@ -69,7 +69,7 @@ public class Util {
     // Rotates the bitmap by the specified degree.
     // If a new bitmap is created, the original bitmap is recycled.
     public static Bitmap rotateAndCrop(Bitmap b, int degrees, Rect crop) {
-    	Assert.assertNotNull(b);
+    	if (b == null) return b;
     	Bitmap b2 = null;
         int scale = Util.scalePow2(b.getHeight(), b.getWidth());
         if (scale != 1 && crop != null) {
