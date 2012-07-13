@@ -19,14 +19,14 @@ public class PenEventHTC extends PenEvent {
 	public boolean isPenButtonPressed(MotionEvent event) {
 		if (!isPenEvent(event)) return false;
 		final int meta = event.getMetaState();
-		return (meta & KeyEvent.META_SHIFT_ON) == KeyEvent.META_SHIFT_ON;
+		return (meta & KeyEvent.META_ALT_ON) == KeyEvent.META_ALT_ON;
 	}
 	
 	@Override
 	public boolean isPenButtonAltPressed(MotionEvent event) {
 		if (!isPenEvent(event)) return false;
 		final int meta = event.getMetaState();
-		return (meta & KeyEvent.META_ALT_ON) == KeyEvent.META_ALT_ON;
+		return (meta & KeyEvent.META_SHIFT_ON) == KeyEvent.META_SHIFT_ON;
 	}
 	
 
