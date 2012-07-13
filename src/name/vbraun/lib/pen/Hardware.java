@@ -25,6 +25,7 @@ public class Hardware {
     public static final String PEN_TYPE_SAMSUNG_NOTE = "PEN_TYPE_SAMSUNG_NOTE";
     public static final String PEN_TYPE_LEFT_ALT = "PEN_TYPE_LEFT_ALT";
     public static final String PEN_TYPE_ICS = "PEN_TYPE_ICS";
+    public static final String PEN_TYPE_HTC = "PEN_TYPE_HTC";
 
 	
 	private String model;
@@ -67,10 +68,17 @@ public class Hardware {
 		Log.v(TAG, model);
 		if (model.equalsIgnoreCase("ThinkPad Tablet")) { // Lenovo ThinkPad Tablet
 			forceThinkpadTablet();
-		} else if (model.equalsIgnoreCase("OP080") ||
-				   model.equalsIgnoreCase("GT-I9220") || 
-				   model.equalsIgnoreCase("GT-N7000")) {  // Galaxy note
+		} else if (
+				model.equalsIgnoreCase("OP080") ||
+				model.equalsIgnoreCase("GT-I9220") || 
+				model.equalsIgnoreCase("GT-N7000")) {  // Galaxy note
 			forceSamsungNote();
+		} else if (
+				model.equalsIgnoreCase("HTC_Flyer_P512_NA") ||
+				model.equalsIgnoreCase("HTC Flyer P510e") || 
+				model.equalsIgnoreCase("HTC Flyer P512") ||
+				model.equalsIgnoreCase("HTC P510e")) {
+			forceHTC();
 		} else {
 			// defaults; this works on HTC devices but might be more general
 			mHasPenDigitizer = context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.pen");
@@ -110,6 +118,13 @@ public class Hardware {
 		mHasPressureSensor = true;
 		mPenEvent = new PenEventICS();
 	}
+
+	public void forceHTC() {
+		mHasPenDigitizer = true;
+		mHasPressureSensor = true;
+		mPenEvent = new PenEventHTC();
+	}
+	
 	
 	public void forceFromPreferences(Context context) {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -127,6 +142,8 @@ public class Hardware {
 			forceLeftAlt();
 		else if (penType.equals(PEN_TYPE_ICS))
 			forceICS();
+		else if (penType.equals(PEN_TYPE_HTC))
+			forceHTC();
 		else {
 			SharedPreferences.Editor editor = settings.edit();
 			editor.remove(KEY_OVERRIDE_PEN_TYPE);

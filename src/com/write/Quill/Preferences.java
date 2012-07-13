@@ -81,6 +81,7 @@ public class Preferences
     protected static final String PEN_TYPE_CAPACITIVE = Hardware.PEN_TYPE_CAPACITIVE;
     protected static final String PEN_TYPE_SAMSUNG_NOTE = Hardware.PEN_TYPE_SAMSUNG_NOTE;
     protected static final String PEN_TYPE_THINKPAD_TABLET = Hardware.PEN_TYPE_THINKPAD_TABLET;
+    protected static final String PEN_TYPE_HTC = Hardware.PEN_TYPE_HTC;
     protected static final String PEN_TYPE_ICS = Hardware.PEN_TYPE_ICS;
     
     private Preference restorePreference;
