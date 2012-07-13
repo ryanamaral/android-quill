@@ -12,7 +12,17 @@ public class PenEvent {
 		return false;
 	}
 	
+	/**
+	 * The main pen button. This will be uses to switch to erase mode
+	 */
 	public boolean isPenButtonPressed(MotionEvent event) {
+		return false;
+	}
+	
+	/**
+	 * Other pen button, if available. This currently does nothing
+	 */
+	public boolean isPenButtonAltPressed(MotionEvent event) {
 		return false;
 	}
 	
