@@ -27,7 +27,7 @@
             android:title="@string/preferences_move_gesture" >
         </CheckBoxPreference>
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="move_gesture_fix_zoom"
             android:summary="@string/preferences_move_zoom_summary"
             android:title="@string/preferences_move_zoom" />
