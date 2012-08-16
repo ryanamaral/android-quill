@@ -28,7 +28,7 @@ public class Hardware {
     public static final String PEN_TYPE_HTC = "PEN_TYPE_HTC";
 
 	
-	private String model;
+	private final String model;
 	private boolean mHasPenDigitizer;
 	private boolean mHasPressureSensor;
 	private PenEvent mPenEvent;
@@ -56,6 +56,8 @@ public class Hardware {
 	}};
 	
 	private Hardware(Context context) {
+		model = android.os.Build.MODEL;
+		Log.v(TAG, model);
 		if (Global.releaseModeOEM)
 			autodetect(context);
 		else
@@ -64,13 +66,12 @@ public class Hardware {
 	}
 	
 	public void autodetect(Context context) {
-		model = android.os.Build.MODEL;
-		Log.v(TAG, model);
 		if (model.equalsIgnoreCase("ThinkPad Tablet")) { // Lenovo ThinkPad Tablet
 			forceThinkpadTablet();
 		} else if (
 				model.equalsIgnoreCase("OP080") ||
 				model.equalsIgnoreCase("GT-I9220") || 
+				model.equalsIgnoreCase("GT-N8013") || 
 				model.equalsIgnoreCase("GT-N7000")) {  // Galaxy note
 			forceSamsungNote();
 		} else if (
