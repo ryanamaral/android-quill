@@ -1,17 +1,25 @@
 package name.vbraun.lib.pen;
 
+import android.annotation.TargetApi;
 import android.view.MotionEvent;
 
+@TargetApi(14)
 public class PenEventICS extends PenEvent {
-	// The device reports pen events like Ice Cream Sandwich
-	// E.g. HTC Honeycomb devices
 	
-	final static int SOURCE_STYLUS = 0x00004002;
+	public boolean isPenEvent(MotionEvent event) {
+		return event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS;
+	}
 
 	@Override
-	public boolean isPenEvent(MotionEvent event) {
-		// == InputDevice.SOURCE_STYLUS  in ICS
-		return (event.getSource() & SOURCE_STYLUS) == SOURCE_STYLUS;
+	public boolean isPenButtonPressed(MotionEvent event) {
+		// doesn't work, Note uses button for gestures 
+		return event.getButtonState() == MotionEvent.BUTTON_PRIMARY;
 	}
 	
+	@Override
+	public boolean isPenButtonAltPressed(MotionEvent event) {
+		// doesn't work, Note uses button for gestures 
+		return event.getButtonState() == MotionEvent.BUTTON_SECONDARY;
+	}
+
 }

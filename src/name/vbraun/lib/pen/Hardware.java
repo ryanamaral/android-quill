@@ -8,6 +8,7 @@ import junit.framework.Assert;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -85,7 +86,10 @@ public class Hardware {
 			mHasPenDigitizer = context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.pen");
 			mHasPressureSensor = !tabletMODELwithoutPressure.contains(model);
 			if (mHasPenDigitizer) 
-				mPenEvent = new PenEventICS();
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+					mPenEvent = new PenEventHoneycomb();
+				else
+					mPenEvent = new PenEventICS();
 			else
 				mPenEvent = new PenEvent();
 		}
@@ -100,8 +104,12 @@ public class Hardware {
 	public void forceSamsungNote() {
 		mHasPenDigitizer = true;
 		mHasPressureSensor = true;
-		mPenEvent = new PenEventSamsungNote();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			mPenEvent = new PenEventSamsungNoteHoneycomb();
+		else
+			mPenEvent = new PenEventSamsungNote();
 	}
+
 	public void forceCapacitivePen() {
 		mHasPenDigitizer = false;
 		mHasPressureSensor = true;
@@ -117,7 +125,10 @@ public class Hardware {
 	public void forceICS() {
 		mHasPenDigitizer = true;
 		mHasPressureSensor = true;
-		mPenEvent = new PenEventICS();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			mPenEvent = new PenEventHoneycomb();
+		else
+			mPenEvent = new PenEventICS();
 	}
 
 	public void forceHTC() {

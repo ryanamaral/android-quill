@@ -1,33 +1,28 @@
 package name.vbraun.lib.pen;
 
+import android.annotation.TargetApi;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
+@TargetApi(14)
 public class PenEventSamsungNote extends PenEvent {
 	private static final String TAG = "PenEventSamsungNote";
 
-	/**
-	 * Hello Samsung, why are you not setting SOURCE_STYLUS on your pen?
-	 */
-	final static int SOURCE_S_PEN = InputDevice.SOURCE_KEYBOARD
-			| InputDevice.SOURCE_CLASS_POINTER;
-
 	public boolean isPenEvent(MotionEvent event) {
-		// if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-		// InputDevice dev = event.getDevice();
-		// Log.v(TAG,
-		// "Touch: "+dev.getId()+" "+dev.getName()+" "+dev.getKeyboardType()+" "+dev.getSources()+" ");
-		// Log.v(TAG, "Touch: "+event.getDevice().getName()
-		// +" action="+event.getActionMasked()
-		// +" pressure="+event.getPressure()
-		// +" fat="+event.getTouchMajor());
-		// }
-		// InputDevice dev = event.getDevice();
-		// Log.v(TAG,
-		// "Touch: "+dev.getId()+" "+dev.getName()+" "+event.getSource()+" "+dev.getSources()+" ");
-		
-		return (event.getDevice().getSources() & SOURCE_S_PEN) == SOURCE_S_PEN;
+		return event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS;
+	}
+
+	@Override
+	public boolean isPenButtonPressed(MotionEvent event) {
+		// doesn't work, Note uses button for gestures 
+		return event.getButtonState() == MotionEvent.BUTTON_PRIMARY;
+	}
+	
+	@Override
+	public boolean isPenButtonAltPressed(MotionEvent event) {
+		// doesn't work, Note uses button for gestures 
+		return event.getButtonState() == MotionEvent.BUTTON_SECONDARY;
 	}
 
 }
