@@ -79,7 +79,27 @@ public class ThumbnailActivity extends ActivityBase implements
 		book.setCurrentPage(page);
 		launchQuillWriterActivity();
 	}
-
+	
+	/* Catch user interaction
+	 * If there is no user interaction and the user presses back again, then we quit. 
+	 * Pressing back is a user interaction, too, so we need a delay.
+	 * @see android.app.Activity#onUserInteraction()
+	 */
+	@Override
+	public void onUserInteraction() {
+		if (backPressedImmediately) {
+			Handler handler = new Handler();
+			handler.postDelayed(this.afterUserInteraction, 250);
+		}
+		super.onUserInteraction();
+	}
+	
+	private Runnable afterUserInteraction = new Runnable() {
+		public void run() {
+			backPressedImmediately = false;					
+		}
+	};
+	
 	private void launchQuillWriterActivity() {
 		Intent i = new Intent();
 		i.putExtra(RESULT_BACK_KEY_PRESSED, false);
@@ -93,12 +113,12 @@ public class ThumbnailActivity extends ActivityBase implements
 		i.putExtra(RESULT_BACK_KEY_PRESSED, backPressedImmediately);
 		setResult(RESULT_OK, i);
 		finish();
+		// Log.e(TAG, "back = "+backPressedImmediately);
 		super.onBackPressed();
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		backPressedImmediately = false;
 		switch (parent.getId()) {
 		case R.id.tag_list:
 			Tag t = tagManager.get(position);
@@ -119,7 +139,6 @@ public class ThumbnailActivity extends ActivityBase implements
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
-		backPressedImmediately = false;
 		Log.d(TAG, "onItemLongClick " + parent.getId());
 		switch (parent.getId()) {
 		case R.id.tag_list:
@@ -173,7 +192,6 @@ public class ThumbnailActivity extends ActivityBase implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		backPressedImmediately = false;
 		Intent i;
 		switch (item.getItemId()) {
 		case android.R.id.home:

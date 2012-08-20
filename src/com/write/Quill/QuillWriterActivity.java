@@ -790,7 +790,7 @@ public class QuillWriterActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case REQUEST_REPORT_BACK_KEY:
-    		if (resultCode == RESULT_OK) return;
+    		if (resultCode != RESULT_OK) return;
     		boolean backPressed = data.getBooleanExtra(ThumbnailActivity.RESULT_BACK_KEY_PRESSED, false);
     		if (backPressed) 
     			finish();
@@ -810,6 +810,7 @@ public class QuillWriterActivity
     			String name = uri.getPath();
     			mView.setImage(uuid, name, constrain);
     		}
+    		break;
     	}
     }
     
