@@ -20,6 +20,12 @@
     </style>
   </head>
   <body>
+$ 10.1
+  % Version 10.1
+  _ 2012-08-19
+    * Pen button support for HTC Flyer (thanks to Urban Soban)
+    * Pen detection for Galaxy Note 10.1
+    * Fix back button
 $ 10.0
   % Version 10.0
   _ 2012-07-08
@@ -27,7 +33,7 @@ $ 10.0
 $ 9.9
   % Version 9.9
   _ 2012-04-19
-    * The previous apk was somehow corrupted.   
+    * The previous apk was somehow corrupted
 $ 9.8
   % Version 9.8
   _ 2012-04-19
