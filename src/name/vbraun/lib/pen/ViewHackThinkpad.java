@@ -14,14 +14,14 @@ import android.view.ViewGroup;
  * @author vbraun
  *
  */
-public class InterceptorView 
+public class ViewHackThinkpad 
 	extends View 
 	implements View.OnLongClickListener {
 	
-	private final static String TAG = "InterceptorView";
+	private final static String TAG = "ViewHackThinkpad";
 	private final Handler handler = new Handler();
 	
-	public InterceptorView(Context context) {
+	public ViewHackThinkpad(Context context) {
 		super(context);
 		setLongClickable(true);
 		setOnLongClickListener(this);

@@ -42,6 +42,18 @@ public class Hardware {
 		return instance;
 	}
 	
+	/* set the HW button listener */
+	HardwareButtonListener buttonListener = null;
+	
+	public void setOnHardwareButtonListener(HardwareButtonListener buttonListener) {
+		this.buttonListener = buttonListener;
+	}
+	
+	protected void callOnHardwareButtonListener(HardwareButtonListener.Type button) {
+		if (buttonListener != null)
+			buttonListener.onHardwareButtonListener(button);
+	}
+	
 	private static ArrayList<String> tabletMODELwithoutPressure = new ArrayList<String>() {
 		private static final long serialVersionUID = 1868225200818950866L; 	{
 	    add("K1");   // Lenovo K1
@@ -71,9 +83,12 @@ public class Hardware {
 			forceThinkpadTablet();
 		} else if (
 				model.equalsIgnoreCase("OP080") ||
-				model.equalsIgnoreCase("GT-I9220") || 
-				model.equalsIgnoreCase("GT-N8013") || 
-				model.equalsIgnoreCase("GT-N7000")) {  // Galaxy note
+				model.equalsIgnoreCase("GT-N8000") || // Galaxy note 10.1 3G 
+				model.equalsIgnoreCase("GT-N8013") || // Galaxy note 10.1 WiFi
+				model.equalsIgnoreCase("GT-I9220") || // Galaxy note 5"
+				model.equalsIgnoreCase("GT-N7000") || // Galaxy note 5" International
+				model.equalsIgnoreCase("SGH-i717") || // Galaxy note 5" AT&T
+				model.equalsIgnoreCase("GT-N8010")) { // Galaxy note II 5"
 			forceSamsungNote();
 		} else if (
 				model.equalsIgnoreCase("HTC_Flyer_P512_NA") ||

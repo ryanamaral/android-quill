@@ -12,11 +12,11 @@ public class PenEventThinkPadTablet extends PenEvent {
 	
 	@Override
 	public boolean isPenButtonPressed(MotionEvent event) {
-		return InterceptorView.buttonPressed;
+		return ViewHackThinkpad.buttonPressed;
 	}
 	
 	public void addViewHack(ViewGroup viewGroup) {
-		InterceptorView v = new InterceptorView(viewGroup.getContext());
+		ViewHackThinkpad v = new ViewHackThinkpad(viewGroup.getContext());
 		viewGroup.addView(v);
 	}
 
