@@ -48,7 +48,7 @@ public class TouchHandlerImage extends TouchHandlerControlpointABC {
 	protected void saveGraphics(GraphicsControlpoint graphics) {
 		view.saveGraphics(graphics);
 		GraphicsImage image = (GraphicsImage) graphics;
-		view.callOnPickImageListener(image);
+		view.callOnEditImageListener(image);
 	}
 
 	@Override
