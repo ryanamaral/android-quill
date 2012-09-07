@@ -500,9 +500,8 @@ public class Toolbox
 			controlpointGearsButton.getHitRect(rectGears);
 			controlpointTrashButton.getHitRect(rectTrash);
 			for (int idx = 0; idx < event.getPointerCount(); idx++) {
-				int id = event.getPointerId(idx);
-				x = event.getX(id);
-				y = event.getY(id);
+				x = event.getX(idx);
+				y = event.getY(idx);
 				pressGears = pressGears || rectGears.contains((int)x, (int)y);
 				pressTrash = pressTrash || rectTrash.contains((int)x, (int)y);
 			}			
