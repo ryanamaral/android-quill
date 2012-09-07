@@ -95,13 +95,13 @@ public class HandwriterView
 			inputListener.onStrokeFinishedListener();
 	}
 	
-	protected void callOnPickImageListener(GraphicsImage image) {
-		if (inputListener != null)
-			inputListener.onPickImageListener(image);
-	}
-	
 	protected void callOnEditImageListener(GraphicsImage image) {
-		if (inputListener != null)
+		File file = image.getFile();
+		if (inputListener == null)
+			return;
+		if (file == null)
+			inputListener.onPickImageListener(image);
+		else
 			inputListener.onEditImageListener(image);
 	}
 	

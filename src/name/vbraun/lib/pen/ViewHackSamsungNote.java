@@ -26,7 +26,7 @@ public class ViewHackSamsungNote extends View {
 			hw.callOnHardwareButtonListener(Type.DELETE);
 		}
 		this.pressed = now;
-		Log.e(TAG, "Hover "+event.getButtonState());
+		// Log.e(TAG, "Hover "+event.getButtonState());
 		return super.onHoverEvent(event);
 	}
 	

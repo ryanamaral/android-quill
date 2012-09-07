@@ -97,7 +97,10 @@ public class GraphicsImage extends GraphicsControlpoint {
 	}
 
 	public Uri getFileUri() {
-		return Uri.fromFile(file);
+		if (file == null)
+			return null;   // no picture selected yet
+		else
+			return Uri.fromFile(file);
 	}
 	
 	public File getFile() {
