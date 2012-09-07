@@ -4,11 +4,13 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import name.vbraun.lib.pen.HardwareButtonListener;
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
 
 import junit.framework.Assert;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -33,7 +35,8 @@ import android.view.WindowManager;
 
 
 public class HandwriterView 
-	extends ViewGroup {
+	extends ViewGroup 
+	implements HardwareButtonListener {
 	
 	private static final String TAG = "Handwrite";
 	
@@ -409,7 +412,9 @@ public class HandwriterView
     	boolean left = settings.getBoolean(KEY_TOOLBOX_IS_ON_LEFT, true);
     	setToolbox(left);
     	
-    	Hardware.getInstance(context).addViewHack(this);
+    	Hardware hw = Hardware.getInstance(context);
+    	hw.addViewHack(this);
+    	hw.setOnHardwareButtonListener(this);
     	// setLayerType(LAYER_TYPE_SOFTWARE, null);
 	}	
 
@@ -640,6 +645,12 @@ public class HandwriterView
 		// return touchHandler.onTouchEvent(event);
 		touchHandler.onTouchEvent(event);
 		return true;
+	}
+	
+	@Override
+	public void onHardwareButtonListener(Type button) {
+		interrupt();
+		setToolType(Tool.ERASER);
 	}
 	
 	protected void toastIsReadonly() {

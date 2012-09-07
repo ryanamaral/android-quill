@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 @TargetApi(14)
 public class PenEventSamsungNote extends PenEvent {
@@ -25,4 +26,9 @@ public class PenEventSamsungNote extends PenEvent {
 		return event.getButtonState() == MotionEvent.BUTTON_SECONDARY;
 	}
 
+	public void addViewHack(ViewGroup viewGroup) {
+		ViewHackSamsungNote v = new ViewHackSamsungNote(viewGroup.getContext());
+		viewGroup.addView(v);
+	}
+	
 }
