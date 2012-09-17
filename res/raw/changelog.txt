@@ -22,8 +22,10 @@
   <body>
 $ 10.2
   % Version 10.2
-  _ 2012-09-16
+  _ 2012-09-17
     * Pen button support for Galaxy Note (thanks to Mingfai Ma)
+    * Auto-save the notebook every 15 minutes
+    * Bug fixes
 $ 10.1
   % Version 10.1
   _ 2012-08-19

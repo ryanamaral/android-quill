@@ -2,7 +2,7 @@
 <resources>
 
     <string name="activity_base_backed_up">Quill notebooks backed up.</string>
-    <string name="quill_deleted_page">Deleted page %1$d / %2$d</string>
+    <string name="activity_base_automatic_saved">Saved current notebook.</string><string name="quill_deleted_page">Deleted page %1$d / %2$d</string>
     <string name="quill_no_other_pen_styles">No other pen styles in history.</string>
     <string name="quill_already_first_page">Already on first page</string>
     <string name="quill_already_first_tagged_page">Already on first tagged page</string>
@@ -23,5 +23,6 @@
     <string name="tag_overlay_required">(required)</string>
     <string name="tag_overlay_missing">(missing)</string>
     <string name="tag_overlay_page_number">Page %1$d</string>
+    
 
 </resources>
