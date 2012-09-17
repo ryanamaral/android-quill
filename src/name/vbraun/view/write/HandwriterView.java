@@ -13,6 +13,7 @@ import junit.framework.Assert;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -535,7 +536,15 @@ public class HandwriterView
 		if (new_page == null) return;
 		page = new_page;
 		if (canvas == null) return;
-		// if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) 
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+			zoomFitWidth();
+		else
+			zoomOutOverview();
+		page.draw(canvas);
+		invalidate();
+	}
+	
+	private void zoomOutOverview() {
 		float H = canvas.getHeight();
 		float W = canvas.getWidth();
 		float dimension = Math.min(H, W/page.aspect_ratio);
@@ -547,9 +556,25 @@ public class HandwriterView
 			page.setTransform((W-w)/2, 0, dimension);
 		else
 			page.setTransform(0, 0, dimension);
-		Log.v(TAG, "set_page at scale "+page.transformation.scale+" canvas w="+W+" h="+H);
-		page.draw(canvas);
-		invalidate();
+	}
+	
+	private void zoomFitWidth() {
+		float H = canvas.getHeight();
+		float W = canvas.getWidth();
+		float dimension = W/page.aspect_ratio;
+		float w = dimension*page.aspect_ratio;
+		float offset_y;
+		RectF r = page.getLastStrokeRect();
+		if (r == null)
+			offset_y = 0;
+		else {
+			float y_center = r.centerY() * dimension;
+			float screen_h = w/W*H;
+			offset_y = screen_h/2 - y_center;  // put y_center at screen center
+			if (offset_y > 0) offset_y = 0;
+			if (offset_y - screen_h < -dimension) offset_y = -dimension + screen_h;
+		}
+		page.setTransform(0, offset_y, dimension);
 	}
 	
 	protected void centerAndFillScreen(float xCenter, float yCenter) {
