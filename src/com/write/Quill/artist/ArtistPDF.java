@@ -208,6 +208,8 @@ public class ArtistPDF
 
 	@Override
 	public void imageJpeg(File jpgFile, float left, float right, float top, float bottom) {
+		if (jpgFile == null)
+			return;
 		Image image = doc.getImage(jpgFile.getAbsolutePath());
 		float x0 = scaledX(left,top);
 		float y0 = scaledY(left,top);

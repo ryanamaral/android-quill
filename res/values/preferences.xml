@@ -20,7 +20,8 @@
         <item>Capacitive pen</item>
         <item>Thinkpad Tablet pen</item>
         <item>Samsung Note S-pen</item>
-        <item >HTC Flyer pen</item><item>Magic Left Alt Hack</item>
+        <item>HTC Flyer pen</item>
+        <item>Magic Left Alt Hack</item>
         <item>Android ICS (4.0) stylus API</item>
         
     </string-array>
@@ -29,7 +30,8 @@
         <item>PEN_TYPE_CAPACITIVE</item>
         <item>PEN_TYPE_THINKPAD_TABLET</item>
         <item>PEN_TYPE_SAMSUNG_NOTE</item>
-        <item>PEN_TYPE_HTC</item><item>PEN_TYPE_LEFT_ALT</item>
+        <item>PEN_TYPE_HTC</item>
+        <item>PEN_TYPE_LEFT_ALT</item>
         <item>PEN_TYPE_ICS</item>
         
     </string-array>
