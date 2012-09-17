@@ -583,89 +583,6 @@ public class Book {
 
 	
 	
-
-//	////////////////////////////////////////
-//	/// Load and save archives 
-//	/// Throw error if necessary
-//	
-//	public void saveBookArchive(File file) throws BookSaveException {
-//		Assert.assertTrue(allowSave);
-//		try {
-//			doSaveBookArchive(file);
-//		} catch (IOException e) {
-//			throw new BookSaveException(e.getLocalizedMessage());
-//		}
-//	}
-//
-//	// Load an archive; the complement to saveArchive
-//	public Book(File file) throws BookLoadException {
-//		allowSave = true;
-//		try {
-//			doLoadBookArchive(file, -1);
-//		} catch (IOException e) {
-//			throw new BookLoadException(e.getLocalizedMessage());
-//		}
-//		loadingFinishedHook();
-//	}
-//
-//	// Peek an archive: load index data but skip pages except for the first couple of pages
-//	public Book(File file, int pageLimit) throws BookLoadException {
-//		allowSave = false; // just to be sure that we don't save truncated data back
-//		try {
-//			doLoadBookArchive(file, pageLimit);
-//		} catch (IOException e) {
-//			throw new BookLoadException(e.getLocalizedMessage());
-//		}
-//		currentPage = 0;
-//		loadingFinishedHook();
-//	}
-//	
-//	/** Internal helper to load book from archive file
-//	 * @param file The archive file to load
-//	 * @param pageLimit when to stop loading pages. Negative values mean load all pages.
-//	 * @throws IOException, BookLoadException
-//	 */
-//	private void doLoadBookArchive(File file, int pageLimit) throws IOException, BookLoadException {
-//		FileInputStream fis = null;
-//		BufferedInputStream buffer = null;
-//		DataInputStream dataIn = null;
-//		try {
-//			fis = new FileInputStream(file);
-//			buffer = new BufferedInputStream(fis);
-//			dataIn = new DataInputStream(buffer);
-//			pages.clear();
-//			LinkedList<UUID> pageUUIDs = loadIndex(dataIn);
-//			for (UUID uuid : pageUUIDs) {
-//				if (pageLimit >=0 && pages.size() >= pageLimit) return;
-//				Page page = loadPage(dataIn);
-//				page.touch();
-//				pages.add(page);
-//			}
-//		} finally {
-//			if (dataIn != null) dataIn.close();
-//			else if (buffer != null) buffer.close();
-//			else if (fis != null) fis.close();
-//		}
-//	}
-//
-//	private void doSaveBookArchive(File file) throws IOException, BookSaveException {
-//		FileOutputStream fos = null;
-//		BufferedOutputStream buffer = null;
-//		DataOutputStream dataOut = null;
-//		try {
-//			fos = new FileOutputStream(file);
-//			buffer = new BufferedOutputStream(fos);
-//			dataOut = new DataOutputStream(buffer);
-//			saveIndex(dataOut);
-//			for (Page page : pages)
-//				savePage(page, dataOut);
-//		} finally {
-//			if (dataOut != null) dataOut.close();
-//			else if (buffer != null) buffer.close();
-//			else if (fos != null) fos.close();
-//		}
-//	}
-
 	/////////////////////////////
 	/// implementation of load/save
 	
@@ -721,12 +638,6 @@ public class Book {
 			setFilter(tagManager.loadTagSet(dataIn));
 		} else 
 			throw new BookLoadException("Unknown version in load_index()");
-		
-		if (pageUuidList == null) { // update from version <=3
-			pageUuidList = new LinkedList<UUID>();
-			for (int i=0; i<n_pages; i++)
-				pageUuidList.add(UUID.randomUUID());
-		}
 		return pageUuidList;
 	}
 
