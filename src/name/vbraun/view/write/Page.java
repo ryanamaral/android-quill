@@ -72,6 +72,15 @@ public class Page {
 		return strokes.isEmpty() && lineArt.isEmpty();
 	}
 	
+	/** Get the smallest rectangle containing the most recent stroke in page coordinates. 
+	 *  @return A RectF or null if the page is empty.
+	 */
+	public RectF getLastStrokeRect() {
+		if (strokes.isEmpty()) 
+			return null;
+		return strokes.getLast().getEnvelopingRect();
+	}
+	
 	public void touch() {
 		is_modified = true;
 	}

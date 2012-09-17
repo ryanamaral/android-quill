@@ -84,6 +84,23 @@ public class Stroke extends Graphics {
 		return getScaledPenThickness(scale, pen_thickness);
 	}
 
+	/** Return the smallest rectangle (in raw page coordinates) containing the stroke
+	 */
+	public RectF getEnvelopingRect() {
+		float x, y, xmin, ymin, xmax, ymax;
+		xmin = xmax = position_x[0];
+		ymin = ymax = position_y[0];
+		for (int i=1; i<N; i++) {
+			x = position_x[i];
+			y = position_y[i];
+			xmin = Math.min(xmin, x);
+			xmax = Math.max(xmax, x);
+			ymin = Math.min(ymin, y);
+			ymax = Math.max(ymax, y);
+		}
+		return new RectF(xmin, ymin, xmax, ymax);
+	}
+	
 	protected void computeBoundingBox() {
 		float x0, x1, y0, y1, x, y;
 		x0 = x1 = position_x[0] * scale + offset_x;
