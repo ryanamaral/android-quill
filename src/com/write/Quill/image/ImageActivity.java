@@ -87,6 +87,7 @@ public class ImageActivity
 	public final static String EXTRA_ROTATION = "extra_rotation";
 	public final static String EXTRA_CONSTRAIN_ASPECT = "extra_constrain_aspect";
 	public final static String EXTRA_FILE_URI = "extra_file_uri";
+	public final static String EXTRA_PHOTO_TMP_FILE = "extra_photo_tmp_file";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,8 @@ public class ImageActivity
 			uri = Uri.parse(uriStr);
 			loadBitmap();
 		}
+		if (bundle.containsKey(EXTRA_PHOTO_TMP_FILE))
+			photoFile = new File(bundle.getString(EXTRA_PHOTO_TMP_FILE));
 	}
 
 	private Bundle saveTo(Bundle bundle) {
@@ -146,6 +149,8 @@ public class ImageActivity
         bundle.putString(EXTRA_UUID, uuid.toString());
 		bundle.putInt(EXTRA_ROTATION, rotation);
 		bundle.putBoolean(EXTRA_CONSTRAIN_ASPECT, constrainAspect);
+		if (photoFile != null) 
+			bundle.putString(EXTRA_PHOTO_TMP_FILE, photoFile.getAbsolutePath());
 		return bundle;
 	}
 
@@ -227,7 +232,7 @@ public class ImageActivity
 		case REQUEST_CODE_TAKE_PHOTO:
 			if (resultCode != RESULT_OK)
 				break;
-			if (!photoFile.exists()) {
+			if (photoFile == null || !photoFile.exists()) {
 				photoFile = null;
 				Toast.makeText(this, R.string.image_editor_err_no_photo,
 						Toast.LENGTH_LONG).show();
