@@ -87,6 +87,8 @@ public class BookshelfActivity
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		if (position == adapter.getCount()-1) 
+			return false;  
 		showLongClickDialog(position);
 		return true;
 	}
