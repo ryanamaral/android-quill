@@ -70,12 +70,12 @@ public class ActivityBase extends Activity {
 		quillDecRefcount();
 	}
 	
-	protected static void quillIncRefcount() {
+	public static void quillIncRefcount() {
 		backupHandler.removeCallbacks(backupAtExit);
 		quillActivitiesRunning += 1;		
 	}
 	
-	protected static void quillDecRefcount() {
+	public static void quillDecRefcount() {
 		quillActivitiesRunning -= 1;				
 	}
 	
