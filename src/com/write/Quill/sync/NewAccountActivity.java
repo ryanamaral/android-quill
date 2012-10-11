@@ -2,6 +2,7 @@ package com.write.Quill.sync;
 
 import java.util.Random;
 
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
 import android.content.Loader;
@@ -18,12 +19,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.write.Quill.ActivityBase;
 import com.write.Quill.R;
-import com.write.Quill.sync.NewAccountLoader.Response;
 
 public class NewAccountActivity 
-	extends ActivityBase
+	extends Activity
 	implements 
 		OnCheckedChangeListener, 
 		OnClickListener,
@@ -33,8 +32,8 @@ public class NewAccountActivity
 	
 	public final static String ACTION_NEW_ACCOUNT = "new_account";
 	public final static String ACTION_EDIT_ACCOUNT = "edit_account";
-	public final static String EXTRA_EMAIL_ADDRESS = "extra_email_address";
-	public final static String EXTRA_PASSWORD = "extra_password";
+	public final static String EXTRA_EMAIL_ADDRESS = LoginActivity.EXTRA_EMAIL_ADDRESS;
+	public final static String EXTRA_PASSWORD = LoginActivity.EXTRA_PASSWORD;
 	public final static int REQUEST_RETURN_ACCOUNT = 100;
 	
 	private EditText name, email, password;
@@ -129,8 +128,7 @@ public class NewAccountActivity
 	}
 
 	@Override
-	public Loader<Response> onCreateLoader(int id, Bundle args) {
-		Log.e(TAG, "onCreateLoader");
+	public Loader<NewAccountLoader.Response> onCreateLoader(int id, Bundle args) {
 		String name_str = name.getText().toString();
 		String email_str = email.getText().toString();
 		String password_str = password.getText().toString();
@@ -138,12 +136,13 @@ public class NewAccountActivity
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Response> loader, Response response) {
-		Log.e(TAG, "onLoadFinished "+response.getCode() + " " + response.getMessage()); 
-		if (!response.success()) {
-			finish();
+	public void onLoadFinished(Loader<NewAccountLoader.Response> loader, NewAccountLoader.Response response) {
+		enable(true);
+		Log.e(TAG, "onLoadFinished "+response.getHttpCode() + " " + response.getMessage()); 
+		if (!response.isSuccess()) {
 			String msg = getResources().getString(R.string.account_error_create, response.getMessage());
 			Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+			finish();
 			return;
 		}
 		Intent data = new Intent();
@@ -154,7 +153,7 @@ public class NewAccountActivity
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Response> loader) {
+	public void onLoaderReset(Loader<NewAccountLoader.Response> loader) {
 	}
 	
 }

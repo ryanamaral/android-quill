@@ -1,29 +1,36 @@
 package com.write.Quill.sync;
 
+import org.json.JSONException;
+
+import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.write.Quill.ActivityBase;
 import com.write.Quill.R;
 
 public class LoginActivity 
-	extends ActivityBase 
-	implements OnCheckedChangeListener, OnClickListener, TextWatcher {
+	extends 
+		Activity 
+	implements 
+		OnCheckedChangeListener, 
+		OnClickListener, 
+		TextWatcher, 
+		LoaderCallbacks<LoginLoader.Response> {
 	
 	private final static String TAG = "LoginActivity";
 	
@@ -36,7 +43,10 @@ public class LoginActivity
 	
 	// Intent actions
 	public final static String ACTION_LOGIN = "account_login";
-	
+	public final static String EXTRA_NAME = "extra_name";
+	public final static String EXTRA_EMAIL_ADDRESS = "extra_email_address";
+	public final static String EXTRA_PASSWORD = "extra_password";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -116,6 +126,7 @@ public class LoginActivity
 		} 	
 		if (v == okButton) {
 			enable(false);
+			getLoaderManager().initLoader(0, null, this);
 		} 
 		if (v == cancelButton) {
 			enable(true);
@@ -136,4 +147,40 @@ public class LoginActivity
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {}
 	
+	@Override
+	public Loader<LoginLoader.Response> onCreateLoader(int id, Bundle args) {
+		String email_str = email.getText().toString();
+		String password_str = password.getText().toString();
+		return new LoginLoader(this, email_str, password_str);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<LoginLoader.Response> loader, LoginLoader.Response response) {
+		enable(true);
+		Log.e(TAG, "onLoadFinished "+response.getHttpCode() + " " + response.getMessage()); 
+		if (!response.isSuccess()) {
+			String msg = getResources().getString(R.string.account_error_login, response.getMessage());
+			Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+		String name;
+		try {
+			name = response.getJSON().getString("name");
+		} catch (JSONException e) {
+			Log.e(TAG, "JSON[name] "+e.getMessage());
+			name = "Firstname Lastname";
+		}
+		Toast.makeText(this, R.string.account_login_successful, Toast.LENGTH_SHORT).show();
+		Intent data = new Intent();
+		data.putExtra(EXTRA_NAME, name);
+		data.putExtra(EXTRA_EMAIL_ADDRESS, email.getText().toString());
+		data.putExtra(EXTRA_PASSWORD, password.getText().toString());
+		setResult(RESULT_OK, data);
+		finish();	
+	}
+
+	@Override
+	public void onLoaderReset(Loader<LoginLoader.Response> loader) {
+	}
 }

@@ -11,5 +11,7 @@
         <string name="account_button_login">Login</string>
         <string name="account_button_create_new">Create new</string>
         <string name="account_error_create">Error creating account (server said: %s)</string>
+        <string name="account_error_login">Error logging in (server said: %s)</string>
+        <string name="account_login_successful">Login successful!</string>
         
     </resources>
