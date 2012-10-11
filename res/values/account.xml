@@ -1,13 +1,15 @@
 
     <resources>
-        <string name="account_new_create">Create</string>
-        <dimen name="account_new_label_hspace">5dp</dimen>
-        <dimen name="account_new_label_vspace">25dp</dimen>
-        <string name="account_new_name_label">Name:</string>
-        <string name="account_new_email_label">Email:</string>
-        <string name="account_new_password_label">Password:</string>
-        <string name="account_new_show_password">Show password</string>
+        <string name="account_button_create">Create</string>
+        <dimen name="account_label_hspace">5dp</dimen>
+        <dimen name="account_label_vspace">25dp</dimen>
+        <string name="account_name_label">Name:</string>
+        <string name="account_email_label">Email:</string>
+        <string name="account_password_label">Password:</string>
+        <string name="account_show_password">Show password</string>
         <string name="account_login_title">Login to your account</string><string name="account_new_title">Create new account</string>
-        <string name="account_login">Login</string>
+        <string name="account_button_login">Login</string>
+        <string name="account_button_create_new">Create new</string>
+        <string name="account_error_create">Error creating account (server said: %s)</string>
         
     </resources>

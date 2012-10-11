@@ -2,6 +2,9 @@ package com.write.Quill.sync;
 
 import java.util.Random;
 
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -13,17 +16,26 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.write.Quill.ActivityBase;
 import com.write.Quill.R;
+import com.write.Quill.sync.NewAccountLoader.Response;
 
 public class NewAccountActivity 
-	extends NetworkActivity 
-	implements OnCheckedChangeListener, OnClickListener {
+	extends ActivityBase
+	implements 
+		OnCheckedChangeListener, 
+		OnClickListener,
+		LoaderCallbacks<NewAccountLoader.Response> {
 	
 	private final static String TAG = "NewAccountActivity";
 	
-	public final static String NEW_ACCOUNT = "new_account";
-	public final static String EDIT_ACCOUNT = "edit_account";
+	public final static String ACTION_NEW_ACCOUNT = "new_account";
+	public final static String ACTION_EDIT_ACCOUNT = "edit_account";
+	public final static String EXTRA_EMAIL_ADDRESS = "extra_email_address";
+	public final static String EXTRA_PASSWORD = "extra_password";
+	public final static int REQUEST_RETURN_ACCOUNT = 100;
 	
 	private EditText name, email, password;
 	private Button okButton, cancelButton;
@@ -62,7 +74,11 @@ public class NewAccountActivity
     	
     	UserProfile profile = UserProfile.getInstance(this);
     	name.setText(profile.name());
-    	email.setText(profile.email());
+    	Bundle extras = getIntent().getExtras();
+    	String extraEmail = null;
+    	if (extras != null)
+    		extraEmail = extras.getString(EXTRA_EMAIL_ADDRESS);
+    	email.setText(extraEmail!=null ? extraEmail : profile.email());
     	password.setText(randomPassword());	
 	}
 	
@@ -79,7 +95,6 @@ public class NewAccountActivity
 	@Override
 	public void onCheckedChanged(CompoundButton view, boolean isChecked) {
 		if (view == showPassword) {
-			Log.e(TAG, "checked "+isChecked);
 			if (isChecked) 
 				password.setTransformationMethod(null);
 			else
@@ -96,14 +111,50 @@ public class NewAccountActivity
 		okButton.setEnabled(enabled);
 	}
 	
+	public void successfullyCreated() {
+	} 
+
 	@Override
 	public void onClick(View v) {
 		if (v == okButton) {
 			enable(false);
+			getLoaderManager().initLoader(0, null, this);
 		} 
 		if (v == cancelButton) {
 			enable(true);
+			Intent data = new Intent();
+			setResult(RESULT_CANCELED, data);
+			finish();
 		}
+	}
+
+	@Override
+	public Loader<Response> onCreateLoader(int id, Bundle args) {
+		Log.e(TAG, "onCreateLoader");
+		String name_str = name.getText().toString();
+		String email_str = email.getText().toString();
+		String password_str = password.getText().toString();
+		return new NewAccountLoader(this, name_str, email_str, password_str);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Response> loader, Response response) {
+		Log.e(TAG, "onLoadFinished "+response.getCode() + " " + response.getMessage()); 
+		if (!response.success()) {
+			finish();
+			String msg = getResources().getString(R.string.account_error_create, response.getMessage());
+			Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+			return;
+		}
+		Intent data = new Intent();
+		data.putExtra(EXTRA_EMAIL_ADDRESS, email.getText().toString());
+		data.putExtra(EXTRA_PASSWORD, password.getText().toString());
+		setResult(RESULT_OK, data);
+		finish();	
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Response> loader) {
 	}
 	
 }
