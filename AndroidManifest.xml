@@ -60,6 +60,10 @@
         <activity 
             android:name=".sync.NewAccountActivity" 
             android:theme="@android:style/Theme.Holo.Dialog">
+         </activity>
+         <activity 
+            android:name=".sync.LoginActivity" 
+            android:theme="@android:style/Theme.Holo.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

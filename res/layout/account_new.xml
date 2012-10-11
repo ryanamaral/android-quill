@@ -8,8 +8,8 @@
         android:id="@+id/account_new_name_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/account_new_label_vspace"
-        android:text="@string/account_new_name_label" />
+        android:layout_marginTop="@dimen/account_label_vspace"
+        android:text="@string/account_name_label" />
 
     <TextView
         android:id="@+id/account_new_email_label"
@@ -17,8 +17,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/account_new_name_label"
         android:layout_below="@id/account_new_name_label"
-        android:layout_marginTop="@dimen/account_new_label_vspace"
-        android:text="@string/account_new_email_label" />
+        android:layout_marginTop="@dimen/account_label_vspace"
+        android:text="@string/account_email_label" />
 
     <TextView
         android:id="@+id/account_new_password_label"
@@ -26,8 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/account_new_name_label"
         android:layout_below="@id/account_new_email_label"
-        android:layout_marginTop="@dimen/account_new_label_vspace"
-        android:text="@string/account_new_password_label" />
+        android:layout_marginTop="@dimen/account_label_vspace"
+        android:text="@string/account_password_label" />
 
     <EditText
         android:id="@+id/account_new_name"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/account_new_name_label"
         android:layout_toRightOf="@id/account_new_name_label"
-        android:layout_marginLeft="@dimen/account_new_label_hspace"
+        android:layout_marginLeft="@dimen/account_label_hspace"
         android:ems="10"
         android:inputType="textPersonName" >
 
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/account_new_email_label"
         android:layout_toRightOf="@id/account_new_email_label"
-        android:layout_marginLeft="@dimen/account_new_label_hspace"
+        android:layout_marginLeft="@dimen/account_label_hspace"
         android:ems="10"
         android:inputType="textEmailAddress" />
 
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/account_new_password_label"
         android:layout_toRightOf="@id/account_new_password_label"
-        android:layout_marginLeft="@dimen/account_new_label_hspace"
+        android:layout_marginLeft="@dimen/account_label_hspace"
         android:ems="10"
         android:inputType="textPassword" />
 
@@ -70,7 +70,7 @@
         android:layout_below="@id/account_new_password_label"
         android:layout_marginTop="15dp"
         android:checked="true"
-        android:text="@string/account_new_show_password" />
+        android:text="@string/account_show_password" />
 
     <Button
         android:id="@+id/account_new_create"
@@ -80,7 +80,7 @@
         android:layout_below="@id/account_new_show_password"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="@string/account_new_create" />
+        android:text="@string/account_button_create" />
 
     <Button
         android:id="@+id/account_new_cancel"

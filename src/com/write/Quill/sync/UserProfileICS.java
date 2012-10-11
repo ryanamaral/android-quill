@@ -26,6 +26,7 @@ public class UserProfileICS extends UserProfile {
 	private String profile_name, profile_email;
 
 	protected UserProfileICS(Activity activity) {
+		Log.e(TAG, "UserProfileICS");
 		initialize(activity);
 	}
 
@@ -44,19 +45,16 @@ public class UserProfileICS extends UserProfile {
 				ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
 				ContactsContract.CommonDataKinds.StructuredName.IS_PRIMARY };
 		String SELECTION = ContactsContract.Contacts.Data.MIMETYPE + " = ?";
-		String[] ARGS = { 
-				ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE };
+		String[] ARGS = { ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE };
 		int NAME = 0;
 		int IS_PRIMARY = 1;
 	}
 
 	private interface QueryEmail {
-		String[] PROJECTION = { 
-				ContactsContract.CommonDataKinds.Email.ADDRESS,
-				ContactsContract.CommonDataKinds.Email.IS_PRIMARY, };
+		String[] PROJECTION = { ContactsContract.CommonDataKinds.Email.ADDRESS,
+				ContactsContract.CommonDataKinds.Email.IS_PRIMARY };
 		String SELECTION = ContactsContract.Contacts.Data.MIMETYPE + " = ?";
-		String[] ARGS = { 
-				ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE };
+		String[] ARGS = { ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE };
 		int ADDRESS = 0;
 		int IS_PRIMARY = 1;
 	}
@@ -72,7 +70,28 @@ public class UserProfileICS extends UserProfile {
 		Uri profile_uri = Uri.withAppendedPath(
 				ContactsContract.Profile.CONTENT_URI,
 				ContactsContract.Contacts.Data.CONTENT_DIRECTORY);
+		 
 		Cursor cursor;
+		cursor = cr.query(profile_uri, QueryEmail.PROJECTION,
+				QueryEmail.SELECTION, QueryEmail.ARGS, null);
+		Log.e(TAG, "cursor "+cursor.getCount());
+		cursor.moveToFirst();
+		boolean havePrimary = false;
+		while (!cursor.isAfterLast()) {
+			//Log.e(TAG, "email = " + cursor.getString(QueryEmail.ADDRESS) + " "
+			//		+ cursor.getString(QueryEmail.IS_PRIMARY));
+			boolean primary = (cursor.getInt(QueryEmail.IS_PRIMARY) != 0);
+			String email = cursor.getString(QueryEmail.ADDRESS);
+			if (primary || profile_email == null
+					|| (!havePrimary && email.contains("gmail")))
+				profile_email = email;
+			havePrimary |= primary;
+			cursor.moveToNext();
+		}
+		cursor.close();
+		if (profile_email == null)
+			profile_email = "my.address@gmail.com";
+		
 		cursor = cr.query(profile_uri, QueryName.PROJECTION,
 				QueryName.SELECTION, QueryName.ARGS, null);
 		cursor.moveToFirst();
@@ -87,24 +106,6 @@ public class UserProfileICS extends UserProfile {
 		cursor.close();
 		if (profile_name == null)
 			profile_name = "Firstname Lastname";
-
-		cursor = cr.query(profile_uri, QueryEmail.PROJECTION,
-				QueryEmail.SELECTION, QueryEmail.ARGS, null);
-		cursor.moveToFirst();
-		boolean havePrimary = false;
-		while (!cursor.isAfterLast()) {
-			// Log.e(TAG, "email = " + cursor.getString(QueryEmail.ADDRESS) + " "
-			//		+ cursor.getString(QueryEmail.IS_PRIMARY));
-			boolean primary = (cursor.getInt(QueryEmail.IS_PRIMARY) > 0);
-			String email = cursor.getString(QueryEmail.ADDRESS);
-			if (primary || profile_email == null || (!havePrimary && email.contains("gmail")))
-				profile_email = email;
-			havePrimary |= primary;
-			cursor.moveToNext();
-		}
-		cursor.close();
-		if (profile_email == null)
-			profile_email = "my.address@gmail.com";
 	}
 
 }
