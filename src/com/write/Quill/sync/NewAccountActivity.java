@@ -31,7 +31,6 @@ public class NewAccountActivity
 	private final static String TAG = "NewAccountActivity";
 	
 	public final static String ACTION_NEW_ACCOUNT = "new_account";
-	public final static String ACTION_EDIT_ACCOUNT = "edit_account";
 	public final static String EXTRA_EMAIL_ADDRESS = LoginActivity.EXTRA_EMAIL_ADDRESS;
 	public final static String EXTRA_PASSWORD = LoginActivity.EXTRA_PASSWORD;
 	public final static int REQUEST_RETURN_ACCOUNT = 100;

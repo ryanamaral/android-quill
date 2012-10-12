@@ -2,11 +2,16 @@ package com.write.Quill.sync;
 
 import org.json.JSONException;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
@@ -43,10 +48,10 @@ public class LoginActivity
 	
 	// Intent actions
 	public final static String ACTION_LOGIN = "account_login";
-	public final static String EXTRA_NAME = "extra_name";
-	public final static String EXTRA_EMAIL_ADDRESS = "extra_email_address";
-	public final static String EXTRA_PASSWORD = "extra_password";
-
+	public final static String EXTRA_NAME = QuillAccount.EXTRA_NAME;
+	public final static String EXTRA_EMAIL_ADDRESS = QuillAccount.EXTRA_EMAIL_ADDRESS;
+	public final static String EXTRA_PASSWORD = QuillAccount.EXTRA_PASSWORD;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -164,20 +169,52 @@ public class LoginActivity
 			finish();
 			return;
 		}
-		String name;
+
+		String email_str = email.getText().toString();
+		String password_str = password.getText().toString();
+		String name_str;
 		try {
-			name = response.getJSON().getString("name");
+			name_str = response.getJSON().getString("name");
 		} catch (JSONException e) {
 			Log.e(TAG, "JSON[name] "+e.getMessage());
-			name = "Firstname Lastname";
+			String msg = getResources().getString(R.string.account_error_login, "Invalid JSON");
+			Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+			finish();
+			return;
 		}
 		Toast.makeText(this, R.string.account_login_successful, Toast.LENGTH_SHORT).show();
-		Intent data = new Intent();
-		data.putExtra(EXTRA_NAME, name);
-		data.putExtra(EXTRA_EMAIL_ADDRESS, email.getText().toString());
-		data.putExtra(EXTRA_PASSWORD, password.getText().toString());
-		setResult(RESULT_OK, data);
-		finish();	
+
+		
+		Log.e(TAG, "Login: create account");
+		final Bundle userData = new Bundle();
+		userData.putString(EXTRA_EMAIL_ADDRESS, email_str);
+		userData.putString(EXTRA_NAME, name_str);
+		
+		final AccountManager mgr = AccountManager.get(this);
+		final Account account = new Account(email_str, QuillAccount.ACCOUNT_TYPE);
+		mgr.addAccountExplicitly(account, password_str, userData);
+		final Intent intent = new Intent();
+		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, email_str);
+		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, QuillAccount.ACCOUNT_TYPE);
+		intent.putExtra(AccountManager.KEY_USERDATA, userData);
+//			
+//		Parcel parcel = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+//		Log.e(TAG, "parcel = "+parcel);
+//		if (parcel != null) {
+//			AccountAuthenticatorResponse authResponse = new AccountAuthenticatorResponse(parcel);
+//			authResponse.onRequestContinued();
+//			authResponse.onResult(intent.getExtras());
+//		}	
+//			
+		finish();
+//
+//		Log.e(TAG, "Login: return data"); 
+//		Intent data = new Intent();
+//		data.putExtra(EXTRA_NAME, name_str);
+//		data.putExtra(EXTRA_EMAIL_ADDRESS, email_str);
+//		data.putExtra(EXTRA_PASSWORD, password_str);
+//		setResult(RESULT_OK, data);
+//		finish();	
 	}
 
 	@Override
