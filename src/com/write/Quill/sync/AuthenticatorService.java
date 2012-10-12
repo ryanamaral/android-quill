@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 public class AuthenticatorService extends Service {
 	private final static String TAG = "AuthenticatorService";
@@ -30,6 +31,14 @@ public class AuthenticatorService extends Service {
 				String accountType, String authTokenType,
 				String[] requiredFeatures, Bundle options)
 				throws NetworkErrorException {
+			Log.e(TAG, "addAccount");
+			
+			// check if an account already exists; we only allow one 
+			QuillAccount account = new QuillAccount(context);
+			if (account.exists())
+				return null;
+			
+			// ok, go ahead and create new account
 			Intent intent = new Intent(context, LoginActivity.class);
 			intent.setAction(LoginActivity.ACTION_LOGIN);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
