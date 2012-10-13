@@ -2,66 +2,66 @@ package com.write.Quill.sync;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.UUID;
 
 import junit.framework.Assert;
 
-import com.write.Quill.R;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
-import com.write.Quill.sync.SyncData.SyncItem.State;
 
-import android.content.Context;
-import android.database.DataSetObserver;
+import android.content.SharedPreferences;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 /**
  * The sync data for all books
  * @author vbraun
  */
-public class SyncData {
+public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	private final static String TAG = "SyncData";
 
-	public static class SyncItem {
-		protected enum State { 
-			IN_SYNC, LOCAL_ONLY, LOCAL_IS_NEWER, REMOTE_IS_NEWER, CONFLICT 
-		};
-		
+	protected enum State { 
+		IN_SYNC, LOCAL_ONLY, LOCAL_IS_NEWER, REMOTE_IS_NEWER, CONFLICT 
+	};
+
+	public class SyncItem {
 		protected State state;
 		
 		protected boolean local = false;
 		protected boolean remote = false;
 		protected String localTitle, remoteTitle;
-		protected UUID uuid;
+		protected final UUID uuid;
 		
 		// mtime of the book at last sync
 		
-		protected Time lastSync;
+		protected final Time lastSync;
 		// the last-modified time
 		protected Time localTime, remoteTime;
 	
-		public void setLocal(BookPreview book) {
+		protected SyncItem(UUID uuid) {
+			this.uuid = uuid;
+			long millis = syncPrefs.getLong(uuid.toString(), 0);
+			if (millis > 0) {
+				lastSync = new Time();
+				lastSync.set(millis);
+			} else 
+				lastSync = null;
+		}
+		
+		protected void setLocal(BookPreview book) {
 			local = true;
-			Assert.assertTrue(this.uuid == null || this.uuid.equals(uuid));
-			this.uuid = book.getUUID();
+			Assert.assertTrue(this.uuid.equals(uuid));
 			localTitle = book.getTitle();
 			localTime = book.getLastModifiedTime();
-
-			// FIXME
-			lastSync = localTime;
-			
 			state = null;
 		}
 		
-		public void setRemote(UUID uuid, String title, Time mtime) {
+		protected void setRemote(UUID uuid, String title, Time mtime) {
 			remote = true;
-			Assert.assertTrue(this.uuid == null || this.uuid.equals(uuid));
-			this.uuid = uuid;
+			Assert.assertTrue(this.uuid.equals(uuid));
 			remoteTitle = title;
 			remoteTime = mtime;
 			state = null;
@@ -86,17 +86,17 @@ public class SyncData {
 			return State.CONFLICT;
 		}
 				
-		public UUID getUuid() {
+		protected UUID getUuid() {
 			return uuid;
 		}
 		
-		public State getState() {
+		protected State getState() {
 			if (state == null)
 				state = computeState();
 			return state;
 		}
 		
-		public Time getLastModTime() {
+		protected Time getLastModTime() {
 			Assert.assertTrue(local || remote);
 			if (!local)
 				return remoteTime;
@@ -108,7 +108,7 @@ public class SyncData {
 				return remoteTime;
 		}
 		
-		public String getTitle() {
+		protected String getTitle() {
 			switch (getState()) {
 			case CONFLICT: 
 			case LOCAL_IS_NEWER:
@@ -125,15 +125,28 @@ public class SyncData {
 		public String toString() {
 			return getTitle();
 		}
+		
+		protected void saveSyncTime() {
+			SharedPreferences.Editor editor = syncPrefs.edit();
+			for (SyncItem item : data)
+				editor.putLong(item.getUuid().toString(), item.getLastModTime().toMillis(false));
+			editor.commit();
+		}
 	}
 	
-	protected LinkedList<SyncItem> data = new LinkedList<SyncItem>();
+	protected final LinkedList<SyncItem> data;
+	private final SharedPreferences syncPrefs;
+	
+	public SyncData(SharedPreferences syncPreferences) {
+		data = new LinkedList<SyncItem>();
+		syncPrefs = syncPreferences;
+	}
 	
 	public static class SyncItemComparator implements Comparator<SyncItem> {
 		@Override
 		public int compare(SyncItem lhs, SyncItem rhs) {
-			SyncItem.State lhsState = lhs.getState();
-			SyncItem.State rhsState = rhs.getState();
+			SyncData.State lhsState = lhs.getState();
+			SyncData.State rhsState = rhs.getState();
 			// Conflict is on top
 			if ((!lhsState.equals(State.CONFLICT)) && ( rhsState.equals(State.CONFLICT))) return +1;
 			if (( lhsState.equals(State.CONFLICT)) && (!rhsState.equals(State.CONFLICT))) return -1;
@@ -165,7 +178,7 @@ public class SyncData {
 				item.setLocal(book);
 				return;
 			}
-		SyncItem item = new SyncItem();
+		SyncItem item = new SyncItem(uuid);
 		item.setLocal(book);
 		data.add(item);
 	}
@@ -176,7 +189,7 @@ public class SyncData {
 				item.setRemote(uuid, title, mtime);
 				return;
 			}
-		SyncItem item = new SyncItem();
+		SyncItem item = new SyncItem(uuid);
 		item.setRemote(uuid, title, mtime);
 		data.add(item);
 	}
@@ -184,21 +197,35 @@ public class SyncData {
 	protected void sort() {
 		Collections.sort(data, new SyncItemComparator());
 	}
-	
-	public void reset() {
-		data.clear();
-		addLocalBookshelf();
 		
+	protected void reset() {
+		data.clear();		
+		for (BookPreview book : Bookshelf.getBookPreviewList())
+			addLocal(book);
+
+		// FIXME
 		addRemote(UUID.fromString("9f9ec0eb-d3e1-40c3-b6b8-e28dbd951008"), "Title", new Time());
+		
 		sort();
 	}
 	
-	private void addLocalBookshelf() {
-		for (BookPreview book : Bookshelf.getBookPreviewList())
-			addLocal(book);
-	}
-
 	protected SyncItem get(int i) {
 		return data.get(i);
+	}
+	
+	@Override
+	public Iterator<SyncItem> iterator() {
+		return data.iterator();
+	}
+	
+	// keep the session token in here for convenience
+	private String syncSessionToken;
+	
+	public void setSyncSessionToken(String sessionToken) {
+		syncSessionToken = sessionToken;
+	}
+	
+	public String getSyncSessionToken() {
+		return syncSessionToken;
 	}
 }

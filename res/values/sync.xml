@@ -1,4 +1,5 @@
 
     <resources>
         <dimen name="sync_margin">5dp</dimen>
+        <string name="sync_error">Error during sync (server said: %s)</string>
     </resources>
