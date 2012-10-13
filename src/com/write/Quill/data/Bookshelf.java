@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcelable.Creator;
 import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -70,6 +71,9 @@ public class Bookshelf {
 			s += "Last modified on ";
 			s += storage.formatDateTime(preview.mtime.toMillis(false)) + "\n";
 			return s;
+		}
+		public Time getLastModifiedTime() {
+			return preview.mtime;
 		}
 		public Bitmap getThumbnail(int width, int height) {
     		return preview.currentPage().renderBitmap(width, height, true);

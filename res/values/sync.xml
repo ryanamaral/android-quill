@@ -1,0 +1,4 @@
+
+    <resources>
+        <dimen name="sync_margin">5dp</dimen>
+    </resources>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sync_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/sync_margin" >
+
+    <TextView
+        android:id="@+id/sync_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/sync_icon_android"
+        android:text="Notebook Title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ImageView
+        android:id="@+id/sync_icon_earth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sync_icon_status"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_sync_earth" />
+
+    <ImageView
+        android:id="@+id/sync_icon_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sync_icon_android"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/sync_icon_earth"
+        android:src="@drawable/ic_sync_lightning" />
+
+    <ImageView
+        android:id="@+id/sync_icon_android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sync_item_subtitle"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/sync_icon_status"
+        android:src="@drawable/ic_sync_android" />
+
+    <TextView
+        android:id="@+id/sync_item_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/sync_item_title"
+        android:layout_below="@+id/sync_item_title"
+        android:layout_marginLeft="20dp"
+        android:lines="2"
+        android:text="Modification time"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</RelativeLayout>
