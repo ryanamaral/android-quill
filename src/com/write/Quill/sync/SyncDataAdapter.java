@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.write.Quill.R;
+import com.write.Quill.data.Bookshelf;
+import com.write.Quill.data.Bookshelf.BookPreview;
 import com.write.Quill.data.Storage;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.text.format.Time;
 import android.view.LayoutInflater;
@@ -62,13 +65,13 @@ public class SyncDataAdapter extends ArrayAdapter<SyncData.SyncItem> {
 				earth.setVisibility(View.VISIBLE);
 				break;
 			case LOCAL_IS_NEWER:
-				layout.setBackgroundColor(Color.TRANSPARENT);
+				layout.setBackgroundColor(Color.argb(0x7f, 0x0, 0xff, 0x0));
 				status.setImageResource(R.drawable.ic_sync_arrow_left);
 				status.setVisibility(View.VISIBLE);
 				earth.setVisibility(View.VISIBLE);
 				break;
 			case REMOTE_IS_NEWER:
-				layout.setBackgroundColor(Color.TRANSPARENT);
+				layout.setBackgroundColor(Color.argb(0x7f, 0x0, 0xff, 0x0));
 				status.setImageResource(R.drawable.ic_sync_arrow_right);
 				status.setVisibility(View.VISIBLE);
 				earth.setVisibility(View.VISIBLE);
