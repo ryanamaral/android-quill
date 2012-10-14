@@ -7,6 +7,7 @@ import com.write.Quill.R;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
 import com.write.Quill.data.Storage;
+import com.write.Quill.sync.SyncData.State;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,43 +49,50 @@ public class SyncDataAdapter extends ArrayAdapter<SyncData.SyncItem> {
 			title.setText(item.getTitle());
 			String s = new String();
 			Storage storage = Storage.getInstance();
-			if (item.local) {
+			if (item.isOnLocal()) {
 				 s += "Local copy last edited ";
 				 s += storage.formatDateTime(item.localTime.toMillis(false)) + "\n";
 			}
-			if (item.remote) {
+			if (item.isOnRemote()) {
 				s += "Most recent remote backup on ";
 				s += storage.formatDateTime(item.remoteTime.toMillis(false)) + "\n";
 			}
 			subtitle.setText(s);
+			android.setVisibility(item.isOnLocal() ? View.VISIBLE : View.INVISIBLE);
+			earth.setVisibility(item.isOnRemote() ? View.VISIBLE : View.INVISIBLE);
 			switch (item.getState()) {
 			case CONFLICT:
 				layout.setBackgroundColor(Color.argb(0x7f, 0xff, 0x0, 0x0));
-				status.setImageResource(R.drawable.ic_sync_lightning);
-				status.setVisibility(View.VISIBLE);
-				earth.setVisibility(View.VISIBLE);
 				break;
 			case LOCAL_IS_NEWER:
 				layout.setBackgroundColor(Color.argb(0x7f, 0x0, 0xff, 0x0));
-				status.setImageResource(R.drawable.ic_sync_arrow_left);
-				status.setVisibility(View.VISIBLE);
-				earth.setVisibility(View.VISIBLE);
 				break;
 			case REMOTE_IS_NEWER:
 				layout.setBackgroundColor(Color.argb(0x7f, 0x0, 0xff, 0x0));
-				status.setImageResource(R.drawable.ic_sync_arrow_right);
-				status.setVisibility(View.VISIBLE);
-				earth.setVisibility(View.VISIBLE);
 				break;
 			case IN_SYNC:
 				layout.setBackgroundColor(Color.TRANSPARENT);
-				status.setVisibility(View.INVISIBLE);
-				earth.setVisibility(View.VISIBLE);
 				break;
 			case LOCAL_ONLY:
 				layout.setBackgroundColor(Color.TRANSPARENT);
-				status.setVisibility(View.INVISIBLE);
-				earth.setVisibility(View.INVISIBLE);
+				break;
+			}
+			switch (item.getAction()) {
+			case PULL_TO_ANDROID:
+				status.setImageResource(R.drawable.ic_sync_arrow_left);
+				status.setVisibility(View.VISIBLE);
+				break;
+			case PUSH_TO_SERVER:
+				status.setImageResource(R.drawable.ic_sync_arrow_right);
+				status.setVisibility(View.VISIBLE);
+				break;
+			case SKIP:
+				if (item.getState() == State.CONFLICT) {
+					status.setImageResource(R.drawable.ic_sync_lightning);
+					status.setVisibility(View.VISIBLE);				
+				} else {
+					status.setVisibility(View.INVISIBLE);
+				}
 				break;
 			}
 		}

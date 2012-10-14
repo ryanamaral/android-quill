@@ -1,5 +1,7 @@
 package com.write.Quill.sync;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +28,16 @@ import android.util.Pair;
 public class HttpPostJson {
 	private final static String TAG = "HttpPostJson";
 	
+	private volatile boolean cancelled = false;
+	
+	/**
+	 * cancel the sending
+	 */
+	public synchronized void cancel() {
+		cancelled = true;
+	}
+	
+	
 	/**
 	 * The server response 
 	 */
@@ -35,7 +47,15 @@ public class HttpPostJson {
 		private final int code;
 		private final JSONObject json;
 		public final static int ERROR = -1;
+		public final static int CANCELLED = -2;
 
+		private Response(boolean success, String msg, int code, JSONObject json) {
+			this.success = success;
+			this.msg = msg;
+			this.code = code;
+			this.json = json;
+		}
+		
 		public Response(String errorMsg) {
 			this.success = false;
 			this.msg = errorMsg;
@@ -48,6 +68,10 @@ public class HttpPostJson {
 			this.msg = "HTTP Error " + code + "(network down?)";
 			this.code = code;
 			this.json = new JSONObject();
+		}
+		
+		public static Response cancelled() {
+			return new Response(false, "Cancelled upon request", CANCELLED, new JSONObject());
 		}
 
 		public Response(JSONObject json) {
@@ -78,6 +102,10 @@ public class HttpPostJson {
 			return success;
 		}
 		
+		public boolean isCancelled() {
+			return code == CANCELLED;
+		}
+		
 		public JSONObject getJSON() {
 			return json;
 		}
@@ -86,7 +114,8 @@ public class HttpPostJson {
 	// The POST data
 	private String url;
 	private LinkedList<Pair<String ,String>> data = new LinkedList<Pair<String, String>>();
-	
+	private LinkedList<Pair<String ,File>> dataFile = new LinkedList<Pair<String, File>>();
+
 	// Helper variables
 	public final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 	public final static String charsetUTF8 = "UTF-8";
@@ -97,13 +126,24 @@ public class HttpPostJson {
 	}
 	
 	/**
-	 * Add a key/value pair
+	 * Add a key/value pair to the http POST
 	 * @param key
 	 * @param value
 	 */
 	public HttpPostJson send(String key, String value) {
-		Pair<String, String> pair = new Pair(key, value);
+		Pair<String, String> pair = new Pair<String,String>(key, value);
 		data.add(pair);
+		return this;
+	}
+	
+	/**
+	 * Add a key/file pair to the http POST
+	 * @param key
+	 * @param file the file whose content will be uploaded to the server
+	 */
+	public HttpPostJson send(String key, File file) {
+		Pair<String, File> pair = new Pair<String,File>(key, file);
+		dataFile.add(pair);
 		return this;
 	}
 	
@@ -127,24 +167,33 @@ public class HttpPostJson {
 		}
 
 		connection.setDoOutput(true);
+		// connection.setChunkedStreamingMode(0);
 		connection.setRequestProperty("Accept-Charset", charsetUTF8);
 		connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+		connection.setRequestProperty("Cache-Control", "no-cache");
 
 		PrintWriter writer = null;
 		try {
 		    OutputStream output = connection.getOutputStream();
 		    writer = new PrintWriter(new OutputStreamWriter(output, charsetUTF8), true);
 
-		    for (Pair<String, String> pair : data)
+		    for (Pair<String, String> pair : data) {
+		    	if (cancelled) return Response.cancelled();
 		    	writePostRequestPart(writer, pair.first, pair.second);
-		    
-		    writer.append("--" + boundary + "--").append(CRLF);
+		    }
+
+		    for (Pair<String, File> pair : dataFile) {
+		    	if (cancelled) return Response.cancelled();
+		    	writePostRequestPart(writer, output, pair.first, pair.second);
+		    }
+		    writer.print("--" + boundary + "--"); writer.append(CRLF);
 		} catch (IOException e) {
 			return new Response(e.getMessage());		
 		} finally {
-		    if (writer != null) writer.close();
+		    if (writer != null)
+		    	writer.close();
 		}
-		
+
 		int code = 0;
 		try {
 			code = connection.getResponseCode();
@@ -153,6 +202,7 @@ public class HttpPostJson {
 		}
 		if (code != HttpURLConnection.HTTP_OK)
 			return new Response(code);
+    	if (cancelled) return Response.cancelled();
 
 		String contentType = connection.getHeaderField("Content-Type");
 		if (!contentType.equals("application/json"))
@@ -165,6 +215,7 @@ public class HttpPostJson {
 			byte[] buf = new byte[1024];
 			final StringBuilder out = new StringBuilder();
 			while (true) {
+		    	if (cancelled) return Response.cancelled();
 		        int n = in.read(buf);
 		        if (n < 0)
 		          break;
@@ -184,18 +235,41 @@ public class HttpPostJson {
 		} catch (JSONException e) {
 			return new Response(e.getMessage());
 		}
-		return new Response(json);
-
-		
+		return new Response(json);		
 	}
 
 	
 	private void writePostRequestPart(PrintWriter writer, String name, String data) {
-	    writer.append("--" + boundary).append(CRLF);
-	    writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(CRLF);
-	    writer.append("Content-Type: text/plain; charset=" + charsetUTF8).append(CRLF);
+	    writer.print("--" + boundary); writer.append(CRLF);
+	    writer.print("Content-Disposition: form-data; name=\"" + name + "\""); writer.append(CRLF);
+	    writer.print("Content-Type: text/plain; charset=" + charsetUTF8); writer.append(CRLF);
 	    writer.append(CRLF);
-	    writer.append(data).append(CRLF).flush();
+	    writer.print(data); writer.append(CRLF).flush();
+	}
+
+	
+	private void writePostRequestPart(PrintWriter writer, OutputStream output, String name, File file)
+		throws IOException 
+	{
+        writer.print("--" + boundary);  writer.append(CRLF);
+        writer.print("Content-Disposition: form-data; name=\""+ name +"\"; filename=\"" + file.getName() + "\""); writer.append(CRLF); 
+        writer.print("Content-Type: application/octet-stream"); writer.append(CRLF); 
+        writer.print("Content-Transfer-Encoding: binary"); writer.append(CRLF); 
+        writer.append(CRLF).flush(); 
+
+        InputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            byte[] buffer = new byte[1024];
+            for (int length = 0; (length = input.read(buffer)) > 0;)
+                output.write(buffer, 0, length);
+            output.flush();
+        } finally {
+            if (input != null) 
+            	input.close();
+        }
+        
+        writer.append(CRLF).flush();
 	}
 
 }

@@ -33,14 +33,8 @@ import android.widget.Toast;
  * (fully loaded data) and light-weight BookPreviews for 
  * all books.
  * 
- * @author vbraun
- *
- */
-/**
- * @author vbraun
- *
- */
-/**
+ * At any time there is at most one loaded book, which is the current book.
+ * 
  * @author vbraun
  *
  */
@@ -230,6 +224,11 @@ public class Bookshelf {
 		data.remove(nb);
 	}
 	
+	/**
+	 * Import a notebook archive and make it the current book
+	 * @param file A backup.quill notebook archive
+	 * @throws BookIOException
+	 */
 	public void importBook(File file) throws BookIOException {
 		BookPreview nb = getCurrentBookPreview();
 		saveBook(currentBook);
@@ -255,6 +254,39 @@ public class Bookshelf {
 		}
 		setCurrentBook(nb, false);
 		saveBook(currentBook);
+		Assert.assertTrue(data.contains(nb));
+	}
+	
+	/**
+	 * Import a notebook directory.
+	 * The directory is deleted after importing it.
+	 * @param dir A quill notebook directory
+	 * @param uuid The uuid of the notebook
+	 * @throws BookIOException
+	 */
+	public void importBookDirectory(File dir, UUID uuid) {
+		BookPreview nb = getCurrentBookPreview();
+		final boolean isCurrentBook = currentBook.getUUID().equals(uuid);
+		if (isCurrentBook)
+			currentBook = null;
+	
+		File bookDir = storage.getBookDirectory(uuid);
+		for (File src : dir.listFiles()) {
+			File dst = new File(dir, src.getName());
+			dst.delete();
+			src.renameTo(dst);
+		}
+		dir.delete();
+		
+		nb = getPreview(uuid);
+		if (nb != null)
+			nb.reload();
+		else {
+			nb = new BookPreview(uuid);
+			data.add(nb);
+		}
+		if (isCurrentBook)
+			setCurrentBook(nb, false);
 		Assert.assertTrue(data.contains(nb));
 	}
 
