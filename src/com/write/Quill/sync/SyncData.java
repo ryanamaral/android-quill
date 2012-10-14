@@ -134,12 +134,18 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		}
 	}
 	
+	// The actual sync data
 	protected final LinkedList<SyncItem> data;
 	private final SharedPreferences syncPrefs;
+
+	// keep authentication data here for convenience
+	protected final QuillAccount account;
+	protected String sessionToken;
 	
-	public SyncData(SharedPreferences syncPreferences) {
+	public SyncData(SharedPreferences syncPreferences, QuillAccount account) {
 		data = new LinkedList<SyncItem>();
 		syncPrefs = syncPreferences;
+		this.account = account;
 	}
 	
 	public static class SyncItemComparator implements Comparator<SyncItem> {
@@ -202,10 +208,6 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		data.clear();		
 		for (BookPreview book : Bookshelf.getBookPreviewList())
 			addLocal(book);
-
-		// FIXME
-		addRemote(UUID.fromString("9f9ec0eb-d3e1-40c3-b6b8-e28dbd951008"), "Title", new Time());
-		
 		sort();
 	}
 	
@@ -218,14 +220,16 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		return data.iterator();
 	}
 	
-	// keep the session token in here for convenience
-	private String syncSessionToken;
-	
-	public void setSyncSessionToken(String sessionToken) {
-		syncSessionToken = sessionToken;
+	protected QuillAccount getAccount() {
+		return account;
 	}
 	
-	public String getSyncSessionToken() {
-		return syncSessionToken;
+	protected void setSessionToken(String token) {
+		sessionToken = token;
 	}
+	
+	protected String getSessionToken() {
+		return sessionToken;
+	}
+	
 }
