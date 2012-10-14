@@ -25,15 +25,20 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 
 	protected enum State { 
 		IN_SYNC, LOCAL_ONLY, LOCAL_IS_NEWER, REMOTE_IS_NEWER, CONFLICT 
-	};
+	}
 
+	protected enum Action {
+		SKIP, PUSH_TO_SERVER, PULL_TO_ANDROID
+	}
+	
 	public class SyncItem {
-		protected State state;
+		private State state;
+		private Action action;
 		
-		protected boolean local = false;
-		protected boolean remote = false;
-		protected String localTitle, remoteTitle;
-		protected final UUID uuid;
+		private boolean local = false;
+		private boolean remote = false;
+		private String localTitle, remoteTitle;
+		private final UUID uuid;
 		
 		// mtime of the book at last sync
 		
@@ -85,15 +90,64 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 				return State.LOCAL_IS_NEWER;
 			return State.CONFLICT;
 		}
+		
+		protected Action computeDefaultAction() {
+			switch (getState()) {
+			case LOCAL_IS_NEWER:
+				return Action.PUSH_TO_SERVER;
+			case REMOTE_IS_NEWER: 
+				return Action.PUSH_TO_SERVER;
+			default:
+				return Action.SKIP;
+			}
+		}
 				
 		protected UUID getUuid() {
 			return uuid;
+		}
+		
+		protected boolean isOnLocal() {
+			return local;
+		}
+		
+		protected boolean isOnRemote() {
+			return remote;
 		}
 		
 		protected State getState() {
 			if (state == null)
 				state = computeState();
 			return state;
+		}
+		
+		protected Action getAction() {
+			if (action == null)
+				action = computeDefaultAction();
+			return action;
+		}
+		
+		protected void cycleAction() {
+			switch (getAction()) {
+			case PUSH_TO_SERVER:
+				if (remote) 
+					action = Action.PULL_TO_ANDROID; 
+				else
+					action = Action.SKIP;
+				break;
+			case PULL_TO_ANDROID:
+				action = Action.SKIP;
+				break;
+			case SKIP:
+				if (local)
+					action = Action.PUSH_TO_SERVER;
+				else if (remote)
+					action = Action.PULL_TO_ANDROID;
+				break;
+			}
+		}
+		
+		protected void setAction(Action action) {
+			this.action = action;
 		}
 		
 		protected Time getLastModTime() {
@@ -141,6 +195,9 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	// keep authentication data here for convenience
 	protected final QuillAccount account;
 	protected String sessionToken;
+	
+	// whether metadata exchange is complete
+	protected boolean metadata;
 	
 	public SyncData(SharedPreferences syncPreferences, QuillAccount account) {
 		data = new LinkedList<SyncItem>();
@@ -226,10 +283,20 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	
 	protected void setSessionToken(String token) {
 		sessionToken = token;
+		metadata = false;
 	}
 	
 	protected String getSessionToken() {
 		return sessionToken;
 	}
+	
+	protected boolean haveMetadata() {
+		return metadata;
+	}
+	
+	protected void setMetadata(boolean metadata) {
+		this.metadata = metadata;
+	}
+	
 	
 }
