@@ -152,7 +152,7 @@ public class Book {
 				continue;
 			if (filteredPages.size() <= 1 && filteredPages.contains(p))
 				continue;
-			if (p.is_empty()) {
+			if (p.isEmpty()) {
 				empty.add(p);
 				filteredPages.remove(p);
 			}

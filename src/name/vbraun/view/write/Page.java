@@ -68,8 +68,8 @@ public class Page {
 		return blobs;
 	}
 	
-	public boolean is_empty() {
-		return strokes.isEmpty() && lineArt.isEmpty();
+	public boolean isEmpty() {
+		return strokes.isEmpty() && lineArt.isEmpty() && images.isEmpty();
 	}
 	
 	/** Get the smallest rectangle containing the most recent stroke in page coordinates. 
