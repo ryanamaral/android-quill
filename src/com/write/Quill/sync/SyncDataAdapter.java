@@ -17,18 +17,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class SyncDataAdapter extends ArrayAdapter<SyncData.SyncItem> {
+public class SyncDataAdapter extends BaseAdapter {
 	private final static String TAG = "SyncDataAdapter";
 	
 	private final SyncData data;
+	private final Context context;
 	
-	public SyncDataAdapter(Context context, int textViewResourceId, SyncData syncData) {
-		super(context, textViewResourceId, syncData.data);
-		data = syncData;
+	public SyncDataAdapter(Context context, int textViewResourceId, SyncData data) {
+		this.data = data;
+		this.context = context;
 	}
 	
 	public static class ViewHolder {
@@ -53,9 +55,26 @@ public class SyncDataAdapter extends ArrayAdapter<SyncData.SyncItem> {
 				 s += "Local copy last edited ";
 				 s += storage.formatDateTime(item.localTime.toMillis(false)) + "\n";
 			}
-			if (item.isOnRemote()) {
+			switch (item.getState()) {
+			case LOCAL_ONLY:
+				s += "No backup";
+				break;
+			case CONFLICT:
 				s += "Most recent remote backup on ";
 				s += storage.formatDateTime(item.remoteTime.toMillis(false)) + "\n";
+				break;
+			case IN_SYNC:
+				s += "Backed up to server";
+				break;
+			case LOCAL_IS_NEWER:
+				s += "New charges, not backed up yet";
+				break;
+			case REMOTE_IS_NEWER:
+				s += "Most recent remote backup on ";
+				s += storage.formatDateTime(item.remoteTime.toMillis(false)) + "\n";
+				break;
+			default:
+				break;
 			}
 			subtitle.setText(s);
 			android.setVisibility(item.isOnLocal() ? View.VISIBLE : View.INVISIBLE);
@@ -98,13 +117,24 @@ public class SyncDataAdapter extends ArrayAdapter<SyncData.SyncItem> {
 		}
 	}
 	
-	@Override
+    public int getCount() {
+        return data.size();
+    }
+
+    public Object getItem(int position) {
+        return position;
+    }
+
+    public long getItemId(int position) {
+        return position;
+    }
+	
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
 		ViewHolder holder;
 		if (v == null) {
 			LayoutInflater inflater =
-					(LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = inflater.inflate(R.layout.sync_item, null);
 			holder = new ViewHolder(v);
 			v.setTag(holder);

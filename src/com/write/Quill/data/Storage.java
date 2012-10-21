@@ -27,6 +27,7 @@ import junit.framework.Assert;
 public abstract class Storage {
 	public final static String TAG = "Storage";
 	protected static final String NOTEBOOK_DIRECTORY_PREFIX = "notebook_";
+	protected static final String TEMPORARY_DIRECTORY_PREFIX = "temp_";
 
 	protected static Storage instance;
 	
@@ -54,6 +55,7 @@ public abstract class Storage {
 	 */
 	public void destroy() {
 		preDestroy();
+		deleteAllTemporaryDirectories();
 		instance = null;
 	}
 	
@@ -100,6 +102,21 @@ public abstract class Storage {
 	
 	abstract public void LogMessage(String TAG, String message);
 	abstract public void LogError(String TAG, String message);
+	
+	////////////////////////////////////////////////////
+	/// temporary directories
+
+	/**
+	 * Create and returns a new random temporary directory.
+	 * @return A DirectoryBase
+	 */
+	public File getTemporaryDirectory() {
+		return new TemporaryDirectory(this, UUID.randomUUID());
+	}
+	
+	private void deleteAllTemporaryDirectories() {
+		// TODO
+	}
 	
 	////////////////////////////////////////////////////
 	/// Book directory handlings

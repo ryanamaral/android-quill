@@ -11,38 +11,14 @@ import com.write.Quill.data.Book.BookIOException;
 
 import android.util.Log;
 
-public class BookDirectory extends File {
+public class BookDirectory extends DirectoryBase {
 	private static final long serialVersionUID = -3424988863197267971L;
 	private final static String TAG = "BookDir";
-	
-	private final UUID uuid;
-	private final Storage storage;
-	
-	public BookDirectory(Storage storage, UUID uuid) {
-		super(storage.getFilesDir(), getName(uuid));
-		this.uuid = uuid;
-		this.storage = storage;
-	}
-	
-	private static String getName(UUID uuid) {
-		return Storage.NOTEBOOK_DIRECTORY_PREFIX + uuid.toString();
-	}	
-	
-	public UUID getUUID() {
-		return uuid;
-	}
-	
-	protected void deleteAll() {
-		String[] children = list();
-		for (String child : children) {
-			File file = new File(this, child);
-			file.delete();
-		}
-		boolean rc = delete();
-		if (!rc) 
-			storage.LogError(TAG, "Unable to delete directory "+toString());		
-	}
 
+	public BookDirectory(Storage storage, UUID uuid) {
+		super(storage, Storage.NOTEBOOK_DIRECTORY_PREFIX, uuid);
+	}
+	
 	private FilenameFilter getPrefixFilter(final String prefix) {
 		return new FilenameFilter() {
 		    public boolean accept(File directory, String name) {

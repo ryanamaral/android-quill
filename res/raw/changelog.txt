@@ -20,6 +20,11 @@
     </style>
   </head>
   <body>
+$ 10.3
+  % Version 10.3
+  _ 2012-10-15
+    * Online sync with <a href="http://quill.sagepad.org">quill.sagepad.org</a>
+    * Fix bug with pages containing only images
 $ 10.2
   % Version 10.2
   _ 2012-09-17

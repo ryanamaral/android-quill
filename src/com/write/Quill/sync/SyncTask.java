@@ -1,6 +1,7 @@
 package com.write.Quill.sync;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -32,7 +33,6 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 
 	private SyncStatusFragment statusFragment = null;
 	private SyncListFragment listFragment = null;
-	private SyncDataAdapter dataAdapter = null;
 	private QuillAccount account = null;
 	private SyncData data;
 	private Context context;
@@ -91,7 +91,8 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 	private final static String URL_LOGIN = URL_BASE + "/_login";
 	private final static String URL_METADATA = URL_BASE + "/_metadata";
 	private final static String URL_PUSH = URL_BASE + "/_sync_push_whole";
-	private final static String URL_PULL = URL_BASE + "/_sync_pull_whole";
+	private final static String URL_PULL_INDEX = URL_BASE + "/_sync_pull_index";
+	private final static String URL_PULL_FILE = URL_BASE + "/_sync_pull_file";
 
 	public static class Progress {
 		protected final String title;
@@ -136,25 +137,29 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Logging in", "Contacting server...", false);
 			login();
 
-			publishProgress("Fetching metadata", "Contacting server...", false);
-			fetchMetadata();
+			if (!data.command.equals(SyncData.Command.SYNC_ONLY)) {
+				publishProgress("Fetching metadata", "Contacting server...", false);
+				fetchMetadata();
+			}
 			
-			boolean changed = false;
-			publishProgress("Synchronizing", "Contacting server...", false);
-			for (SyncData.SyncItem item : data)
-				switch (item.getAction()) {
-				case PULL_TO_ANDROID:
-					publishProgress("Downloading", item.getTitle(), false);
-					pullNotebook(item);
-					changed = true;
-				case PUSH_TO_SERVER:
-					publishProgress("Uploading", item.getTitle(), false);
-					pushNotebook(item);
-					changed = false;
+			if (!data.command.equals(SyncData.Command.METADATA_ONLY)) {
+				publishProgress("Synchronizing", "Contacting server...", false);
+				for (SyncData.SyncItem item : data) {
+					Log.e(TAG, "sync " + item.getAction());
+					switch (item.getAction()) {
+					case PULL_TO_ANDROID:
+						publishProgress("Downloading", item.getTitle(), false);
+						pullNotebook(item);
+						break;
+					case PUSH_TO_SERVER:
+						publishProgress("Uploading", item.getTitle(), false);
+						pushNotebook(item);
+						break;
+					case SKIP:
+						break;
+					}
 				}
-			
-			if (changed) {
-				data.setMetadata(false);
+
 				publishProgress("Reloading metadata", "Contacting server...", false);
 				fetchMetadata();
 			}
@@ -164,12 +169,15 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		} catch (SyncException e) {
 			data.setSessionToken(null);  // force re-login
 		}
+
+		if (data.command.equals(SyncData.Command.METADATA_ONLY))
+			data.command= SyncData.Command.SYNC_ONLY;
+
 		data = null;
 		return null;
 	}
 
 	private void pushNotebook(SyncItem item) throws SyncException {
-		// TODO Auto-generated method stub
 		HttpPostJson http = new HttpPostJson(URL_PUSH);
 		http.send("email", account.email());
 		http.send("session_token", data.getSessionToken());
@@ -189,15 +197,50 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Error uploading ", msg, true);
 			throw new SyncException(response);
 		}
+		item.saveSyncTime();
 	}
 
 	private void pullNotebook(SyncItem item) throws SyncException {
-		// TODO Auto-generated method stub
+		HttpPostJson http = new HttpPostJson(URL_PULL_INDEX);
+		http.send("email", account.email());
+		http.send("session_token", data.getSessionToken());
+		http.send("book_uuid", item.getUuid().toString());
+		http.send("book_mtime", String.valueOf(item.getRemoteModTime().toMillis(false)));
+
+		Response response = http.receive();
+		if (!response.isSuccess()) {
+			String msg = context.getResources().getString(R.string.sync_error, response.getMessage());
+			publishProgress("Error downloading index ", msg, true);
+			throw new SyncException(response);
+		}
 		
+		LinkedList<String> filenames = new LinkedList<String>();
+		try {
+			JSONArray index = response.getJSON().getJSONArray("filenames");
+			for (int i=0; i<index.length(); i++)
+				filenames.add(index.getString(i));
+		} catch (JSONException e) {
+			Log.e(TAG, "JSON[index] "+e.getMessage());
+			String msg = context.getResources().getString(R.string.sync_error, "Invalid JSON");
+			publishProgress("Index is invalid JSON", msg, true);
+			throw new SyncException(response);
+
+		}
+		publishProgress("Uploading", "Got files index", false);
+
+		for (String filename : filenames) {
+			pullNotebookFile(item, filename);
+		}
+		
+		// item.saveSyncTime();	
+	}
+
+	private void pullNotebookFile(SyncItem item, String filename) throws SyncException {
+		Log.e(TAG, "pullNotebookFile "+filename);
 	}
 
 	private void login() throws SyncException {
-		if (data.getSessionToken() != null) 
+		if (data.getSessionToken() != null)   // login only once 
 			return;
 		HttpPostJson http = new HttpPostJson(URL_LOGIN);
 		http.send("email", account.email());
@@ -230,8 +273,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 	}
 
 	private void fetchMetadata() throws SyncException {
-		if (data.haveMetadata())
-			return;
+		data.reset();
 		HttpPostJson http = new HttpPostJson(URL_METADATA);
 		http.send("email", account.email());
 		http.send("session_token", data.getSessionToken());
@@ -241,17 +283,16 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Error logging in", msg, true);
 			throw new SyncException(response);
 		}
-		try {
+	 	try {
 			JSONArray metadata = response.getJSON().getJSONArray("metadata");
-			Time time = new Time();
 			for (int i = 0; i < metadata.length(); i++) {
 				JSONObject obj = metadata.getJSONObject(i);
 				String uuid = obj.getString("uuid");
 				String title = obj.getString("title");
 				long millis = obj.getLong("mtime");
+				Time time = new Time();
 				time.set(millis);
 				data.addRemote(UUID.fromString(uuid), title, time);
-				Log.e(TAG, "Meta " + uuid + " " + time);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG, "JSON[metadata] " + e.getMessage());
@@ -260,6 +301,6 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			return;
 		}
 		data.sort();
-		publishProgress("Ready", "Got metadata", true);
+		publishProgress("Ready", "Got metadata", false);
 	}
 }

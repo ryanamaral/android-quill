@@ -31,7 +31,6 @@ public class SyncListFragment extends ListFragment {
 					Context.MODE_PRIVATE);
 			QuillAccount account = new QuillAccount(getActivity());
 			data = new SyncData(syncPrefs, account);
-			data.reset();
 		}
 		runBackgroundTask();
 		setListAdapter(new SyncDataAdapter(getActivity(), R.layout.sync_item, data));
