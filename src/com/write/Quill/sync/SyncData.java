@@ -22,7 +22,13 @@ import android.util.Log;
  */
 public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	private final static String TAG = "SyncData";
+	
+	protected enum Command {
+		METADATA_ONLY, SYNC_ONLY, FULL_SYNC
+	}
 
+	protected Command command = Command.METADATA_ONLY;
+	
 	protected enum State { 
 		IN_SYNC, LOCAL_ONLY, LOCAL_IS_NEWER, REMOTE_IS_NEWER, CONFLICT 
 	}
@@ -65,6 +71,11 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		}
 		
 		protected void setRemote(UUID uuid, String title, Time mtime) {
+			if (remote && mtime.before(remoteTime)) {
+				Log.e(TAG, "skipping remote "+uuid + " " + mtime.toMillis(false));
+				return;   // is an older backup
+			}
+			Log.e(TAG, "adding remote "+uuid + " " + mtime.toMillis(false));
 			remote = true;
 			Assert.assertTrue(this.uuid.equals(uuid));
 			remoteTitle = title;
@@ -78,12 +89,16 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 				return State.REMOTE_IS_NEWER;
 			if (!remote) 
 				return State.LOCAL_ONLY;
-			if (localTime.equals(remoteTime))
+			if (Time.compare(localTime, remoteTime) == 0)
 				return State.IN_SYNC;
 			if (lastSync == null)
 				return State.CONFLICT;
-			boolean localIsUnchanged = localTime.equals(lastSync);
-			boolean remoteIsUnchanged = remoteTime.equals(lastSync);
+			Log.e(TAG, "time uuid = "+uuid);
+			Log.e(TAG, "time "+localTime.toMillis(false));
+			Log.e(TAG, "time "+remoteTime.toMillis(false));
+			Log.e(TAG, "time "+lastSync.toMillis(false));
+			boolean localIsUnchanged  = (Time.compare(localTime,  lastSync) == 0);
+			boolean remoteIsUnchanged = (Time.compare(remoteTime, lastSync) == 0);
 			if (localTime.before(remoteTime) && localIsUnchanged)
 				return State.REMOTE_IS_NEWER;
 			if (localTime.after(remoteTime) && remoteIsUnchanged)
@@ -162,6 +177,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 				return remoteTime;
 		}
 		
+		protected Time getRemoteModTime() {
+			return remoteTime;
+		}
+		
 		protected String getTitle() {
 			switch (getState()) {
 			case CONFLICT: 
@@ -182,8 +201,8 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		
 		protected void saveSyncTime() {
 			SharedPreferences.Editor editor = syncPrefs.edit();
-			for (SyncItem item : data)
-				editor.putLong(item.getUuid().toString(), item.getLastModTime().toMillis(false));
+			editor.putLong(getUuid().toString(), getLastModTime().toMillis(false));
+			// Log.e(TAG, "saveSyncTime "+item.getUuid().toString() + " " + item.getLastModTime().toMillis(false));
 			editor.commit();
 		}
 	}
@@ -195,9 +214,6 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	// keep authentication data here for convenience
 	protected final QuillAccount account;
 	protected String sessionToken;
-	
-	// whether metadata exchange is complete
-	protected boolean metadata;
 	
 	public SyncData(SharedPreferences syncPreferences, QuillAccount account) {
 		data = new LinkedList<SyncItem>();
@@ -257,6 +273,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		data.add(item);
 	}
 	
+	public int size() {
+		return data.size();
+	}
+	
 	protected void sort() {
 		Collections.sort(data, new SyncItemComparator());
 	}
@@ -283,20 +303,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	
 	protected void setSessionToken(String token) {
 		sessionToken = token;
-		metadata = false;
 	}
 	
 	protected String getSessionToken() {
 		return sessionToken;
 	}
-	
-	protected boolean haveMetadata() {
-		return metadata;
-	}
-	
-	protected void setMetadata(boolean metadata) {
-		this.metadata = metadata;
-	}
-	
-	
+		
 }
