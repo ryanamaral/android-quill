@@ -144,12 +144,7 @@ public class SyncDataAdapter extends BaseAdapter {
 		holder.show(data.get(position));
 		return v;	
 	}
-	
-	public void reset() {
-		data.reset();
-		notifyDataSetChanged();
-	}
-		
+			
 	public void addRemote(UUID uuid, String title, Time mtime) {
 		data.addRemote(uuid, title, mtime);
 		notifyDataSetChanged();

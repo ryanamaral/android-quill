@@ -12,23 +12,54 @@
         android:text="@string/account_name_label" />
 
     <TextView
+        android:id="@+id/account_new_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/account_new_name"
+        android:layout_below="@id/account_new_name_label"
+        android:layout_marginTop="@dimen/account_label_small_vspace"
+        android:text="@string/account_new_name_text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
         android:id="@+id/account_new_email_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/account_new_name_label"
-        android:layout_below="@id/account_new_name_label"
+        android:layout_below="@id/account_new_name_text"
         android:layout_marginTop="@dimen/account_label_vspace"
         android:text="@string/account_email_label" />
+
+    <TextView
+        android:id="@+id/account_new_email_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/account_new_email"
+        android:layout_below="@id/account_new_email_label"
+        android:layout_marginTop="@dimen/account_label_small_vspace"
+        android:text="@string/account_new_email_text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/account_new_password_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/account_new_name_label"
-        android:layout_below="@id/account_new_email_label"
+        android:layout_below="@id/account_new_email_text"
         android:layout_marginTop="@dimen/account_label_vspace"
         android:text="@string/account_password_label" />
+ 
+    <TextView
+        android:id="@+id/account_new_password_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/account_new_password"
+        android:layout_below="@id/account_new_password_label"
+        android:layout_marginTop="@dimen/account_label_small_vspace"
+        android:text="@string/account_new_password_text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    
     <EditText
         android:id="@+id/account_new_name"
         android:layout_width="fill_parent"

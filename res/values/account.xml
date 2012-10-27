@@ -6,12 +6,16 @@
         <string name="account_email_label">Email:</string>
         <string name="account_password_label">Password:</string>
         <string name="account_show_password">Show password</string>
-        <string name="account_login_title">Login to your account</string><string name="account_new_title">Create new account</string>
+        <string name="account_login_title">Login to your Quill account</string><string name="account_new_title">Create new Quill account</string>
         <string name="account_button_login">Login</string>
         <string name="account_button_create_new">Create new</string>
         <string name="account_error_create">Error creating account (server said: %s)</string>
         <string name="account_error_login">Error logging in (server said: %s)</string>
         <string name="account_login_successful">Login successful!</string>
         <string name="account_name_label">Name:</string>
+        <dimen name="account_label_small_vspace">5dp</dimen>
+        <string name="account_new_password_text">Write down &amp; store safely</string>
+        <string name="account_new_email_text">For password recovery</string>
+        <string name="account_new_name_text">How you would like to be addressed</string>
         
     </resources>

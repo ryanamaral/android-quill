@@ -272,7 +272,7 @@ public class Bookshelf {
 	
 		File bookDir = storage.getBookDirectory(uuid);
 		for (File src : dir.listFiles()) {
-			File dst = new File(dir, src.getName());
+			File dst = new File(bookDir, src.getName());
 			dst.delete();
 			src.renameTo(dst);
 		}

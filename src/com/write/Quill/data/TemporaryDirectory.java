@@ -11,17 +11,17 @@ public class TemporaryDirectory extends DirectoryBase {
 	
 	public TemporaryDirectory(Storage storage, UUID uuid) {
 		super(storage, Storage.TEMPORARY_DIRECTORY_PREFIX, uuid);
+		mkdir();
 	}
 
 	public static LinkedList<TemporaryDirectory> allTemporaryDirectories() {
-		LinkedList<TemporaryDirectory> dirs = new LinkedList<TemporaryDirectory>();
 		Storage storage = Storage.getInstance();
 		FilenameFilter filter = new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
 		        return name.startsWith(Storage.TEMPORARY_DIRECTORY_PREFIX);
 		    }};
 		File[] entries = storage.getFilesDir().listFiles(filter);
-		LinkedList<UUID> uuids = new LinkedList<UUID>();
+		LinkedList<TemporaryDirectory> dirs = new LinkedList<TemporaryDirectory>();
 		if (entries == null) return dirs;
 		for (File tempdir : entries) {
 			String path = tempdir.getAbsolutePath();

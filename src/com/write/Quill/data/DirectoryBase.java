@@ -3,6 +3,11 @@ package com.write.Quill.data;
 import java.io.File;
 import java.util.UUID;
 
+/**
+ * Base class for directories to be handed out by the Storage class
+ * @author vbraun
+ *
+ */
 public class DirectoryBase extends File {
 	private static final long serialVersionUID = 5746307953245396546L;
 	private final static String TAG = "DirectoryBase";

@@ -219,6 +219,14 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		data = new LinkedList<SyncItem>();
 		syncPrefs = syncPreferences;
 		this.account = account;
+		initLocal();
+	}
+	
+	public SyncData copy() {
+		SyncData s = new SyncData(syncPrefs, account);
+		s.sessionToken = sessionToken;
+		s.command = command;
+		return s;
 	}
 	
 	public static class SyncItemComparator implements Comparator<SyncItem> {
@@ -281,7 +289,7 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		Collections.sort(data, new SyncItemComparator());
 	}
 		
-	protected void reset() {
+	protected void initLocal() {
 		data.clear();		
 		for (BookPreview book : Bookshelf.getBookPreviewList())
 			addLocal(book);

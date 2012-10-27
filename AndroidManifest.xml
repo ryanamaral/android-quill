@@ -23,6 +23,10 @@
         <activity
             android:name=".QuillWriterActivity"
             android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".Preferences" >
         </activity>
@@ -86,10 +90,6 @@
         <activity
             android:name=".sync.SyncActivity"
             android:theme="@android:style/Theme.Holo.Light" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

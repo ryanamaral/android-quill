@@ -25,15 +25,18 @@ public class SyncListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
-
-		if (data == null) {
-			SharedPreferences syncPrefs = getActivity().getSharedPreferences(SyncActivity.SYNC_PREFERENCES,
-					Context.MODE_PRIVATE);
-			QuillAccount account = new QuillAccount(getActivity());
-			data = new SyncData(syncPrefs, account);
-		}
+	}
+	
+	protected void setAccount(QuillAccount account) {
+		SharedPreferences syncPrefs = getActivity().getSharedPreferences(SyncActivity.SYNC_PREFERENCES,
+				Context.MODE_PRIVATE);
+		data = new SyncData(syncPrefs, account);
 		runBackgroundTask();
-		setListAdapter(new SyncDataAdapter(getActivity(), R.layout.sync_item, data));
+	}
+	
+	protected void setData(SyncData data) {
+		this.data = data;
+		setListAdapter(new SyncDataAdapter(getActivity(), R.layout.sync_item, data));		
 	}
 	
 	protected void runBackgroundTask() {

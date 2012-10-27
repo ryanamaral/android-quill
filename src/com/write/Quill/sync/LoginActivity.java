@@ -193,11 +193,15 @@ public class LoginActivity
 		final AccountManager mgr = AccountManager.get(this);
 		final Account account = new Account(email_str, QuillAccount.ACCOUNT_TYPE);
 		mgr.addAccountExplicitly(account, password_str, userData);
-		final Intent intent = new Intent();
-		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, email_str);
-		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, QuillAccount.ACCOUNT_TYPE);
-		intent.putExtra(AccountManager.KEY_USERDATA, userData);
-//			
+
+		
+//		final Intent intent = new Intent();
+//		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, email_str);
+//		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, QuillAccount.ACCOUNT_TYPE);
+//		intent.putExtra(AccountManager.KEY_USERDATA, userData);
+
+		
+		
 //		Parcel parcel = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
 //		Log.e(TAG, "parcel = "+parcel);
 //		if (parcel != null) {
@@ -205,7 +209,9 @@ public class LoginActivity
 //			authResponse.onRequestContinued();
 //			authResponse.onResult(intent.getExtras());
 //		}	
-//			
+//		
+		
+		setResult(RESULT_OK);
 		finish();
 //
 //		Log.e(TAG, "Login: return data"); 

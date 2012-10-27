@@ -24,6 +24,7 @@ import com.write.Quill.data.TagManager.Tag;
 import com.write.Quill.data.TagManager.TagSet;
 import com.write.Quill.export.EvernoteExportDialog;
 import com.write.Quill.export.SendDialogEvernote;
+import com.write.Quill.sync.SyncActivity;
 import com.write.Quill.thumbnail.ThumbnailAdapter.Thumbnail;
 
 import android.app.ActionBar;
@@ -196,6 +197,10 @@ public class ThumbnailActivity extends ActivityBase implements
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			launchQuillWriterActivity();
+			return true;
+		case R.id.thumbnail_sync:
+			Intent intent = new Intent(this, SyncActivity.class);
+			startActivity(intent);
 			return true;
 		case R.id.show_tags:		
 			setTagsVisible(!item.isChecked());
