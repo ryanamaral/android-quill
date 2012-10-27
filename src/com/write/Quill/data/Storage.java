@@ -40,6 +40,7 @@ public abstract class Storage {
 	 * Hook that runs after the instance singleton is initialized
 	 */
 	protected void postInitializaton() {
+		deleteAllTemporaryDirectories();
 		Bookshelf.initialize(this);
 	}
 	
@@ -107,15 +108,16 @@ public abstract class Storage {
 	/// temporary directories
 
 	/**
-	 * Create and returns a new random temporary directory.
+	 * Create and returns a new random temporary directory. Will be deleted on exit.
 	 * @return A DirectoryBase
 	 */
-	public File getTemporaryDirectory() {
+	public TemporaryDirectory newTemporaryDirectory() {
 		return new TemporaryDirectory(this, UUID.randomUUID());
 	}
 	
 	private void deleteAllTemporaryDirectories() {
-		// TODO
+		for (TemporaryDirectory tmp : TemporaryDirectory.allTemporaryDirectories())
+			tmp.deleteAll();
 	}
 	
 	////////////////////////////////////////////////////

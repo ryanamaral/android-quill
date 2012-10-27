@@ -9,8 +9,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.write.Quill.R;
+import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Storage;
-import com.write.Quill.sync.HttpPostJson.Response;
+import com.write.Quill.data.TemporaryDirectory;
+import com.write.Quill.sync.HttpPostBase.Response;
 import com.write.Quill.sync.SyncData.Action;
 import com.write.Quill.sync.SyncData.SyncItem;
 
@@ -63,24 +65,17 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			listFragment.updateMenu(lastProgress.finished);
 	}
 	
-	private void notifyDataChanged() {
-		if (listFragment == null)
-			return;
-		SyncDataAdapter adapter = (SyncDataAdapter) listFragment.getListAdapter();
-		if (adapter == null)
-			return;
-		adapter.notifyDataSetChanged();
-	}
-	
 	private Progress lastProgress;
 
 	@Override
 	protected void onProgressUpdate(Progress... values) {
 		showAccountData();
 		Progress progress = values[0];
-		notifyDataChanged();
-		if (listFragment != null)
+		if (listFragment != null) {
+			if (progress.data != null)
+				listFragment.setData(progress.data);
 			listFragment.updateMenu(progress.finished);
+		}
 		if (statusFragment == null)
 			return;
 		statusFragment.setStatus(progress.title, progress.status, progress.finished);
@@ -98,20 +93,28 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		protected final String title;
 		protected final String status;
 		protected final boolean finished;
-		public Progress(String title, String status, boolean finished) {
+		protected final SyncData data;
+		public Progress(String title, String status, boolean finished, SyncData data) {
 			this.title = title;
 			this.status = status;
 			this.finished = finished;
+			this.data = data;
 		}
 		public Progress() {
 			this.title = "Ready";
 			this.status = "";
 			this.finished = true;
+			this.data = null;
 		}
 	}
 	
 	void publishProgress(String title, String status, boolean finished) {
-		Progress progress = new Progress(title, status, finished);
+		Progress progress = new Progress(title, status, finished, null);
+		publishProgress(progress);
+	}
+
+	void publishProgress(String title, String status, boolean finished, SyncData data) {
+		Progress progress = new Progress(title, status, finished, data);
 		publishProgress(progress);
 	}
 	
@@ -167,6 +170,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Ready", "Press \"Sync Now\" to start.", true);
 
 		} catch (SyncException e) {
+			publishProgress("Failed", e.getMessage(), true);
 			data.setSessionToken(null);  // force re-login
 		}
 
@@ -210,7 +214,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		Response response = http.receive();
 		if (!response.isSuccess()) {
 			String msg = context.getResources().getString(R.string.sync_error, response.getMessage());
-			publishProgress("Error downloading index ", msg, true);
+			publishProgress("Error downloading index", msg, true);
 			throw new SyncException(response);
 		}
 		
@@ -228,15 +232,34 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		}
 		publishProgress("Uploading", "Got files index", false);
 
-		for (String filename : filenames) {
-			pullNotebookFile(item, filename);
-		}
+		Storage storage = Storage.getInstance();
+		TemporaryDirectory tmp = storage.newTemporaryDirectory();
+		for (String filename : filenames)
+			pullNotebookFile(item, filename, tmp);
+		Bookshelf bookshelf = Bookshelf.getBookshelf();
+		bookshelf.importBookDirectory(tmp, item.getUuid());
 		
-		// item.saveSyncTime();	
+		item.saveSyncTime();	
 	}
 
-	private void pullNotebookFile(SyncItem item, String filename) throws SyncException {
+	private void pullNotebookFile(SyncItem item, String filename, TemporaryDirectory tmp) throws SyncException {
 		Log.e(TAG, "pullNotebookFile "+filename);
+		if (filename.contains("/") || filename.startsWith(".")) return;  // no paths allowed
+		
+		File file = new File(tmp, filename);
+		HttpPostFile http = new HttpPostFile(URL_PULL_FILE, file);
+		http.send("email", account.email());
+		http.send("session_token", data.getSessionToken());
+		http.send("book_uuid", item.getUuid().toString());
+		http.send("book_mtime", String.valueOf(item.getRemoteModTime().toMillis(false)));
+		http.send("filename", filename);
+
+		Response response = http.receive();
+		if (!response.isSuccess()) {
+			String msg = context.getResources().getString(R.string.sync_error, response.getMessage());
+			publishProgress("Error downloading file", msg, true);
+			throw new SyncException(response);
+		}
 	}
 
 	private void login() throws SyncException {
@@ -262,21 +285,14 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		}
 		data.setSessionToken(sessionToken);
 		publishProgress("Logged in", "", false);
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 	}
 
 	private void fetchMetadata() throws SyncException {
-		data.reset();
+		Bookshelf.getCurrentBook().save();
+		SyncData newData = data.copy();
 		HttpPostJson http = new HttpPostJson(URL_METADATA);
 		http.send("email", account.email());
-		http.send("session_token", data.getSessionToken());
+		http.send("session_token", newData.getSessionToken());
 		Response response = http.receive();
 		if (!response.isSuccess()) {
 			String msg = context.getResources().getString(R.string.sync_error, response.getMessage());
@@ -292,7 +308,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 				long millis = obj.getLong("mtime");
 				Time time = new Time();
 				time.set(millis);
-				data.addRemote(UUID.fromString(uuid), title, time);
+				newData.addRemote(UUID.fromString(uuid), title, time);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG, "JSON[metadata] " + e.getMessage());
@@ -300,7 +316,8 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Invalid server response", msg, true);
 			return;
 		}
-		data.sort();
-		publishProgress("Ready", "Got metadata", false);
+		newData.sort();
+		data = newData;
+		publishProgress("Ready", "Got metadata", false, newData);
 	}
 }

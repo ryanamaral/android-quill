@@ -3,6 +3,7 @@ package com.write.Quill.sync;
 import java.util.UUID;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -33,8 +34,36 @@ public class SyncActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (!checkAccountExists())
+			return;
 		setContentView(R.layout.sync_activity);
 		syncList = (SyncListFragment) getFragmentManager().findFragmentById(R.id.sync_list_fragment);
+		syncList.setAccount(new QuillAccount(this));
+	}
+
+	public final static int REQUEST_LOGIN = 123;
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case REQUEST_LOGIN:
+			QuillAccount account = new QuillAccount(this);
+			if (account.exists())
+				syncList.setAccount(account);			
+			return;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+		}
+	}
+	
+	private boolean checkAccountExists() {
+		QuillAccount account = new QuillAccount(this);
+		if (account.exists())
+			return true;
+		Intent newAccount = new Intent(this, LoginActivity.class);
+		startActivityForResult(newAccount, REQUEST_LOGIN);
+		finish();
+		return false;
 	}
 	
     @Override
