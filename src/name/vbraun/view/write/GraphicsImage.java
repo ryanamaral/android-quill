@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.util.FloatMath;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class GraphicsImage extends GraphicsControlpoint {
 	private static final String TAG = "GraphicsImage";
@@ -353,7 +354,17 @@ public class GraphicsImage extends GraphicsControlpoint {
 		BitmapFactory.Options o2 = new BitmapFactory.Options();
 		o2.inSampleSize = scale;
 		fis = new FileInputStream(file);
-		bitmap = BitmapFactory.decodeStream(fis, null, o2);
+		try {
+			bitmap = BitmapFactory.decodeStream(fis, null, o2);
+		} catch (OutOfMemoryError e1) {
+			o2.inSampleSize = 8*scale;
+			try {
+				bitmap = BitmapFactory.decodeStream(fis, null, o2);
+			} catch (OutOfMemoryError e2) {
+				Log.e(TAG, "Not enough memory to load image");
+				bitmap = null;
+			}
+		}
 		fis.close();
 
 		height = o2.outHeight;
