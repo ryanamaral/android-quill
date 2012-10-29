@@ -89,14 +89,14 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 				return State.REMOTE_IS_NEWER;
 			if (!remote) 
 				return State.LOCAL_ONLY;
+			Log.e(TAG, "time uuid = "+uuid);
+			Log.e(TAG, "time local  "+localTime.toMillis(false));
+			Log.e(TAG, "time remote "+remoteTime.toMillis(false));
 			if (Time.compare(localTime, remoteTime) == 0)
 				return State.IN_SYNC;
 			if (lastSync == null)
 				return State.CONFLICT;
-			Log.e(TAG, "time uuid = "+uuid);
-			Log.e(TAG, "time "+localTime.toMillis(false));
-			Log.e(TAG, "time "+remoteTime.toMillis(false));
-			Log.e(TAG, "time "+lastSync.toMillis(false));
+			Log.e(TAG, "time last   "+lastSync.toMillis(false));
 			boolean localIsUnchanged  = (Time.compare(localTime,  lastSync) == 0);
 			boolean remoteIsUnchanged = (Time.compare(remoteTime, lastSync) == 0);
 			if (localTime.before(remoteTime) && localIsUnchanged)
@@ -111,7 +111,7 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 			case LOCAL_IS_NEWER:
 				return Action.PUSH_TO_SERVER;
 			case REMOTE_IS_NEWER: 
-				return Action.PUSH_TO_SERVER;
+				return Action.PULL_TO_ANDROID;
 			default:
 				return Action.SKIP;
 			}
@@ -181,6 +181,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 			return remoteTime;
 		}
 		
+		protected Time getLocalModTime() {
+			return localTime;
+		}
+
 		protected String getTitle() {
 			switch (getState()) {
 			case CONFLICT: 
@@ -199,10 +203,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 			return getTitle();
 		}
 		
-		protected void saveSyncTime() {
+		protected void saveSyncTime(Time time) {
 			SharedPreferences.Editor editor = syncPrefs.edit();
-			editor.putLong(getUuid().toString(), getLastModTime().toMillis(false));
-			// Log.e(TAG, "saveSyncTime "+item.getUuid().toString() + " " + item.getLastModTime().toMillis(false));
+			editor.putLong(getUuid().toString(), time.toMillis(false));
+			Log.e(TAG, "saveSyncTime "+getUuid().toString() + " " + time.toMillis(false));
 			editor.commit();
 		}
 	}

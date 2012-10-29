@@ -132,7 +132,7 @@ public class Bookshelf {
 	private void createFirstNotebook() {
 		Assert.assertNull(currentBook);
 		currentBook = new Book("Example Notebook");
-		saveBook(currentBook);		
+		currentBook.save();		
 	}
 	
 	/** This is called automatically from the Storage initializer
@@ -186,7 +186,7 @@ public class Bookshelf {
 	
 	public static void sortBookPreviewList() {
 		Assert.assertNotNull(data);
-		instance.saveBook(currentBook);
+		currentBook.save();
 		Collections.sort(data, new BookPreviewComparator());
 	}
 	
@@ -194,8 +194,7 @@ public class Bookshelf {
 		return data.size();
 	}
 	
-	private void saveBook(Book book) {
-		book.save(storage);
+	protected void reloadPreview(Book book) {
 		BookPreview preview = getPreview(book);
 		if (preview != null) 
 			preview.reload();
@@ -204,7 +203,7 @@ public class Bookshelf {
 			data.add(nb);		
 		}
 	}
-	
+
 	public void deleteBook(UUID uuid) {
 		if (data.size() <= 1) {
 			storage.LogMessage(TAG, "Cannot delete last notebook");
@@ -231,7 +230,7 @@ public class Bookshelf {
 	 */
 	public void importBook(File file) throws BookIOException {
 		BookPreview nb = getCurrentBookPreview();
-		saveBook(currentBook);
+		currentBook.save();
 		currentBook = null;
 		UUID uuid;
 		try {
@@ -253,7 +252,7 @@ public class Bookshelf {
 			data.add(nb);
 		}
 		setCurrentBook(nb, false);
-		saveBook(currentBook);
+		currentBook.save();
 		Assert.assertTrue(data.contains(nb));
 	}
 	
@@ -271,6 +270,7 @@ public class Bookshelf {
 			currentBook = null;
 	
 		File bookDir = storage.getBookDirectory(uuid);
+		bookDir.mkdir();
 		for (File src : dir.listFiles()) {
 			File dst = new File(bookDir, src.getName());
 			dst.delete();
@@ -296,7 +296,7 @@ public class Bookshelf {
 	
 	public void exportBook(UUID uuid, File file) throws BookSaveException {
 		if (currentBook.getUUID().equals(uuid))
-			saveBook(currentBook);
+			currentBook.save();
 		try {
 			storage.exportArchive(uuid, file);
 		} catch (StorageIOException e) {
@@ -304,11 +304,10 @@ public class Bookshelf {
 		}
 	}
 	
-	
 	public void newBook(String title) {
-		saveBook(getCurrentBook());
+		getCurrentBook().save();
 		currentBook = new Book(title);
-		saveBook(currentBook);
+		currentBook.save();
 		Assert.assertTrue(data.contains(getCurrentBookPreview()));
 	}
 	
@@ -318,7 +317,7 @@ public class Bookshelf {
 
 	public void setCurrentBook(BookPreview nb, boolean saveCurrent) {
 		if (currentBook != null) {
-			if (saveCurrent) saveBook(getCurrentBook());
+			if (saveCurrent) getCurrentBook().save();
 			if (nb.getUUID().equals(currentBook.getUUID())) return;
 		}
 		currentBook = new Book(storage, nb.uuid);

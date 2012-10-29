@@ -28,8 +28,15 @@ public class SyncListFragment extends ListFragment {
 	}
 	
 	protected void setAccount(QuillAccount account) {
+		if (data != null && data.getAccount().equals(account))
+			return;
 		SharedPreferences syncPrefs = getActivity().getSharedPreferences(SyncActivity.SYNC_PREFERENCES,
 				Context.MODE_PRIVATE);
+		SyncStatusFragment status = (SyncStatusFragment) 
+				getFragmentManager().findFragmentById(R.id.sync_status_fragment);
+		if (status != null) {
+			status.setAccount(account);
+		}
 		data = new SyncData(syncPrefs, account);
 		runBackgroundTask();
 	}
@@ -54,18 +61,22 @@ public class SyncListFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		task.setSyncListFragment(this);
-		SyncStatusFragment status = (SyncStatusFragment) 
-				getFragmentManager().findFragmentById(R.id.sync_status_fragment);
-		if (status != null) {
-			task.setSyncStatusFragment(status);
+		if (task != null) {
+			task.setSyncListFragment(this);
+			SyncStatusFragment status = (SyncStatusFragment) 
+					getFragmentManager().findFragmentById(R.id.sync_status_fragment);
+			if (status != null) {
+				task.setSyncStatusFragment(status);
+			}
 		}
 	}
 	
 	@Override
 	public void onPause() {
-		task.setSyncStatusFragment(null);
-		task.setSyncListFragment(null);
+		if (task != null) {
+			task.setSyncStatusFragment(null);
+			task.setSyncListFragment(null);
+		}
 		super.onPause();
 	}
 	
