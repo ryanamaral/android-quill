@@ -49,7 +49,7 @@ public class Page {
 	// coordinate transformation Stroke -> screen
 	protected Transformation transformation = new Transformation();
 	
-	protected boolean is_modified = false;
+	protected boolean modified = false;
 
 	private final RectF mRectF = new RectF();
 	
@@ -82,11 +82,11 @@ public class Page {
 	}
 	
 	public void touch() {
-		is_modified = true;
+		modified = true;
 	}
 	
 	public boolean isModified() {
-		return is_modified;
+		return modified;
 	}
 
 	public float getAspectRatio() {
@@ -103,18 +103,18 @@ public class Page {
 	
 	public void setReadonly(boolean ro) {
 		is_readonly = ro;
-		is_modified = true;
+		modified = true;
 	}
 	
 	public void setPaperType(Paper.Type type) {
 		paper_type = type;
-		is_modified = true;
+		modified = true;
 		background.setPaperType(paper_type);
 	}
 	
 	public void setAspectRatio(float aspect) {
 		aspect_ratio = aspect;
-		is_modified = true;
+		modified = true;
 		background.setAspectRatio(aspect_ratio);
 	}
 	
@@ -167,34 +167,34 @@ public class Page {
 	public void addStroke(Stroke s) {
 		strokes.add(s);
 		s.setTransform(getTransform());
-		is_modified = true;
+		modified = true;
 	}
 	
 	public void removeStroke(Stroke s) {
 		strokes.remove(s);
-		is_modified = true;
+		modified = true;
 	}
 
 	public void addLine(GraphicsLine line) {
 		lineArt.add(line);
 		line.setTransform(getTransform());
-		is_modified = true;
+		modified = true;
 	}
 	
 	public void removeLine(GraphicsLine line) {
 		lineArt.remove(line);
-		is_modified = true;
+		modified = true;
 	}
 
 	public void addImage(GraphicsImage image) {
 		images.add(image);
 		image.setTransform(getTransform());
-		is_modified = true;
+		modified = true;
 	}
 	
 	public void removeImage(GraphicsImage image) {
 		images.remove(image);
-		is_modified = true;
+		modified = true;
 	}
 
 	public void draw(Canvas canvas, RectF bounding_box) {
@@ -271,6 +271,13 @@ public class Page {
 		out.writeInt(0); // number of text boxes
 	}
 	
+	/**
+	 * To be called after the page has been saved to the internal storage (but NOT: anywhere else like backups)
+	 */
+	public void markAsSaved() {
+		modified = false;
+	}
+	
 	public Page(TagManager tagMgr) {
 		uuid=UUID.randomUUID();
 		tagManager = tagMgr;
@@ -278,7 +285,7 @@ public class Page {
 		setPaperType(paper_type);
 		setAspectRatio(aspect_ratio);
 		setTransform(transformation);
-		is_modified = true;
+		modified = true;
 	}
 
 	public Page(Page template) {
@@ -288,7 +295,7 @@ public class Page {
 		setPaperType(template.paper_type);
 		setAspectRatio(template.aspect_ratio);
 		setTransform(template.transformation);
-		is_modified = true;
+		modified = true;
 	}
 	
 

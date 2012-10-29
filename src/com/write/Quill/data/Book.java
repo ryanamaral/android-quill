@@ -15,6 +15,7 @@ import java.util.ListIterator;
 import java.util.UUID;
 
 import com.write.Quill.BookModifiedListener;
+import com.write.Quill.data.Bookshelf.BookPreview;
 import com.write.Quill.data.TagManager.TagSet;
 
 import name.vbraun.view.write.Page;
@@ -37,8 +38,19 @@ public class Book {
 	protected static final String INDEX_FILE = "index"+QUILL_DATA_FILE_SUFFIX;
 	protected static final String PAGE_FILE_PREFIX = "page_";
 
+	// You must set this to true if you change metadata (e.g. title)
+	private boolean modified = false;
+	
+	private boolean isModified() {
+		if (modified) return true;
+		for (Page page : pages)
+			if (page.isModified())
+				return true;
+		return false;
+	}
+	
 	protected final TagManager tagManager = new TagManager();
-
+	
 	public TagManager getTagManager() {
 		return tagManager;
 	}
@@ -63,6 +75,7 @@ public class Book {
 		mtime.setToNow();
 		uuid = UUID.randomUUID();
 		title = description;
+		modified = true;
 		loadingFinishedHook();
 	}
 
@@ -112,14 +125,6 @@ public class Book {
 	private void touchAllSubsequentPages(int fromPage) {
 		for (int i = fromPage; i < pages.size(); i++)
 			getPage(i).touch();
-	}
-
-	private void touchAllSubsequentPages(Page fromPage) {
-		touchAllSubsequentPages(pages.indexOf(fromPage));
-	}
-
-	private void touchAllSubsequentPages() {
-		touchAllSubsequentPages(currentPage);
 	}
 
 	// Call this whenever the filter changed
@@ -189,6 +194,7 @@ public class Book {
 	
 	public void setTitle(String title) {
 		this.title = title;
+		modified = true;
 	}
 	
 	public UUID getUUID() {
@@ -210,6 +216,7 @@ public class Book {
 		pages.add(position, page);
 		updateFilteredPages();
 		currentPage = position;
+		modified = true;
 	}
 
 	// to be called from the undo manager
@@ -237,6 +244,7 @@ public class Book {
 		updateFilteredPages();
 		touchAllSubsequentPages(position);
 		currentPage = pos;
+		modified = true;
 		Log.d(TAG, "Removed page " + position + ", current = " + currentPage);
 	}
 
@@ -524,7 +532,7 @@ public class Book {
 	}
 
 	// save data internally. To load, use the constructor.
-	public void save(Storage storage) {
+	protected void save(Storage storage) {
 		Assert.assertTrue(allowSave);
 		BookDirectory dir = storage.getBookDirectory(getUUID());
 		try {
@@ -534,6 +542,17 @@ public class Book {
 		} catch (IOException e ) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
+		markAsSaved();
+		Bookshelf.getBookshelf().reloadPreview(this);
+	}
+	
+	/**
+	 * To be called after the book has been saved to the internal storage (but NOT: anywhere else like backups)
+	 */
+	private void markAsSaved() {
+		modified = false;
+		for (Page page : pages)
+			page.markAsSaved();
 	}
 	
 	private void doLoadBookFromDirectory(BookDirectory dir, int pageLimit) throws BookLoadException, IOException {
@@ -650,7 +669,8 @@ public class Book {
 		dataOut.writeInt(currentPage);
 		dataOut.writeUTF(title);
 		dataOut.writeLong(ctime.toMillis(false));
-		mtime.setToNow();
+		if (isModified())
+			mtime.setToNow();
 		dataOut.writeLong(mtime.toMillis(false));
 		dataOut.writeUTF(uuid.toString());
 		getFilter().write_to_stream(dataOut);

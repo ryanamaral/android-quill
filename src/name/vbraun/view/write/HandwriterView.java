@@ -465,7 +465,7 @@ public class HandwriterView
 					KEY_DOUBLE_TAP_WHILE_WRITE, hwPen));
     		setMoveGestureWhileWriting(settings.getBoolean(
     				KEY_MOVE_GESTURE_WHILE_WRITING, hwPen));
-			setMoveGestureFixZoom(settings.getBoolean(KEY_MOVE_GESTURE_FIX_ZOOM, true));
+			setMoveGestureFixZoom(settings.getBoolean(KEY_MOVE_GESTURE_FIX_ZOOM, false));
     		setPalmShieldEnabled(false);
 		}
 		else if (pen_input_mode.equals(STYLUS_AND_TOUCH)) {

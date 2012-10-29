@@ -1,21 +1,10 @@
 package com.write.Quill.sync;
 
-import java.util.UUID;
-
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.format.Time;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.write.Quill.ActivityBase;
 import com.write.Quill.R;
@@ -24,6 +13,7 @@ import com.write.Quill.data.Bookshelf;
 public class SyncActivity 
 	extends ActivityBase {
 	
+	@SuppressWarnings("unused")
 	private final static String TAG = "SyncActivity";
 
 	public final static String SYNC_PREFERENCES = "sync_preferences";
@@ -34,11 +24,8 @@ public class SyncActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (!checkAccountExists())
-			return;
 		setContentView(R.layout.sync_activity);
 		syncList = (SyncListFragment) getFragmentManager().findFragmentById(R.id.sync_list_fragment);
-		syncList.setAccount(new QuillAccount(this));
 	}
 
 	public final static int REQUEST_LOGIN = 123;
@@ -62,8 +49,22 @@ public class SyncActivity
 			return true;
 		Intent newAccount = new Intent(this, LoginActivity.class);
 		startActivityForResult(newAccount, REQUEST_LOGIN);
-		finish();
 		return false;
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Bookshelf.getCurrentBook().save();
+		if (!checkAccountExists())
+			return;
+		QuillAccount account = new QuillAccount(this);
+		syncList.setAccount(account);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
 	}
 	
     @Override
@@ -80,11 +81,16 @@ public class SyncActivity
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if (item == syncMenuItem) {
+    	switch (item.getItemId()) {
+    	case R.id.sync_now:
     		syncList.runBackgroundTask();
     		return true;
+    	case android.R.id.home:
+    		finish();
+    		return true;
+    	default:
+        	return super.onOptionsItemSelected(item);    			
     	}
-    	return super.onOptionsItemSelected(item);
     }
-    
+ 
 }

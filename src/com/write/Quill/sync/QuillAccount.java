@@ -60,4 +60,9 @@ public class QuillAccount {
 		return result;
 	}
 
+	public boolean equals(QuillAccount other) {
+		return (name().equals(other.name()) && 
+				email().equals(other.email()) &&
+				password().equals(other.password()));
+	}
 }

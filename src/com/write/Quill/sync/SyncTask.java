@@ -201,7 +201,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			publishProgress("Error uploading ", msg, true);
 			throw new SyncException(response);
 		}
-		item.saveSyncTime();
+		item.saveSyncTime(item.getLocalModTime());
 	}
 
 	private void pullNotebook(SyncItem item) throws SyncException {
@@ -230,7 +230,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 			throw new SyncException(response);
 
 		}
-		publishProgress("Uploading", "Got files index", false);
+		publishProgress("Downloading", "Got files index", false);
 
 		Storage storage = Storage.getInstance();
 		TemporaryDirectory tmp = storage.newTemporaryDirectory();
@@ -239,7 +239,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		Bookshelf bookshelf = Bookshelf.getBookshelf();
 		bookshelf.importBookDirectory(tmp, item.getUuid());
 		
-		item.saveSyncTime();	
+		item.saveSyncTime(item.getRemoteModTime());	
 	}
 
 	private void pullNotebookFile(SyncItem item, String filename, TemporaryDirectory tmp) throws SyncException {
@@ -288,7 +288,6 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 	}
 
 	private void fetchMetadata() throws SyncException {
-		Bookshelf.getCurrentBook().save();
 		SyncData newData = data.copy();
 		HttpPostJson http = new HttpPostJson(URL_METADATA);
 		http.send("email", account.email());
