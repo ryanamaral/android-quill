@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.apache.http.client.methods.HttpUriRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,10 +176,11 @@ public abstract class HttpPostBase {
 	public Response receive() {
 		// see http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
 		
-		HttpURLConnection connection = null;
+		HttpsURLConnection connection = null;
 		try {
 			URL urlJava = new URL(url);
-			connection = (HttpURLConnection) urlJava.openConnection();
+			connection = (HttpsURLConnection) urlJava.openConnection();
+			connection.setHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier());
 		} catch (MalformedURLException e) {
 			return new Response(e.getMessage());
 		} catch (IOException e) {
@@ -306,7 +309,6 @@ public abstract class HttpPostBase {
 		return new Response(json);		
 	}
 
-	
 }
 
 
