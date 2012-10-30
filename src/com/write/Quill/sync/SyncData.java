@@ -72,10 +72,10 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		
 		protected void setRemote(UUID uuid, String title, Time mtime) {
 			if (remote && mtime.before(remoteTime)) {
-				Log.e(TAG, "skipping remote "+uuid + " " + mtime.toMillis(false));
+				// Log.e(TAG, "skipping remote "+uuid + " " + mtime.toMillis(false));
 				return;   // is an older backup
 			}
-			Log.e(TAG, "adding remote "+uuid + " " + mtime.toMillis(false));
+			// Log.e(TAG, "adding remote "+uuid + " " + mtime.toMillis(false));
 			remote = true;
 			Assert.assertTrue(this.uuid.equals(uuid));
 			remoteTitle = title;
@@ -89,14 +89,14 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 				return State.REMOTE_IS_NEWER;
 			if (!remote) 
 				return State.LOCAL_ONLY;
-			Log.e(TAG, "time uuid = "+uuid);
-			Log.e(TAG, "time local  "+localTime.toMillis(false));
-			Log.e(TAG, "time remote "+remoteTime.toMillis(false));
+			//Log.e(TAG, "time uuid = "+uuid);
+			//Log.e(TAG, "time local  "+localTime.toMillis(false));
+			//Log.e(TAG, "time remote "+remoteTime.toMillis(false));
 			if (Time.compare(localTime, remoteTime) == 0)
 				return State.IN_SYNC;
 			if (lastSync == null)
 				return State.CONFLICT;
-			Log.e(TAG, "time last   "+lastSync.toMillis(false));
+			//Log.e(TAG, "time last   "+lastSync.toMillis(false));
 			boolean localIsUnchanged  = (Time.compare(localTime,  lastSync) == 0);
 			boolean remoteIsUnchanged = (Time.compare(remoteTime, lastSync) == 0);
 			if (localTime.before(remoteTime) && localIsUnchanged)
@@ -206,7 +206,7 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 		protected void saveSyncTime(Time time) {
 			SharedPreferences.Editor editor = syncPrefs.edit();
 			editor.putLong(getUuid().toString(), time.toMillis(false));
-			Log.e(TAG, "saveSyncTime "+getUuid().toString() + " " + time.toMillis(false));
+			// Log.e(TAG, "saveSyncTime "+getUuid().toString() + " " + time.toMillis(false));
 			editor.commit();
 		}
 	}
@@ -263,7 +263,7 @@ public class SyncData implements java.lang.Iterable<SyncData.SyncItem> {
 	
 	protected void addLocal(BookPreview book) {
 		UUID uuid = book.getUUID();
-		Log.e(TAG, "addLocal "+uuid);
+		// Log.e(TAG, "addLocal "+uuid);
 		for (SyncItem item : data)
 			if (item.getUuid().equals(uuid)) {
 				item.setLocal(book);

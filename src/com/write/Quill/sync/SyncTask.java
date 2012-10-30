@@ -19,6 +19,7 @@ import com.write.Quill.sync.SyncData.SyncItem;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.SyncAdapterType;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.text.format.Time;
 import android.util.Log;
@@ -41,6 +42,15 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 
 	public SyncTask(Context context) {
 		this.context = context.getApplicationContext();
+	}
+
+	private int getVersionCode() {
+	    int v = 0;
+	    try {
+	    	String name = context.getPackageName();
+	        v = context.getPackageManager().getPackageInfo(name, 0).versionCode;
+	    } catch (NameNotFoundException e) {}
+	    return v;
 	}
 
 	/**
@@ -82,7 +92,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		lastProgress = progress;
 	}
 
-	private final static String URL_BASE = "http://quill.sagepad.org";
+	private final static String URL_BASE = "https://quill.sagepad.org";
 	private final static String URL_LOGIN = URL_BASE + "/_login";
 	private final static String URL_METADATA = URL_BASE + "/_metadata";
 	private final static String URL_PUSH = URL_BASE + "/_sync_push_whole";
@@ -185,6 +195,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		HttpPostJson http = new HttpPostJson(URL_PUSH);
 		http.send("email", account.email());
 		http.send("session_token", data.getSessionToken());
+		http.send("app_version", String.valueOf(getVersionCode()));
 		http.send("book_uuid", item.getUuid().toString());
 		http.send("book_title", item.getTitle());
 		http.send("book_mtime", String.valueOf(item.getLastModTime().toMillis(false)));
@@ -208,6 +219,7 @@ public class SyncTask extends AsyncTask<SyncData, SyncTask.Progress, Void> {
 		HttpPostJson http = new HttpPostJson(URL_PULL_INDEX);
 		http.send("email", account.email());
 		http.send("session_token", data.getSessionToken());
+		http.send("app_version", String.valueOf(getVersionCode()));
 		http.send("book_uuid", item.getUuid().toString());
 		http.send("book_mtime", String.valueOf(item.getRemoteModTime().toMillis(false)));
 
