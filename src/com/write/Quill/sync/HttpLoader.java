@@ -10,6 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.conn.ssl.StrictHostnameVerifier;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -126,10 +129,11 @@ public abstract class HttpLoader extends
 	public Response loadInBackground() {
 		// see http://stackoverflow.com/questions/2793150/how-to-use-java-net-urlconnection-to-fire-and-handle-http-requests
 		
-		HttpURLConnection connection = null;
+		HttpsURLConnection connection = null;
 		try {
-			URL url = new URL("http://quill.sagepad.org/" + getServerPath());
-			connection = (HttpURLConnection) url.openConnection();
+			URL url = new URL("https://quill.sagepad.org/" + getServerPath());
+			connection = (HttpsURLConnection) url.openConnection();
+			connection.setHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier());
 		} catch (MalformedURLException e) {
 			return new Response(e.getMessage());
 		} catch (IOException e) {
