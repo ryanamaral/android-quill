@@ -135,6 +135,8 @@ public class LoginActivity
 		} 
 		if (v == cancelButton) {
 			enable(true);
+			setResult(RESULT_CANCELED);
+			finish();
 		}
 	}
 
