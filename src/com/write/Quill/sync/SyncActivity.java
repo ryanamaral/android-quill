@@ -34,6 +34,10 @@ public class SyncActivity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_LOGIN:
+			if (resultCode != RESULT_OK) {
+				finish();
+				return;
+			}
 			QuillAccount account = new QuillAccount(this);
 			if (account.exists())
 				syncList.setAccount(account);			
