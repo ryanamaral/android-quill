@@ -20,6 +20,11 @@
     </style>
   </head>
   <body>
+$ 10.4
+  % Version 10.4
+  _ 2012-11-3
+    * The previous version was an incomplete build resulting in spurious crashes.
+    * Online sync is disabled until issues found during beta-test are fixed.
 $ 10.3
   % Version 10.3
   _ 2012-10-15
