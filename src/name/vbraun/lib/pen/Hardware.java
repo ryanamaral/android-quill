@@ -66,6 +66,7 @@ public class Hardware {
 	    add("GT-P6810");  // Samsung Galaxy Tab 7.7
 	    add("GT-P6210");  // Samsung Galaxy Tab 7.0 Plus
 	    add("Galaxy Nexus");  // Google Galaxy Nexus
+	    add("VTAB1008");   // Vizio VTAB1008
 	}};
 	
 	private Hardware(Context context) {
