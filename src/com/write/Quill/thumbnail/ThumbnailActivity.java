@@ -9,13 +9,13 @@ import name.vbraun.view.write.Page;
 import junit.framework.Assert;
 
 import com.write.Quill.ActivityBase;
-import com.write.Quill.BookshelfActivity;
 import com.write.Quill.R;
 import com.write.Quill.UndoManager;
 import com.write.Quill.R.id;
 import com.write.Quill.R.layout;
 import com.write.Quill.R.menu;
 import com.write.Quill.R.string;
+import com.write.Quill.bookshelf.BookshelfActivity;
 import com.write.Quill.data.Book;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.StorageAndroid;
