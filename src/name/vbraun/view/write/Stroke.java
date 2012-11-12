@@ -197,7 +197,10 @@ public class Stroke extends Graphics {
 			throw new IOException("Unknown stroke version!");
 		pen_color = in.readInt();
 		pen_thickness = in.readInt();
-		tool = Tool.values()[in.readInt()];
+		int toolInt = in.readInt();
+		if (toolInt < 0 || toolInt >= Tool.values().length)
+			throw new IOException("Tool ID out of bounds.");
+		tool = Tool.values()[toolInt];
 		setPen(pen_thickness, pen_color);
 		N = in.readInt();
 		position_x = new float[N];

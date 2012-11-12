@@ -389,6 +389,7 @@ public class ImageActivity
 	}
 		
 	private void makeHighlight() {
+		if (bitmap == null) return;
 		HighlightView hv = new HighlightView(preview);
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();

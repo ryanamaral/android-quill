@@ -38,6 +38,7 @@
     <string name="menu_quill_export">Export</string>
     <string name="menu_quill_settings">Settings</string>
     <string name="menu_quill_thumbnails">Page thumbnails</string>
-    <string name="menu_quill_about">About Quill</string>
+    <string name="menu_quill_changelog">Changelog</string>
+    <string name="menu_quill_manual">Quill Manual</string>
 
 </resources>

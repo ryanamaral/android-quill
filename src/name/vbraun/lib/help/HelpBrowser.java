@@ -1,6 +1,7 @@
 package name.vbraun.lib.help;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,7 +21,11 @@ public class HelpBrowser extends ActivityBase {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.help_browser);
 		browser = (WebView)findViewById(R.id.help_browser_webview);
-		showManual();
+		browser.setWebViewClient(new HelpWebViewClient());
+		if (savedInstanceState != null)
+			browser.restoreState(savedInstanceState);
+		else
+			showManual();
 	}
 
 	@Override
@@ -48,6 +53,7 @@ public class HelpBrowser extends ActivityBase {
 			showFAQ();
 			return true;
 		case R.id.help_browser_quit:
+		case android.R.id.home:
 			finish();
 			return true;
 		default:
@@ -55,4 +61,28 @@ public class HelpBrowser extends ActivityBase {
 		}
 	}
 	
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && browser.canGoBack()) {
+            browser.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onResume() {
+    	// TODO Auto-generated method stub
+    	super.onResume();
+    }
+    
+    @Override
+    protected void onPause() {
+    	super.onPause();
+    }
+    
+    protected void onSaveInstanceState(Bundle outState) {
+    	browser.saveState(outState);
+     }
+
 }

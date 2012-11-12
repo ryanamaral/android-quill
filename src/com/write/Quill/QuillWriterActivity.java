@@ -9,6 +9,7 @@ import javax.net.ssl.HandshakeCompletedListener;
 
 import sheetrock.panda.changelog.ChangeLog;
 
+import name.vbraun.lib.help.HelpBrowser;
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.lib.pen.HideBar;
 import name.vbraun.view.write.Graphics;
@@ -484,7 +485,7 @@ public class QuillWriterActivity
     	case android.R.id.home:
     		launchOverviewActivity();
     		return true;
-    	case R.id.about:
+    	case R.id.changelog:
     	    new ChangeLog(this).getFullLogDialog().show();
     	    return true;
     	case R.id.undo:
@@ -492,6 +493,10 @@ public class QuillWriterActivity
     		return true;
     	case R.id.redo:
     		redo();
+    		return true;
+    	case R.id.manual:
+    		Intent helpIntent = new Intent(QuillWriterActivity.this, HelpBrowser.class);
+    		startActivity(helpIntent);
     		return true;
     	default:
     		return super.onOptionsItemSelected(item);

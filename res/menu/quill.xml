@@ -50,7 +50,8 @@
     <item android:id="@+id/export" android:title="@string/menu_quill_export"></item>
     <item android:checked="false" android:enabled="true" android:checkable="false" android:visible="true" android:id="@+id/settings" android:showAsAction="never" android:title="@string/menu_quill_settings"></item>
 	<item android:id="@+id/thumbnails" android:title="@string/menu_quill_thumbnails"></item>
-    <item android:id="@+id/about" android:title="@string/menu_quill_about" android:orderInCategory="-100"></item>
+    <item android:id="@+id/changelog" android:title="@string/menu_quill_changelog" android:orderInCategory="-100"></item><item android:id="@+id/manual" android:title="@string/menu_quill_manual" android:orderInCategory="-90"></item>
+    
     
     
     
