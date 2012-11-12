@@ -1,8 +1,11 @@
 package com.write.Quill.data;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,6 +14,9 @@ import java.util.ListIterator;
 import java.util.UUID;
 
 import javax.security.auth.login.LoginException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.write.Quill.UndoManager;
 import com.write.Quill.data.Book.BookIOException;
@@ -352,7 +358,30 @@ public class Bookshelf {
 			} catch (BookSaveException e) {
 				storage.LogError(TAG, e.getLocalizedMessage());
 			}
+			backupDescription(dir);
 		}
 	}
 	
+	/**
+	 * Save the backup file names and corresponding notebook titles in a JSON file
+	 * @param dir
+	 */
+	public void backupDescription(File dir) {
+		JSONObject json = new JSONObject();
+		for (BookPreview nb : getBookPreviewList())
+			try {
+				json.put(nb.getUUID().toString(), nb.getTitle());
+			} catch (JSONException e) {
+				storage.LogError(TAG, "cannot create json file");
+			}		
+		File indexFile = new File(dir, "description.json");
+		Writer output = null;
+		try {
+			output = new BufferedWriter(new FileWriter(indexFile));
+			output.write(json.toString());
+			output.close();
+		} catch (IOException e) {
+			storage.LogError(TAG, "cannot save json file");
+		}
+	}
 }
