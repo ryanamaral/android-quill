@@ -1,4 +1,4 @@
-package com.write.Quill;
+package com.write.Quill.bookshelf;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.write.Quill.R;
+import com.write.Quill.R.drawable;
+import com.write.Quill.R.id;
+import com.write.Quill.R.layout;
+import com.write.Quill.R.string;
 import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Bookshelf.BookPreview;
 
