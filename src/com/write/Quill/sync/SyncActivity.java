@@ -1,5 +1,6 @@
 package com.write.Quill.sync;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -26,6 +27,8 @@ public class SyncActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sync_activity);
 		syncList = (SyncListFragment) getFragmentManager().findFragmentById(R.id.sync_list_fragment);
+		ActionBar bar = getActionBar();
+		bar.setDisplayHomeAsUpEnabled(true);
 	}
 
 	public final static int REQUEST_LOGIN = 123;

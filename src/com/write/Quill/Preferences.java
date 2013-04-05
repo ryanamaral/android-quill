@@ -20,6 +20,7 @@ import com.write.Quill.data.Bookshelf;
 import com.write.Quill.data.Storage;
 import com.write.Quill.data.StorageAndroid;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -98,6 +99,9 @@ public class Preferences
 		} catch (ClassCastException e) {
 			Log.e(TAG, e.toString());
 		}
+
+		ActionBar bar = getActionBar();
+		bar.setDisplayHomeAsUpEnabled(true);
 		
 		penMode = (ListPreference)findPreference(KEY_LIST_PEN_INPUT_MODE);
 		if (penMode.getValue() == null)
