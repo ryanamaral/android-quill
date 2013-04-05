@@ -147,7 +147,7 @@ public class QuillWriterActivity
         mView.setOnInputListener(this);
 
         ActionBar bar = getActionBar();
-        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME);
         bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
         
         Display display = getWindowManager().getDefaultDisplay();
@@ -391,6 +391,7 @@ public class QuillWriterActivity
   
     @Override 
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.e(TAG, "onOptItSel "+item.getItemId());
     	mView.interrupt();
     	switch (item.getItemId()) {
     	case R.id.prev_pen:
