@@ -40,5 +40,6 @@
     <string name="menu_quill_thumbnails">Page thumbnails</string>
     <string name="menu_quill_changelog">Changelog</string>
     <string name="menu_quill_manual">Quill Manual</string>
-
+    <string name="menu_quill_about">About Quill</string>
+    
 </resources>

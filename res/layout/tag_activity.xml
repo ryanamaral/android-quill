@@ -13,7 +13,6 @@
     </name.vbraun.view.tag.TagListView>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight=".70"
@@ -21,12 +20,13 @@
 
         <name.vbraun.view.tag.TagCloudView
             android:id="@+id/tag_cloud_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1.0" >
+            android:layout_height="0dp"
+            android:layout_weight="1.0"
+            android:layout_width="match_parent">
         </name.vbraun.view.tag.TagCloudView>
 
         <TextView
+            android:textIsSelectable="false"
             android:id="@+id/status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,8 +34,7 @@
             android:paddingBottom="5dp"
             android:paddingRight="15dp"
             android:paddingTop="0dp"
-            android:text="Status bar"
-            android:textSize="12dp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
 </LinearLayout>
