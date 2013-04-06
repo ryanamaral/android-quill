@@ -154,7 +154,7 @@ public class TouchHandlerMoveZoom extends TouchHandlerABC {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Bitmap bitmap) {
+	protected void draw(Canvas canvas, Bitmap bitmap) {
 		if (fingerId2 != -1) {
 			// pinch-to-zoom preview by scaling bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);

@@ -149,7 +149,7 @@ public class TouchHandlerPassivePen
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Bitmap bitmap) {
+	protected void draw(Canvas canvas, Bitmap bitmap) {
 		canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 	

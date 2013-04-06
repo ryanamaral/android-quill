@@ -51,7 +51,7 @@ public class TouchHandlerText extends TouchHandlerABC {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Bitmap bitmap) {
+	protected void draw(Canvas canvas, Bitmap bitmap) {
 		Log.d(TAG, "painting text");
 		canvas.drawBitmap(bitmap, 0, 0, null);
 		editText.draw(canvas); 

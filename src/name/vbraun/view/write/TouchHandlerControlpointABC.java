@@ -235,7 +235,7 @@ public abstract class TouchHandlerControlpointABC
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Bitmap bitmap) {
+	protected void draw(Canvas canvas, Bitmap bitmap) {
 		if (fingerId2 != -1) {
 			// move preview by translating bitmap
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
