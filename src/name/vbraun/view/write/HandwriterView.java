@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Bitmap.Config;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
@@ -106,12 +107,6 @@ public class HandwriterView
 			inputListener.onEditImageListener(image);
 	}
 	
-	private int N = 0;
-	private static final int Nmax = 1024;
-	private float[] position_x = new float[Nmax];
-	private float[] position_y = new float[Nmax];
-	private float[] pressure = new float[Nmax];
-
 	// actual data
 	private Page page;
 	
@@ -119,6 +114,7 @@ public class HandwriterView
 	private int pen_thickness = -1;
 	private int pen_color = -1;
 	private Tool tool_type = null;
+	private LinearFilter.KernelId penSmoothFilter = LinearFilter.KernelId.KERNEL_SAVITZKY_GOLAY_11;
 	protected boolean onlyPenInput = true;
 	protected boolean moveGestureWhileWriting = true;
 	protected boolean moveGestureFixZoom = true;
@@ -277,6 +273,10 @@ public class HandwriterView
 		return tool_type;
 	}
 
+	public LinearFilter.KernelId getFilter() {
+		return penSmoothFilter;
+	}
+	
 	public int getPenThickness() {
 		return pen_thickness;
 	}
@@ -616,12 +616,6 @@ public class HandwriterView
 		invalidate();
 	}
 	
-	protected void addStrokes(Object data) {
-		Assert.assertTrue("unknown data", data instanceof LinkedList<?>);
-		LinkedList<Stroke> new_strokes = (LinkedList<Stroke>)data;
-		page.strokes.addAll(new_strokes);
-	}
-	
 	@Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		int curW = bitmap != null ? bitmap.getWidth() : 0;
 		int curH = bitmap != null ? bitmap.getHeight() : 0;
@@ -647,7 +641,7 @@ public class HandwriterView
 	protected void onDraw(Canvas canvas) {
 		if (bitmap == null) return;
 		if (touchHandler != null) 
-			touchHandler.onDraw(canvas, bitmap);
+			touchHandler.draw(canvas, bitmap);
 		if (overlay != null) 
 			overlay.draw(canvas);
 		if (palmShield) {

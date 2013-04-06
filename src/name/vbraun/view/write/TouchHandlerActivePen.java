@@ -205,7 +205,7 @@ public class TouchHandlerActivePen
 	private Rect  mRect  = new Rect();
 	
 	@Override
-	protected void onDraw(Canvas canvas, Bitmap bitmap) {
+	protected void draw(Canvas canvas, Bitmap bitmap) {
 		if (fingerId2 != -1) {
 			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
 			float W = canvas.getWidth();

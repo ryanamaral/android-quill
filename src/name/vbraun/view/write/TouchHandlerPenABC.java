@@ -22,57 +22,55 @@ public abstract class TouchHandlerPenABC extends TouchHandlerABC {
 		super(view);
 		pen = new Paint();
 		pen.setAntiAlias(true);
-		pen.setARGB(0xff, 0, 0, 0);	
+		pen.setARGB(0xff, 0, 0, 0);
 		pen.setStrokeCap(Paint.Cap.ROUND);
 	}
-	
+
 	@Override
 	protected void interrupt() {
 		super.interrupt();
 		N = 0;
 	}
-	
+
 	private final Rect mRect = new Rect();
-	
+
 	/**
 	 * Set the pen style. Subsequent calls to drawOutline() will use this pen.
 	 */
 	protected void initPenStyle() {
 		int penColor = view.getPenColor();
 		pen.setARGB(Color.alpha(penColor), Color.red(penColor), Color.green(penColor), Color.blue(penColor));
-		
+
 		float scaledPenThickness = getScaledPenThickness();
-		pen.setStrokeWidth(scaledPenThickness);		
+		pen.setStrokeWidth(scaledPenThickness);
 	}
-	
+
 	protected void drawOutline(float oldX, float oldY, float newX, float newY, float oldPressure, float newPressure) {
 		if (view.getToolType() == Tool.FOUNTAINPEN) {
-			float scaledPenThickness = getScaledPenThickness() * (oldPressure+newPressure)/2f; 
+			float scaledPenThickness = getScaledPenThickness() * (oldPressure + newPressure) / 2f;
 			pen.setStrokeWidth(scaledPenThickness);
 		}
 
 		view.canvas.drawLine(oldX, oldY, newX, newY, pen);
-		mRect.set((int)oldX, (int)oldY, (int)newX, (int)newY);
+		mRect.set((int) oldX, (int) oldY, (int) newX, (int) newY);
 		mRect.sort();
-		int extra = -(int)(pen.getStrokeWidth()/2) - 1;
+		int extra = -(int) (pen.getStrokeWidth() / 2) - 1;
 		mRect.inset(extra, extra);
 		view.invalidate(mRect);
 	}
 
 	protected void saveStroke() {
-		if (N==0) return;
-		if (N==1) { // need two points to draw a connecting line
+		if (N == 0)
+			return;
+		if (N == 1) { // need two points to draw a connecting line
 			N = 2;
 			position_x[1] = position_x[0];
 			position_y[1] = position_y[0];
 			pressure[1] = pressure[0];
 		}
-		Stroke s = new Stroke(view.getToolType(), position_x, position_y, pressure, 0, N);
-		s.setPen(view.getPenThickness(), view.getPenColor());
-		s.setTransform(getPage().getTransform());
-		s.applyInverseTransform();
-		s.simplify();
-		view.saveStroke(s);
+		Stroke newStroke = Stroke.fromInput(view.getToolType(), view.getPenThickness(), view.getPenColor(), getPage()
+				.getTransform(), position_x, position_y, pressure, N, view.getFilter());
+		view.saveStroke(newStroke);
 		N = 0;
 	}
 

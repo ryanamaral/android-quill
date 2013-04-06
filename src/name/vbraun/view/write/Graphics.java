@@ -51,17 +51,9 @@ public abstract class Graphics {
 	 */
 	abstract protected void computeBoundingBox();
 
-	protected void setTransform(float dx, float dy, float s) {
-		this.transform.offset_x = dx;
-		this.transform.offset_y = dy;
-		this.transform.scale = s;
-		offset_x = dx;
-		offset_y = dy;
-		scale = s;
-		recompute_bounding_box = true;
-	}
-	
 	protected void setTransform(Transformation transform) {
+		if (this.transform.equals(transform))
+			return;
 		this.transform.set(transform);
 		offset_x = transform.offset_x;
 		offset_y = transform.offset_y;
