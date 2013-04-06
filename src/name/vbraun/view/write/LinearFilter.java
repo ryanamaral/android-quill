@@ -29,33 +29,44 @@ public class LinearFilter {
 	 * The Savitzky-Golay kernel is completely different. There, the values are
 	 * approximated by a polynomial. It is always of finite length (the degree
 	 * of the approximating polynomial)
+	 * 
+	 * References:
+	 * 
+	 * - http://en.wikipedia.org/wiki/Gaussian_filter
 	 */
 	
 	public static final LinearFilter[] Kernel = { 
-		new LinearFilter(KernelId.KERNEL_NONE, 
+		new LinearFilter(Filter.KERNEL_NONE, 
 				new float[] { 1f }),
-		new LinearFilter(KernelId.KERNEL_GAUSSIAN_5, 
-				new float[] { 0.535139208712f, 0.191553166229f, 0.0358772294153f }),
-		new LinearFilter(KernelId.KERNEL_GAUSSIAN_11, 
-				new float[] { 0.197952965559f, 0.173313792797f, 0.118141540812f, 0.0645048567988f, 0.0290276086587f, 0.0110357181537f }),
-		new LinearFilter(KernelId.KERNEL_SAVITZKY_GOLAY_5, 
+		new LinearFilter(Filter.KERNEL_GAUSSIAN_5, 
+				new float[] { 0.535139208712f, 
+							  0.191553166229f, 
+							  0.0358772294153f }),
+		new LinearFilter(Filter.KERNEL_GAUSSIAN_11, 
+				new float[] { 0.197952965559f, 
+				              0.173313792797f, 
+				              0.118141540812f, 
+				              0.0645048567988f, 
+				              0.0290276086587f, 
+				              0.0110357181537f }),
+		new LinearFilter(Filter.KERNEL_SAVITZKY_GOLAY_5, 
 				new float[] { 17f, 12f, -3f }),
-		new LinearFilter(KernelId.KERNEL_SAVITZKY_GOLAY_11, 
+		new LinearFilter(Filter.KERNEL_SAVITZKY_GOLAY_11, 
 				new float[] { 89f, 84f, 69f, 44f, 9f, -36f }), 
 	};
 
-	public enum KernelId {
+	public enum Filter {
 		KERNEL_NONE, KERNEL_GAUSSIAN_5, KERNEL_GAUSSIAN_11, KERNEL_SAVITZKY_GOLAY_5, KERNEL_SAVITZKY_GOLAY_11
 	}
 
-	public static LinearFilter get(KernelId id) {
+	public static LinearFilter get(Filter id) {
 		return Kernel[id.ordinal()];
 	}
 	
 	/**
-	 * The corresponding enum KernelId for this kernel.
+	 * The corresponding enum Filter for this kernel.
 	 */
-	protected final KernelId kernel;
+	protected final Filter kernel;
 
 	/**
 	 * The normalized weights. Only half of the weights are stored (the weights
@@ -68,7 +79,7 @@ public class LinearFilter {
 	 */
 	protected final int length;
 
-	private LinearFilter(KernelId kernel, final float[] weight) {
+	private LinearFilter(Filter kernel, final float[] weight) {
 		this.kernel = kernel;
 		this.length = weight.length;
 		this.weight = weight;
@@ -81,8 +92,12 @@ public class LinearFilter {
 			this.weight[i] *= normalization;
 	}
 	
+	/**
+	 * Apply the filter to an array
+	 * @param x the array of floats to operate on. Will be mutated.
+	 */
 	public void apply(float[] x) {
-		if (kernel == KernelId.KERNEL_NONE)
+		if (kernel == Filter.KERNEL_NONE)
 			return;
 		final int N = x.length;
 		float[] raw_x = x.clone();

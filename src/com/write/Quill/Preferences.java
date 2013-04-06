@@ -57,6 +57,7 @@ public class Preferences
 
 	protected ListPreference penMode;
 	protected ListPreference overridePen;
+	protected ListPreference smoothenFilter;
 
 	protected static final String KEY_LIST_PEN_INPUT_MODE = HandwriterView.KEY_LIST_PEN_INPUT_MODE;
 	protected static final String KEY_DOUBLE_TAP_WHILE_WRITE = HandwriterView.KEY_DOUBLE_TAP_WHILE_WRITE;
@@ -71,6 +72,7 @@ public class Preferences
 	protected static final String KEY_TOOLS_SWITCH_BACK = "some_tools_switch_back";
 	protected static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 	protected static final String KEY_DEBUG_OPTIONS = HandwriterView.KEY_DEBUG_OPTIONS;
+	protected static final String KEY_PEN_SMOOTH_FILTER = HandwriterView.KEY_PEN_SMOOTH_FILTER;
 	
 	// values for KEY_LIST_PEN_INPUT_MODE
     protected static final String STYLUS_ONLY = HandwriterView.STYLUS_ONLY;
@@ -91,7 +93,6 @@ public class Preferences
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
       	StorageAndroid.initialize(getApplicationContext());
-		Resources res = getResources();
 
 		super.onCreate(savedInstanceState);  
 		try {
@@ -110,9 +111,8 @@ public class Preferences
 			else
 				penMode.setValue(STYLUS_AND_TOUCH);
 		
+		smoothenFilter = (ListPreference)findPreference(KEY_PEN_SMOOTH_FILTER);
 		overridePen = (ListPreference)findPreference(KEY_OVERRIDE_PEN_TYPE);
-		String overridePenAutomatic = res.getStringArray(R.array.preferences_override_pen_type_values)[0];
-		overridePen.setDefaultValue(overridePenAutomatic);
 		
 		restorePreference = findPreference(PREFERENCE_RESTORE);
 		restorePreference.setOnPreferenceClickListener(this);
@@ -151,12 +151,12 @@ public class Preferences
 	private void updatePreferences() {		
 		Context context = getApplicationContext();
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		name.vbraun.lib.pen.Hardware hw = name.vbraun.lib.pen.Hardware.getInstance(context);
-		boolean hasPenDigitizer = hw.hasPenDigitizer();
+		boolean hasPenDigitizer = Hardware.hasPenDigitizer();
 		
 		penMode.setSummary(penMode.getEntry());
 		penMode.setEnabled(hasPenDigitizer);
 		
+		smoothenFilter.setSummary(smoothenFilter.getEntry());
 		overridePen.setSummary(overridePen.getEntry());
     	
 		boolean gestures = penMode.getValue().equals(STYLUS_WITH_GESTURES);
@@ -193,7 +193,8 @@ public class Preferences
     	}
 
     	if (key.equals(KEY_LIST_PEN_INPUT_MODE) || 
-        	key.equals(KEY_BACKUP_DIR)) 
+        	key.equals(KEY_BACKUP_DIR) ||
+        	key.equals(KEY_PEN_SMOOTH_FILTER))
         	updatePreferences();
     }
     

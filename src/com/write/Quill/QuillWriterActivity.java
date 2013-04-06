@@ -102,7 +102,6 @@ public class QuillWriterActivity
 	public static final int DIALOG_PAPER_ASPECT = 3;
 	public static final int DIALOG_PAPER_TYPE = 4;
 
-	private Bookshelf bookshelf = null;
 	private Book book = null;
 	
     private HandwriterView mView;
@@ -128,7 +127,7 @@ public class QuillWriterActivity
       		if (changeLog.firstRun())
       			changeLog.getLogDialog().show();
       	}
-      	bookshelf = Bookshelf.getBookshelf();
+      	Bookshelf bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);
@@ -391,7 +390,6 @@ public class QuillWriterActivity
   
     @Override 
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Log.e(TAG, "onOptItSel "+item.getItemId());
     	mView.interrupt();
     	switch (item.getItemId()) {
     	case R.id.prev_pen:
