@@ -36,7 +36,7 @@
             android:key="palm_shield"
             android:summary="@string/preferences_palm_shield_summary"
             android:title="@string/preferences_palm_shield" />
-        <CheckBoxPreference
+        <ListPreference android:key="pen_smooth_filter" android:title="@string/preferences_pen_smooth_filter" android:entries="@array/preferences_pen_smooth_entries" android:entryValues="@array/preferences_pen_smooth_values" android:defaultValue="@string/preferences_pen_smooth_default"/><CheckBoxPreference
             android:defaultValue="true"
             android:key="volume_key_navigation"
             android:summary="@string/preferences_volume_key_nav_summary"
@@ -62,6 +62,7 @@
             android:key="keep_screen_on"
             android:summary="@string/preferences_keep_screen_on_summary"
             android:title="@string/preferences_keep_screen_on" />
+        
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_user_data" >
         <Preference
@@ -91,7 +92,7 @@
             android:entries="@array/preferences_override_pen_type_entries"
             android:entryValues="@array/preferences_override_pen_type_values"
             android:key="override_pen_type"
-            android:title="@string/preferences_override_pen_title" />
+            android:title="@string/preferences_override_pen_title" android:defaultValue="@string/preferences_override_pen_type_default"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

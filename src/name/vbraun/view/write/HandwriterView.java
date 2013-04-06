@@ -7,6 +7,7 @@ import java.util.UUID;
 import name.vbraun.lib.pen.HardwareButtonListener;
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
+import name.vbraun.view.write.LinearFilter.Filter;
 
 import junit.framework.Assert;
 
@@ -53,11 +54,20 @@ public class HandwriterView
 	private static final String KEY_PEN_COLOR = "pen_color";
 	private static final String KEY_PEN_THICKNESS = "pen_thickness";
 	public static final String KEY_DEBUG_OPTIONS = "debug_options_enable";
+	public static final String KEY_PEN_SMOOTH_FILTER = "pen_smooth_filter";
 	
 	// values for the preferences key KEY_LIST_PEN_INPUT_MODE
     public static final String STYLUS_ONLY = "STYLUS_ONLY";
     public static final String STYLUS_WITH_GESTURES = "STYLUS_WITH_GESTURES";
     public static final String STYLUS_AND_TOUCH = "STYLUS_AND_TOUCH";
+    
+    // values for the preferences key KEY_PEN_SMOOTH_FILTER
+    public static final String SMOOTH_FILTER_NONE = "SMOOTH_FILTER_NONE";
+    public static final String SMOOTH_FILTER_GAUSSIAN = "SMOOTH_FILTER_GAUSSIAN";
+    public static final String SMOOTH_FILTER_GAUSSIAN_HQ = "SMOOTH_FILTER_GAUSSIAN_HQ";
+    public static final String SMOOTH_FILTER_SAVITZKY_GOLAY = "SMOOTH_FILTER_SAVITZKY_GOLAY";
+    public static final String SMOOTH_FILTER_SAVITZKY_GOLAY_HQ = "SMOOTH_FILTER_SAVITZKY_GOLAY_HQ";
+    
 
     protected final float screenDensity;
 	private TouchHandlerABC touchHandler;
@@ -114,7 +124,7 @@ public class HandwriterView
 	private int pen_thickness = -1;
 	private int pen_color = -1;
 	private Tool tool_type = null;
-	private LinearFilter.KernelId penSmoothFilter = LinearFilter.KernelId.KERNEL_SAVITZKY_GOLAY_11;
+	private Filter penSmoothFilter = Filter.KERNEL_SAVITZKY_GOLAY_11;
 	protected boolean onlyPenInput = true;
 	protected boolean moveGestureWhileWriting = true;
 	protected boolean moveGestureFixZoom = true;
@@ -273,8 +283,13 @@ public class HandwriterView
 		return tool_type;
 	}
 
-	public LinearFilter.KernelId getFilter() {
+	public Filter getPenSmoothFilter() {
 		return penSmoothFilter;
+	}
+	
+	public void setPenSmootFilter(Filter filter) {
+		this.penSmoothFilter = filter;
+		// Log.e(TAG, "Pen smoothen filter = "+filter);
 	}
 	
 	public int getPenThickness() {
@@ -476,6 +491,11 @@ public class HandwriterView
 			setPalmShieldEnabled(settings.getBoolean(KEY_PALM_SHIELD, false));
 		}
 		else Assert.fail();
+		
+		final String pen_smooth_filter = settings.getString
+				(KEY_PEN_SMOOTH_FILTER, Filter.KERNEL_SAVITZKY_GOLAY_11.toString());
+		setPenSmootFilter(Filter.valueOf(pen_smooth_filter));
+
 	}
 	
 	

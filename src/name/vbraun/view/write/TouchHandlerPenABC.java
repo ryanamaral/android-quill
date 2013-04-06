@@ -69,7 +69,7 @@ public abstract class TouchHandlerPenABC extends TouchHandlerABC {
 			pressure[1] = pressure[0];
 		}
 		Stroke newStroke = Stroke.fromInput(view.getToolType(), view.getPenThickness(), view.getPenColor(), getPage()
-				.getTransform(), position_x, position_y, pressure, N, view.getFilter());
+				.getTransform(), position_x, position_y, pressure, N, view.getPenSmoothFilter());
 		view.saveStroke(newStroke);
 		N = 0;
 	}

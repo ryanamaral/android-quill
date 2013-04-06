@@ -94,7 +94,7 @@ public class Stroke extends Graphics {
 	 *            integer, the common length of the arrays.
 	 */
 	public static Stroke fromInput(Tool pen_type, int pen_thickness, int pen_color, Transformation transform,
-			float[] x, float[] y, float[] p, int N, LinearFilter.KernelId filter) {
+			float[] x, float[] y, float[] p, int N, LinearFilter.Filter filter) {
 		Stroke s = new Stroke(pen_type, pen_thickness, pen_color, transform, x, y, p, 0, N);
 		s.applyInverseTransform();
 		s.computeBoundingBox();
@@ -282,19 +282,11 @@ public class Stroke extends Graphics {
 	/**
 	 * Apply a filter to smoothen the sample points
 	 */
-	private void smooth(LinearFilter.KernelId filterId) {
-		LinearFilter filter = LinearFilter.Kernel[filterId.ordinal()];
+	private void smooth(LinearFilter.Filter filterId) {
+		LinearFilter filter = LinearFilter.get(filterId);
 		filter.apply(position_x);
 		filter.apply(position_y);
 		filter.apply(pressure);
-		
-//		int n_l = 5;
-//		if (N < 2 * n_l + 1) {
-//			n_l = (N - 1) / 2;
-//		}
-//		if (n_l <= 0)
-//			return;
-//		smoothGaussianFilter(n_l);
 	}
 
 	/**

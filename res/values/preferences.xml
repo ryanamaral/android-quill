@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="preferences_pen_input_mode_title">Pen input mode</string>
+
     <string-array name="preferences_pen_input_mode_entries">
         <item>Filter out finger touch events when writing</item>
         <item>Filter out finger touch but allow touch gestures</item>
@@ -12,9 +14,27 @@
         <item>STYLUS_AND_TOUCH</item>
     </string-array>
 
-    <string name="preferences_pen_input_mode_title">Pen input mode</string>
-    <string name="preferences_override_pen_title">Override the detected pen type</string>
+    <string name="preferences_pen_smooth_filter">Pen input smoothing</string>
+    <string name="preferences_pen_smooth_default">KERNEL_SAVITZKY_GOLAY_11</string>
+    
+    <string-array name="preferences_pen_smooth_entries">
+        <item>No smoothing, use raw data</item>
+        <item>Gaussian filter</item>
+        <item>Gaussian Filter (high quality)</item>
+        <item>Savitzky-Golay filter</item>
+        <item>Savitzky-Golay filter (high quality, recommended)</item>
+    </string-array>
+    <string-array name="preferences_pen_smooth_values">
+        <item>KERNEL_NONE</item>
+        <item>KERNEL_GAUSSIAN_5</item>
+        <item>KERNEL_GAUSSIAN_11</item>
+        <item>KERNEL_SAVITZKY_GOLAY_5</item>
+        <item>KERNEL_SAVITZKY_GOLAY_11</item>
+    </string-array>
 
+    <string name="preferences_override_pen_title">Override the detected pen type</string>
+    <string name="preferences_override_pen_type_default">PEN_TYPE_AUTO</string>
+    
     <string-array name="preferences_override_pen_type_entries">
         <item>Autodetect</item>
         <item>Capacitive pen</item>
@@ -23,7 +43,6 @@
         <item>HTC Flyer pen</item>
         <item>Magic Left Alt Hack</item>
         <item>Android ICS (4.0) stylus API</item>
-        
     </string-array>
     <string-array name="preferences_override_pen_type_values">
         <item>PEN_TYPE_AUTO</item>
@@ -33,7 +52,6 @@
         <item>PEN_TYPE_HTC</item>
         <item>PEN_TYPE_LEFT_ALT</item>
         <item>PEN_TYPE_ICS</item>
-        
     </string-array>
 
     <string name="preferences_err_loading_backup">Error loading the backup file.</string>
