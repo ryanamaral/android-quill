@@ -117,17 +117,31 @@ public class QuillWriterActivity
     private static final DialogAspectRatio dialogAspectRatio = new DialogAspectRatio();
     private static final DialogBackground dialogPaperType = new DialogBackground();
 		
+    /**
+     *  Delete some preferences to test the default behavior
+     */
+    @SuppressWarnings("unused")
+	private void testDefaultPreferences() {
+    	Log.e(TAG, "Deleting some preferences, only use to debug!");
+    	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.remove(HandwriterView.KEY_PEN_SMOOTH_FILTER);
+        editor.remove(HandwriterView.KEY_MOVE_GESTURE_FIX_ZOOM);
+        editor.remove(Preferences.KEY_OVERRIDE_PEN_TYPE);
+        editor.commit();
+    }
+    
     @Override 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //testDefaultPreferences();
       	if (UpdateActivity.needUpdate(this)) return;
-      	
+      	      	
       	if (!Global.releaseModeOEM) {
       		ChangeLog changeLog = new ChangeLog(this);
       		if (changeLog.firstRun())
       			changeLog.getLogDialog().show();
       	}
-      	Bookshelf bookshelf = Bookshelf.getBookshelf();
       	book = Bookshelf.getCurrentBook();
       	book.setOnBookModifiedListener(UndoManager.getUndoManager());
         Assert.assertTrue("Book object not initialized.", book != null);

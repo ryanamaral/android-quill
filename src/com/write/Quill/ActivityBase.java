@@ -113,13 +113,14 @@ public class ActivityBase extends Activity {
     	}
     };
     
-	private static final String KEY_DEBUG_OPTIONS = HandwriterView.KEY_DEBUG_OPTIONS;
-	private static final String KEY_HIDE_SYSTEM_BAR = Preferences.KEY_HIDE_SYSTEM_BAR;
-	private static final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
-	private static final String KEY_ONLY_PEN_INPUT_OBSOLETE = "only_pen_input";
 
     private void removeUnusedPreferences() {
-        SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());            
+    	final String KEY_DEBUG_OPTIONS = HandwriterView.KEY_DEBUG_OPTIONS;
+    	final String KEY_HIDE_SYSTEM_BAR = Preferences.KEY_HIDE_SYSTEM_BAR;
+    	final String KEY_OVERRIDE_PEN_TYPE = Hardware.KEY_OVERRIDE_PEN_TYPE;
+    	final String KEY_ONLY_PEN_INPUT_OBSOLETE = "only_pen_input";
+
+    	SharedPreferences settings= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());            
         SharedPreferences.Editor editor = settings.edit();
     	
         editor.remove(KEY_ONLY_PEN_INPUT_OBSOLETE);  // obsoleted

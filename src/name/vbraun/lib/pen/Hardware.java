@@ -3,6 +3,7 @@ package name.vbraun.lib.pen;
 import java.util.ArrayList;
 
 import com.write.Quill.Global;
+import com.write.Quill.R;
 
 import junit.framework.Assert;
 import android.content.Context;
@@ -156,7 +157,8 @@ public class Hardware {
 	
 	public void forceFromPreferences(Context context) {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		String penType = settings.getString(KEY_OVERRIDE_PEN_TYPE, PEN_TYPE_AUTO);
+		String penType = settings.getString(KEY_OVERRIDE_PEN_TYPE, 
+				context.getString(R.string.preferences_override_pen_type_default));
 		// Log.d(TAG, "forcing pen type "+penType);
 		if (penType.equals(PEN_TYPE_AUTO))
 			autodetect(context);
