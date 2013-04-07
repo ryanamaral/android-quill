@@ -37,6 +37,8 @@ public class ArtistPDF
 	
 	protected float height;
 	protected float width;
+	protected float offset_x;
+	protected float offset_y;
 
 	private Font pageNumberFont;
 	protected final int pageNumberSize = 14;
@@ -111,16 +113,16 @@ public class ArtistPDF
 	 
 	public float scaledX(float x, float y) {
 		if (rotate)
-			return y * scale;
+			return y * scale + offset_x;
 		else
-			return x * scale;
+			return x * scale + offset_x;
 	}
 	
 	public float scaledY(float x, float y) {
 		if (rotate)
-			return x * scale;
+			return x * scale + offset_y;
 		else
-			return (1-y) * scale;
+			return (1-y) * scale + offset_y;
 	}
 	
 	@Override
@@ -243,7 +245,18 @@ public class ArtistPDF
 		}
 		width = pdf.getWidth();
 		height = pdf.getHeight();
-		scale = Math.min(height, width/page.getAspectRatio());
+		float page_aspect = page.getAspectRatio();
+		float pdf_aspect = width / height;
+		scale = Math.min(height, width/page_aspect);
+		if (page_aspect < pdf_aspect) {
+			float used_width = height * page_aspect;
+			offset_y = 0;
+			offset_x = (width - used_width)/2;
+		} else {
+			float used_height = width / page_aspect;
+			offset_y = (height - used_height)/2;
+			offset_x = 0;
+		}
 		page.render(this);
 		addPageNumber();
 	}
