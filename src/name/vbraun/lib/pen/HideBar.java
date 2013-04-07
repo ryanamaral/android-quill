@@ -14,6 +14,7 @@ import junit.framework.Assert;
 import com.write.Quill.R;
 
 import android.content.Context;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,9 +27,12 @@ public class HideBar {
 	
 	private static HideBar instance;
 		
-    private final static String[] commandHide = new String[]{
+    private final static String[] commandHideHoneycomb = new String[]{
 		"su","-c","service call activity 79 s16 com.android.systemui"};
-    
+
+    private final static String[] commandHideICS = new String[]{
+		"su","-c","service call activity 42 s16 com.android.systemui"};
+
     private final static String[] commandShow = new String[]{
         "am","startservice","-n","com.android.systemui/.SystemUIService"};
 
@@ -57,7 +61,10 @@ public class HideBar {
 	
     public static void hideSystembar() throws HideBarException {
     	try {
-    		HideBar.getInstance().execute(commandHide);
+    		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+    			HideBar.getInstance().execute(commandHideHoneycomb);
+    		else
+    			HideBar.getInstance().execute(commandHideICS);
     	} catch (TimeoutException timeout) {
     		throw new HideBarException();
     	}
