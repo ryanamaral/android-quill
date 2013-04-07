@@ -7,6 +7,8 @@ public class LinearFilter {
 	private final static String TAG = "LinearFilter";
 
 	/*
+	 * Linear Filter (convolution of input signal with a kernel)
+	 * 
 	 * Let s = sigma be the width parameter (standard deviation). The continuum
 	 * Gaussian kernel is
 	 * 
@@ -33,6 +35,12 @@ public class LinearFilter {
 	 * References:
 	 * 
 	 * - http://en.wikipedia.org/wiki/Gaussian_filter
+	 * 
+     * - Tony Lindeberg: Scale-Space for Discrete Signals
+     *   IEEE Transactions of Pattern Analysis and Machine Intelligence, 12(3), 234--254, 1990.
+	 *
+	 * - http://en.wikipedia.org/wiki/Savitzky–Golay_smoothing_filter
+	 * 
 	 */
 	
 	public static final LinearFilter[] Kernel = { 

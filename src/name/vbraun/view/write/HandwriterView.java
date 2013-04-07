@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import com.write.Quill.R;
+
 import name.vbraun.lib.pen.HardwareButtonListener;
 import name.vbraun.lib.pen.Hardware;
 import name.vbraun.view.write.Graphics.Tool;
@@ -15,6 +17,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -491,9 +494,11 @@ public class HandwriterView
 			setPalmShieldEnabled(settings.getBoolean(KEY_PALM_SHIELD, false));
 		}
 		else Assert.fail();
-		
-		final String pen_smooth_filter = settings.getString
-				(KEY_PEN_SMOOTH_FILTER, Filter.KERNEL_SAVITZKY_GOLAY_11.toString());
+	
+//		final String pen_smooth_filter = settings.getString
+//				(KEY_PEN_SMOOTH_FILTER, Filter.KERNEL_SAVITZKY_GOLAY_11.toString());
+		final String pen_smooth_filter = settings.getString(KEY_PEN_SMOOTH_FILTER, 
+				getContext().getString(R.string.preferences_pen_smooth_default));
 		setPenSmootFilter(Filter.valueOf(pen_smooth_filter));
 
 	}
