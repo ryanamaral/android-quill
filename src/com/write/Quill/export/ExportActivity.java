@@ -151,8 +151,8 @@ public class ExportActivity
 		return dirs[0];
 	}
 	
-	private static final String[] DIRECTORY_EXTERNALSD_TRY = {"/mnt/external_sd", "/mnt/sdcard2", "/mnt/sdcard/external_sd"};
-	private static final String[] DIRECTORY_USBDRIVE_TRY   = {"/mnt/usbdrive", "/mnt/usb", "/mnt/usb0", "/mnt/sdcard/usbStorage"};
+	private static final String[] DIRECTORY_EXTERNALSD_TRY = {"/mnt/external_sd", "/mnt/sdcard2", "/mnt/sdcard/external_sd", "/mnt/extSdCard"};
+	private static final String[] DIRECTORY_USBDRIVE_TRY   = {"/mnt/usbdrive", "/mnt/usb", "/mnt/usb0", "/mnt/sdcard/usbStorage", "/mnt/UsbDriveA", "/mnt/UsbDriveB"};
 	private static String DIRECTORY_SDCARD     = null;
 	private static String DIRECTORY_EXTERNALSD = null;
 	private static String DIRECTORY_USBDRIVE   = null;
