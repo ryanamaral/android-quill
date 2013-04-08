@@ -11,7 +11,8 @@ public class Paper {
 	private static final String TAG = "PaperType";
 	
 	public enum Type {
-		EMPTY, RULED, QUAD, HEX, COLLEGERULED, NARROWRULED, CORNELLNOTES, DAYPLANNER
+		EMPTY, RULED, QUAD, HEX, COLLEGERULED, NARROWRULED, 
+		CORNELLNOTES, DAYPLANNER, MUSIC
 	}
 	
 	private final static String EMPTY = "EMPTY";
@@ -21,7 +22,8 @@ public class Paper {
 	private final static String QUADPAPER = "QUADPAPER";
 	private final static String CORNELLNOTES = "CORNELLNOTES";
 	private final static String DAYPLANNER = "DAYPLANNER";
-	
+	private final static String MUSIC = "MUSIC";
+
 	private CharSequence resourceName;
 	private Type type;
 	
@@ -32,7 +34,8 @@ public class Paper {
 		new Paper(NARROWRULED, Type.NARROWRULED),
 		new Paper(QUADPAPER, Type.QUAD),
 		new Paper(CORNELLNOTES, Type.CORNELLNOTES),
-		new Paper(DAYPLANNER, Type.DAYPLANNER)
+		new Paper(DAYPLANNER, Type.DAYPLANNER),
+		new Paper(MUSIC, Type.MUSIC),
 	};
 
 		

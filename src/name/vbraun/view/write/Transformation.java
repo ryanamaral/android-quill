@@ -2,10 +2,28 @@ package name.vbraun.view.write;
 
 public class Transformation {
 
-	protected float offset_x = 0f;
-	protected float offset_y = 0f;
-	protected float scale = 1.0f;
+	protected float offset_x;
+	protected float offset_y;
+	protected float scale;
 
+	public Transformation() {
+		offset_x = 0.0f;
+		offset_y = 0.0f;
+		scale = 1.0f;
+	}
+	
+	public Transformation(float offset_x, float offset_y, float scale) {
+		this.offset_x = offset_x;
+		this.offset_y = offset_y;
+		this.scale = scale;
+	}
+	
+	public Transformation(final Transformation t) {
+		this.offset_x = t.offset_x;
+		this.offset_y = t.offset_y;
+		this.scale = t.scale;
+	}
+	
 	public float applyX(float x) {
 		return x * scale + offset_x;
 	}
@@ -28,19 +46,7 @@ public class Transformation {
 	}
 
 	public Transformation offset(float dx, float dy) {
-		Transformation result = new Transformation();
-		result.offset_x = offset_x + dx;
-		result.offset_y = offset_y + dy;
-		result.scale = scale;
-		return result;
-	}
-
-	public Transformation copy() {
-		Transformation t = new Transformation();
-		t.offset_x = offset_x;
-		t.offset_y = offset_y;
-		t.scale = scale;
-		return t;
+		return new Transformation(offset_x + dx, offset_y + dy, scale);
 	}
 
 	protected void set(Transformation t) {

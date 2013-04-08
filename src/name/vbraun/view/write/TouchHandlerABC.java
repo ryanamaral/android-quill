@@ -4,6 +4,10 @@ import name.vbraun.lib.pen.Hardware;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.util.FloatMath;
 import android.view.MotionEvent;
 
 /**
@@ -112,4 +116,91 @@ public abstract class TouchHandlerABC {
 	 */
 	protected void interrupt() {
 	};
+	
+	/**
+	 * Compute new transform after a pinch-zoom gesture
+	 */
+	protected Transformation pinchZoomTransform(final Transformation transformation, 
+			float oldX1, float newX1, float oldX2, float newX2, 
+			float oldY1, float newY1, float oldY2, float newY2) {
+		
+		float page_offset_x = transformation.offset_x;
+		float page_offset_y = transformation.offset_y;
+		float page_scale = transformation.scale;
+		float scale = pinchZoomScaleFactor(oldX1, newX1, oldX2, newX2, oldY1, newY1, oldY2, newY2);
+		float new_page_scale = page_scale * scale;
+		// clamp scale factor
+		float W = view.canvas.getWidth();
+		float H = view.canvas.getHeight();
+		float max_WH = Math.max(W, H);
+		float min_WH = Math.min(W, H);
+		new_page_scale = Math.min(new_page_scale, 5*max_WH);
+		new_page_scale = Math.max(new_page_scale, 0.4f*min_WH);
+		scale = new_page_scale / page_scale;
+		// compute offset
+		float x0 = (oldX1 + oldX2)/2;
+		float y0 = (oldY1 + oldY2)/2;
+		float x1 = (newX1 + newX2)/2;
+		float y1 = (newY1 + newY2)/2;
+		float new_offset_x = page_offset_x*scale-x0*scale+x1;
+		float new_offset_y = page_offset_y*scale-y0*scale+y1;
+		// perform pinch-to-zoom here
+		return new Transformation(new_offset_x, new_offset_y, new_page_scale);
+	}
+	
+	/**
+	 * Compute the new scale factor for a pinch-zoom gesture 	
+	 */
+	protected float pinchZoomScaleFactor(
+			float oldX1, float newX1, float oldX2, float newX2, 
+			float oldY1, float newY1, float oldY2, float newY2) {
+		if (view.getMoveGestureFixZoom())
+			return 1f;
+		float dx, dy;
+		dx = oldX1-oldX2;
+		dy = oldY1-oldY2;
+		float old_distance = FloatMath.sqrt(dx*dx + dy*dy);
+		if (old_distance < 10) {
+			// Log.d("TAG", "old_distance too small "+old_distance);
+			return 1;
+		}
+		dx = newX1-newX2;
+		dy = newY1-newY2;
+		float new_distance = FloatMath.sqrt(dx*dx + dy*dy);
+		float scale = new_distance / old_distance;
+		if (scale < 0.1f || scale > 10f) {
+			// Log.d("TAG", "ratio out of bounds "+new_distance);
+			return 1f;
+		}
+		return scale;
+	}
+	
+	private RectF mRectF = new RectF();
+	private Rect  mRect  = new Rect();
+
+	/**
+	 * Draw a preview of the pinch-zoom gesture
+	 * 
+	 * This method just paints the region in the bitmap to the canvas where it
+	 * would be after a pinch-zoom gesture. This is much faster than actually
+	 * redrawing the bitmap with the new transformation, so we use this shortcut
+	 * during the gesture. Only when the gesture is finished do we redraw the
+	 * bitmap with the new zoom and offset.
+	 * 
+	 */
+	protected void drawPinchZoomPreview(Canvas canvas, Bitmap bitmap,
+			float oldX1, float newX1, float oldX2, float newX2, 
+			float oldY1, float newY1, float oldY2, float newY2) {			
+		canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
+		float W = canvas.getWidth();
+		float H = canvas.getHeight();
+		float scale = pinchZoomScaleFactor(oldX1, newX1, oldX2, newX2, oldY1, newY1, oldY2, newY2);
+		float x0 = (oldX1 + oldX2)/2;
+		float y0 = (oldY1 + oldY2)/2;
+		float x1 = (newX1 + newX2)/2;
+		float y1 = (newY1 + newY2)/2;
+		mRectF.set(-x0*scale+x1, -y0*scale+y1, (-x0+W)*scale+x1, (-y0+H)*scale+y1);
+		mRect.set(0, 0, canvas.getWidth(), canvas.getHeight());
+		canvas.drawBitmap(bitmap, mRect, mRectF, (Paint)null);
+	}
 }

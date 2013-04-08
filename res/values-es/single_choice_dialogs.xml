@@ -13,17 +13,6 @@
     </string-array>
 
     <string name="dlg_background_title">Papel</string>
-
-    <string-array name="dlg_background_entries">
-        <item>Blank</item>
-        <item>Legal ruled</item>
-        <item>College ruled</item>
-        <item>Narrow ruled</item>
-        <item>Quad paper</item>
-        <item>Cornell Notes</item>
-        <item>Day Planner</item>
-    </string-array>
-
     <string name="dlg_aspect_title">Aspect ratio</string>
 
     <string-array name="dlg_aspect_entries">
