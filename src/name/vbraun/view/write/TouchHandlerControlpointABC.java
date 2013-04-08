@@ -256,9 +256,9 @@ public abstract class TouchHandlerControlpointABC
 	}
 
 	/**
-	 * @return all graphics objects of the given type (e.g. all images)
+	 * @return all graphics objects of the given type (e.g. all images) on the page
 	 */
-	protected abstract LinkedList<GraphicsControlpoint> getGraphicsObjects();
+	protected abstract LinkedList<? extends GraphicsControlpoint> getGraphicsObjects();
 	
 	/**
 	 * Create a new graphics object

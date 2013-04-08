@@ -36,6 +36,10 @@ public abstract class GraphicsControlpoint extends Graphics {
 			this.x = transform.inverseX(x);
 			this.y = transform.inverseY(y);
 		}
+		public Controlpoint(final Controlpoint controlpoint) {
+			this.x = controlpoint.x;
+			this.y = controlpoint.y;
+		}
 		public void move(float x, float y) {
 			this.x = transform.inverseX(x);
 			this.y = transform.inverseY(y);
@@ -53,6 +57,16 @@ public abstract class GraphicsControlpoint extends Graphics {
 		public void set(final Controlpoint p) { x = p.x; y = p.y; };
 	}
 	
+	/**
+	 * Copy constructor
+	 * 
+	 * @param graphics
+	 */
+	protected GraphicsControlpoint(final GraphicsControlpoint graphics) {
+		super(graphics);
+		fillPaint = new Paint(graphics.fillPaint);
+		outlinePaint = new Paint(graphics.outlinePaint);
+	}
 	
 	/**
 	 * Derived classes must add their control points to this list

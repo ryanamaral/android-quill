@@ -25,6 +25,8 @@ public class GraphicsLine extends GraphicsControlpoint {
 	private int pen_color;
 	
 	/**
+	 * Construct a new line
+	 * 
 	 * @param transform The current transformation
 	 * @param x Screen x coordinate 
 	 * @param y Screen y coordinate 
@@ -39,6 +41,19 @@ public class GraphicsLine extends GraphicsControlpoint {
 		controlpoints.add(p0);
 		controlpoints.add(p1);
 		setPen(penThickness, penColor);
+	}
+	
+	/**
+	 * Copy constructor
+	 * @param line
+	 */
+	protected GraphicsLine(final GraphicsLine line) {
+		super(line);
+		p0 = new Controlpoint(line.p0);
+		p1 = new Controlpoint(line.p1);
+		controlpoints.add(p0);
+		controlpoints.add(p1);
+		setPen(line.pen_thickness, line.pen_color);
 	}
 
 	@Override

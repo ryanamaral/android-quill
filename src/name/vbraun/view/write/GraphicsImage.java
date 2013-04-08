@@ -117,6 +117,8 @@ public class GraphicsImage extends GraphicsControlpoint {
 	}
 
 	/**
+	 * Construct a new image
+	 * 
 	 * @param transform
 	 *            The current transformation
 	 * @param x
@@ -140,6 +142,32 @@ public class GraphicsImage extends GraphicsControlpoint {
 		controlpoints.add(top_right);
 		controlpoints.add(center);
 		init();
+	}
+	
+	/**
+	 * The copy constructor
+	 * @param image
+	 * @param dir the directory to copy the image file to
+	 */
+	protected GraphicsImage(final GraphicsImage image, File dir) {
+		super(image);
+		bottom_left = new Controlpoint(image.bottom_left);
+		bottom_right = new Controlpoint(image.bottom_right);
+		top_left = new Controlpoint(image.top_left);
+		top_right = new Controlpoint(image.top_right);
+		center = new Controlpoint(image.center);
+		controlpoints.add(bottom_left);
+		controlpoints.add(bottom_right);
+		controlpoints.add(top_left);
+		controlpoints.add(top_right);
+		controlpoints.add(center);
+		constrainAspect = image.constrainAspect;
+		init();
+		if (image.getFile() == null) 
+			return;
+		final String fileName = getImageFileName(getUuid(), image.getFileType());
+		file = new File(dir, fileName);
+		com.write.Quill.image.Util.copyfile(image.getFile(), file);
 	}
 
 	private void init() {

@@ -76,6 +76,18 @@ public class Stroke extends Graphics {
 		setPen(pen_thickness, pen_color);
 		setTransform(transform);
 	}
+	
+	/**
+	 * Copy constructor
+	 */
+	protected Stroke(final Stroke stroke) {
+		super(stroke);
+		N = stroke.N;
+		position_x = stroke.position_x.clone();
+		position_y = stroke.position_y.clone();
+		pressure = stroke.pressure.clone();
+		setPen(stroke.pen_thickness, stroke.pen_color);
+	}	
 
 	/**
 	 * Create a new Stroke object from raw input data

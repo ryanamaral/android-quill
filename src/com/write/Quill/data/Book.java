@@ -26,8 +26,11 @@ import android.text.format.Time;
 import android.util.Log;
 
 /**
+ * Data model for "Book"
+ * 
  * A book is a collection of Pages and the tag manager together with some 
- * metadata like its title.
+ * metadata like its title. The data is stored in a fixed
+ * {@link BookDirectory}.
  * 
  * @author vbraun
  *
@@ -63,7 +66,9 @@ public class Book {
 		filter = newFilter;
 	}
 
-	// dummy ctor for derived classes only
+	/**
+	 * dummy ctor for the {@link BookOldFormat} derived class only
+	 */
 	protected Book() {
 		allowSave = true;
 	} 
@@ -171,23 +176,6 @@ public class Book {
 		Assert.assertTrue("Current page removed?", currentPage >= 0);
 	}
 
-	// make sure the book and filteredPages is non-empty
-	// call after every operation that potentially removed pages
-	// the current page is not changed
-	private void ensureNonEmpty(Page template) {
-		Page curr = currentPage();
-		Page new_page;
-		if (template != null)
-			new_page = new Page(template);
-		else
-			new_page = new Page(tagManager);
-		new_page.tags.add(getFilter());
-		requestAddPage(new_page, pages.size()); // pages.add(pages.size(),
-												// new_page);
-		setCurrentPage(curr);
-		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
-	}
-
 	public String getTitle() {
 		return title;
 	}
@@ -199,6 +187,11 @@ public class Book {
 	
 	public UUID getUUID() {
 		return uuid;
+	}
+	
+	public BookDirectory getDirectory() {
+		Storage storage = Storage.getInstance();
+		return storage.getBookDirectory(uuid);
 	}
 	
 	public Page getPage(int n) {
@@ -309,7 +302,7 @@ public class Book {
 		Log.d(TAG, "delete_page() " + currentPage + "/" + pages.size());
 		Page page = currentPage();
 		if (pages.size() == 1) {
-			requestAddPage(new Page(page), 1);
+			requestAddPage(Page.emptyWithStyleOf(page), 1);
 		}
 		requestRemovePage(page);
 	}
@@ -394,7 +387,7 @@ public class Book {
 	public Page insertPage(Page template, int position) {
 		Page new_page;
 		if (template != null)
-			new_page = new Page(template);
+			new_page = Page.emptyWithStyleOf(template);
 		else
 			new_page = new Page(tagManager);
 		new_page.tags.add(getFilter());
@@ -407,8 +400,9 @@ public class Book {
 
 	public Page duplicatePage() {
 		Page new_page;
-		new_page = new Page(currentPage());
-		new_page.strokes.addAll(currentPage().strokes);
+		Storage storage = Storage.getInstance();
+		BookDirectory dir = storage.getBookDirectory(uuid);
+		new_page = new Page(currentPage(), dir);
 		new_page.tags.add(getFilter());
 		requestAddPage(new_page, currentPage + 1); 
 		Assert.assertTrue("Missing tags?", pageMatchesFilter(new_page));
@@ -481,7 +475,9 @@ public class Book {
 		}
 	}
 
-	// this is always called after the book was loaded
+	/**
+	 * Called at the end of every constructor
+	 */
 	protected void loadingFinishedHook() {
 		makeCurrentPageConsistent();
 		filterChanged();
@@ -494,6 +490,7 @@ public class Book {
 	// Loads the book. This is the complement to the save() method
 	public Book(Storage storage, UUID uuid) {
 		allowSave = true;
+		this.uuid = uuid;
 		BookDirectory dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, -1);
@@ -504,13 +501,13 @@ public class Book {
 		} catch (IOException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
-		this.uuid = uuid;
 		loadingFinishedHook();
 	}
 	
 	// Load a truncated preview of the book
 	public Book(Storage storage, UUID uuid, int pageLimit) {
 		allowSave = false;
+		this.uuid = uuid;
 		BookDirectory dir = storage.getBookDirectory(uuid);
 		try {
 			doLoadBookFromDirectory(dir, pageLimit);
@@ -521,7 +518,6 @@ public class Book {
 		} catch (IOException e) {
 			storage.LogError(TAG, e.getLocalizedMessage());
 		}
-		this.uuid = uuid;
 		loadingFinishedHook();
 	}
 

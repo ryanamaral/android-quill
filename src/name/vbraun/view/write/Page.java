@@ -39,7 +39,7 @@ public class Page {
 	public final LinkedList<GraphicsImage> images = new LinkedList<GraphicsImage>();
 	public final LinkedList<Stroke> strokes = new LinkedList<Stroke>();
 	// lineArt contains straight lines, arrows, etc.
-	public final LinkedList<GraphicsControlpoint> lineArt = new LinkedList<GraphicsControlpoint>();
+	public final LinkedList<GraphicsLine> lineArt = new LinkedList<GraphicsLine>();
 	public final TagManager.TagSet tags;
 	protected float aspect_ratio = AspectRatio.Table[0].ratio;
 	protected boolean is_readonly = false;
@@ -288,15 +288,48 @@ public class Page {
 		modified = true;
 	}
 
-	public Page(Page template) {
+
+	/**
+	 * Construct a new page with the same paper type but without the content
+	 * @param template
+	 * @return
+	 */
+	public static Page emptyWithStyleOf(Page template) {
+		return new Page(template, false);
+	}
+
+	/**
+	 * The copy constructor
+	 * @param template
+	 */
+	public Page(Page template, File dir) {
+		tags = template.tags.copy();
+		initPageStyle(template);
+		for (Stroke stroke: template.strokes) 
+			strokes.add(new Stroke(stroke));
+		for (GraphicsLine line: template.lineArt)
+			lineArt.add(new GraphicsLine(line));
+		for (GraphicsImage image: template.images)
+			images.add(new GraphicsImage(image, dir));
+	}
+	
+	/**
+	 * Implementation of emptyWithStyleOf
+	 */
+	private Page(Page template, boolean dummy) {
+		tags = template.tags.copy();
+		initPageStyle(template);
+	}
+	
+	private void initPageStyle(Page template) {
 		uuid=UUID.randomUUID();
 		tagManager = template.tagManager;
-		tags = template.tags.copy();
 		setPaperType(template.paper_type);
 		setAspectRatio(template.aspect_ratio);
 		setTransform(template.transformation);
 		modified = true;
 	}
+	
 	
 
 	public Page(DataInputStream in, TagManager tagMgr, File dir) throws IOException {
