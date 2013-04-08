@@ -56,6 +56,7 @@ public class Bookshelf {
 	 *
 	 */
 	public class BookPreview {
+		@SuppressWarnings("unused")
 		private static final String TAG = "BookPreview";
 		private Book preview;
 		private UUID uuid;
@@ -116,7 +117,6 @@ public class Bookshelf {
 	private static LinkedList<BookPreview> data = new LinkedList<BookPreview>();
 	private static Book currentBook;
 	private static Bookshelf instance;
-	private static File homeDirectory;
 	private Storage storage;
 	
 	private Bookshelf(Storage storage) {

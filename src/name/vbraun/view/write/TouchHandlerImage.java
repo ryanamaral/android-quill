@@ -27,17 +27,9 @@ public class TouchHandlerImage extends TouchHandlerControlpointABC {
 		view.getToolBox().startControlpointMove(!isNew, true);		
 	}
 
-	private LinkedList<GraphicsControlpoint> graphicsObjectsCache = new LinkedList<GraphicsControlpoint>();
-	
 	@Override
-	protected LinkedList<GraphicsControlpoint> getGraphicsObjects() {
-		LinkedList<GraphicsImage> images = getPage().images;
-		if (images.equals(graphicsObjectsCache))
-			return graphicsObjectsCache;
-		graphicsObjectsCache.clear();
-		for (GraphicsControlpoint img : images)
-			graphicsObjectsCache.add(img);
-		return graphicsObjectsCache;
+	protected LinkedList<? extends GraphicsControlpoint> getGraphicsObjects() {
+		return getPage().images;
 	}
 
 	protected float maxDistanceControlpointScreen() {

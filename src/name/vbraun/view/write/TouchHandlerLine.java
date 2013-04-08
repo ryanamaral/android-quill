@@ -12,8 +12,8 @@ public class TouchHandlerLine extends TouchHandlerControlpointABC {
 	}
 
 	@Override
-	protected LinkedList<GraphicsControlpoint> getGraphicsObjects() {
-		return (LinkedList<GraphicsControlpoint>) getPage().lineArt;
+	protected LinkedList<? extends GraphicsControlpoint> getGraphicsObjects() {
+		return getPage().lineArt;
 	}
 
 	@Override
