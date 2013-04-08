@@ -20,8 +20,8 @@
     </style>
   </head>
   <body>
-$ 10.5
-  % Version 10.5
+$ 10.6
+  % Version 10.6
   _ 2013-04-08
     * Duplicate page: also dulicate lines and images
     * Add smoothing filter (thanks to Dan Kats)
@@ -29,9 +29,15 @@ $ 10.5
     * Hide action bar on ICS (thanks to <a href="https://play.google.com/store/apps/developer?id=tsorn">tsorn</a>)
     * Musical paper (thanks to Steve Russell)
     * Fix pinch-zoom gesture in line and image mode
+$ 10.5
+  % Version 10.5
+  _ 2012-11-03
+    * Make 3rd party programs open Quill for .quill files.
+    * Online sync works now!
+    * Added manual.
 $ 10.4
   % Version 10.4
-  _ 2012-11-03
+  _ 2012-10-31
     * The previous version was an incomplete build resulting in spurious crashes.
     * Online sync is disabled until issues found during beta-test are fixed.
 $ 10.3
