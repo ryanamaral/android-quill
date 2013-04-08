@@ -389,7 +389,7 @@ public class Page {
 	}
 	
 	public Bitmap renderBitmap(int width, int height, boolean background) {
-		Transformation backup = getTransform().copy();
+		Transformation backup = new Transformation(getTransform());
 		float scale = Math.min(height, width/aspect_ratio);
 		setTransform(0, 0, scale);
 		int actual_width  = (int)Math.rint(scale*aspect_ratio);

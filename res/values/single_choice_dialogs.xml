@@ -22,15 +22,24 @@
     </integer-array>
 
     <string name="dlg_background_title">Background</string>
+    <string name="dlg_background_entry_EMPTY">Blank</string>
+    <string name="dlg_background_entry_RULED">Legal ruled</string>
+    <string name="dlg_background_entry_COLLEGERULED">College ruled</string>
+    <string name="dlg_background_entry_NARROWRULED">Narrow ruled</string>
+    <string name="dlg_background_entry_QUADPAPER">Quad paper</string>
+    <string name="dlg_background_entry_CORNELLNOTES">Cornell Notes</string>
+    <string name="dlg_background_entry_DAYPLANNER">Day Planner</string>
+    <string name="dlg_background_entry_MUSIC">Music</string>
 
     <string-array name="dlg_background_entries">
-        <item>Blank</item>
-        <item>Legal ruled</item>
-        <item>College ruled</item>
-        <item>Narrow ruled</item>
-        <item>Quad paper</item>
-        <item>Cornell Notes</item>
-        <item>Day Planner</item>
+        <item>@string/dlg_background_entry_EMPTY</item>
+        <item>@string/dlg_background_entry_RULED</item>
+        <item>@string/dlg_background_entry_COLLEGERULED</item>
+        <item>@string/dlg_background_entry_NARROWRULED</item>
+        <item>@string/dlg_background_entry_QUADPAPER</item>
+        <item>@string/dlg_background_entry_CORNELLNOTES</item>
+        <item>@string/dlg_background_entry_DAYPLANNER</item>
+        <item>@string/dlg_background_entry_MUSIC</item>
     </string-array>
     <string-array name="dlg_background_values">
         <item>EMPTY</item>
@@ -40,6 +49,7 @@
         <item>QUADPAPER</item>
         <item>CORNELLNOTES</item>
         <item>DAYPLANNER</item>
+        <item>MUSIC</item>
     </string-array>
 
     <string name="dlg_aspect_title">Aspect ratio</string>

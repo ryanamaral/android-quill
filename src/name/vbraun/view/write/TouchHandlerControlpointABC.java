@@ -155,19 +155,7 @@ public abstract class TouchHandlerControlpointABC
 		else if (action == MotionEvent.ACTION_UP) {
 			Assert.assertTrue(event.getPointerCount() == 1);
 			int id = event.getPointerId(0);
-			if (id == penID) {
-				// Log.v(TAG, "ACTION_UP: line finished "+activeControlpoint);
-				onPenUp();
-			} else if (getMoveGestureWhileWriting() && 
-						(id == fingerId1 || id == fingerId2) &&
-						fingerId1 != -1 && fingerId2 != -1) {
-				Page page = getPage();
-				float dx = page.transformation.offset_x + (newX1-oldX1+newX2-oldX2)/2;
-				float dy = page.transformation.offset_y + (newY1-oldY1+newY2-oldY2)/2; 
-				page.setTransform(dx, dy, page.transformation.scale, view.canvas);
-				page.draw(view.canvas);
-				view.invalidate();				
-			}
+			onPenUp();
 			abortMotion();
 			return true;
 		}
@@ -181,6 +169,7 @@ public abstract class TouchHandlerControlpointABC
 			return true;
 		}
 		else if (action == MotionEvent.ACTION_POINTER_DOWN) {  // start move gesture
+			if (penID != -1) return true;     // ignore, we are currently moving a control point
 			if (fingerId1 == -1) return true; // ignore after move finished
 			if (fingerId2 != -1) return true; // ignore more than 2 fingers
 			int idx2 = event.getActionIndex();
@@ -193,6 +182,22 @@ public abstract class TouchHandlerControlpointABC
 				fingerId2 = event.getPointerId(idx2);
 			}
 			// Log.v(TAG, "ACTION_POINTER_DOWN "+fingerId2+" + "+fingerId1+" "+oldX1+" "+oldY1+" "+oldX2+" "+oldY2);
+		} else if (action == MotionEvent.ACTION_POINTER_UP) {
+			int idx = event.getActionIndex();
+			int id = event.getPointerId(idx);
+			if (getMoveGestureWhileWriting() && 
+					(id == fingerId1 || id == fingerId2) &&
+					fingerId1 != -1 && fingerId2 != -1) {
+				Page page = getPage();
+				
+				Transformation t = pinchZoomTransform(page.getTransform(), 
+						oldX1, newX1, oldX2, newX2, oldY1, newY1, oldY2, newY2);
+				page.setTransform(t, view.canvas);
+
+				page.draw(view.canvas);
+				view.invalidate();
+				abortMotion();
+			}
 		}
 		return false;
 	}
@@ -212,9 +217,10 @@ public abstract class TouchHandlerControlpointABC
 		boolean gears = view.getToolBox().isGearsSelectedControlpointMove();
 		Log.d(TAG, "trash = "+trash);
 		if (trash) {
-			if (isNew)
-				getPage().draw(view.canvas);		
-			else
+			if (isNew) {
+				getPage().draw(view.canvas);
+			    view.invalidate();
+			} else
 				removeGraphics(activeControlpoint.getGraphics());
 		} else if (gears) {
 			Assert.assertNull(newGraphicsObject); // gears are only shown with existing graphics object
@@ -237,11 +243,7 @@ public abstract class TouchHandlerControlpointABC
 	@Override
 	protected void draw(Canvas canvas, Bitmap bitmap) {
 		if (fingerId2 != -1) {
-			// move preview by translating bitmap
-			canvas.drawARGB(0xff, 0xaa, 0xaa, 0xaa);
-			float x = (newX1-oldX1+newX2-oldX2)/2;
-			float y = (newY1-oldY1+newY2-oldY2)/2; 
-			canvas.drawBitmap(bitmap, x, y, null);
+			drawPinchZoomPreview(canvas, bitmap, oldX1, newX1, oldX2, newX2, oldY1, newY1, oldY2, newY2);
 		} else {
 			canvas.drawBitmap(bitmap, 0, 0, null);
 			drawControlpoints(canvas);

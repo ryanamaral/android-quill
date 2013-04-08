@@ -113,6 +113,9 @@ public class Background {
 		case DAYPLANNER:
 			draw_dayplanner(canvas, t, Calendar.getInstance());
 			return;			
+        case MUSIC:
+            draw_music_manuscript(canvas, t);
+            return;
 		case HEX:
 			// TODO
 			return;
@@ -292,6 +295,42 @@ public class Background {
 		}
 	}
 	
+    private void draw_music_manuscript(Canvas c, Transformation t) {
+        float lineSpacingMm = 2.5f;
+        float staveHeight = 4 * lineSpacingMm;
+        float staffTopMarginMm = 25.0f;
+        float staffBottomMarginMm = 15.0f;
+        float staffSideMarginMm = 15.0f;
+        int staveCount;
+        if (aspectRatio.isPortrait())
+        	staveCount = 12;
+        else
+        	staveCount = 8;
+        float staffTotal = staffTopMarginMm + staffBottomMarginMm + staveCount*staveHeight;
+        float staffSpacing = staveHeight + (heightMm-staffTotal)/(staveCount-1);
+
+        float x0, x1, y;
+        
+        int shade = 0xaa;
+        float threshold = 1500;
+        if (t.scale < threshold)
+                shade += (int)((threshold-t.scale)/threshold*(0xff-shade));
+        paint.setARGB(0xff, shade, shade, shade);
+        
+        paint.setStrokeWidth(0);
+
+        x0 = t.applyX(staffSideMarginMm/heightMm);
+        x1 = t.applyX((widthMm-staffSideMarginMm)/heightMm);
+
+        for (int i=0; i<staveCount; i++) {
+                for (int j=0; j<5; j++) {
+                        y = t.applyY((staffTopMarginMm + i*staffSpacing + j*lineSpacingMm)/heightMm);
+                        c.drawLine(x0, y, x1, y, paint);
+                }
+        }
+    }
+
+	
 	public void render(Artist artist) {
 		if (!artist.getBackgroundVisible()) return;
 		switch (paperType) {
@@ -314,6 +353,8 @@ public class Background {
 			return;
 		case DAYPLANNER:
 			return;			
+		case MUSIC:
+			render_music_manuscript(artist);
 		case HEX:
 		return;
 		}
@@ -404,6 +445,39 @@ public class Background {
 		}
 		
 	}
+
+    private void render_music_manuscript(Artist artist) {
+        float lineSpacingMm = 2.0f;
+        float staveHeight = 4 * lineSpacingMm;
+        float staffTopMarginMm = 25.0f;
+        float staffBottomMarginMm = 15.0f;
+        float staffSideMarginMm = 15.0f;                
+
+        int staveCount = 12;
+        if (aspectRatio.isPortrait())
+        	staveCount = 12;
+        else
+        	staveCount = 8;
+        float staffTotal = staffTopMarginMm + staffBottomMarginMm + staveCount*staveHeight;
+        float staffSpacing = staveHeight + (heightMm-staffTotal)/(staveCount-1);
+
+        float x0, x1, y;        
+        LineStyle line = new LineStyle();
+        line.setColor(0f, 0f, 0f);
+        
+        line.setWidth(0);
+        staffSpacing = staveHeight + (heightMm-staffTotal)/(staveCount-1);
+
+        x0 = staffSideMarginMm/heightMm;
+        x1 = (widthMm-staffSideMarginMm)/heightMm;
+
+        for (int i=0; i<staveCount; i++) {
+                for (int j=0; j<5; j++) {
+                        y = (staffTopMarginMm + i*staffSpacing + j*lineSpacingMm)/heightMm;
+                        artist.drawLine(x0, y, x1, y, line);
+                }
+        }
+}
 
 
 }

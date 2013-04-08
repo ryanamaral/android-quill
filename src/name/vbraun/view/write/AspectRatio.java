@@ -79,4 +79,18 @@ public class AspectRatio {
 		return ratio * guessHeightMm();
 	}
 
+	/**
+	 * Return whether the width is larger than the height
+	 */
+	public boolean isLandscape() {
+		return ratio > 1.0f;
+	}
+	
+	/**
+	 * Return whether the width is smaller than the height
+	 */
+	public boolean isPortrait() {
+		return ratio < 1.0f;
+	}
+
 }

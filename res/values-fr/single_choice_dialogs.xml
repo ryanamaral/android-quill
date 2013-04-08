@@ -13,17 +13,13 @@
     </string-array>
 
     <string name="dlg_background_title">Papier</string>
-
-    <string-array name="dlg_background_entries">
-        <item>Page blanche</item>
-        <item>Lignage 8.7mm (Legal ruled)</item>
-        <item>Lignage 7.1mm (College ruled)</item>
-        <item>Lignage 6.3mm (Narrow ruled)</item>
-        <item>Petits carreaux</item>
-        <item>Cornell Notes</item>
-        <item>Agenda</item>
-    </string-array>
-
+    <string name="dlg_background_entry_EMPTY">Page blanche</string>
+    <string name="dlg_background_entry_RULED">Lignage 8.7mm (Legal ruled)</string>
+    <string name="dlg_background_entry_COLLEGERULED">Lignage 7.1mm (College ruled)</string>
+    <string name="dlg_background_entry_NARROWRULED">Lignage 6.3mm (Narrow ruled)</string>
+    <string name="dlg_background_entry_QUADPAPER">Petits carreaux</string>
+    <string name="dlg_background_entry_CORNELLNOTES">Cornell Notes</string>
+    <string name="dlg_background_entry_DAYPLANNER">Agenda</string>
     <string name="dlg_aspect_title">Format de papier</string>
 
     <string-array name="dlg_aspect_entries">

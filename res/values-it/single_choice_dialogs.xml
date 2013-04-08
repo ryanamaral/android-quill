@@ -13,16 +13,13 @@
     </string-array>
 
     <string name="dlg_background_title">Foglio</string>
-
-    <string-array name="dlg_background_entries">
-        <item>Bianco</item>
-        <item>Rigato 8.7mm (Legal ruled)</item>
-        <item>Rigato 7.1mm (College ruled)</item>
-        <item>Rigato 6.3mm (Narrow ruled)</item>
-        <item>Carta quadrettata</item>
-        <item>Cornell Notes</item>
-        <item>Agenda</item>
-    </string-array>
+    <string name="dlg_background_entry_EMPTY">Bianco</string>
+    <string name="dlg_background_entry_RULED">Rigato 8.7mm (Legal ruled)</string>
+    <string name="dlg_background_entry_COLLEGERULED">Rigato 7.1mm (College ruled)</string>
+    <string name="dlg_background_entry_NARROWRULED">Rigato 6.3mm (Narrow ruled)</string>
+    <string name="dlg_background_entry_QUADPAPER">Carta quadrettata</string>
+    <string name="dlg_background_entry_CORNELLNOTES">Cornell Notes</string>
+    <string name="dlg_background_entry_DAYPLANNER">Agenda</string>
 
     <string name="dlg_aspect_title">Rapporto d\'aspetto</string>
 

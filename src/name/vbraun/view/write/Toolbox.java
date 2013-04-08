@@ -463,11 +463,13 @@ public class Toolbox
 	}
 
 	
+	private boolean inControlpointMoveMode = false;
 	private boolean toolboxVisibleBeforeMove;
 	private Rect rectGears = new Rect();
 	private Rect rectTrash = new Rect();
 	
 	public void startControlpointMove(boolean showGearsButton, boolean showTrashButton) {
+		inControlpointMoveMode = true;
 		toolboxVisibleBeforeMove = toolboxIsVisible;
 		setToolboxVisible(false);
 		redButton.setVisibility(INVISIBLE);
@@ -479,11 +481,18 @@ public class Toolbox
 		controlpointTrashButton.setPressed(false);
 	}
 	
+	/**
+	 * Stop the {@link Controlpoint} move mode.
+	 * 
+	 * It is safe to call this method even if you are not in the move mode.
+	 */
 	public void stopControlpointMove() {
 		redButton.setVisibility(VISIBLE);
-		setToolboxVisible(toolboxVisibleBeforeMove);
+		if (inControlpointMoveMode)
+			setToolboxVisible(toolboxVisibleBeforeMove);
 		controlpointGearsButton.setVisibility(GONE);
 		controlpointTrashButton.setVisibility(GONE);
+		inControlpointMoveMode = false;
 	}
 
 	/**
@@ -492,6 +501,7 @@ public class Toolbox
 	 * @return true if the point hovers over the "gears" button that is visible only while moving the control point.
 	 */
 	public boolean onControlpointMotion(MotionEvent event) {
+		Assert.assertTrue(inControlpointMoveMode);
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_MOVE) {
 			boolean pressGears = false;

@@ -165,7 +165,7 @@ public abstract class Storage {
 		Bookshelf.assertNoCurrentBook();
 		File filesFolder = getFilesDir();
 		File notebookFile = null; 
-		TarInputStream tis;
+		TarInputStream tis = null;
 		UUID uuid = null;
 		try {
 			tis = new TarInputStream(new BufferedInputStream(new FileInputStream(file)));
@@ -193,10 +193,15 @@ public abstract class Storage {
 				dest.flush();
 				dest.close();
 			}	
-		   	
-			tis.close();
 		} catch (IOException e) {
 			throw new StorageIOException(e.getMessage());
+		} finally {
+			try {
+				if (tis != null)
+					tis.close();
+			} catch (IOException e) {
+				throw new StorageIOException(e.getMessage());
+			}			
 		}
 		if (uuid == null)
 			throw new StorageIOException("No ID in book archive file.");
