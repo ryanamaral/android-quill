@@ -21,6 +21,7 @@ import junit.framework.Assert;
 
 import android.util.FloatMath;
 import android.util.Log;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -226,10 +227,25 @@ public class Stroke extends Graphics {
 		// draw
 		if (recompute_bounding_box)
 			computeBoundingBox();
+		// if we are zoomed in use higher-quality graphics
+		final boolean zoom = (scale > 1500f);
+		if (N <= 2 || (tool == Tool.PENCIL && !zoom))
+			drawWithStraightLine(c);
+		else if (tool == Tool.PENCIL)
+			drawPencilWithQuadraticBezier(c);
+		else 
+			drawFountainpenWithCubicBezier(c);
+	}
+	
+	/**
+	 * The simplest way to render: use straight lines (ugly but fast)
+	 */
+	private void drawWithStraightLine(Canvas c) {
 		final float scaled_pen_thickness = getScaledPenThickness();
+		mPen.setStyle(Paint.Style.STROKE);
 		if (tool == Tool.PENCIL)
 			mPen.setStrokeWidth(scaled_pen_thickness);
-		float x0, x1, y0, y1, p0, p1 = 0;
+		float x0, x1, y0, y1, p0, p1;
 		// c.drawRect(left, top, right, bottom, paint)
 		// note: we offset the first point by 1/10 pixel since android does not
 		// draw lines with start=end
@@ -242,12 +258,150 @@ public class Stroke extends Graphics {
 			if (tool == Tool.FOUNTAINPEN) {
 				p1 = pressure[i];
 				mPen.setStrokeWidth((p0 + p1) / 2 * scaled_pen_thickness);
+				p0 = p1;
 			}
 			c.drawLine(x0, y0, x1, y1, mPen);
 			x0 = x1;
 			y0 = y1;
-			p0 = p1;
+		}		
+	}
+
+	private Path path = new Path();
+
+	/**
+	 * Quadratic Bezier curve for constant width
+	 * 
+	 * The trick is to use midpoints as start/stop point of the Bezier, and
+	 * actual data points as the control point.
+	 */
+	private void drawPencilWithQuadraticBezier(Canvas c) {
+		Assert.assertTrue(tool == Tool.PENCIL && N >= 3);
+		path.rewind();
+		mPen.setStyle(Paint.Style.STROKE);
+		mPen.setStrokeWidth(getScaledPenThickness());
+		float x0, x1, x2, x3, y0, y1, y2, y3;
+		
+		// the first actual point is treated as a midpoint
+		x0 = position_x[0] * scale + offset_x + 0.1f;
+		y0 = position_y[0] * scale + offset_y;
+		path.moveTo(x0, y0);
+
+		x1 = position_x[1] * scale + offset_x + 0.1f;
+		y1 = position_y[1] * scale + offset_y;
+		for (int i = 2; i < N-1; i++) {
+			// (x0,y0) and (x2,y2) are midpoints, (x1,y1) and (x3,y3) are actual points 
+			x3 = position_x[i] * scale + offset_x;
+			y3 = position_y[i] * scale + offset_y;
+			x2 = (x1+x3)/2f;
+			y2 = (y1+y3)/2f;
+			path.quadTo(x1, y1, x2, y2);
+			x0 = x2;   y0 = y2;
+			x1 = x3;   y1 = y3;
 		}
+
+		// the last actual point is treated as a midpoint
+		x2 = position_x[N-1] * scale + offset_x;
+		y2 = position_y[N-1] * scale + offset_y;
+		path.quadTo(x1, y1, x2, y2);
+
+		c.drawPath(path, mPen);
+	}
+
+	/**
+	 * Cubic Bezier for variable-width curves
+	 * 
+	 * This works similar to drawPencilWithQuadraticBezier, midpoints are
+	 * start/stop point and the actual data point is used as control. Only now
+	 * we draw as a filled shape instead of a stroke along the Bezier path. The
+	 * start/end point are displaced in the normal direction. The data point is
+	 * translated in the two distinct normal directions, yielding two control
+	 * points for the cubic Bezier.
+	 */
+	private void drawFountainpenWithCubicBezier(Canvas c) {
+		Assert.assertTrue(tool == Tool.FOUNTAINPEN && N >= 3);
+		path.rewind();		
+		mPen.setStyle(Paint.Style.FILL);
+		
+		//Paint paint = new Paint();
+		//paint.setARGB(0xff, 0xff, 0x0, 0x0);
+		//paint.setStrokeWidth(0);
+//		mPen.setStyle(Paint.Style.STROKE);
+		
+		final float scaled_pen_thickness = getScaledPenThickness();
+		float x0, x1, x2, x3, y0, y1, y2, y3, p0, p1, p2, p3;
+		float vx01, vy01, vx21, vy21;  // unit tangent vectors 0->1 and 1<-2
+		float norm;
+		float n_x0, n_y0, n_x2, n_y2; // the normals 
+		
+		// the first actual point is treated as a midpoint
+		x0 = position_x[0] * scale + offset_x + 0.1f;
+		y0 = position_y[0] * scale + offset_y;
+		p0 = pressure[0];
+
+		x1 = position_x[1] * scale + offset_x + 0.1f;
+		y1 = position_y[1] * scale + offset_y;
+		p1 = pressure[1];
+		vx01 = x1 - x0;
+		vy01 = y1 - y0;
+		// instead of dividing tangent/norm by two, we multiply norm by 2
+		norm = FloatMath.sqrt(vx01*vx01 + vy01*vy01 + 0.0001f) * 2f;
+		vx01 = vx01 / norm * scaled_pen_thickness * p0;  
+		vy01 = vy01 / norm * scaled_pen_thickness * p0;
+		n_x0 =  vy01;
+		n_y0 = -vx01;
+		for (int i = 2; i < N-1; i++) {
+			// (x0,y0) and (x2,y2) are midpoints, (x1,y1) and (x3,y3) are actual points 
+			x3 = position_x[i] * scale + offset_x;
+			y3 = position_y[i] * scale + offset_y;
+			p3 = pressure[i];
+			x2 = (x1+x3)/2f;
+			y2 = (y1+y3)/2f;
+			p2 = (p1+p3)/2f;
+			vx21 = x1 - x2;
+			vy21 = y1 - y2;
+			norm = FloatMath.sqrt(vx21*vx21 + vy21*vy21 + 0.0001f) * 2f;
+			vx21 = vx21 / norm * scaled_pen_thickness * p2;  
+			vy21 = vy21 / norm * scaled_pen_thickness * p2;
+			n_x2 = -vy21;
+			n_y2 =  vx21;
+
+			path.rewind();
+			path.moveTo (x0 + n_x0, y0 + n_y0);
+			// The + boundary of the stroke
+			path.cubicTo(x1 + n_x0, y1 + n_y0, x1 + n_x2, y1 + n_y2, x2 + n_x2, y2 + n_y2);
+			// round out the cap
+			path.cubicTo(x2 + n_x2 - vx21, y2 + n_y2 - vy21, x2 - n_x2 - vx21, y2 - n_y2 - vy21, x2 - n_x2, y2 - n_y2);
+			// THe - boundary of the stroke
+			path.cubicTo(x1 - n_x2, y1 - n_y2, x1 - n_x0, y1 - n_y0, x0 - n_x0, y0 - n_y0);
+			// round out the other cap
+			path.cubicTo(x0 - n_x0 - vx01, y0 - n_y0 - vy01, x0 + n_x0 - vx01, y0 + n_y0 - vy01, x0 + n_x0, y0 + n_y0);
+			c.drawPath(path, mPen);
+
+			x0 = x2;   y0 = y2;  p0 = p2;
+			x1 = x3;   y1 = y3;  p1 = p3;
+			vx01 = -vx21;  vy01 = -vy21;
+			n_x0 = n_x2;   n_y0 = n_y2;
+		}
+
+		// the last actual point is treated as a midpoint
+		x2 = position_x[N-1] * scale + offset_x;
+		y2 = position_y[N-1] * scale + offset_y;
+		p2 = pressure[N-1];
+		vx21 = x1 - x2;
+		vy21 = y1 - y2;
+		norm = FloatMath.sqrt(vx21*vx21 + vy21*vy21 + 0.0001f) * 2f;
+		vx21 = vx21 / norm * scaled_pen_thickness * p2;  
+		vy21 = vy21 / norm * scaled_pen_thickness * p2;
+		n_x2 = -vy21;
+		n_y2 =  vx21;
+
+		path.rewind();
+		path.moveTo(x0 + n_x0, y0 + n_y0);
+		path.cubicTo(x1 + n_x0, y1 + n_y0, x1 + n_x2, y1 + n_y2, x2 + n_x2, y2 + n_y2);
+		path.cubicTo(x2 + n_x2 - vx21, y2 + n_y2 - vy21, x2 - n_x2 - vx21, y2 - n_y2 - vy21, x2 - n_x2, y2 - n_y2);
+		path.cubicTo(x1 - n_x2, y1 - n_y2, x1 - n_x0, y1 - n_y0, x0 - n_x0, y0 - n_y0);
+		path.cubicTo(x0 - n_x0 - vx01, y0 - n_y0 - vy01, x0 + n_x0 - vx01, y0 + n_y0 - vy01, x0 + n_x0, y0 + n_y0);
+		c.drawPath(path, mPen);
 	}
 
 	public void writeToStream(DataOutputStream out) throws IOException {
@@ -528,7 +682,7 @@ public class Stroke extends Graphics {
 			float x1 = position_x[i];
 			float y1 = position_y[i];
 			float p1 = pressure[i];
-			artist.setLineWidth((scaled_pen_thickness * (p0 + p1) / 2));
+			artist.setLineWidth((scaled_pen_thickness * (p0 + p1) / 2f));
 			artist.moveTo(x0, y0);
 			artist.lineTo(x1, y1);
 			artist.stroke();

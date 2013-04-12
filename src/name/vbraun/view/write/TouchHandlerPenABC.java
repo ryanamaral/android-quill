@@ -6,10 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public abstract class TouchHandlerPenABC extends TouchHandlerABC {
-
+	@SuppressWarnings("unused")
+	private static final String TAG = "TouchHandlerABC";
+	
 	protected int N = 0;
 	protected static final int Nmax = 1024;
 	protected float[] position_x = new float[Nmax];
@@ -47,6 +50,7 @@ public abstract class TouchHandlerPenABC extends TouchHandlerABC {
 
 	protected void drawOutline(float oldX, float oldY, float newX, float newY, float oldPressure, float newPressure) {
 		if (view.getToolType() == Tool.FOUNTAINPEN) {
+			// Log.e(TAG, "pressure "+oldPressure+" "+newPressure);
 			float scaledPenThickness = getScaledPenThickness() * (oldPressure + newPressure) / 2f;
 			pen.setStrokeWidth(scaledPenThickness);
 		}
