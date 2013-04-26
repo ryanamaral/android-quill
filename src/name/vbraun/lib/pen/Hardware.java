@@ -81,16 +81,17 @@ public class Hardware {
 	}
 	
 	public void autodetect(Context context) {
-		if (model.equalsIgnoreCase("ThinkPad Tablet")) { // Lenovo ThinkPad Tablet
+		if (
+				model.equalsIgnoreCase("ThinkPad Tablet") ||  // Lenovo ThinkPad Tablet
+				model.matches("crane-iNote.*")) { // http://www.ibnote.com/
 			forceThinkpadTablet();
 		} else if (
 				model.equalsIgnoreCase("OP080") ||
-				model.equalsIgnoreCase("GT-N8000") || // Galaxy note 10.1 3G 
-				model.equalsIgnoreCase("GT-N8013") || // Galaxy note 10.1 WiFi
-				model.equalsIgnoreCase("GT-I9220") || // Galaxy note 5"
-				model.equalsIgnoreCase("GT-N7000") || // Galaxy note 5" International
-				model.equalsIgnoreCase("SGH-i717") || // Galaxy note 5" AT&T
-				model.equalsIgnoreCase("GT-N8010")) { // Galaxy note II 5"
+				model.matches("GT-N8???") || // Galaxy Note 10.1 
+				model.matches("GT-N5???") || // Galaxy Note 8 
+				model.matches("GT-N7???") || // Galaxy Note (5"), Note II 
+				model.equalsIgnoreCase("GT-I9220") || // US Galaxy note 5"
+				model.equalsIgnoreCase("SGH-i717") ) { // Galaxy note 5" AT&T
 			forceSamsungNote();
 		} else if (
 				model.equalsIgnoreCase("HTC_Flyer_P512_NA") ||
