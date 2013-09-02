@@ -49,7 +49,8 @@ public class Page {
 	public native void setRGBFill(float red, float green, float blue);
 	public native void moveTo(float x, float y);
 	public native void lineTo(float x, float y);
-	
+	public native void curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
+
 	// a path does not generate anything on the page until you call one of these methods
 	public native void stroke();
 	public native void fill();

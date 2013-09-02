@@ -211,6 +211,16 @@ JNIEXPORT void JNICALL Java_org_libharu_Page_lineTo
 }
 
 
+JNIEXPORT void JNICALL Java_org_libharu_Page_curveTo
+  (JNIEnv *env, jobject obj, jfloat x1, jfloat y1, jfloat x2, jfloat y2, jfloat x3, jfloat y3)
+{
+  haru_setup_error_handler(env, __func__);
+  HPDF_Page page = get_HPDF_Page(env, obj); 
+  HPDF_Page_CurveTo(page, x1, y1, x2, y2, x3, y3);
+  haru_clear_error_handler();
+}
+
+
 JNIEXPORT void JNICALL Java_org_libharu_Page_setRGBStroke
   (JNIEnv *env, jobject obj, jfloat red, jfloat green, jfloat blue)
 {

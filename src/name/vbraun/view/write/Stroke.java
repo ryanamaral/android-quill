@@ -15,6 +15,7 @@ import org.libharu.Page.LineCap;
 import org.libharu.Page.LineJoin;
 
 import com.write.Quill.artist.Artist;
+import com.write.Quill.artist.FillStyle;
 import com.write.Quill.artist.LineStyle;
 
 import junit.framework.Assert;
@@ -658,9 +659,11 @@ public class Stroke extends Graphics {
 		float blue = Color.blue(pen_color) / (float) 0xff;
 		LineStyle line = new LineStyle();
 		line.setColor(red, green, blue);
+		FillStyle fill = new FillStyle();
+		fill.setColor(red, green, blue);
 		switch (tool) {
 		case FOUNTAINPEN:
-			renderFountainpen(artist, line);
+			renderFountainpen(artist, line, fill);
 			break;
 		case PENCIL:
 			renderPencil(artist, line);
@@ -670,29 +673,21 @@ public class Stroke extends Graphics {
 		}
 	}
 
-	private void renderFountainpen(Artist artist, LineStyle line) {
-		float scaled_pen_thickness = getScaledPenThickness(1f);
-		line.setCap(LineStyle.Cap.ROUND_END);
-		line.setJoin(LineStyle.Join.ROUND_JOIN);
-		artist.setLineStyle(line);
-		float x0 = position_x[0];
-		float y0 = position_y[0];
-		float p0 = pressure[0];
-		for (int i = 1; i < N; i++) {
-			float x1 = position_x[i];
-			float y1 = position_y[i];
-			float p1 = pressure[i];
-			artist.setLineWidth((scaled_pen_thickness * (p0 + p1) / 2f));
-			artist.moveTo(x0, y0);
-			artist.lineTo(x1, y1);
-			artist.stroke();
-			x0 = x1;
-			y0 = y1;
-			p0 = p1;
-		}
+	private void renderFountainpen(Artist artist, LineStyle line, FillStyle fill) {
+		if (N <= 2)
+			renderPencilWithStraightLine(artist, line);
+		else
+			renderFountainpenWithCubicBezier(artist, fill);
 	}
-
+	
 	private void renderPencil(Artist artist, LineStyle line) {
+		if (N <= 2)
+			renderPencilWithStraightLine(artist, line);
+		else
+			renderPencilWithQuadraticBezier(artist, line);
+	}
+	
+	private void renderPencilWithStraightLine(Artist artist, LineStyle line) {
 		float scaled_pen_thickness = getScaledPenThickness(1f);
 		line.setWidth(scaled_pen_thickness);
 		line.setCap(LineStyle.Cap.ROUND_END);
@@ -709,4 +704,117 @@ public class Stroke extends Graphics {
 		artist.stroke();
 	}
 
+	private void renderPencilWithQuadraticBezier(Artist artist, LineStyle line) {
+		float scaled_pen_thickness = getScaledPenThickness(1f);
+		line.setWidth(scaled_pen_thickness);
+		line.setCap(LineStyle.Cap.ROUND_END);
+		line.setJoin(LineStyle.Join.ROUND_JOIN);
+		artist.setLineStyle(line);
+	
+		float x0, x1, x2, x3, y0, y1, y2, y3;
+		
+		// the first actual point is treated as a midpoint
+		x0 = position_x[0];
+		y0 = position_y[0];
+		artist.moveTo(x0, y0);
+
+		x1 = position_x[1];
+		y1 = position_y[1];
+		for (int i = 2; i < N-1; i++) {
+			// (x0,y0) and (x2,y2) are midpoints, (x1,y1) and (x3,y3) are actual points 
+			x3 = position_x[i];
+			y3 = position_y[i];
+			x2 = (x1+x3)/2f;
+			y2 = (y1+y3)/2f;
+			artist.quadTo(x1, y1, x2, y2);
+			x0 = x2;   y0 = y2;
+			x1 = x3;   y1 = y3;
+		}
+
+		// the last actual point is treated as a midpoint
+		x2 = position_x[N-1];
+		y2 = position_y[N-1];
+		artist.quadTo(x1, y1, x2, y2);
+
+		artist.stroke();
+	}
+
+	private void renderFountainpenWithCubicBezier(Artist artist, FillStyle fill) {
+		float scaled_pen_thickness = getScaledPenThickness(1f);
+		artist.setFillStyle(fill);
+		
+		float x0, x1, x2, x3, y0, y1, y2, y3, p0, p1, p2, p3;
+		float vx01, vy01, vx21, vy21;  // unit tangent vectors 0->1 and 1<-2
+		float norm;
+		float n_x0, n_y0, n_x2, n_y2; // the normals 
+		
+		// the first actual point is treated as a midpoint
+		x0 = position_x[0];
+		y0 = position_y[0];
+		p0 = pressure[0];
+
+		x1 = position_x[1];
+		y1 = position_y[1];
+		p1 = pressure[1];
+		vx01 = x1 - x0;
+		vy01 = y1 - y0;
+		// instead of dividing tangent/norm by two, we multiply norm by 2
+		norm = FloatMath.sqrt(vx01*vx01 + vy01*vy01 + 0.0000001f) * 2f;
+		vx01 = vx01 / norm * scaled_pen_thickness * p0;  
+		vy01 = vy01 / norm * scaled_pen_thickness * p0;
+		n_x0 =  vy01;
+		n_y0 = -vx01;
+		for (int i = 2; i < N-1; i++) {
+			// (x0,y0) and (x2,y2) are midpoints, (x1,y1) and (x3,y3) are actual points 
+			x3 = position_x[i];
+			y3 = position_y[i];
+			p3 = pressure[i];
+			x2 = (x1+x3)/2f;
+			y2 = (y1+y3)/2f;
+			p2 = (p1+p3)/2f;
+			vx21 = x1 - x2;
+			vy21 = y1 - y2;
+			norm = FloatMath.sqrt(vx21*vx21 + vy21*vy21 + 0.0000001f) * 2f;
+			vx21 = vx21 / norm * scaled_pen_thickness * p2;  
+			vy21 = vy21 / norm * scaled_pen_thickness * p2;
+			n_x2 = -vy21;
+			n_y2 =  vx21;
+
+			artist.moveTo (x0 + n_x0, y0 + n_y0);
+			// The + boundary of the stroke
+			artist.cubicTo(x1 + n_x0, y1 + n_y0, x1 + n_x2, y1 + n_y2, x2 + n_x2, y2 + n_y2);
+			// round out the cap
+			artist.cubicTo(x2 + n_x2 - vx21, y2 + n_y2 - vy21, x2 - n_x2 - vx21, y2 - n_y2 - vy21, x2 - n_x2, y2 - n_y2);
+			// THe - boundary of the stroke
+			artist.cubicTo(x1 - n_x2, y1 - n_y2, x1 - n_x0, y1 - n_y0, x0 - n_x0, y0 - n_y0);
+			// round out the other cap
+			artist.cubicTo(x0 - n_x0 - vx01, y0 - n_y0 - vy01, x0 + n_x0 - vx01, y0 + n_y0 - vy01, x0 + n_x0, y0 + n_y0);
+			artist.fill();
+
+			x0 = x2;   y0 = y2;  p0 = p2;
+			x1 = x3;   y1 = y3;  p1 = p3;
+			vx01 = -vx21;  vy01 = -vy21;
+			n_x0 = n_x2;   n_y0 = n_y2;
+		}
+
+		// the last actual point is treated as a midpoint
+		x2 = position_x[N-1];
+		y2 = position_y[N-1];
+		p2 = pressure[N-1];
+		vx21 = x1 - x2;
+		vy21 = y1 - y2;
+		norm = FloatMath.sqrt(vx21*vx21 + vy21*vy21 + 0.0000001f) * 2f;
+		vx21 = vx21 / norm * scaled_pen_thickness * p2;  
+		vy21 = vy21 / norm * scaled_pen_thickness * p2;
+		n_x2 = -vy21;
+		n_y2 =  vx21;
+
+		artist.moveTo(x0 + n_x0, y0 + n_y0);
+		artist.cubicTo(x1 + n_x0, y1 + n_y0, x1 + n_x2, y1 + n_y2, x2 + n_x2, y2 + n_y2);
+		artist.cubicTo(x2 + n_x2 - vx21, y2 + n_y2 - vy21, x2 - n_x2 - vx21, y2 - n_y2 - vy21, x2 - n_x2, y2 - n_y2);
+		artist.cubicTo(x1 - n_x2, y1 - n_y2, x1 - n_x0, y1 - n_y0, x0 - n_x0, y0 - n_y0);
+		artist.cubicTo(x0 - n_x0 - vx01, y0 - n_y0 - vy01, x0 + n_x0 - vx01, y0 + n_y0 - vy01, x0 + n_x0, y0 + n_y0);
+		artist.fill();
+	}
+	
 }
