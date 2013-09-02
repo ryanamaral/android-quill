@@ -1,6 +1,7 @@
 #include "org_libharu_Image.h"
 #include "org_libharu_HPDF.h"
 #include "hpdf.h"
+#include "haru_error_handler.h"
 #include <assert.h>
 #include <android/log.h>  
 
@@ -36,7 +37,7 @@ void set_HPDF_Image(JNIEnv *env, jobject obj, HPDF_Image ptr)
 JNIEXPORT void JNICALL Java_org_libharu_Image_construct
   (JNIEnv *env, jobject obj, jobject document, jstring fileName)
 {
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "Constructing Image");  
+  haru_setup_error_handler(env, __func__);
 
   const char* file_str = env->GetStringUTFChars(fileName, 0);
   HPDF_Doc pdf = get_HPDF_Doc(env, document);
@@ -44,5 +45,6 @@ JNIEXPORT void JNICALL Java_org_libharu_Image_construct
   set_HPDF_Image(env, obj, image);
 
   env->ReleaseStringUTFChars(fileName, file_str);
+  haru_clear_error_handler();
 }
 
