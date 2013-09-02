@@ -10,8 +10,10 @@ jni/org_libharu_Page_LineJoin.h
 jni/org_libharu_Page_PageDirection.h
 jni/org_libharu_Page_PageSize.h
 *~
+*.o.d
 gen/*
 bin/*
 
 syntax: regexp
 ^scripts/icons$
+

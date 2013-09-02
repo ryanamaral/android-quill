@@ -87,9 +87,9 @@ public class Hardware {
 			forceThinkpadTablet();
 		} else if (
 				model.equalsIgnoreCase("OP080") ||
-				model.matches("GT-N8???") || // Galaxy Note 10.1 
-				model.matches("GT-N5???") || // Galaxy Note 8 
-				model.matches("GT-N7???") || // Galaxy Note (5"), Note II 
+				model.matches("GT-N8...") || // Galaxy Note 10.1 
+				model.matches("GT-N5...") || // Galaxy Note 8 
+				model.matches("GT-N7...") || // Galaxy Note (5"), Note II 
 				model.equalsIgnoreCase("GT-I9220") || // US Galaxy note 5"
 				model.equalsIgnoreCase("SGH-i717") ) { // Galaxy note 5" AT&T
 			forceSamsungNote();

@@ -62,7 +62,8 @@ libharu_sources := hpdf_annotation.c \
     hpdf_3dmeasure.c
 
 jni_sources := org_libharu_Document.cpp org_libharu_Page.cpp \
-	org_libharu_Font.cpp org_libharu_Image.cpp
+	org_libharu_Font.cpp org_libharu_Image.cpp \
+	haru_error_handler.cpp
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/$(libharu)/include \

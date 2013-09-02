@@ -20,6 +20,7 @@ import org.libharu.Page.PageSize;
 
 import junit.framework.Assert;
 
+import android.util.FloatMath;
 import android.util.Log;
 import android.widget.TextView.SavedState;
 
@@ -155,7 +156,8 @@ public class ArtistPDF
 
 	@Override
 	public void setLineWidth(float width) {
-        pdf.setLineWidth(scale * width);
+		float w = Math.max(0f, scale * width);
+        pdf.setLineWidth(w);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 #include "org_libharu_Font.h"
 #include "org_libharu_HPDF.h"
 #include "hpdf.h"
+#include "haru_error_handler.h"
 #include <assert.h>
 #include <android/log.h>  
 
@@ -39,7 +40,8 @@ void set_HPDF_Font(JNIEnv *env, jobject obj, HPDF_Font ptr)
 JNIEXPORT void JNICALL Java_org_libharu_Font_construct
   (JNIEnv *env, jobject obj, jobject document, jobject fontEnum, jstring encodingName)
 {
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "Constructing font");  
+  haru_setup_error_handler(env, __func__);
+
   jclass BuiltinFont = env->FindClass("org/libharu/Font$BuiltinFont");
   jmethodID getNameMethod = env->GetMethodID(BuiltinFont, "name", "()Ljava/lang/String;");
   jstring builtin_value = (jstring)env->CallObjectMethod(fontEnum, getNameMethod);
@@ -59,17 +61,15 @@ JNIEXPORT void JNICALL Java_org_libharu_Font_construct
   else if (strcmp(builtin_str, "TIMES_BOLD_ITALIC") == 0)      font_str = "Times-BoldItalic";
   else if (strcmp(builtin_str, "SYMBOL") == 0)                 font_str = "Symbol";
   else if (strcmp(builtin_str, "ZAPFDINGBATS") == 0)           font_str = "ZapfDingbats";
-  else assert(false);
+  else haru_throw_exception("Unknown font.");
   env->ReleaseStringUTFChars(builtin_value, builtin_str);
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "font = %s", font_str);  
 
   const char* encoding_str = env->GetStringUTFChars(encodingName, 0);
-  __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "encoding = %s", encoding_str);  
-
   HPDF_Doc pdf = get_HPDF_Doc(env, document);
   HPDF_Font font = HPDF_GetFont(pdf, font_str, encoding_str);
   set_HPDF_Font(env, obj, font);
 
   env->ReleaseStringUTFChars(encodingName, encoding_str);
+  haru_clear_error_handler();
 }
 
