@@ -128,14 +128,49 @@ public class ArtistPDF
 	
 	@Override
 	public void moveTo(float x, float y) {
-		pdf.moveTo(scaledX(x,y), scaledY(x,y));
+		current_x = scaledX(x,y);
+		current_y = scaledY(x,y);
+		pdf.moveTo(current_x, current_y);
 	}
 
 	@Override
 	public void lineTo(float x, float y) {
-		pdf.lineTo(scaledX(x,y), scaledY(x,y));
+		current_x = scaledX(x,y);
+		current_y = scaledY(x,y);
+		pdf.lineTo(current_x, current_y);
 	}
 
+	// quadratic Bezier to (x2,y2) with control point (x1,y1)
+	// Note: PDF only has cubic Bezier, but for special values of the two control points
+	// the cubic degenerates to a quadratic Bezier. See http://fontforge.org/bezier.html
+	public void quadTo(float x1, float y1, float x2, float y2)	{
+		// the points of the quadratic Bezier
+		float qx0 = current_x;
+		float qy0 = current_y;
+		float qx1 = scaledX(x1, y1);
+		float qy1 = scaledY(x1, y1);
+		float qx2 = scaledX(x2, y2);
+		float qy2 = scaledY(x2, y2);
+		// the two control points of the cubic Bezier
+		float cx1 = 1f/3f * qx0 + 2f/3f * qx1;
+		float cy1 = 1f/3f * qy0 + 2f/3f * qy1;
+		float cx2 = 2f/3f * qx1 + 1f/3f * qx2;
+		float cy2 = 2f/3f * qy1 + 1f/3f * qy2;
+		pdf.curveTo(cx1, cy1, cx2, cy2, qx2, qy2);
+		current_x = qx2;
+		current_y = qy2;
+	}
+	
+	// cubic Bezier to (x3,y3) with control points (x1,y1) and (x2,y2)
+	public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3)	{
+		current_x = scaledX(x3,y3);
+		current_y = scaledY(x3,y3);
+		pdf.curveTo(scaledX(x1,y1), scaledY(x1,y1),
+					scaledX(x2,y2), scaledY(x2,y2),
+					current_x, current_y);
+	}
+
+	
 	@Override
 	public void stroke() {
 		pdf.stroke();
@@ -197,6 +232,10 @@ public class ArtistPDF
 		default:
 			Assert.fail();
 		}
+	}
+	
+	public void setFillColor(float colorRed, float colorGreen, float colorBlue) {
+		pdf.setRGBFill(colorRed, colorGreen, colorBlue);
 	}
 	
 	public void addPageNumber() {

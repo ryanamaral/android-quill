@@ -97,6 +97,14 @@ JNIEXPORT void JNICALL Java_org_libharu_Page_lineTo
 
 /*
  * Class:     org_libharu_Page
+ * Method:    curveTo
+ * Signature: (FFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_org_libharu_Page_curveTo
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     org_libharu_Page
  * Method:    stroke
  * Signature: ()V
  */

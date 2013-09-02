@@ -20,10 +20,15 @@
     </style>
   </head>
   <body>
+$ 10.7
+  % Version 10.7
+  _ 2013-09-01
+    * Use Bezier curves for smoother pen strokes
+    * Fix bug where sometimes PDF export would fail
 $ 10.6
   % Version 10.6
   _ 2013-04-08
-    * Duplicate page: also dulicate lines and images
+    * Duplicate page: also duplicate lines and images
     * Add smoothing filter (thanks to Dan Kats)
     * Samsung multi-window mode (thanks to Dan Kats)
     * Hide action bar on ICS (thanks to <a href="https://play.google.com/store/apps/developer?id=tsorn">tsorn</a>)

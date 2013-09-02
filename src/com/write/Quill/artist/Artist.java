@@ -15,12 +15,22 @@ abstract public class Artist {
 	protected float scale = 1f;
 	protected boolean backgroundVisible = true;
 	
+	// The current point (undefined until you call one of moveTo/lineTo/quadTo/cubicTo first
+	protected float current_x;
+	protected float current_y;
+	
 	///////////////////////////////////
 	// First the low-level API 
 	
 	// construct a path
 	abstract public void moveTo(float x, float y);
 	abstract public void lineTo(float x, float y);
+	
+	// quadratic Bezier to (x2,y2) with control point (x1,y1)
+	abstract public void quadTo(float x1, float y1, float x2, float y2);
+	
+	// cubic Bezier to (x3,y3) with control points (x1,y1) and (x2,y2)
+	abstract public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
 	
 	// a path does not generate anything on the page until you call one of these methods
 	abstract public void stroke();
@@ -32,6 +42,9 @@ abstract public class Artist {
 	abstract public void setLineColor(float colorRed, float colorGreen, float colorBlue);
 	abstract public void setLineCap(LineStyle.Cap cap);
 	abstract public void setLineJoin(LineStyle.Join join);
+	
+	// set the fill style
+	abstract public void setFillColor(float colorRed, float colorGreen, float colorBlue);
 	
 	// write result and/or close output file
 	abstract public void destroy();
@@ -77,6 +90,14 @@ abstract public class Artist {
 		} else
 			lineStyle.commitChanges(currentLineStyle, this);
 		currentLineStyle = lineStyle;
+	}
+	
+	protected FillStyle currentFillStyle = null;
+	public void setFillStyle(FillStyle fillStyle) {
+		Assert.assertNotNull(fillStyle);
+		if (currentFillStyle == null) {
+			setFillColor(fillStyle.getRed(), fillStyle.getGreen(), fillStyle.getBlue());
+		}
 	}
 	
 	public void drawLine(float x0, float y0, float x1, float y1, LineStyle lineStyle) {
