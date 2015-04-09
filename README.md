@@ -31,7 +31,11 @@ The n-trig active pen has been tested on the ThinkPad Tablet, HTC Jetstream, and
 
 There is a thread on the XDA Developers forum http://forum.xda-developers.com/showthread.php?t=1378625 and at the Lenovo forum http://forum.lenovo.com/t5/ThinkPad-slate-tablets if you want to discuss anything.
 
-Also available on the Android Market.
+Also available on the Android Market (https://play.google.com/store/apps/details?id=com.write.Quill).
+
+### Dependencies
+  * http://code.google.com/p/android-color-picker/
+  * http://code.google.com/p/android-file-picker/
 
 ### Reviews
 http://www.youtube.com/watch?v=k1yxYXMPXA0  
