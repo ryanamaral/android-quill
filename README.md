@@ -2,7 +2,7 @@ android-quill
 =============
 
 ### Handwriting note-taking app for Android tablets
-**[Exported from code.google.com/p/android-quill]**
+**[Forked/Exported from code.google.com/p/android-quill]**
 
 A key design goal is quick response to pen strokes and 100% vector graphics. Developed on a Lenovo ThinkPad Tablet and a Galaxy Note.
 
@@ -36,3 +36,6 @@ Also available on the Android Market.
 ### Reviews
 http://www.youtube.com/watch?v=k1yxYXMPXA0  
 http://the-gadgeteer.com/2011/11/16/lenovo-thinkpad-tablet-review (contains above video)
+
+![LarsWallinDrawing](http://wiki.android-quill.googlecode.com/hg/images/LarsWallinDrawing.png "An amazing drawing by Lars Wallin done in Quill")  
+An amazing drawing by Lars Wallin done in Quill
