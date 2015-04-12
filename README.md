@@ -41,9 +41,9 @@ Also available on the Android Market (https://play.google.com/store/apps/details
 http://www.youtube.com/watch?v=k1yxYXMPXA0  
 http://the-gadgeteer.com/2011/11/16/lenovo-thinkpad-tablet-review (contains above video)
 
-![LarsWallinDrawing](../blob/master/doc/screenshot-quill-android.png "An amazing drawing by Lars Wallin done in Quill")  
+![LarsWallinDrawing](../master/doc/screenshot-quill-android.png "An amazing drawing by Lars Wallin done in Quill")  
 An amazing drawing by Lars Wallin done in Quill.
 
 ## LICENSE
 
-Quill is released under the [GNU General Public License v3.0](../blob/master/LICENSE).
+Quill is released under the [GNU General Public License v3.0](../master/LICENSE).
