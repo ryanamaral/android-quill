@@ -1,0 +1,31 @@
+# Eclipse
+bin/
+gen/
+out/
+.settings/
+
+# IntelliJ IDEA
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+classes
+gen-external-apklibs
+
+# Gradle
+.gradle
+build
+
+# Other
+tmp
+.DS_Store
+Thumbs.db
+
+obj/local/*
+jni/org_libharu_Document.h
+jni/org_libharu_Document_CompressionMode.h
+jni/org_libharu_Font.h
+jni/org_libharu_Font_BuiltinFont.h
+jni/org_libharu_Page.h
+jni/org_libharu_Page_LineCap.h
+jni/org_libharu_Page_LineJoin.h
+jni/org_libharu_Page_PageDirection.h
+jni/org_libharu_Page_PageSize.h

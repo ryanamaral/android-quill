@@ -34,12 +34,16 @@ There is a thread on the XDA Developers forum http://forum.xda-developers.com/sh
 Also available on the Android Market (https://play.google.com/store/apps/details?id=com.write.Quill).
 
 ### Dependencies
-  * http://code.google.com/p/android-color-picker/
-  * http://code.google.com/p/android-file-picker/
+  * [Android Color Picker aka AmbilWarna library](https://github.com/yukuku/ambilwarna)
+  * [Android File Picker](http://code.google.com/p/android-file-picker)
 
 ### Reviews
 http://www.youtube.com/watch?v=k1yxYXMPXA0  
 http://the-gadgeteer.com/2011/11/16/lenovo-thinkpad-tablet-review (contains above video)
 
-![LarsWallinDrawing](http://wiki.android-quill.googlecode.com/hg/images/LarsWallinDrawing.png "An amazing drawing by Lars Wallin done in Quill")  
-An amazing drawing by Lars Wallin done in Quill
+![LarsWallinDrawing](../blob/master/doc/screenshot-quill-android.png "An amazing drawing by Lars Wallin done in Quill")  
+An amazing drawing by Lars Wallin done in Quill.
+
+## LICENSE
+
+Quill is released under the [GNU General Public License v3.0](../blob/master/LICENSE).
